@@ -1,0 +1,81 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Source Files">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>cpp;c;cc;cxx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+    <Filter Include="Header Files">
+      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
+      <Extensions>h;hh;hpp;hxx;hm;inl;inc;xsd</Extensions>
+    </Filter>
+    <Filter Include="Resource Files">
+      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
+      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
+    </Filter>
+    <Filter Include="Header Files\Info">
+      <UniqueIdentifier>{139822d1-1bf8-415b-858f-de0bb1e0e4dd}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Type">
+      <UniqueIdentifier>{252da681-d91b-4c11-94b2-5d5abdbd2229}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Sample">
+      <UniqueIdentifier>{d674c2cc-7711-4dca-b089-32f971e381f1}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="main.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="inc\Type\Structure.h">
+      <Filter>Header Files\Type</Filter>
+    </ClInclude>
+    <ClInclude Include="inc\Type\VkTrait.h">
+      <Filter>Header Files\Type</Filter>
+    </ClInclude>
+    <ClInclude Include="inc\Info\Common.h">
+      <Filter>Header Files\Info</Filter>
+    </ClInclude>
+    <ClInclude Include="inc\Type\AllocationCallbacks.h">
+      <Filter>Header Files\Type</Filter>
+    </ClInclude>
+    <ClInclude Include="inc\Info\ApplicationInfo.h">
+      <Filter>Header Files\Info</Filter>
+    </ClInclude>
+    <ClInclude Include="inc\Info\InstanceInfo.h">
+      <Filter>Header Files\Info</Filter>
+    </ClInclude>
+    <ClInclude Include="inc\Type\Instance.h">
+      <Filter>Header Files\Type</Filter>
+    </ClInclude>
+    <ClInclude Include="inc\Type\VkDeleter.h">
+      <Filter>Header Files\Type</Filter>
+    </ClInclude>
+    <ClInclude Include="inc\Type\PhysicalDevice.h">
+      <Filter>Header Files\Type</Filter>
+    </ClInclude>
+    <ClInclude Include="inc\Info\Flags.h">
+      <Filter>Header Files\Info</Filter>
+    </ClInclude>
+    <ClInclude Include="inc\Info\PhysicalDeviceProperties.h">
+      <Filter>Header Files\Info</Filter>
+    </ClInclude>
+    <ClInclude Include="inc\Type\Extent3D.h">
+      <Filter>Header Files\Type</Filter>
+    </ClInclude>
+    <ClInclude Include="inc\Type\Extent2D.h">
+      <Filter>Header Files\Type</Filter>
+    </ClInclude>
+    <ClInclude Include="inc\Info\LogicalDeviceInfo.h">
+      <Filter>Header Files\Info</Filter>
+    </ClInclude>
+    <ClInclude Include="inc\Type\LogicalDevice.h">
+      <Filter>Header Files\Type</Filter>
+    </ClInclude>
+    <ClInclude Include="Sample\Triangle\Triangle.h">
+      <Filter>Source Files\Sample</Filter>
+    </ClInclude>
+  </ItemGroup>
+</Project>
