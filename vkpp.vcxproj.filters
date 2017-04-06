@@ -22,10 +22,16 @@
     <Filter Include="Source Files\Sample">
       <UniqueIdentifier>{d674c2cc-7711-4dca-b089-32f971e381f1}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files\Info\Windows">
+      <UniqueIdentifier>{f8739f43-469d-4b3a-a6ca-9c5e9775af05}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
       <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Sample\Triangle\Triangle.cpp">
+      <Filter>Source Files\Sample</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -76,6 +82,30 @@
     </ClInclude>
     <ClInclude Include="Sample\Triangle\Triangle.h">
       <Filter>Source Files\Sample</Filter>
+    </ClInclude>
+    <ClInclude Include="inc\Type\Queue.h">
+      <Filter>Header Files\Type</Filter>
+    </ClInclude>
+    <ClInclude Include="inc\Info\BufferCreateInfo.h">
+      <Filter>Header Files\Info</Filter>
+    </ClInclude>
+    <ClInclude Include="inc\Type\Buffer.h">
+      <Filter>Header Files\Type</Filter>
+    </ClInclude>
+    <ClInclude Include="inc\Info\Extensions.h">
+      <Filter>Header Files\Info</Filter>
+    </ClInclude>
+    <ClInclude Include="inc\Info\Layers.h">
+      <Filter>Header Files\Info</Filter>
+    </ClInclude>
+    <ClInclude Include="inc\Info\Windows\SurfaceCreateInfo.h">
+      <Filter>Header Files\Info\Windows</Filter>
+    </ClInclude>
+    <ClInclude Include="inc\Info\SurfaceCreateInfo.h">
+      <Filter>Header Files\Info</Filter>
+    </ClInclude>
+    <ClInclude Include="inc\Type\Surface.h">
+      <Filter>Header Files\Type</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

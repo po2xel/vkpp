@@ -4,8 +4,11 @@
 
 
 #include <iostream>
+#include <limits>
 
 #include <Type/Instance.h>
+#include <Type/VkDeleter.h>
+#include <GLFW/glfw3.h>
 
 
 
@@ -14,66 +17,42 @@ namespace sample
 
 
 
-const std::array<const char*, 1> gRequiredLayers{
-    "VK_LAYER_LUNARG_standard_validation"
-};
-
-
-const std::array<const char*, 2> gRequiredExtensions{
-    VK_KHR_WIN32_SURFACE_EXTENSION_NAME,
-    VK_EXT_DEBUG_REPORT_EXTENSION_NAME
-};
-
-
-
 class Triangle
 {
 private:
+    GLFWwindow* mpWindow{ nullptr };
+
     vkpp::Instance mInstance;
+    vkpp::PhysicalDevice mPhysicalDevice;
+    uint32_t mGraphicsQueueFamilyIndex{ std::numeric_limits<uint32_t>::max() };
+    vkpp::LogicalDevice mLogicalDevice;
 
-    void CheckValidationLayerSupport(void)
-    {
-        auto lLayers = vkpp::Instance::GetLayers();
+    vkpp::khr::Surface mSurface;
 
-        std::cout << "Available Layers:\n";
+    void CheckValidationLayerSupport(void) const;
+    void CheckValidationExtensions(void) const;
 
-        for (const auto& lLayer : lLayers)
-            std::cout << '\t' << lLayer.layerName << '\t' << lLayer.specVersion << '\t' << lLayer.implementationVersion << '\t' << lLayer.description << std::endl;
+    bool CheckPhysicalDeviceProperties(const vkpp::PhysicalDevice& aPhysicalDevice);
 
-        std::cout << std::endl;
-    }
+    void CreateInstance(void);
+    void CreateSurface(void);
 
-    void CreateInstance(void)
-    {
-        CheckValidationLayerSupport();
+    bool PickPhysicalDevice(void);
+    void CreateLogicalDevice(void);
 
-        auto lExtensions = vkpp::Instance::GetExtensions(/*"VK_LAYER_LUNARG_standard_validation"*/);
+    void InitWindow(void);
+    void InitVulkan(void);
 
-        std::cout << "Instance Extension:\n";
+    void MainLoop(void);
 
-        for (const auto& lExtension : lExtensions)
-            std::cout << '\t' << lExtension.extensionName << '\t' << lExtension.specVersion << std::endl;
-
-        std::cout << std::endl;
-
-        vkpp::ApplicationInfo lAppInfo{ "Hello Vulkan", VK_MAKE_VERSION(1, 0, 0) };
-        vkpp::InstanceInfo lInstanceInfo{ lAppInfo, gRequiredLayers, gRequiredExtensions };
-
-        mInstance.Reset(lInstanceInfo);
-    }
-
-    void InitWindow(void)
-    {}
-
-    void InitVulkan(void)
-    {
-        CreateInstance();
-    }
-
-    void MainLoop(void)
-    {}
+    void DrawFrame(void);
 
 public:
+    ~Triangle(void)
+    {
+        mInstance.DestroySurface(mSurface);
+    }
+
     void Run(void)
     {
         InitWindow();

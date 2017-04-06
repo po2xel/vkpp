@@ -3,10 +3,13 @@
 
 
 
-#include <cassert>
+#include <vector>
 
 #include <Info/Common.h>
 #include <Info/PhysicalDeviceProperties.h>
+#include <Info/Layers.h>
+#include <Info/Extensions.h>
+
 #include <Type/LogicalDevice.h>
 
 
@@ -54,6 +57,28 @@ public:
         return !(*this == aRhs);
     }
 
+    std::vector<LayerProperty> GetLayers(void) const
+    {
+        uint32_t lLayerCount{ 0 };
+        ThrowIfFailed(vkEnumerateDeviceLayerProperties(mPhysicalDevice, &lLayerCount, nullptr));
+
+        std::vector<LayerProperty> lLayers(lLayerCount);
+        ThrowIfFailed(vkEnumerateDeviceLayerProperties(mPhysicalDevice, &lLayerCount, &lLayers[0]));
+
+        return lLayers;
+    }
+
+    std::vector<ExtensionProperty> GetExtensions(const char* apLayerName = nullptr) const
+    {
+        uint32_t lExtensionCount{ 0 };
+        ThrowIfFailed(vkEnumerateDeviceExtensionProperties(mPhysicalDevice, apLayerName, &lExtensionCount, nullptr));
+
+        std::vector<ExtensionProperty> lExtensions(lExtensionCount);
+        ThrowIfFailed(vkEnumerateDeviceExtensionProperties(mPhysicalDevice, apLayerName, &lExtensionCount, &lExtensions[0]));
+
+        return lExtensions;
+    }
+
     PhysicalDeviceProperties GetProperties(void) const
     {
         PhysicalDeviceProperties lProperties;
@@ -89,9 +114,17 @@ public:
         return lQueueFamilyProperties;
     }
 
-    LogicalDevice CreateLogicalDevice(const LogicalDeviceInfo& aCreateInfo, const AllocationCallbacks& aAllocator)
+    LogicalDevice CreateLogicalDevice(const LogicalDeviceCreateInfo& aCreateInfo)
     {
-        LogicalDevice lLogicalDevice;
+        VkDevice lLogicalDevice;
+        ThrowIfFailed(vkCreateDevice(mPhysicalDevice, &aCreateInfo, nullptr, &lLogicalDevice));
+
+        return lLogicalDevice;
+    }
+
+    LogicalDevice CreateLogicalDevice(const LogicalDeviceCreateInfo& aCreateInfo, const AllocationCallbacks& aAllocator)
+    {
+        VkDevice lLogicalDevice;
         ThrowIfFailed(vkCreateDevice(mPhysicalDevice, &aCreateInfo, &aAllocator, &lLogicalDevice));
 
         return lLogicalDevice;

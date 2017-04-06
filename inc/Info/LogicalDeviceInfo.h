@@ -93,49 +93,91 @@ using DeviceCreateFlags = internal::Flags<DeviceCreateFlagBits, VkDeviceCreateFl
 
 
 
-class LogicalDeviceInfo : public internal::VkTrait<LogicalDeviceInfo, VkDeviceCreateInfo>
+class LogicalDeviceCreateInfo : public internal::VkTrait<LogicalDeviceCreateInfo, VkDeviceCreateInfo>
 {
 private:
     const internal::Structure sType = internal::Structure::eDevice;
 
 public:
-    const void*             pNext{ nullptr };
-    DeviceCreateFlags       flags;
-    uint32_t                queueCreateInfoCount{ 0 };
-    const QueueCreateInfo*  pQueueCreateInfo{ nullptr };
-    uint32_t                enabledLayerCount{ 0 };
-    const char* const*      ppEnabledLayerNames{ nullptr };
-    uint32_t                enabledExtensionCount{ 0 };
-    const char* const*      ppEnabledExtensionNames{ nullptr };
-    const PhysicalDeviceFeatures* pEnabledFeatures{ nullptr };
+    const void*                             pNext{ nullptr };
+    DeviceCreateFlags                       flags;
+    uint32_t                                queueCreateInfoCount{ 0 };
+    const QueueCreateInfo*                  pQueueCreateInfo{ nullptr };
 
-    DEFINE_CLASS_MEMBER(LogicalDeviceInfo)
+private:
+    [[deprecated]] uint32_t                 enabledLayerCount{ 0 };
+    [[deprecated]] const char* const*       ppEnabledLayerNames{ nullptr };
 
-    LogicalDeviceInfo(uint32_t aQueueCreateInfoCount, const QueueCreateInfo* apQueueCreateInfos, uint32_t aEnabledLayerCount, const char* const* appEnabledLayerNames,
-        uint32_t aEnalbedExtensionCount, const char* const* appEnabledExtensionNames, const PhysicalDeviceFeatures& aEnabledFeatures)
-        : queueCreateInfoCount(aQueueCreateInfoCount), pQueueCreateInfo(apQueueCreateInfos), enabledLayerCount(aEnabledLayerCount), ppEnabledLayerNames(appEnabledLayerNames),
-        enabledExtensionCount(aEnalbedExtensionCount), ppEnabledExtensionNames(appEnabledExtensionNames), pEnabledFeatures(&aEnabledFeatures)
+public:
+    uint32_t                                enabledExtensionCount{ 0 };
+    const char* const*                      ppEnabledExtensionNames{ nullptr };
+    const PhysicalDeviceFeatures*           pEnabledFeatures{ nullptr };
+
+    DEFINE_CLASS_MEMBER(LogicalDeviceCreateInfo)
+
+    LogicalDeviceCreateInfo(uint32_t aQueueCreateInfoCount, const QueueCreateInfo* apQueueCreateInfos,
+        uint32_t aEnalbedExtensionCount, const char* const* appEnabledExtensionNames, const PhysicalDeviceFeatures* apEnabledFeatures)
+        : queueCreateInfoCount(aQueueCreateInfoCount), pQueueCreateInfo(apQueueCreateInfos),
+        enabledExtensionCount(aEnalbedExtensionCount), ppEnabledExtensionNames(appEnabledExtensionNames), pEnabledFeatures(apEnabledFeatures)
     {}
 
-    LogicalDeviceInfo(const std::vector<QueueCreateInfo>& aQueueCreateInfos, const std::vector<const char*>& aEnabledLayers, const std::vector<const char*>& aEnabledExtensions,
+    LogicalDeviceCreateInfo(const std::vector<QueueCreateInfo>& aQueueCreateInfos, const std::vector<const char*>& aEnabledExtensions,
         const PhysicalDeviceFeatures& aEnabledFeatures)
-        : LogicalDeviceInfo(static_cast<uint32_t>(aQueueCreateInfos.size()), aQueueCreateInfos.data(),
-            static_cast<uint32_t>(aEnabledLayers.size()), aEnabledLayers.data(),
+        : LogicalDeviceCreateInfo(static_cast<uint32_t>(aQueueCreateInfos.size()), aQueueCreateInfos.data(),
             static_cast<uint32_t>(aEnabledExtensions.size()), aEnabledExtensions.data(),
-            aEnabledFeatures)
+            &aEnabledFeatures)
     {}
 
-    template <std::size_t Q, std::size_t L, std::size_t E>
-    LogicalDeviceInfo(const std::array<QueueCreateInfo, Q>& aQueueCreateInfos, const std::array<const char*, L>& aEnabledLayers, const std::array<const char*, E>& aEnabledExtensions,
+    template <std::size_t Q, std::size_t E>
+    LogicalDeviceCreateInfo(const std::array<QueueCreateInfo, Q>& aQueueCreateInfos, const std::array<const char*, E>& aEnabledExtensions,
         const PhysicalDeviceFeatures& aEnabledFeatures)
-        : LogicalDeviceInfo(static_cast<uint32_t>(aQueueCreateInfos.size()), aQueueCreateInfos.data(),
-            static_cast<uint32_t>(aEnabledLayers.size()), aEnabledLayers.data(),
+        : LogicalDeviceCreateInfo(static_cast<uint32_t>(aQueueCreateInfos.size()), aQueueCreateInfos.data(),
             static_cast<uint32_t>(aEnabledExtensions.size()), aEnabledExtensions.data(),
-            aEnabledFeatures)
+            &aEnabledFeatures)
     {}
+
+    LogicalDeviceCreateInfo& SetNext(const void* apNext)
+    {
+        pNext = apNext;
+
+        return *this;
+    }
+
+    LogicalDeviceCreateInfo& SetFlags(DeviceCreateFlags aFlags)
+    {
+        flags = aFlags;
+
+        return *this;
+    }
+
+    LogicalDeviceCreateInfo& SetQueueCreateInfo(const QueueCreateInfo& aQueueCreateInfo)
+    {
+        pQueueCreateInfo = aQueueCreateInfo.AddressOf();
+
+        return *this;
+    }
+
+    LogicalDeviceCreateInfo& SetEnabledExtensions(uint32_t aEnabledExtensionCount, const char* const* appEnabledExtensionNames)
+    {
+        enabledExtensionCount = aEnabledExtensionCount;
+        ppEnabledExtensionNames = appEnabledExtensionNames;
+
+        return *this;
+    }
+
+    LogicalDeviceCreateInfo& SetEnabledExtensions(const std::vector<const char*>& aEnabledExtensionNames)
+    {
+        return SetEnabledExtensions(static_cast<uint32_t>(aEnabledExtensionNames.size()), aEnabledExtensionNames.data());
+    }
+
+    template <std::size_t E>
+    LogicalDeviceCreateInfo& SetEnabledExtensions(const std::array<const char*, E>& aEnabledExtensionNames)
+    {
+        return SetEnabledExtensions(static_cast<uint32_t>(aEnabledExtensionNames.size()), aEnabledExtensionNames.data());
+    }
 };
 
-StaticSizeCheck(LogicalDeviceInfo);
+StaticSizeCheck(LogicalDeviceCreateInfo);
 
 
 

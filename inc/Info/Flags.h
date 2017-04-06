@@ -23,7 +23,7 @@ public:
 
     Flags(void) = default;
 
-    explicit Flags(BitType aBit) : mMask(static_cast<VkType>(aBit))
+    Flags(BitType aBit) : mMask(static_cast<VkType>(aBit))
     {}
 
     Flags(const Flags& aRhs) : mMask(aRhs.mMask)

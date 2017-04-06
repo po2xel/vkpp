@@ -7,9 +7,14 @@
 
 #include <Info/Common.h>
 #include <Info/InstanceInfo.h>
+#include <Info/SurfaceCreateInfo.h>
+#include <Info/Layers.h>
+#include <Info/Extensions.h>
+
 #include <Type/VkDeleter.h>
 #include <Type/AllocationCallbacks.h>
 #include <Type/PhysicalDevice.h>
+#include <Type/Surface.h>
 
 
 
@@ -18,39 +23,13 @@ namespace vkpp
 
 
 
-struct ExtensionProperty : public internal::VkTrait<ExtensionProperty, VkExtensionProperties>
-{
-    char        extensionName[VK_MAX_EXTENSION_NAME_SIZE]{};
-    uint32_t    specVersion{ 0 };
-
-    DEFINE_CLASS_MEMBER(ExtensionProperty)
-};
-
-StaticSizeCheck(ExtensionProperty);
-
-
-
-struct LayerProperty : public internal::VkTrait<LayerProperty, VkLayerProperties>
-{
-    char        layerName[VK_MAX_EXTENSION_NAME_SIZE]{};
-    uint32_t    specVersion{ 0 };
-    uint32_t    implementationVersion{ 0 };
-    char        description[VK_MAX_DESCRIPTION_SIZE]{};
-
-    DEFINE_CLASS_MEMBER(LayerProperty)
-};
-
-StaticSizeCheck(LayerProperty);
-
-
-
-class Instance
+class Instance : public internal::VkTrait<Instance, VkInstance>
 {
 private:
-    internal::VkDeleter<VkInstance>       mInstance{ vkDestroyInstance };
+    VkInstance mInstance;
 
 public:
-    Instance(void) = default;
+    DEFINE_CLASS_MEMBER(Instance)
 
     Instance(std::nullptr_t)
     {}
@@ -65,14 +44,19 @@ public:
         ThrowIfFailed(vkCreateInstance(&aInstanceInfo, &aAllocator, &mInstance));
     }
 
+    ~Instance(void)
+    {
+        vkDestroyInstance(mInstance, nullptr);          // TODO: Support allocator.
+    }
+
     void Reset(const InstanceInfo& aInstanceInfo)
     {
-        ThrowIfFailed(vkCreateInstance(&aInstanceInfo, nullptr, mInstance.Replace()));
+        ThrowIfFailed(vkCreateInstance(&aInstanceInfo, nullptr, &mInstance));
     }
 
     void Reset(const InstanceInfo& aInstanceInfo, const AllocationCallbacks& aAllocator)
     {
-        ThrowIfFailed(vkCreateInstance(&aInstanceInfo, &aAllocator, mInstance.Replace()));
+        ThrowIfFailed(vkCreateInstance(&aInstanceInfo, &aAllocator, &mInstance));
     }
 
     Instance& operator=(VkInstance aInstance)
@@ -110,15 +94,41 @@ public:
         return lPhysicalDevices;
     }
 
+    khr::Surface CreateSurface(const khr::SurfaceCreateInfo& aCreateInfo)
+    {
+        khr::Surface lSurface;
+        ThrowIfFailed(vkCreateSurfaceKHR(mInstance, &aCreateInfo, nullptr, &lSurface));
+
+        return lSurface;
+    }
+
+    khr::Surface CreateSurface(const khr::SurfaceCreateInfo& aCreateInfo, const AllocationCallbacks& aAllocator)
+    {
+        khr::Surface lSurface;
+        ThrowIfFailed(vkCreateSurfaceKHR(mInstance, &aCreateInfo, &aAllocator, &lSurface));
+
+        return lSurface;
+    }
+
+    void DestroySurface(khr::Surface aSurface)
+    {
+        vkDestroySurfaceKHR(mInstance, aSurface, nullptr);
+    }
+
+    void DestroySurface(khr::Surface aSurface, const AllocationCallbacks& aAllocator)
+    {
+        vkDestroySurfaceKHR(mInstance, aSurface, &aAllocator);
+    }
+
     static std::vector<LayerProperty> GetLayers(void)
     {
-        uint32_t lPropertyCount{ 0 };
-        ThrowIfFailed(vkEnumerateInstanceLayerProperties(&lPropertyCount, nullptr));
+        uint32_t lLayerCount{ 0 };
+        ThrowIfFailed(vkEnumerateInstanceLayerProperties(&lLayerCount, nullptr));
 
-        std::vector<LayerProperty> lProperties(lPropertyCount);
-        ThrowIfFailed(vkEnumerateInstanceLayerProperties(&lPropertyCount, &lProperties[0]));
+        std::vector<LayerProperty> lLayers(lLayerCount);
+        ThrowIfFailed(vkEnumerateInstanceLayerProperties(&lLayerCount, &lLayers[0]));
 
-        return lProperties;
+        return lLayers;
     }
 
     static std::vector<ExtensionProperty> GetExtensions(const char* apLayerName = nullptr)
