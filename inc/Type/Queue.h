@@ -15,7 +15,7 @@ namespace vkpp
 class Queue : public internal::VkTrait<Queue, VkQueue>
 {
 private:
-    VkQueue mQueue;
+    VkQueue mQueue{ VK_NULL_HANDLE };
 
 public:
     Queue(std::nullptr_t)

@@ -9,8 +9,11 @@
 #include <Info/PhysicalDeviceProperties.h>
 #include <Info/Layers.h>
 #include <Info/Extensions.h>
+#include <Info/SurfaceCapabilities.h>
+#include <Info/SwapchainCreateInfo.h>
 
 #include <Type/LogicalDevice.h>
+#include <Type/Surface.h>
 
 
 
@@ -112,6 +115,44 @@ public:
         vkGetPhysicalDeviceQueueFamilyProperties(mPhysicalDevice, &lQueueFamilyPropertyCount, &lQueueFamilyProperties[0]);
 
         return lQueueFamilyProperties;
+    }
+
+    Bool32 IsSurfaceSupported(uint32_t aQueueFamilyIndex, khr::Surface aSurface) const
+    {
+        Bool32 lIsSupported{ VK_FALSE };
+        ThrowIfFailed(vkGetPhysicalDeviceSurfaceSupportKHR(mPhysicalDevice, aQueueFamilyIndex, aSurface, &lIsSupported));
+
+        return lIsSupported;
+    }
+
+    khr::SurfaceCapabilities GetSurfaceCapabilities(khr::Surface aSurface) const
+    {
+        khr::SurfaceCapabilities lSurfaceCapabilities;
+        ThrowIfFailed(vkGetPhysicalDeviceSurfaceCapabilitiesKHR(mPhysicalDevice, aSurface, &lSurfaceCapabilities));
+
+        return lSurfaceCapabilities;
+    }
+
+    std::vector<khr::SurfaceFormat> GetSurfaceFormats(khr::Surface aSurface) const
+    {
+        uint32_t lSurfaceFormatCount{ 0 };
+        ThrowIfFailed(vkGetPhysicalDeviceSurfaceFormatsKHR(mPhysicalDevice, aSurface, &lSurfaceFormatCount, nullptr));
+
+        std::vector<khr::SurfaceFormat> lSurfaceFormats(lSurfaceFormatCount);
+        ThrowIfFailed(vkGetPhysicalDeviceSurfaceFormatsKHR(mPhysicalDevice, aSurface, &lSurfaceFormatCount, &lSurfaceFormats[0]));
+
+        return lSurfaceFormats;
+    }
+
+    std::vector<khr::PresentMode> GetSurfacePresentModes(khr::Surface aSurface) const
+    {
+        uint32_t lPresentModeCount{ 0 };
+        ThrowIfFailed(vkGetPhysicalDeviceSurfacePresentModesKHR(mPhysicalDevice, aSurface, &lPresentModeCount, nullptr));
+
+        std::vector<khr::PresentMode> lPresentModes(lPresentModeCount);
+        ThrowIfFailed(vkGetPhysicalDeviceSurfacePresentModesKHR(mPhysicalDevice, aSurface, &lPresentModeCount, reinterpret_cast<VkPresentModeKHR*>(lPresentModes.data())));
+
+        return lPresentModes;
     }
 
     LogicalDevice CreateLogicalDevice(const LogicalDeviceCreateInfo& aCreateInfo)

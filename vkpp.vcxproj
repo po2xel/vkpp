@@ -121,7 +121,7 @@
     <Link>
       <SubSystem>Console</SubSystem>
       <AdditionalLibraryDirectories>lib/$(PlatformTarget)/$(Configuration)/;$(VULKAN_SDK)/Lib</AdditionalLibraryDirectories>
-      <AdditionalDependencies>vulkan-1.lib;glfw3.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>vulkan-1.lib;VkLayer_core_validation.lib;VkLayer_object_tracker.lib;VkLayer_parameter_validation.lib;glfw3.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <IgnoreAllDefaultLibraries>
       </IgnoreAllDefaultLibraries>
     </Link>
@@ -176,24 +176,32 @@
     <ClInclude Include="inc\Info\ApplicationInfo.h" />
     <ClInclude Include="inc\Info\BufferCreateInfo.h" />
     <ClInclude Include="inc\Info\Common.h" />
+    <ClInclude Include="inc\Info\DebugReportCallbackCreateInfo.h" />
     <ClInclude Include="inc\Info\Extensions.h" />
     <ClInclude Include="inc\Info\Flags.h" />
+    <ClInclude Include="inc\Info\Format.h" />
     <ClInclude Include="inc\Info\InstanceInfo.h" />
     <ClInclude Include="inc\Info\Layers.h" />
     <ClInclude Include="inc\Info\LogicalDeviceInfo.h" />
     <ClInclude Include="inc\Info\PhysicalDeviceProperties.h" />
+    <ClInclude Include="inc\Info\SemaphoreCreateInfo.h" />
+    <ClInclude Include="inc\Info\SurfaceCapabilities.h" />
     <ClInclude Include="inc\Info\SurfaceCreateInfo.h" />
+    <ClInclude Include="inc\Info\SwapchainCreateInfo.h" />
     <ClInclude Include="inc\Info\Windows\SurfaceCreateInfo.h" />
     <ClInclude Include="inc\Type\AllocationCallbacks.h" />
     <ClInclude Include="inc\Type\Buffer.h" />
+    <ClInclude Include="inc\Type\DebugReportCallback.h" />
     <ClInclude Include="inc\Type\Extent2D.h" />
     <ClInclude Include="inc\Type\Extent3D.h" />
     <ClInclude Include="inc\Type\Instance.h" />
     <ClInclude Include="inc\Type\LogicalDevice.h" />
     <ClInclude Include="inc\Type\PhysicalDevice.h" />
     <ClInclude Include="inc\Type\Queue.h" />
+    <ClInclude Include="inc\Type\Semaphore.h" />
     <ClInclude Include="inc\Type\Structure.h" />
     <ClInclude Include="inc\Type\Surface.h" />
+    <ClInclude Include="inc\Type\Swapchain.h" />
     <ClInclude Include="inc\Type\VkDeleter.h" />
     <ClInclude Include="inc\Type\VkTrait.h" />
     <ClInclude Include="Sample\Triangle\Triangle.h" />

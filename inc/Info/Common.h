@@ -52,6 +52,14 @@ inline void ThrowIfFailed(VkResult aResult)
 
 
 
+enum class SharingMode
+{
+    eExclusive = VK_SHARING_MODE_EXCLUSIVE,
+    eConcurrent = VK_SHARING_MODE_CONCURRENT
+};
+
+
+
 }                    // End of namespace vkpp.
 
 

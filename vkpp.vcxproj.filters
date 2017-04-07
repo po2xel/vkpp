@@ -107,5 +107,29 @@
     <ClInclude Include="inc\Type\Surface.h">
       <Filter>Header Files\Type</Filter>
     </ClInclude>
+    <ClInclude Include="inc\Info\SemaphoreCreateInfo.h">
+      <Filter>Header Files\Type</Filter>
+    </ClInclude>
+    <ClInclude Include="inc\Type\Semaphore.h">
+      <Filter>Header Files\Type</Filter>
+    </ClInclude>
+    <ClInclude Include="inc\Info\SurfaceCapabilities.h">
+      <Filter>Header Files\Info</Filter>
+    </ClInclude>
+    <ClInclude Include="inc\Info\Format.h">
+      <Filter>Header Files\Info</Filter>
+    </ClInclude>
+    <ClInclude Include="inc\Info\SwapchainCreateInfo.h">
+      <Filter>Header Files\Info</Filter>
+    </ClInclude>
+    <ClInclude Include="inc\Type\Swapchain.h">
+      <Filter>Header Files\Type</Filter>
+    </ClInclude>
+    <ClInclude Include="inc\Info\DebugReportCallbackCreateInfo.h">
+      <Filter>Header Files\Info</Filter>
+    </ClInclude>
+    <ClInclude Include="inc\Type\DebugReportCallback.h">
+      <Filter>Header Files\Type</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

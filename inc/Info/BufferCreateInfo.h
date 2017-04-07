@@ -1,5 +1,5 @@
-#ifndef __VK_INFO_BUFFER_CREATE_INFO_H__
-#define __VK_INFO_BUFFER_CREATE_INFO_H__
+#ifndef __VKPP_INFO_BUFFER_CREATE_INFO_H__
+#define __VKPP_INFO_BUFFER_CREATE_INFO_H__
 
 
 
@@ -40,14 +40,6 @@ enum class BufferUsageFlagBits
 };
 
 using BufferUsageFlags = internal::Flags<BufferUsageFlagBits, VkBufferUsageFlags>;
-
-
-
-enum class SharingMode
-{
-    eExclusive      = VK_SHARING_MODE_EXCLUSIVE,
-    eConcurrent     = VK_SHARING_MODE_CONCURRENT
-};
 
 
 
@@ -144,4 +136,4 @@ StaticSizeCheck(BufferCreateInfo);
 
 
 
-#endif              // __VK_INFO_BUFFER_CREATE_INFO_H__
+#endif              // __VKPP_INFO_BUFFER_CREATE_INFO_H__

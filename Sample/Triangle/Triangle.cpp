@@ -2,6 +2,7 @@
 
 #include <algorithm>
 #include <iterator>
+#include <cassert>
 
 #include <Info/Common.h>
 #include <Info/Layers.h>
@@ -43,6 +44,15 @@ void PrintApiVersion(uint32_t aApiVersion)
     auto lPatchVersion = VK_VERSION_PATCH(aApiVersion);
 
     std::cout << "Vulkan API Version: " << lMajorVersion << '.' << lMinorVersion << '.' << lPatchVersion << std::endl;
+}
+
+
+VKAPI_ATTR VkBool32 VKAPI_CALL DebugCallback(VkDebugReportFlagsEXT /*aFlags*/, VkDebugReportObjectTypeEXT /*aObjType*/,
+    uint64_t /*aObj*/, std::size_t /*aLocation*/, int32_t /*aCode*/, const char* /*apLayerPrefix*/, const char* apMsg, void* /*apUserData*/)
+{
+    std::cerr << "Validation Layer: " << apMsg << std::endl;
+
+    return VK_FALSE;
 }
 
 
@@ -104,10 +114,100 @@ bool Triangle::CheckPhysicalDeviceProperties(const vkpp::PhysicalDevice& aPhysic
     if (lFamilyIter != lQueueFamilyProperties.cend())
     {
         mGraphicsQueueFamilyIndex = static_cast<uint32_t>(std::distance(lQueueFamilyProperties.cbegin(), lFamilyIter));
-        return true;
+
+        if (aPhysicalDevice.IsSurfaceSupported(mGraphicsQueueFamilyIndex, mSurface))
+        {
+            mPresentQueueFamilyIndex = mGraphicsQueueFamilyIndex;
+            return true;
+        }
     }
 
     return false;
+}
+
+
+void Triangle::SetupDebugCallback(void)
+{
+    vkpp::ext::DebugReportCallbackCreateInfo lDebugReportCallbackInfo{
+        vkpp::ext::DebugReportFlags(vkpp::ext::DebugReportFlagBits::eError) | vkpp::ext::DebugReportFlagBits::eWarning,
+        DebugCallback
+    };
+
+    mDebugReportCallback = mInstance.CreateDebugReportCallback(lDebugReportCallbackInfo);
+}
+
+
+uint32_t Triangle::GetSwapchainImageCount(void) const
+{
+    auto lSurfaceCapabilities = mPhysicalDevice.GetSurfaceCapabilities(mSurface);
+
+    uint32_t lImageCount = lSurfaceCapabilities.minImageCount + 1;
+
+    if (lSurfaceCapabilities.maxImageCount > 0 && lImageCount > lSurfaceCapabilities.maxImageCount)
+        lImageCount = lSurfaceCapabilities.maxImageCount;
+
+    return lImageCount;
+}
+
+
+vkpp::khr::SurfaceFormat Triangle::GetSwapchainFormat(void) const
+{
+    auto lSurfaceFormats = mPhysicalDevice.GetSurfaceFormats(mSurface);
+
+    if (lSurfaceFormats.size() == 1 && lSurfaceFormats[0].format == vkpp::Format::eUndefined)
+        return { vkpp::Format::eR8G8B8A8Unorm, vkpp::khr::ColorSpace::esRGBNonLinear };
+
+    for (vkpp::khr::SurfaceFormat& lSurfaceFormat : lSurfaceFormats)
+    {
+        if (lSurfaceFormat.format == vkpp::Format::eR8G8B8A8Unorm)
+            return lSurfaceFormat;
+    }
+
+    return lSurfaceFormats[0];
+}
+
+
+vkpp::Extent2D Triangle::GetSwapchainExtent(void) const
+{
+    // TODO:
+    auto lSurfaceCapabilities = mPhysicalDevice.GetSurfaceCapabilities(mSurface);
+
+    return lSurfaceCapabilities.currentExtent;
+}
+
+
+vkpp::ImageUsageFlags Triangle::GetSwapchainUsageFlags(void) const
+{
+    // TODO:
+    auto lSurfaceCapabilities = mPhysicalDevice.GetSurfaceCapabilities(mSurface);
+
+    if (lSurfaceCapabilities.supportedUsageFlags & vkpp::ImageUsageFlagBits::eTransferDst)
+        return vkpp::ImageUsageFlags(vkpp::ImageUsageFlagBits::eColorAttachment) | vkpp::ImageUsageFlagBits::eTransferDst;
+
+    return vkpp::ImageUsageFlags();
+}
+
+
+vkpp::khr::SurfaceTransformFlagBits Triangle::GetSwapchainTransform(void) const
+{
+    // TODO:
+    auto lSurfaceCapabilities = mPhysicalDevice.GetSurfaceCapabilities(mSurface);
+
+    return lSurfaceCapabilities.currentTransform;
+}
+
+
+vkpp::khr::PresentMode Triangle::GetSwapchainPresentMode(void) const
+{
+    auto lPresentModes = mPhysicalDevice.GetSurfacePresentModes(mSurface);
+
+    for (auto& lPresentMode : lPresentModes)
+    {
+        if (lPresentMode == vkpp::khr::PresentMode::eMailBox)
+            return lPresentMode;
+    }
+
+    return vkpp::khr::PresentMode::eFIFO;
 }
 
 
@@ -153,6 +253,8 @@ bool Triangle::PickPhysicalDevice(void)
 
 void Triangle::CreateLogicalDevice(void)
 {
+    assert(mGraphicsQueueFamilyIndex == mPresentQueueFamilyIndex);
+
     const std::array<float, 1> lPriorities{ 1.0f };
 
     vkpp::QueueCreateInfo lQueueCreateInfo{
@@ -162,13 +264,50 @@ void Triangle::CreateLogicalDevice(void)
 
     vkpp::LogicalDeviceCreateInfo lLogicalDeiveInfo (
         1, lQueueCreateInfo.AddressOf(),
-        0, nullptr,
+        static_cast<uint32_t>(gRequiredDeviceExtensions.size()), gRequiredDeviceExtensions.data(),
         nullptr
     );
 
     mLogicalDevice = mPhysicalDevice.CreateLogicalDevice(lLogicalDeiveInfo);
 }
 
+
+void Triangle::GetDeviceQueue(void)
+{
+    mGraphicsQueue = mLogicalDevice.GetQueue(mGraphicsQueueFamilyIndex, 0);
+    mPresentQueue = mLogicalDevice.GetQueue(mPresentQueueFamilyIndex, 0);
+}
+
+
+void Triangle::CreateSemaphore(void)
+{
+    vkpp::SemaphoreCreateInfo lSemaphoreCreateInfo;
+
+    mImageAvailSemaphore = mLogicalDevice.CreateSemaphore(lSemaphoreCreateInfo);
+    mRenderingFinishedSemaphore = mLogicalDevice.CreateSemaphore(lSemaphoreCreateInfo);
+}
+
+
+void Triangle::CreateSwapChain(void)
+{
+    auto lDesiredImageCount = GetSwapchainImageCount();
+    auto lDesiredFormat     = GetSwapchainFormat();
+    auto lDesiredExtent     = GetSwapchainExtent();
+    auto lDesiredUsage      = GetSwapchainUsageFlags();
+    auto lDesiredTransform  = GetSwapchainTransform();
+    auto lDesiredPresentMode = GetSwapchainPresentMode();
+    auto lOldSwapchain      = mSwapchain;
+
+    vkpp::khr::SwapchainCreateInfo lSwapchainCreateInfo{
+        mSurface,
+        lDesiredImageCount, lDesiredFormat.format, lDesiredFormat.colorSpace, lDesiredExtent, lDesiredUsage,
+        lDesiredTransform, vkpp::khr::CompositeAlphaFlagBits::eOpaque,
+        lDesiredPresentMode,
+        lOldSwapchain
+    };
+
+    mSwapchain = mLogicalDevice.CreateSwapchain(lSwapchainCreateInfo);
+}
 
 void Triangle::InitWindow(void)
 {
@@ -183,10 +322,15 @@ void Triangle::InitWindow(void)
 void Triangle::InitVulkan(void)
 {
     CreateInstance();
+    SetupDebugCallback();
     CreateSurface();
 
     PickPhysicalDevice();
     CreateLogicalDevice();
+    GetDeviceQueue();
+    CreateSemaphore();
+
+    CreateSwapChain();
 }
 
 

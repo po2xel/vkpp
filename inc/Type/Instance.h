@@ -10,11 +10,13 @@
 #include <Info/SurfaceCreateInfo.h>
 #include <Info/Layers.h>
 #include <Info/Extensions.h>
+#include <Info/DebugReportCallbackCreateInfo.h>
 
 #include <Type/VkDeleter.h>
 #include <Type/AllocationCallbacks.h>
 #include <Type/PhysicalDevice.h>
 #include <Type/Surface.h>
+#include <Type/DebugReportCallback.h>
 
 
 
@@ -94,6 +96,28 @@ public:
         return lPhysicalDevices;
     }
 
+    static std::vector<LayerProperty> GetLayers(void)
+    {
+        uint32_t lLayerCount{ 0 };
+        ThrowIfFailed(vkEnumerateInstanceLayerProperties(&lLayerCount, nullptr));
+
+        std::vector<LayerProperty> lLayers(lLayerCount);
+        ThrowIfFailed(vkEnumerateInstanceLayerProperties(&lLayerCount, &lLayers[0]));
+
+        return lLayers;
+    }
+
+    static std::vector<ExtensionProperty> GetExtensions(const char* apLayerName = nullptr)
+    {
+        uint32_t lExtensionCount{ 0 };
+        vkEnumerateInstanceExtensionProperties(apLayerName, &lExtensionCount, nullptr);
+
+        std::vector<ExtensionProperty> lExtensions(lExtensionCount);
+        ThrowIfFailed(vkEnumerateInstanceExtensionProperties(apLayerName, &lExtensionCount, &lExtensions[0]));
+
+        return lExtensions;
+    }
+
     khr::Surface CreateSurface(const khr::SurfaceCreateInfo& aCreateInfo)
     {
         khr::Surface lSurface;
@@ -120,26 +144,20 @@ public:
         vkDestroySurfaceKHR(mInstance, aSurface, &aAllocator);
     }
 
-    static std::vector<LayerProperty> GetLayers(void)
+    ext::DebugReportCallback CreateDebugReportCallback(const ext::DebugReportCallbackCreateInfo& aDebugReportCallbackInfo)
     {
-        uint32_t lLayerCount{ 0 };
-        ThrowIfFailed(vkEnumerateInstanceLayerProperties(&lLayerCount, nullptr));
+        auto lpFunc = (PFN_vkCreateDebugReportCallbackEXT)vkGetInstanceProcAddr(mInstance, "vkCreateDebugReportCallbackEXT");
 
-        std::vector<LayerProperty> lLayers(lLayerCount);
-        ThrowIfFailed(vkEnumerateInstanceLayerProperties(&lLayerCount, &lLayers[0]));
+        ext::DebugReportCallback lDebugReportCallback;
+        ThrowIfFailed(lpFunc(mInstance, &aDebugReportCallbackInfo, nullptr, &lDebugReportCallback));
 
-        return lLayers;
+        return lDebugReportCallback;
     }
 
-    static std::vector<ExtensionProperty> GetExtensions(const char* apLayerName = nullptr)
+    void DestroyDebugReportCallback(const ext::DebugReportCallback& aDebugReportCallback)
     {
-        uint32_t lExtensionCount{ 0 };
-        vkEnumerateInstanceExtensionProperties(apLayerName, &lExtensionCount, nullptr);
-
-        std::vector<ExtensionProperty> lExtensions(lExtensionCount);
-        ThrowIfFailed(vkEnumerateInstanceExtensionProperties(apLayerName, &lExtensionCount, &lExtensions[0]));
-
-        return lExtensions;
+        auto lpFunc = (PFN_vkDestroyDebugReportCallbackEXT)vkGetInstanceProcAddr(mInstance, "vkDestroyDebugReportCallbackEXT");
+        lpFunc(mInstance, aDebugReportCallback, nullptr);
     }
 };
 
