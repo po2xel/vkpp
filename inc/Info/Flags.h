@@ -41,7 +41,7 @@ public:
         return !!mMask;
     }
 
-    explicit operator VkType(void) const
+    operator VkType(void) const
     {
         return mMask;
     }

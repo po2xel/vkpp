@@ -29,17 +29,20 @@ private:
     vkpp::Instance          mInstance;
     vkpp::ext::DebugReportCallback mDebugReportCallback;
     vkpp::PhysicalDevice    mPhysicalDevice;
-    uint32_t                mGraphicsQueueFamilyIndex{ std::numeric_limits<uint32_t>::max() };
+    uint32_t                mGraphicsQueueFamilyIndex{ UINT32_MAX };
     uint32_t                mPresentQueueFamilyIndex{ std::numeric_limits<uint32_t>::max() };
     vkpp::LogicalDevice     mLogicalDevice;
     vkpp::Queue             mGraphicsQueue;
     vkpp::Queue             mPresentQueue;
+    vkpp::CommandPool       mPresentQueueCmdPool;
+    std::vector<vkpp::CommandBuffer> mPresentQueueCmdBuffers;
 
     vkpp::Semaphore         mImageAvailSemaphore;
     vkpp::Semaphore         mRenderingFinishedSemaphore;
 
     vkpp::khr::Surface      mSurface;
     vkpp::khr::Swapchain    mSwapchain;
+    std::vector<vkpp::Image> mSwapchainImages;
 
     void CheckValidationLayerSupport(void) const;
     void CheckValidationExtensions(void) const;
@@ -64,6 +67,8 @@ private:
     void CreateSemaphore(void);
 
     void CreateSwapChain(void);
+    void CreateCommandBuffers(void);
+    void RecordCommandBuffers(void);
 
     void InitWindow(void);
     void InitVulkan(void);
@@ -76,6 +81,9 @@ public:
     ~Triangle(void)
     {
         mLogicalDevice.Wait();
+
+        mLogicalDevice.FreeCommandBuffers(mPresentQueueCmdPool, mPresentQueueCmdBuffers);
+        mLogicalDevice.DestroyCommandPool(mPresentQueueCmdPool);
 
         mLogicalDevice.DestroySemaphore(mImageAvailSemaphore);
         mLogicalDevice.DestroySemaphore(mRenderingFinishedSemaphore);

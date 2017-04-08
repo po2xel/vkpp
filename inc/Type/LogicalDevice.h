@@ -10,11 +10,18 @@
 #include <Info/BufferCreateInfo.h>
 #include <Info/SemaphoreCreateInfo.h>
 #include <Info/SwapchainCreateInfo.h>
+#include <Info/CommandPoolCreateInfo.h>
+#include <Info/CommandBufferAllocateInfo.h>
 
 #include <Type/VkDeleter.h>
+#include <Type/AllocationCallbacks.h>
 #include <Type/Queue.h>
 #include <Type/Semaphore.h>
+#include <Type/Fence.h>
 #include <Type/Swapchain.h>
+#include <Type/Image.h>
+#include <Type/CommandPool.h>
+#include <Type/CommandBuffer.h>
 
 
 
@@ -107,6 +114,65 @@ public:
     void DestroySwapchain(const khr::Swapchain& aSwapchain, const AllocationCallbacks& aAllocator)
     {
         vkDestroySwapchainKHR(mDevice, aSwapchain, &aAllocator);
+    }
+
+    std::vector<Image> GetSwapchainImages(const khr::Swapchain& aSwapchain) const
+    {
+        uint32_t lSwapchainImageCount{ 0 };
+        ThrowIfFailed(vkGetSwapchainImagesKHR(mDevice, aSwapchain, &lSwapchainImageCount, nullptr));
+
+        std::vector<Image> lSwapchainImages(lSwapchainImageCount);
+        ThrowIfFailed(vkGetSwapchainImagesKHR(mDevice, aSwapchain, &lSwapchainImageCount, &lSwapchainImages[0]));
+
+        return lSwapchainImages;
+    }
+
+    uint32_t AcquireNextImage(const khr::Swapchain& aSwapchain, uint32_t aTimeout, const Semaphore& aSemaphore, const Fence& aFence)
+    {
+        uint32_t lImageIndex;
+        // TODO: Error handling.
+        ThrowIfFailed(vkAcquireNextImageKHR(mDevice, aSwapchain, aTimeout, aSemaphore, aFence, &lImageIndex));
+
+        return lImageIndex;
+    }
+
+    CommandPool CreateCommandPool(const CommandPoolCreateInfo& aCommandPoolCreateInfo)
+    {
+        CommandPool lCommandPool;
+        ThrowIfFailed(vkCreateCommandPool(mDevice, &aCommandPoolCreateInfo, nullptr, &lCommandPool));
+
+        return lCommandPool;
+    }
+
+    CommandPool CreateCommandPool(const CommandPoolCreateInfo& aCommandPoolCreateInfo, const AllocationCallbacks& aAllocator)
+    {
+        CommandPool lCommandPool;
+        ThrowIfFailed(vkCreateCommandPool(mDevice, &aCommandPoolCreateInfo, &aAllocator, &lCommandPool));
+
+        return lCommandPool;
+    }
+
+    void DestroyCommandPool(const CommandPool& aCmdPool)
+    {
+        vkDestroyCommandPool(mDevice, aCmdPool, nullptr);
+    }
+
+    std::vector<CommandBuffer> AllocateCommandBuffers(const CommandBufferAllocateInfo& aCommandBufferAllocateInfo)
+    {
+        std::vector<CommandBuffer> lCommandBuffers(aCommandBufferAllocateInfo.commandBufferCount);
+        ThrowIfFailed(vkAllocateCommandBuffers(mDevice, &aCommandBufferAllocateInfo, &lCommandBuffers[0]));
+
+        return lCommandBuffers;
+    }
+
+    void FreeCommandBuffers(const CommandPool& aCmdPool, uint32_t aCmdBufferCount, const CommandBuffer* apCmdBuffers)
+    {
+        vkFreeCommandBuffers(mDevice, aCmdPool, aCmdBufferCount, &apCmdBuffers[0]);
+    }
+
+    void FreeCommandBuffers(const CommandPool& aCommandPool, const std::vector<CommandBuffer>& aCommandBuffers)
+    {
+        return FreeCommandBuffers(aCommandPool, static_cast<uint32_t>(aCommandBuffers.size()), aCommandBuffers.data());
     }
 
     VkResult Wait(void) const

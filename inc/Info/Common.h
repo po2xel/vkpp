@@ -4,6 +4,7 @@
 
 
 #include <cstring>
+#include <cstdint>
 
 #include <Type/Structure.h>
 #include <Type/VkTrait.h>
@@ -39,8 +40,10 @@ namespace vkpp
 
 
 
-using Bool32        = VkBool32;
-using DeviceSize    = VkDeviceSize;
+using Bool32            = VkBool32;
+using DeviceSize        = VkDeviceSize;
+using Result            = VkResult;
+using ClearColorValue   = VkClearColorValue;
 
 
 

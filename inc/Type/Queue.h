@@ -3,7 +3,14 @@
 
 
 
+#include <vector>
+#include <array>
+
 #include <Info/Common.h>
+#include <Info/SubmitInfo.h>
+#include <Info/PresentInfo.h>
+
+#include <Type/Fence.h>
 
 
 
@@ -18,6 +25,8 @@ private:
     VkQueue mQueue{ VK_NULL_HANDLE };
 
 public:
+    DEFINE_CLASS_MEMBER(Queue)
+
     Queue(std::nullptr_t)
     {}
 
@@ -29,7 +38,26 @@ public:
         return vkQueueWaitIdle(mQueue);
     }
 
-    DEFINE_CLASS_MEMBER(Queue)
+    void Submit(uint32_t aSubmitCount, const SubmitInfo* apSubmits)
+    {
+        ThrowIfFailed(vkQueueSubmit(mQueue, aSubmitCount, &apSubmits[0], nullptr));
+    }
+
+    void Submit(const std::vector<SubmitInfo>& aSubmitInfos, const Fence& aFence) const
+    {
+        ThrowIfFailed(vkQueueSubmit(mQueue, static_cast<uint32_t>(aSubmitInfos.size()), &aSubmitInfos[0], aFence));
+    }
+
+    template <std::size_t S>
+    void Submit(const std::array<SubmitInfo, S>& aSubmitInfos, const Fence& aFence) const
+    {
+        ThrowIfFailed(vkQueueSubmit(mQueue, static_cast<uint32_t>(aSubmitInfos.size()), &aSubmitInfos[0], aFence));
+    }
+
+    void Present(const khr::PresentInfo& aPresentInfo) const
+    {
+        ThrowIfFailed(vkQueuePresentKHR(mQueue, &aPresentInfo));
+    }
 };
 
 StaticSizeCheck(Queue);

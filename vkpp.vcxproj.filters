@@ -131,5 +131,44 @@
     <ClInclude Include="inc\Type\DebugReportCallback.h">
       <Filter>Header Files\Type</Filter>
     </ClInclude>
+    <ClInclude Include="inc\Type\Fence.h">
+      <Filter>Header Files\Type</Filter>
+    </ClInclude>
+    <ClInclude Include="inc\Type\Image.h">
+      <Filter>Header Files\Type</Filter>
+    </ClInclude>
+    <ClInclude Include="inc\Type\CommandBuffer.h">
+      <Filter>Header Files\Type</Filter>
+    </ClInclude>
+    <ClInclude Include="inc\Type\CommandPool.h">
+      <Filter>Header Files\Type</Filter>
+    </ClInclude>
+    <ClInclude Include="inc\Info\CommandPoolCreateInfo.h">
+      <Filter>Header Files\Info</Filter>
+    </ClInclude>
+    <ClInclude Include="inc\Info\PipelineStage.h">
+      <Filter>Header Files\Info</Filter>
+    </ClInclude>
+    <ClInclude Include="inc\Info\PresentInfo.h">
+      <Filter>Header Files\Info</Filter>
+    </ClInclude>
+    <ClInclude Include="inc\Info\SubmitInfo.h">
+      <Filter>Header Files\Info</Filter>
+    </ClInclude>
+    <ClInclude Include="inc\Info\CommandBufferAllocateInfo.h">
+      <Filter>Header Files\Info</Filter>
+    </ClInclude>
+    <ClInclude Include="inc\Info\CommandBufferInfo.h">
+      <Filter>Header Files\Info</Filter>
+    </ClInclude>
+    <ClInclude Include="inc\Type\RenderPass.h">
+      <Filter>Header Files\Type</Filter>
+    </ClInclude>
+    <ClInclude Include="inc\Type\FrameBuffer.h">
+      <Filter>Header Files\Type</Filter>
+    </ClInclude>
+    <ClInclude Include="inc\Info\MemoryBarrier.h">
+      <Filter>Header Files\Info</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>
