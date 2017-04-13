@@ -21,6 +21,7 @@ enum class Structure
     eSubmitInfo                 = VK_STRUCTURE_TYPE_SUBMIT_INFO,
     eSemaphore                  = VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO,
     eBuffer                     = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO,
+    eRenderPass                 = VK_STRUCTURE_TYPE_RENDER_PASS_CREATE_INFO,
     eCommandPool                = VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO,
     eCommandBufferAllocate      = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO,
     eCommandBufferInheritance   = VK_STRUCTURE_TYPE_COMMAND_BUFFER_INHERITANCE_INFO,

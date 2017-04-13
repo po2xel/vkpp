@@ -184,7 +184,7 @@ vkpp::ImageUsageFlags Triangle::GetSwapchainUsageFlags(void) const
     if (lSurfaceCapabilities.supportedUsageFlags & vkpp::ImageUsageFlagBits::eTransferDst)
         return vkpp::ImageUsageFlags(vkpp::ImageUsageFlagBits::eColorAttachment) | vkpp::ImageUsageFlagBits::eTransferDst;
 
-    return vkpp::ImageUsageFlags();
+    return vkpp::DefaultFlags;
 }
 
 
@@ -226,7 +226,7 @@ void Triangle::CreateInstance(void)
 void Triangle::CreateSurface(void)
 {
     vkpp::khr::SurfaceCreateInfo lSurfaceCreateInfo{
-        nullptr, glfwGetWin32Window(mpWindow)
+        glfwGetWin32Window(mpWindow)
     };
 
     mSurface = mInstance.CreateSurface(lSurfaceCreateInfo);         // TODO: Release previous surface.

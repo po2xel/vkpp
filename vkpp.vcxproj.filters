@@ -25,6 +25,9 @@
     <Filter Include="Header Files\Info\Windows">
       <UniqueIdentifier>{f8739f43-469d-4b3a-a6ca-9c5e9775af05}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files\Memory">
+      <UniqueIdentifier>{a7d3981a-bd11-4afa-814a-11603d662c01}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -169,6 +172,9 @@
     </ClInclude>
     <ClInclude Include="inc\Info\MemoryBarrier.h">
       <Filter>Header Files\Info</Filter>
+    </ClInclude>
+    <ClInclude Include="inc\Memory\AutoPtr.h">
+      <Filter>Header Files\Memory</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

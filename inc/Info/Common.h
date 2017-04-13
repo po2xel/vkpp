@@ -8,6 +8,8 @@
 
 #include <Type/Structure.h>
 #include <Type/VkTrait.h>
+#include <vector>
+#include <Info/Flags.h>
 
 
 
@@ -46,6 +48,10 @@ using Result            = VkResult;
 using ClearColorValue   = VkClearColorValue;
 
 
+template <typename T>
+using Array = std::vector<T>;
+
+
 
 inline void ThrowIfFailed(VkResult aResult)
 {
@@ -60,6 +66,17 @@ enum class SharingMode
     eExclusive = VK_SHARING_MODE_EXCLUSIVE,
     eConcurrent = VK_SHARING_MODE_CONCURRENT
 };
+
+
+
+enum class DependencyFlagBits
+{
+    eByRegion = VK_DEPENDENCY_BY_REGION_BIT,
+    eViewLocalKHX = VK_DEPENDENCY_VIEW_LOCAL_BIT_KHX,
+    eDeviceGroupKHX = VK_DEPENDENCY_DEVICE_GROUP_BIT_KHX
+};
+
+using DependencyFlags = internal::Flags<DependencyFlagBits, VkDependencyFlags>;
 
 
 

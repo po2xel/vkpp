@@ -12,6 +12,11 @@ namespace vkpp::internal
 
 
 
+struct DefaultFlags
+{};
+
+
+
 template <typename BitType, typename VkType = VkFlags>
 class Flags
 {
@@ -22,6 +27,9 @@ public:
     constexpr const static auto AllFlags{ 0 };
 
     Flags(void) = default;
+
+    Flags(const DefaultFlags&)
+    {}
 
     Flags(BitType aBit) : mMask(static_cast<VkType>(aBit))
     {}
@@ -118,6 +126,19 @@ public:
 
 
 }                   // End of namespace vkpp::internal.
+
+
+
+namespace vkpp
+{
+
+
+
+constexpr auto DefaultFlags = internal::DefaultFlags();
+
+
+
+}                   // End of namespace vkpp.
 
 
 

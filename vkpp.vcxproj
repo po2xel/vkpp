@@ -196,6 +196,7 @@
     <ClInclude Include="inc\Info\SurfaceCreateInfo.h" />
     <ClInclude Include="inc\Info\SwapchainCreateInfo.h" />
     <ClInclude Include="inc\Info\Windows\SurfaceCreateInfo.h" />
+    <ClInclude Include="inc\Memory\AutoPtr.h" />
     <ClInclude Include="inc\Type\AllocationCallbacks.h" />
     <ClInclude Include="inc\Type\Buffer.h" />
     <ClInclude Include="inc\Type\CommandBuffer.h" />

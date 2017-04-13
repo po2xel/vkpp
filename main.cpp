@@ -1,12 +1,28 @@
 #include <iostream>
 #include <exception>
+#include <thread>
 
 #include <Triangle/Triangle.h>
 
+#include <Memory/AutoPtr.h>
+
+
+using namespace vkpp;
+
+
+void Destroy(VkInstance, VkAllocationCallbacks*)
+{
+    std::cout << "Hello\n";
+}
 
 
 int main(int /*argc*/, char* /*argv*/[])
 {
+    {
+        AutoPtr<VkInstance> lInstance{ nullptr, vkDestroyInstance };
+        lInstance;
+    }
+
     /*const std::array<const char*, 1> lValidationLayers{
         "VK_LAYER_LUNARG_standard_validation"
     };

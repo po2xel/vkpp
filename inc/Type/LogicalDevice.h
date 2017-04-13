@@ -36,9 +36,9 @@ private:
     internal::VkDeleter<VkDevice> mDevice{ vkDestroyDevice };
 
 public:
-    LogicalDevice(void) = default;
+    LogicalDevice(void) noexcept = default;
 
-    LogicalDevice(std::nullptr_t)
+    LogicalDevice(std::nullptr_t) noexcept
     {}
 
     LogicalDevice(VkDevice aLogicalDevice)
@@ -46,10 +46,10 @@ public:
         mDevice = aLogicalDevice;
     }
 
-    LogicalDevice(LogicalDevice&& aLogicalDevice) : mDevice(std::move(aLogicalDevice.mDevice))
+    LogicalDevice(LogicalDevice&& aLogicalDevice) noexcept : mDevice(std::move(aLogicalDevice.mDevice))
     {}
 
-    LogicalDevice& operator=(LogicalDevice&& aLogicalDevice)
+    LogicalDevice& operator=(LogicalDevice&& aLogicalDevice) noexcept
     {
         mDevice = std::move(aLogicalDevice.mDevice);
 
@@ -64,7 +64,7 @@ public:
         return lQueue;
     }
 
-    Semaphore CreateSemaphore(const SemaphoreCreateInfo& aSemaphoreCreateInfo)
+    Semaphore CreateSemaphore(const SemaphoreCreateInfo& aSemaphoreCreateInfo) const
     {
         Semaphore lSemaphore;
         ThrowIfFailed(vkCreateSemaphore(mDevice, &aSemaphoreCreateInfo, nullptr, &lSemaphore));
@@ -72,7 +72,7 @@ public:
         return lSemaphore;
     }
 
-    Semaphore CreateSemaphore(const SemaphoreCreateInfo& aSemaphoreCreateInfo, const AllocationCallbacks& aAllocator)
+    Semaphore CreateSemaphore(const SemaphoreCreateInfo& aSemaphoreCreateInfo, const AllocationCallbacks& aAllocator) const
     {
         Semaphore lSemaphore;
         ThrowIfFailed(vkCreateSemaphore(mDevice, &aSemaphoreCreateInfo, &aAllocator, &lSemaphore));
@@ -80,17 +80,17 @@ public:
         return lSemaphore;
     }
 
-    void DestroySemaphore(const Semaphore& aSemaphore)
+    void DestroySemaphore(const Semaphore& aSemaphore) const
     {
         vkDestroySemaphore(mDevice, aSemaphore, nullptr);
     }
 
-    void DestroySemaphore(const Semaphore& aSemaphore, const AllocationCallbacks& aAllocator)
+    void DestroySemaphore(const Semaphore& aSemaphore, const AllocationCallbacks& aAllocator) const
     {
         vkDestroySemaphore(mDevice, aSemaphore, &aAllocator);
     }
 
-    khr::Swapchain CreateSwapchain(const khr::SwapchainCreateInfo& aSwapchainCreateInfo)
+    khr::Swapchain CreateSwapchain(const khr::SwapchainCreateInfo& aSwapchainCreateInfo) const
     {
         khr::Swapchain lSwapchain;
         ThrowIfFailed(vkCreateSwapchainKHR(mDevice, &aSwapchainCreateInfo, nullptr, &lSwapchain));
@@ -98,7 +98,7 @@ public:
         return lSwapchain;
     }
 
-    khr::Swapchain CreateSwapchain(const khr::SwapchainCreateInfo& aSwapchainCreateInfo, const AllocationCallbacks& aAllocator)
+    khr::Swapchain CreateSwapchain(const khr::SwapchainCreateInfo& aSwapchainCreateInfo, const AllocationCallbacks& aAllocator) const
     {
         khr::Swapchain lSwapchain;
         ThrowIfFailed(vkCreateSwapchainKHR(mDevice, &aSwapchainCreateInfo, &aAllocator, &lSwapchain));
@@ -106,12 +106,12 @@ public:
         return lSwapchain;
     }
 
-    void DestroySwapchain(const khr::Swapchain& aSwapchain)
+    void DestroySwapchain(const khr::Swapchain& aSwapchain) const
     {
         vkDestroySwapchainKHR(mDevice, aSwapchain, nullptr);
     }
 
-    void DestroySwapchain(const khr::Swapchain& aSwapchain, const AllocationCallbacks& aAllocator)
+    void DestroySwapchain(const khr::Swapchain& aSwapchain, const AllocationCallbacks& aAllocator) const
     {
         vkDestroySwapchainKHR(mDevice, aSwapchain, &aAllocator);
     }
@@ -127,7 +127,7 @@ public:
         return lSwapchainImages;
     }
 
-    uint32_t AcquireNextImage(const khr::Swapchain& aSwapchain, uint32_t aTimeout, const Semaphore& aSemaphore, const Fence& aFence)
+    uint32_t AcquireNextImage(const khr::Swapchain& aSwapchain, uint32_t aTimeout, const Semaphore& aSemaphore, const Fence& aFence) const
     {
         uint32_t lImageIndex;
         // TODO: Error handling.
@@ -136,7 +136,7 @@ public:
         return lImageIndex;
     }
 
-    CommandPool CreateCommandPool(const CommandPoolCreateInfo& aCommandPoolCreateInfo)
+    CommandPool CreateCommandPool(const CommandPoolCreateInfo& aCommandPoolCreateInfo) const
     {
         CommandPool lCommandPool;
         ThrowIfFailed(vkCreateCommandPool(mDevice, &aCommandPoolCreateInfo, nullptr, &lCommandPool));
@@ -144,7 +144,7 @@ public:
         return lCommandPool;
     }
 
-    CommandPool CreateCommandPool(const CommandPoolCreateInfo& aCommandPoolCreateInfo, const AllocationCallbacks& aAllocator)
+    CommandPool CreateCommandPool(const CommandPoolCreateInfo& aCommandPoolCreateInfo, const AllocationCallbacks& aAllocator) const
     {
         CommandPool lCommandPool;
         ThrowIfFailed(vkCreateCommandPool(mDevice, &aCommandPoolCreateInfo, &aAllocator, &lCommandPool));
@@ -152,12 +152,12 @@ public:
         return lCommandPool;
     }
 
-    void DestroyCommandPool(const CommandPool& aCmdPool)
+    void DestroyCommandPool(const CommandPool& aCmdPool) const
     {
         vkDestroyCommandPool(mDevice, aCmdPool, nullptr);
     }
 
-    std::vector<CommandBuffer> AllocateCommandBuffers(const CommandBufferAllocateInfo& aCommandBufferAllocateInfo)
+    std::vector<CommandBuffer> AllocateCommandBuffers(const CommandBufferAllocateInfo& aCommandBufferAllocateInfo) const
     {
         std::vector<CommandBuffer> lCommandBuffers(aCommandBufferAllocateInfo.commandBufferCount);
         ThrowIfFailed(vkAllocateCommandBuffers(mDevice, &aCommandBufferAllocateInfo, &lCommandBuffers[0]));
@@ -165,14 +165,40 @@ public:
         return lCommandBuffers;
     }
 
-    void FreeCommandBuffers(const CommandPool& aCmdPool, uint32_t aCmdBufferCount, const CommandBuffer* apCmdBuffers)
+    void FreeCommandBuffers(const CommandPool& aCmdPool, uint32_t aCmdBufferCount, const CommandBuffer* apCmdBuffers) const
     {
         vkFreeCommandBuffers(mDevice, aCmdPool, aCmdBufferCount, &apCmdBuffers[0]);
     }
 
-    void FreeCommandBuffers(const CommandPool& aCommandPool, const std::vector<CommandBuffer>& aCommandBuffers)
+    void FreeCommandBuffers(const CommandPool& aCommandPool, const std::vector<CommandBuffer>& aCommandBuffers) const
     {
         return FreeCommandBuffers(aCommandPool, static_cast<uint32_t>(aCommandBuffers.size()), aCommandBuffers.data());
+    }
+
+    RenderPass CreateRenderPass(const RenderPassCreateInfo& aRenderPassCreateInfo) const
+    {
+        RenderPass lRenderPass;
+        ThrowIfFailed(vkCreateRenderPass(mDevice, &aRenderPassCreateInfo, nullptr, &lRenderPass));
+
+        return lRenderPass;
+    }
+
+    RenderPass CreateRenderPass(const RenderPassCreateInfo& aRenderPassCreateInfo, const AllocationCallbacks& aAllocator) const
+    {
+        RenderPass lRenderPass;
+        ThrowIfFailed(vkCreateRenderPass(mDevice, &aRenderPassCreateInfo, &aAllocator, &lRenderPass));
+
+        return lRenderPass;
+    }
+
+    void DestroyRenderPass(const RenderPass& aRenderPass) const
+    {
+        vkDestroyRenderPass(mDevice, aRenderPass, nullptr);
+    }
+
+    void DestroyRenderPass(const RenderPass& aRenderPass, const AllocationCallbacks& aAllocator) const
+    {
+        vkDestroyRenderPass(mDevice, aRenderPass, &aAllocator);
     }
 
     VkResult Wait(void) const
