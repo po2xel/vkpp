@@ -22,6 +22,7 @@
 #include <Type/Image.h>
 #include <Type/CommandPool.h>
 #include <Type/CommandBuffer.h>
+#include <Type/FrameBuffer.h>
 
 
 
@@ -199,6 +200,58 @@ public:
     void DestroyRenderPass(const RenderPass& aRenderPass, const AllocationCallbacks& aAllocator) const
     {
         vkDestroyRenderPass(mDevice, aRenderPass, &aAllocator);
+    }
+
+    ImageView CreateImageView(const ImageViewCreateInfo& aImageViewCreateInfo) const
+    {
+        ImageView lImageView;
+        ThrowIfFailed(vkCreateImageView(mDevice, &aImageViewCreateInfo, nullptr, &lImageView));
+
+        return lImageView;
+    }
+
+    ImageView CreateImageView(const ImageViewCreateInfo& aImageViewCreateInfo, const AllocationCallbacks& aAllocator) const
+    {
+        ImageView lImageView;
+        ThrowIfFailed(vkCreateImageView(mDevice, &aImageViewCreateInfo, &aAllocator, &lImageView));
+
+        return lImageView;
+    }
+
+    void DestroyImageView(const ImageView& aImageView) const
+    {
+        vkDestroyImageView(mDevice, aImageView, nullptr);
+    }
+
+    void DestroyImageView(const ImageView& aImageView, const AllocationCallbacks& aAllocator) const
+    {
+        vkDestroyImageView(mDevice, aImageView, &aAllocator);
+    }
+
+    FrameBuffer CreateFrameBuffer(const FrameBufferCreateInfo& aFrameBufferCreateInfo) const
+    {
+        FrameBuffer lFrameBuffer;
+        ThrowIfFailed(vkCreateFramebuffer(mDevice, &aFrameBufferCreateInfo, nullptr, &lFrameBuffer));
+
+        return lFrameBuffer;
+    }
+
+    FrameBuffer CreateFrameBuffer(const FrameBufferCreateInfo& aFrameBufferCreateInfo, const AllocationCallbacks& aAllocator) const
+    {
+        FrameBuffer lFrameBuffer;
+        ThrowIfFailed(vkCreateFramebuffer(mDevice, &aFrameBufferCreateInfo, &aAllocator, &lFrameBuffer));
+
+        return lFrameBuffer;
+    }
+
+    void DestroyFrameBuffer(const FrameBuffer& aFrameBuffer) const
+    {
+        vkDestroyFramebuffer(mDevice, aFrameBuffer, nullptr);
+    }
+
+    void DestroyFrameBuffer(const FrameBuffer& aFrameBuffer, const AllocationCallbacks& aAllocator) const
+    {
+        vkDestroyFramebuffer(mDevice, aFrameBuffer, &aAllocator);
     }
 
     VkResult Wait(void) const

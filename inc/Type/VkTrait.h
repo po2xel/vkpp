@@ -14,7 +14,7 @@ struct VkTrait
     using Type = T;
     using VkType = VT;
 
-    VkTrait(void) = default;
+    VkTrait(void) noexcept = default;
 
     const Type* AddressOf(void) const
     {

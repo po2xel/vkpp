@@ -305,7 +305,7 @@ struct SubpassDependency : public internal::VkTrait<SubpassDependency, VkSubpass
         return *this;
     }
 
-    SubpassDependency& SetPipelineStage(uint32_t aSrcStageMask, uint32_t aDstStageMask)
+    SubpassDependency& SetPipelineStage(const PipelineStageFlags& aSrcStageMask, const PipelineStageFlags& aDstStageMask)
     {
         srcStageMask    = aSrcStageMask;
         dstStageMask    = aDstStageMask;
