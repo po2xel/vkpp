@@ -12,6 +12,7 @@
 #include <Info/SwapchainCreateInfo.h>
 #include <Info/CommandPoolCreateInfo.h>
 #include <Info/CommandBufferAllocateInfo.h>
+#include <Info/PipelineStage.h>
 
 #include <Type/VkDeleter.h>
 #include <Type/AllocationCallbacks.h>
@@ -23,6 +24,8 @@
 #include <Type/CommandPool.h>
 #include <Type/CommandBuffer.h>
 #include <Type/FrameBuffer.h>
+#include <Type/ShaderModule.h>
+#include <Type/GraphicsPipeline.h>
 
 
 
@@ -252,6 +255,79 @@ public:
     void DestroyFrameBuffer(const FrameBuffer& aFrameBuffer, const AllocationCallbacks& aAllocator) const
     {
         vkDestroyFramebuffer(mDevice, aFrameBuffer, &aAllocator);
+    }
+
+    ShaderModule CreateShaderModule(const ShaderModuleCreateInfo& aShaderModuleCreateInfo) const
+    {
+        ShaderModule lShaderModule;
+        ThrowIfFailed(vkCreateShaderModule(mDevice, &aShaderModuleCreateInfo, nullptr, &lShaderModule));
+
+        return lShaderModule;
+    }
+
+    ShaderModule CreateShaderModule(const ShaderModuleCreateInfo& aShaderModuleCreateInfo, const AllocationCallbacks& aAllocator) const
+    {
+        ShaderModule lShaderModule;
+        ThrowIfFailed(vkCreateShaderModule(mDevice, &aShaderModuleCreateInfo, &aAllocator, &lShaderModule));
+
+        return lShaderModule;
+    }
+
+    void DestroyShaderModule(const ShaderModule& aShaderModule) const
+    {
+        vkDestroyShaderModule(mDevice, aShaderModule, nullptr);
+    }
+
+    void DestroyShaderModule(const ShaderModule& aShaderModule, const AllocationCallbacks& aAllocator) const
+    {
+        vkDestroyShaderModule(mDevice, aShaderModule, &aAllocator);
+    }
+
+    PipelineLayout CreatePipelineLayout(const PipelineLayoutCreateInfo& aPipelineLayoutCreateInfo) const
+    {
+        PipelineLayout lPipelineLayout;
+        ThrowIfFailed(vkCreatePipelineLayout(mDevice, &aPipelineLayoutCreateInfo, nullptr, &lPipelineLayout));
+
+        return lPipelineLayout;
+    }
+
+    PipelineLayout CreatePipelineLayout(const PipelineLayoutCreateInfo& aPipelineLayoutCreateInfo, const AllocationCallbacks& aAllocator) const
+    {
+        PipelineLayout lPipelineLayout;
+        ThrowIfFailed(vkCreatePipelineLayout(mDevice, &aPipelineLayoutCreateInfo, &aAllocator, &lPipelineLayout));
+
+        return lPipelineLayout;
+    }
+
+    void DestroyPipelineLayout(const PipelineLayout& aPipelineLayout) const
+    {
+        vkDestroyPipelineLayout(mDevice, aPipelineLayout, nullptr);
+    }
+
+    void DestroyPipelineLayout(const PipelineLayout& aPipelineLayout, const AllocationCallbacks& aAllocator) const
+    {
+        vkDestroyPipelineLayout(mDevice, aPipelineLayout, &aAllocator);
+    }
+
+    Pipeline CreateGraphicsPipeline(const PipelineCache& aPipelineCache, uint32_t aCreateInfoCount, const GraphicsPipelineCreateInfo* apGraphicsPipelineCraeteInfos) const
+    {
+        assert(aCreateInfoCount > 0 && apGraphicsPipelineCraeteInfos != nullptr);
+
+        Pipeline lPipeline;
+        ThrowIfFailed(vkCreateGraphicsPipelines(mDevice, aPipelineCache, aCreateInfoCount, &apGraphicsPipelineCraeteInfos[0], nullptr, &lPipeline));
+
+        return lPipeline;
+    }
+
+    Pipeline CreateGraphicsPipeline(const PipelineCache& aPipelineCache, uint32_t aCreateInfoCount,
+        const GraphicsPipelineCreateInfo* apGraphicsPipelineCraeteInfos, const AllocationCallbacks& aAllocator)
+    {
+        assert(aCreateInfoCount > 0 && apGraphicsPipelineCraeteInfos != nullptr);
+
+        Pipeline lPipeline;
+        ThrowIfFailed(vkCreateGraphicsPipelines(mDevice, aPipelineCache, aCreateInfoCount, &apGraphicsPipelineCraeteInfos[0], &aAllocator, &lPipeline));
+
+        return lPipeline;
     }
 
     VkResult Wait(void) const

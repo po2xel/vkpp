@@ -202,10 +202,10 @@
     <ClInclude Include="inc\Type\CommandBuffer.h" />
     <ClInclude Include="inc\Type\CommandPool.h" />
     <ClInclude Include="inc\Type\DebugReportCallback.h" />
-    <ClInclude Include="inc\Type\Extent2D.h" />
-    <ClInclude Include="inc\Type\Extent3D.h" />
+    <ClInclude Include="inc\Type\DescriptorSet.h" />
     <ClInclude Include="inc\Type\Fence.h" />
     <ClInclude Include="inc\Type\FrameBuffer.h" />
+    <ClInclude Include="inc\Type\GraphicsPipeline.h" />
     <ClInclude Include="inc\Type\Image.h" />
     <ClInclude Include="inc\Type\Instance.h" />
     <ClInclude Include="inc\Type\LogicalDevice.h" />
@@ -213,6 +213,7 @@
     <ClInclude Include="inc\Type\Queue.h" />
     <ClInclude Include="inc\Type\RenderPass.h" />
     <ClInclude Include="inc\Type\Semaphore.h" />
+    <ClInclude Include="inc\Type\ShaderModule.h" />
     <ClInclude Include="inc\Type\Structure.h" />
     <ClInclude Include="inc\Type\Surface.h" />
     <ClInclude Include="inc\Type\Swapchain.h" />

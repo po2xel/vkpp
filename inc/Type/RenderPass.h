@@ -24,19 +24,6 @@ using AttachmentDescriptionFlags = internal::Flags<AttachmentDescriptionFlagBits
 
 
 
-enum class SampleCountFlagBits
-{
-    e1  = VK_SAMPLE_COUNT_1_BIT,
-    e2  = VK_SAMPLE_COUNT_2_BIT,
-    e4  = VK_SAMPLE_COUNT_4_BIT,
-    e8  = VK_SAMPLE_COUNT_8_BIT,
-    e16 = VK_SAMPLE_COUNT_16_BIT,
-    e32 = VK_SAMPLE_COUNT_32_BIT,
-    e64 = VK_SAMPLE_COUNT_64_BIT
-};
-
-
-
 enum class AttachmentLoadOp
 {
     eLoad       = VK_ATTACHMENT_LOAD_OP_LOAD,

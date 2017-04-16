@@ -71,12 +71,6 @@
     <ClInclude Include="inc\Info\PhysicalDeviceProperties.h">
       <Filter>Header Files\Info</Filter>
     </ClInclude>
-    <ClInclude Include="inc\Type\Extent3D.h">
-      <Filter>Header Files\Type</Filter>
-    </ClInclude>
-    <ClInclude Include="inc\Type\Extent2D.h">
-      <Filter>Header Files\Type</Filter>
-    </ClInclude>
     <ClInclude Include="inc\Info\LogicalDeviceInfo.h">
       <Filter>Header Files\Info</Filter>
     </ClInclude>
@@ -175,6 +169,15 @@
     </ClInclude>
     <ClInclude Include="inc\Memory\AutoPtr.h">
       <Filter>Header Files\Memory</Filter>
+    </ClInclude>
+    <ClInclude Include="inc\Type\ShaderModule.h">
+      <Filter>Header Files\Type</Filter>
+    </ClInclude>
+    <ClInclude Include="inc\Type\DescriptorSet.h">
+      <Filter>Header Files\Type</Filter>
+    </ClInclude>
+    <ClInclude Include="inc\Type\GraphicsPipeline.h">
+      <Filter>Header Files\Type</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

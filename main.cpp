@@ -18,10 +18,10 @@ void Destroy(VkInstance, VkAllocationCallbacks*)
 
 int main(int /*argc*/, char* /*argv*/[])
 {
-    {
-        AutoPtr<VkInstance> lInstance{ nullptr, vkDestroyInstance };
-        lInstance;
-    }
+    //{
+    //    AutoPtr<VkInstance> lInstance{ nullptr, vkDestroyInstance };
+    //    lInstance;
+    //}
 
     /*const std::array<const char*, 1> lValidationLayers{
         "VK_LAYER_LUNARG_standard_validation"

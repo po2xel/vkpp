@@ -8,7 +8,6 @@
 #include <Info/Format.h>
 
 #include <Type/Surface.h>
-#include <Type/Extent2D.h>
 #include <Type/Swapchain.h>
 
 

@@ -16,26 +16,26 @@ namespace vkpp
 
 enum class ImageLayout
 {
-    eUndefined = VK_IMAGE_LAYOUT_UNDEFINED,
-    eGeneral = VK_IMAGE_LAYOUT_GENERAL,
-    eColorAttachmentOptimal = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL,
-    eDepthStencilAttachmentOptimal = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL,
-    eDepthStencilReadOnlyOptimal = VK_IMAGE_LAYOUT_DEPTH_STENCIL_READ_ONLY_OPTIMAL,
-    eShaderReadOnlyOptimal = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL,
-    eTransferSrcOptimal = VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL,
-    eTransferDstOptimal = VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
-    ePreinitialized = VK_IMAGE_LAYOUT_PREINITIALIZED,
-    ePresentSrcKHR = VK_IMAGE_LAYOUT_PRESENT_SRC_KHR
+    eUndefined                      = VK_IMAGE_LAYOUT_UNDEFINED,
+    eGeneral                        = VK_IMAGE_LAYOUT_GENERAL,
+    eColorAttachmentOptimal         = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL,
+    eDepthStencilAttachmentOptimal  = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL,
+    eDepthStencilReadOnlyOptimal    = VK_IMAGE_LAYOUT_DEPTH_STENCIL_READ_ONLY_OPTIMAL,
+    eShaderReadOnlyOptimal          = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL,
+    eTransferSrcOptimal             = VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL,
+    eTransferDstOptimal             = VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
+    ePreinitialized                 = VK_IMAGE_LAYOUT_PREINITIALIZED,
+    ePresentSrcKHR                  = VK_IMAGE_LAYOUT_PRESENT_SRC_KHR
 };
 
 
 
 enum class ImageAspectFlagBits
 {
-    eColor = VK_IMAGE_ASPECT_COLOR_BIT,
-    eDepth = VK_IMAGE_ASPECT_DEPTH_BIT,
-    eStencil = VK_IMAGE_ASPECT_STENCIL_BIT,
-    eMetaData = VK_IMAGE_ASPECT_METADATA_BIT
+    eColor      = VK_IMAGE_ASPECT_COLOR_BIT,
+    eDepth      = VK_IMAGE_ASPECT_DEPTH_BIT,
+    eStencil    = VK_IMAGE_ASPECT_STENCIL_BIT,
+    eMetaData   = VK_IMAGE_ASPECT_METADATA_BIT
 };
 
 using ImageAspectFlags = internal::Flags<ImageAspectFlagBits, VkImageAspectFlags>;
