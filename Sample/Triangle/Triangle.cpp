@@ -3,10 +3,13 @@
 #include <algorithm>
 #include <iterator>
 #include <cassert>
+#include <fstream>
+#include <cstddef>
 
 #include <Info/Common.h>
 #include <Info/Layers.h>
 #include <Info/Extensions.h>
+#include <Info/RenderPassBeginInfo.h>
 
 #define GLFW_EXPOSE_NATIVE_WIN32
 #include <GLFW/glfw3native.h>
@@ -311,6 +314,33 @@ void Triangle::CreateSwapChain(void)
 }
 
 
+void Triangle::CreateSwapchainImageViews(void)
+{
+    for (const auto& lImage : mSwapchainImages)
+    {
+        vkpp::ImageViewCreateInfo lImageViewCreateInfo
+        {
+            lImage,
+            vkpp::ImageViewType::e2D, 
+            GetSwapchainFormat().format,
+            {
+                vkpp::ComponentSwizzle::eIdentity,
+                vkpp::ComponentSwizzle::eIdentity,
+                vkpp::ComponentSwizzle::eIdentity,
+                vkpp::ComponentSwizzle::eIdentity
+            },
+            {
+                vkpp::ImageAspectFlagBits::eColor,
+                0, 1,
+                0, 1
+            }
+        };
+
+        mSwapchainImageViews.emplace_back(mLogicalDevice.CreateImageView(lImageViewCreateInfo));
+    }
+}
+
+
 void Triangle::CreateCommandBuffers(void)
 {
     vkpp::CommandPoolCreateInfo lCmdPoolCreateInfo{
@@ -337,17 +367,17 @@ void Triangle::RecordCommandBuffers(void)
         vkpp::CommandBufferUsageFlagBits::eSimultaneousUse
     };
 
-    vkpp::ClearColorValue lClearColor{ 1.0f, 0.8f, 0.4f, 0.0f };
+    vkpp::ClearValue lClearColor{ 1.0f, 0.8f, 0.4f, 0.0f };
 
     vkpp::ImageSubresourceRange lImageSubRange{
+        vkpp::ImageAspectFlagBits::eColor,
         0, 1,
-        0, 1,
-        vkpp::ImageAspectFlagBits::eColor
+        0, 1
     };
 
     for (std::size_t i = 0; i < mSwapchainImages.size(); ++i)
     {
-        vkpp::ImageMemoryBarrier lBarrierFromPresentToClear{
+        /*vkpp::ImageMemoryBarrier lBarrierFromPresentToClear{
             vkpp::AccessFlagBits::eMemoryRead, vkpp::AccessFlagBits::eTransferWrite,
             vkpp::ImageLayout::eUndefined, vkpp::ImageLayout::eTransferDstOptimal,
             VK_QUEUE_FAMILY_IGNORED, VK_QUEUE_FAMILY_IGNORED,
@@ -366,28 +396,219 @@ void Triangle::RecordCommandBuffers(void)
             0, nullptr,
             0, nullptr,
             1, lBarrierFromPresentToClear.AddressOf()
-        };
+        };*/
 
         const auto lCmdBuffer = mPresentQueueCmdBuffers[i];
 
         lCmdBuffer.Begin(lCmdBufferBeginInfo);
-        lCmdBuffer.PipelineBarrier(lCmdPipelineBarrier);
+        // lCmdBuffer.PipelineBarrier(lCmdPipelineBarrier);
 
-        lCmdBuffer.ClearColorImage(mSwapchainImages[i], vkpp::ImageLayout::eTransferDstOptimal, lClearColor, { lImageSubRange });
+        vkpp::RenderPassBeginInfo lRenderPassBeginInfo
+        {
+            mRenderPass, mFramebuffers[i],
+            {
+                {0, 0},
+                {300, 300}
+            },
+            1, &lClearColor
+        };
+
+        mPresentQueueCmdBuffers[i].BeginRenderPass(lRenderPassBeginInfo, vkpp::SubpassContents::eInline);
+
+        mPresentQueueCmdBuffers[i].BindGraphicsPipeline(mGraphicsPipeline);
+        mPresentQueueCmdBuffers[i].Draw(3, 1);
+
+        mPresentQueueCmdBuffers[i].EndRenderPass();
+
+        // lCmdBuffer.ClearColorImage(mSwapchainImages[i], vkpp::ImageLayout::eTransferDstOptimal, lClearColor, { lImageSubRange });
 
         /*vkpp::CommandPipelineBarrier lCmdPipelineBarrier2{
             vkpp::PipelineStageFlagBits::eTransfer, vkpp::PipelineStageFlagBits::eBottomOfPipe, vkpp::DependencyFlags(),
             0, nullptr,
             0, nullptr,
             1, lBarrierFromClearToPresent.AddressOf()
-        };*/
+        };
 
         lCmdPipelineBarrier.dstStageMask = vkpp::PipelineStageFlagBits::eBottomOfPipe;
         lCmdPipelineBarrier.pImageMemoryBarriers = lBarrierFromClearToPresent.AddressOf();
-        lCmdBuffer.PipelineBarrier(lCmdPipelineBarrier);
+        lCmdBuffer.PipelineBarrier(lCmdPipelineBarrier);*/
 
         lCmdBuffer.End();
     }
+}
+
+
+void Triangle::CreateRenderPass(void)
+{
+    vkpp::AttachementDescription lAttachmentDescriptions[]
+    {
+        {
+            GetSwapchainFormat().format,  vkpp::SampleCountFlagBits::e1, vkpp::AttachmentLoadOp::eClear, vkpp::AttachmentStoreOp::eStore,
+            vkpp::AttachmentLoadOp::eDontCare, vkpp::AttachmentStoreOp::eDontCare, vkpp::ImageLayout::eUndefined, vkpp::ImageLayout::ePresentSrcKHR
+        }
+    };
+
+    vkpp::AttachmentReference lColorAttachmentReferences[]
+    {
+        {0, vkpp::ImageLayout::eColorAttachmentOptimal},
+    };
+
+    vkpp::SubpassDescription lSubpassDescriptions[]
+    {
+        {
+            vkpp::PipelineBindPoint::eGraphics,
+            0, nullptr,
+            1, lColorAttachmentReferences,
+        }
+    };
+
+    vkpp::RenderPassCreateInfo lRenderPassCreateInfo
+    {
+        1, lAttachmentDescriptions,
+        1, lSubpassDescriptions
+    };
+
+    mRenderPass = mLogicalDevice.CreateRenderPass(lRenderPassCreateInfo);
+}
+
+
+void Triangle::CreateFrameBuffers(void)
+{
+    for (const auto& lImageView : mSwapchainImageViews)
+    {
+        vkpp::FrameBufferCreateInfo lFramebufferCreateInfo
+        {
+            mRenderPass,
+            1, lImageView.AddressOf(),
+            300, 300, 1
+        };
+
+        mFramebuffers.emplace_back(mLogicalDevice.CreateFrameBuffer(lFramebufferCreateInfo));
+    }
+}
+
+
+vkpp::ShaderModule Triangle::CreateShaderModule(const std::string& aFilename) const
+{
+    std::ifstream lFin(aFilename, std::ios::binary);
+
+    std::vector<char> lShaderContent((std::istreambuf_iterator<char>(lFin)), std::istreambuf_iterator<char>());
+    assert(!lShaderContent.empty());
+
+    /*vkpp::ShaderModuleCreateInfo lShaderModuleCreateInfo
+    {
+        lShaderContent
+    };*/
+
+    return mLogicalDevice.CreateShaderModule({ lShaderContent });
+}
+
+
+vkpp::PipelineLayout Triangle::CreatePipelineLayout(void) const
+{
+    vkpp::PipelineLayoutCreateInfo lLayoutCreateInfo
+    {
+        0, nullptr,
+        0, nullptr
+    };
+
+    return mLogicalDevice.CreatePipelineLayout(lLayoutCreateInfo);
+}
+
+
+void Triangle::CreatePipeline(void)
+{
+    auto lVertexShaderModule = CreateShaderModule("Shader/vert.spv");
+    auto lFragmentShaderModule = CreateShaderModule("Shader/frag.spv");
+
+    std::vector<vkpp::PipelineShaderStageCreateInfo> lShaderStageCreateInfos
+    {
+        {
+            vkpp::ShaderStageFlagBits::eVertex,
+            lVertexShaderModule
+        },
+        {
+            vkpp::ShaderStageFlagBits::eFragment,
+            lFragmentShaderModule
+        }
+    };
+
+    vkpp::PipelineVertexInputStateCreateInfo lVertexInputStateCreateInfo
+    {
+        0, nullptr,
+        0, nullptr
+    };
+
+    vkpp::PipelineInputAssemblyStateCreateInfo lInputAssemblyStateCreateInfo
+    {
+        vkpp::PrimitiveTopology::eTriangleList
+    };
+
+    vkpp::Viewport lViewport
+    {
+        0.0f, 0.0f,
+        300.0f, 300.0f,
+        0.0f, 1.0f
+    };
+
+    vkpp::Rect2D lScissor
+    {
+        {0, 0} ,
+        {300, 300}
+    };
+
+    vkpp::PipelineViewportStateCreateInfo lViewportStateCreatInfo
+    {
+        1, lViewport.AddressOf(),
+        1, lScissor.AddressOf()
+    };
+
+    vkpp::PipelineRasterizationStateCreateInfo lRasterizationCreateInfo
+    {
+        VK_FALSE, VK_FALSE,
+        vkpp::PolygonMode::eFill, vkpp::CullModeFlagBits::eBack, vkpp::FrontFace::eCounterClockwise,
+        VK_FALSE, 0, 0, 0, 1.0f
+    };
+
+    vkpp::PipelineMultisampleStateCreateInfo lMultisampleStateCreatInfo
+    {
+        vkpp::SampleCountFlagBits::e1, VK_FALSE,
+        1.0f, nullptr,
+        VK_FALSE, VK_FALSE
+    };
+
+    vkpp::PipelineColorBlendAttachmentState lColorBlendAttachmentState
+    {
+        VK_FALSE,
+        vkpp::BlendFactor::eOne, vkpp::BlendFactor::eZero, vkpp::BlendOp::eAdd,
+        vkpp::BlendFactor::eOne, vkpp::BlendFactor::eZero, vkpp::BlendOp::eAdd,
+        vkpp::ColorComponentFlags(vkpp::ColorComponentFlagBits::eR) | vkpp::ColorComponentFlagBits::eG |
+        vkpp::ColorComponentFlags(vkpp::ColorComponentFlagBits::eB) | vkpp::ColorComponentFlagBits::eA
+    };
+
+    vkpp::PipelineColorBlendStateCreateInfo lColorBlendStateCreateInfo
+    {
+        VK_FALSE,
+        vkpp::LogicalOp::eCopy,
+        1, lColorBlendAttachmentState.AddressOf(),
+        {0, 0, 0, 0}
+    };
+
+    auto lPipelineLayout = CreatePipelineLayout();
+
+    vkpp::GraphicsPipelineCreateInfo lPipelineCreateInfo
+    {
+        static_cast<uint32_t>(lShaderStageCreateInfos.size()), lShaderStageCreateInfos.data(),
+        lVertexInputStateCreateInfo.AddressOf(), lInputAssemblyStateCreateInfo.AddressOf(), nullptr,
+        lViewportStateCreatInfo.AddressOf(), lRasterizationCreateInfo.AddressOf(), lMultisampleStateCreatInfo.AddressOf(),
+        nullptr, lColorBlendStateCreateInfo.AddressOf(), nullptr, lPipelineLayout, mRenderPass, 0
+    };
+
+    mGraphicsPipeline = mLogicalDevice.CreateGraphicsPipeline(nullptr, 1, lPipelineCreateInfo.AddressOf());
+
+    mLogicalDevice.DestroyPipelineLayout(lPipelineLayout);
+    mLogicalDevice.DestroyShaderModule(lFragmentShaderModule);
+    mLogicalDevice.DestroyShaderModule(lVertexShaderModule);
 }
 
 
@@ -410,9 +631,17 @@ void Triangle::InitVulkan(void)
     PickPhysicalDevice();
     CreateLogicalDevice();
     GetDeviceQueue();
-    CreateSemaphore();
 
     CreateSwapChain();
+    CreateSwapchainImageViews();
+
+    CreateRenderPass();
+    CreateFrameBuffers();
+
+    CreatePipeline();
+
+    CreateSemaphore();
+
     CreateCommandBuffers();
     RecordCommandBuffers();
 }

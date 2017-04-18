@@ -40,9 +40,14 @@ private:
     vkpp::Semaphore         mImageAvailSemaphore;
     vkpp::Semaphore         mRenderingFinishedSemaphore;
 
+    vkpp::RenderPass        mRenderPass;
+    vkpp::Pipeline          mGraphicsPipeline;
+
     vkpp::khr::Surface      mSurface;
     vkpp::khr::Swapchain    mSwapchain;
     std::vector<vkpp::Image> mSwapchainImages;
+    std::vector<vkpp::ImageView> mSwapchainImageViews;
+    std::vector<vkpp::FrameBuffer> mFramebuffers;
 
     void CheckValidationLayerSupport(void) const;
     void CheckValidationExtensions(void) const;
@@ -67,8 +72,14 @@ private:
     void CreateSemaphore(void);
 
     void CreateSwapChain(void);
+    void CreateSwapchainImageViews(void);
     void CreateCommandBuffers(void);
     void RecordCommandBuffers(void);
+    void CreateRenderPass(void);
+    void CreateFrameBuffers(void);
+    vkpp::ShaderModule CreateShaderModule(const std::string& aFilename) const;
+    vkpp::PipelineLayout CreatePipelineLayout(void) const;
+    void CreatePipeline(void);
 
     void InitWindow(void);
     void InitVulkan(void);
@@ -82,13 +93,22 @@ public:
     {
         mLogicalDevice.Wait();
 
+        mLogicalDevice.DestroyPipeline(mGraphicsPipeline);
+        mLogicalDevice.DestroyRenderPass(mRenderPass);
+
+        for (const auto& lFrameBuffer : mFramebuffers)
+            mLogicalDevice.DestroyFrameBuffer(lFrameBuffer);
+
+        for (const auto& lImageView : mSwapchainImageViews)
+            mLogicalDevice.DestroyImageView(lImageView);
+
+        mLogicalDevice.DestroySwapchain(mSwapchain);
+
         mLogicalDevice.FreeCommandBuffers(mPresentQueueCmdPool, mPresentQueueCmdBuffers);
         mLogicalDevice.DestroyCommandPool(mPresentQueueCmdPool);
 
         mLogicalDevice.DestroySemaphore(mImageAvailSemaphore);
         mLogicalDevice.DestroySemaphore(mRenderingFinishedSemaphore);
-
-        mLogicalDevice.DestroySwapchain(mSwapchain);
 
         mInstance.DestroySurface(mSurface);
         mInstance.DestroyDebugReportCallback(mDebugReportCallback);

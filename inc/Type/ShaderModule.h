@@ -53,8 +53,12 @@ public:
         : flags(aFlags), codeSize(aCodeSize), pCode(apCode)
     {}
 
-    explicit ShaderModuleCreateInfo(const std::vector<uint32_t>& aCode, const ShaderModuleCreateFlags& aFlags = DefaultFlags)
+    ShaderModuleCreateInfo(const std::vector<uint32_t>& aCode, const ShaderModuleCreateFlags& aFlags = DefaultFlags)
         : ShaderModuleCreateInfo(aCode.size(), aCode.data(), aFlags)
+    {}
+
+    ShaderModuleCreateInfo(const std::vector<char>& aCode, const ShaderModuleCreateFlags& aFlags = DefaultFlags)
+        : ShaderModuleCreateInfo(aCode.size(), reinterpret_cast<const uint32_t*>(aCode.data()), aFlags)
     {}
 
     ShaderModuleCreateInfo& SetFlags(const ShaderModuleCreateFlags& aFlags)

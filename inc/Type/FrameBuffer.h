@@ -38,7 +38,7 @@ public:
     DEFINE_CLASS_MEMBER(FrameBufferCreateInfo)
 
     FrameBufferCreateInfo(const RenderPass& aRenderPass, uint32_t aAttachmentCount, const ImageView* apAttachments,
-        uint32_t aWidth =1 , uint32_t aHeight = 1, uint32_t aLayers = 1, const FrameBufferCreateFlags& aFlags = DefaultFlags)
+        uint32_t aWidth = 1 , uint32_t aHeight = 1, uint32_t aLayers = 1, const FrameBufferCreateFlags& aFlags = DefaultFlags)
         : flags(aFlags), renderPass(aRenderPass), attachmentCount(aAttachmentCount), pAttachments(apAttachments),
           width(aWidth), height(aHeight), layers(aLayers)
     {}

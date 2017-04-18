@@ -153,6 +153,14 @@ enum class PipelineBindPoint
 
 
 
+enum class SubpassContents
+{
+    eInline                     = VK_SUBPASS_CONTENTS_INLINE,
+    eSecondaryCommandBuffers    = VK_SUBPASS_CONTENTS_SECONDARY_COMMAND_BUFFERS
+};
+
+
+
 struct SubpassDescription : public internal::VkTrait<SubpassDescription, VkSubpassDescription>
 {
     SubpassDescriptionFlags     flags;
@@ -165,6 +173,16 @@ struct SubpassDescription : public internal::VkTrait<SubpassDescription, VkSubpa
     const AttachmentReference*  pDepthStencilAttachment{ nullptr };
     uint32_t                    preserveAttachmentCount{ 0 };
     const uint32_t*             pPreserveAttachments{ nullptr };
+
+    SubpassDescription(PipelineBindPoint aPipelineBindPoint, uint32_t aInputAttachmentCount, const AttachmentReference* apInputAttachments,
+        uint32_t aColorAttachmentCount, const AttachmentReference* apColorAttachments, const AttachmentReference* apResolveAttachments = nullptr,
+        const AttachmentReference* apDepthStencilAttachment = nullptr,
+        uint32_t apReserveAttachmentCount = 0, const uint32_t* apPreserveAttachments = nullptr, const SubpassDescriptionFlags& aFlags = DefaultFlags)
+        : flags(aFlags), pipelineBindPoint(aPipelineBindPoint), inputAttachmentCount(aInputAttachmentCount), pInputAttachments(apInputAttachments),
+          colorAttachmentCount(aColorAttachmentCount), pColorAttachments(apColorAttachments), pResolveAttachments(apResolveAttachments),
+          pDepthStencilAttachment(apDepthStencilAttachment),
+          preserveAttachmentCount(apReserveAttachmentCount), pPreserveAttachments(apPreserveAttachments)
+    {}
 
     DEFINE_CLASS_MEMBER(SubpassDescription)
 

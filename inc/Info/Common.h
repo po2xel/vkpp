@@ -47,6 +47,7 @@ using Bool32            = VkBool32;
 using DeviceSize        = VkDeviceSize;
 using Result            = VkResult;
 using ClearColorValue   = VkClearColorValue;
+using ClearValue        = VkClearValue;
 
 
 template <typename T>

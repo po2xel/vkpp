@@ -320,7 +320,7 @@ public:
     }
 
     Pipeline CreateGraphicsPipeline(const PipelineCache& aPipelineCache, uint32_t aCreateInfoCount,
-        const GraphicsPipelineCreateInfo* apGraphicsPipelineCraeteInfos, const AllocationCallbacks& aAllocator)
+        const GraphicsPipelineCreateInfo* apGraphicsPipelineCraeteInfos, const AllocationCallbacks& aAllocator) const
     {
         assert(aCreateInfoCount > 0 && apGraphicsPipelineCraeteInfos != nullptr);
 
@@ -328,6 +328,16 @@ public:
         ThrowIfFailed(vkCreateGraphicsPipelines(mDevice, aPipelineCache, aCreateInfoCount, &apGraphicsPipelineCraeteInfos[0], &aAllocator, &lPipeline));
 
         return lPipeline;
+    }
+
+    void DestroyPipeline(const Pipeline& aPipeline) const
+    {
+        vkDestroyPipeline(mDevice, aPipeline, nullptr);
+    }
+
+    void DestroyPipeline(const Pipeline& aPipeline, const AllocationCallbacks& aAllocator) const
+    {
+        vkDestroyPipeline(mDevice, aPipeline, &aAllocator);
     }
 
     VkResult Wait(void) const

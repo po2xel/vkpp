@@ -179,5 +179,8 @@
     <ClInclude Include="inc\Type\GraphicsPipeline.h">
       <Filter>Header Files\Type</Filter>
     </ClInclude>
+    <ClInclude Include="inc\Info\RenderPassBeginInfo.h">
+      <Filter>Header Files\Info</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

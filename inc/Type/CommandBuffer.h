@@ -9,6 +9,10 @@
 #include <Info/CommandBufferInfo.h>
 #include <Info/PipelineStage.h>
 #include <Info/MemoryBarrier.h>
+#include <Info/RenderPassBeginInfo.h>
+
+#include <Type/RenderPass.h>
+#include <Type/GraphicsPipeline.h>
 
 
 
@@ -67,8 +71,33 @@ public:
         ThrowIfFailed(vkEndCommandBuffer(mCommandBuffer));
     }
 
+    void BeginRenderPass(const RenderPassBeginInfo& aRenderPassBeginInfo, SubpassContents aSubpassContents) const
+    {
+        vkCmdBeginRenderPass(mCommandBuffer, &aRenderPassBeginInfo, static_cast<VkSubpassContents>(aSubpassContents));
+    }
+
+    void EndRenderPass(void) const
+    {
+        vkCmdEndRenderPass(mCommandBuffer);
+    }
+
+    void BindGraphicsPipeline(const Pipeline& aPipeline) const
+    {
+        vkCmdBindPipeline(mCommandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, aPipeline); 
+    }
+
+    void BindComputePipeline(const Pipeline& aPipeline) const
+    {
+        vkCmdBindPipeline(mCommandBuffer, VK_PIPELINE_BIND_POINT_COMPUTE, aPipeline);
+    }
+
+    void Draw(uint32_t aVertexCount, uint32_t aInstanceCount, uint32_t aFirstVertex = 0, uint32_t aFirstInstance = 0) const
+    {
+        vkCmdDraw(mCommandBuffer, aVertexCount, aInstanceCount, aFirstVertex, aFirstInstance);
+    }
+
     void PipelineBarrier(const PipelineStageFlags& aSrcStageMask, const PipelineStageFlags& aDstStageMask, const DependencyFlags& aDependencyFlags,
-        const std::vector<MemoryBarrier>& aMemoryBarriers, const std::vector<BufferMemoryBarrier>& aBufferMemoryBarriers, const std::vector<ImageMemoryBarrier>& aImageMemoryBarriers)
+        const std::vector<MemoryBarrier>& aMemoryBarriers, const std::vector<BufferMemoryBarrier>& aBufferMemoryBarriers, const std::vector<ImageMemoryBarrier>& aImageMemoryBarriers) const
     {
         assert(!(aMemoryBarriers.empty() || aBufferMemoryBarriers.empty() || aImageMemoryBarriers.empty()));
 

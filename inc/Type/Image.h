@@ -131,8 +131,8 @@ struct ImageSubresourceRange : public internal::VkTrait<ImageSubresourceRange, V
 
     DEFINE_CLASS_MEMBER(ImageSubresourceRange)
 
-        ImageSubresourceRange(uint32_t aBaseMipLevel, uint32_t aLevelCount, uint32_t aBaseArrayLayer, uint32_t aLayerCount, ImageAspectFlags aAspectMask = ImageAspectFlags())
-        : aspectMask(aAspectMask), baseMipLevel(aBaseMipLevel), levelCount(aLevelCount), baseArrayLayer(aBaseArrayLayer), layerCount(aLayerCount)
+    ImageSubresourceRange(ImageAspectFlags aAspectMask, uint32_t aBaseMipLevel, uint32_t aLevelCount, uint32_t aBaseArrayLayer, uint32_t aLayerCount)
+    : aspectMask(aAspectMask), baseMipLevel(aBaseMipLevel), levelCount(aLevelCount), baseArrayLayer(aBaseArrayLayer), layerCount(aLayerCount)
     {}
 
     ImageSubresourceRange& SetAspectMask(const ImageAspectFlags& aAspectMask)

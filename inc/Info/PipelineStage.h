@@ -60,14 +60,14 @@ private:
 public:
     const void*                     pNext{ nullptr };
     PipelineShaderStageCreateFlags  flags;
-    ShaderStageFlags                stage;
+    ShaderStageFlagBits             stage;
     ShaderModule                    module;
     const char*                     pName{ DefaultShaderEntryName };
     const SpecializationInfo*       pSpecializationInfo{ nullptr };
 
     DEFINE_CLASS_MEMBER(PipelineShaderStageCreateInfo)
 
-    PipelineShaderStageCreateInfo(const ShaderStageFlags& aStage, const ShaderModule& aModule, const char* apName = DefaultShaderEntryName,
+    PipelineShaderStageCreateInfo(ShaderStageFlagBits aStage, const ShaderModule& aModule, const char* apName = DefaultShaderEntryName,
         const SpecializationInfo* apSpecializationInfo = nullptr, const PipelineShaderStageCreateFlags& aFlags = DefaultFlags)
         : flags(aFlags), stage(aStage), module(aModule), pName(apName), pSpecializationInfo(apSpecializationInfo)
     {}
@@ -79,7 +79,7 @@ public:
         return *this;
     }
 
-    PipelineShaderStageCreateInfo& SetShaderStage(const ShaderStageFlags& aStage, const ShaderModule& aModule, const char* apName = DefaultShaderEntryName)
+    PipelineShaderStageCreateInfo& SetShaderStage(ShaderStageFlagBits aStage, const ShaderModule& aModule, const char* apName = DefaultShaderEntryName)
     {
         stage   = aStage;
         module  = aModule;
@@ -744,7 +744,7 @@ using ColorComponentFlags = internal::Flags<ColorComponentFlagBits, VkColorCompo
 
 
 
-class PipelineColorBlendAttachmentState : public internal::VkTrait<PipelineColorBlendAttachmentState, VkPipelineColorBlendAttachmentState>
+struct PipelineColorBlendAttachmentState : public internal::VkTrait<PipelineColorBlendAttachmentState, VkPipelineColorBlendAttachmentState>
 {
     Bool32              blendEnable{ VK_FALSE };
     BlendFactor         srcColorBlendFactor;
@@ -812,6 +812,12 @@ public:
     float                                       blendConstants[4]{};
 
     DEFINE_CLASS_MEMBER(PipelineColorBlendStateCreateInfo)
+
+    PipelineColorBlendStateCreateInfo(Bool32 aLogicalOpEnable, LogicalOp aLogicOp, uint32_t aAttachmentCount, const PipelineColorBlendAttachmentState* apAttachments,
+        const std::array<float, 4>& aBlendConstants, const PipelineColorBlendStateCreateFlags& aFlags = DefaultFlags)
+        : flags(aFlags), logicalOpEnable(aLogicalOpEnable), logicOp(aLogicOp), attachmentCount(aAttachmentCount),
+          pAttachments(apAttachments), blendConstants{aBlendConstants[0], aBlendConstants[1], aBlendConstants[2], aBlendConstants[3]}
+    {}
 
     // TODO
 };

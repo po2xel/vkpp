@@ -190,6 +190,7 @@
     <ClInclude Include="inc\Info\PhysicalDeviceProperties.h" />
     <ClInclude Include="inc\Info\PipelineStage.h" />
     <ClInclude Include="inc\Info\PresentInfo.h" />
+    <ClInclude Include="inc\Info\RenderPassBeginInfo.h" />
     <ClInclude Include="inc\Info\SemaphoreCreateInfo.h" />
     <ClInclude Include="inc\Info\SubmitInfo.h" />
     <ClInclude Include="inc\Info\SurfaceCapabilities.h" />

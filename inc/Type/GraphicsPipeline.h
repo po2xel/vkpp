@@ -75,7 +75,24 @@ public:
     RenderPass                                  renderPass;
     uint32_t                                    subpass{ 0 };
     Pipeline                                    basePipelineHandle;
-    int32_t                                     basePipelineIndex{ 0 };
+    int32_t                                     basePipelineIndex{ -1 };
+
+    DEFINE_CLASS_MEMBER(GraphicsPipelineCreateInfo)
+
+    GraphicsPipelineCreateInfo(uint32_t aStageCount, const PipelineShaderStageCreateInfo* apStages,
+        const PipelineVertexInputStateCreateInfo* apVertexInputState, const PipelineInputAssemblyStateCreateInfo* apInputAssemblyState,
+        const PipelineTessellationStateCreateInfo* apTessellationState, const PipelineViewportStateCreateInfo* apViewportState,
+        const PipelineRasterizationStateCreateInfo* apRasterizationState, const PipelineMultisampleStateCreateInfo* apMultisampleState,
+        const PipelineDepthStencilStateCreateInfo* apDepthStencilState, const PipelineColorBlendStateCreateInfo* apColorBlendState,
+        const PipelineDynamicStateCreateInfo* apDynamicState,
+        const PipelineLayout& aLayout, const RenderPass& aRenderPass, uint32_t aSubpass,
+        const Pipeline& aBasePipelineHandle = nullptr, int32_t aBasePipelineIndex = -1,
+        const PipelineCreateFlags& aFlags = DefaultFlags)
+        : flags(aFlags), stageCount(aStageCount), pStages(apStages), pVertexInputState(apVertexInputState), pInputAssemblyState(apInputAssemblyState),
+          pTessellationState(apTessellationState), pViewportState(apViewportState), pRasterizationState(apRasterizationState), pMultisampleState(apMultisampleState),
+          pDepthStencilState(apDepthStencilState), pColorBlendState(apColorBlendState), pDynamicState(apDynamicState),
+          layout(aLayout), renderPass(aRenderPass), subpass(aSubpass), basePipelineHandle(aBasePipelineHandle), basePipelineIndex(aBasePipelineIndex)
+    {}
 };
 
 StaticSizeCheck(GraphicsPipelineCreateInfo);
