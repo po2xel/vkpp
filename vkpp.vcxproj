@@ -173,29 +173,19 @@
     <ClCompile Include="Sample\Triangle\Triangle.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="inc\Info\ApplicationInfo.h" />
-    <ClInclude Include="inc\Info\BufferCreateInfo.h" />
     <ClInclude Include="inc\Info\CommandBufferAllocateInfo.h" />
-    <ClInclude Include="inc\Info\CommandBufferInfo.h" />
-    <ClInclude Include="inc\Info\CommandPoolCreateInfo.h" />
     <ClInclude Include="inc\Info\Common.h" />
     <ClInclude Include="inc\Info\DebugReportCallbackCreateInfo.h" />
     <ClInclude Include="inc\Info\Extensions.h" />
     <ClInclude Include="inc\Info\Flags.h" />
     <ClInclude Include="inc\Info\Format.h" />
-    <ClInclude Include="inc\Info\MemoryBarrier.h" />
-    <ClInclude Include="inc\Info\InstanceInfo.h" />
     <ClInclude Include="inc\Info\Layers.h" />
-    <ClInclude Include="inc\Info\LogicalDeviceInfo.h" />
-    <ClInclude Include="inc\Info\PhysicalDeviceProperties.h" />
+    <ClInclude Include="inc\Info\PhysicalDeviceFeatures.h" />
     <ClInclude Include="inc\Info\PipelineStage.h" />
-    <ClInclude Include="inc\Info\PresentInfo.h" />
     <ClInclude Include="inc\Info\RenderPassBeginInfo.h" />
     <ClInclude Include="inc\Info\SemaphoreCreateInfo.h" />
-    <ClInclude Include="inc\Info\SubmitInfo.h" />
     <ClInclude Include="inc\Info\SurfaceCapabilities.h" />
     <ClInclude Include="inc\Info\SurfaceCreateInfo.h" />
-    <ClInclude Include="inc\Info\SwapchainCreateInfo.h" />
     <ClInclude Include="inc\Info\Windows\SurfaceCreateInfo.h" />
     <ClInclude Include="inc\Memory\AutoPtr.h" />
     <ClInclude Include="inc\Type\AllocationCallbacks.h" />
@@ -210,6 +200,7 @@
     <ClInclude Include="inc\Type\Image.h" />
     <ClInclude Include="inc\Type\Instance.h" />
     <ClInclude Include="inc\Type\LogicalDevice.h" />
+    <ClInclude Include="inc\Type\MemoryBarrier.h" />
     <ClInclude Include="inc\Type\PhysicalDevice.h" />
     <ClInclude Include="inc\Type\Queue.h" />
     <ClInclude Include="inc\Type\RenderPass.h" />

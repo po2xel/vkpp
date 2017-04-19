@@ -50,12 +50,6 @@
     <ClInclude Include="inc\Type\AllocationCallbacks.h">
       <Filter>Header Files\Type</Filter>
     </ClInclude>
-    <ClInclude Include="inc\Info\ApplicationInfo.h">
-      <Filter>Header Files\Info</Filter>
-    </ClInclude>
-    <ClInclude Include="inc\Info\InstanceInfo.h">
-      <Filter>Header Files\Info</Filter>
-    </ClInclude>
     <ClInclude Include="inc\Type\Instance.h">
       <Filter>Header Files\Type</Filter>
     </ClInclude>
@@ -68,12 +62,6 @@
     <ClInclude Include="inc\Info\Flags.h">
       <Filter>Header Files\Info</Filter>
     </ClInclude>
-    <ClInclude Include="inc\Info\PhysicalDeviceProperties.h">
-      <Filter>Header Files\Info</Filter>
-    </ClInclude>
-    <ClInclude Include="inc\Info\LogicalDeviceInfo.h">
-      <Filter>Header Files\Info</Filter>
-    </ClInclude>
     <ClInclude Include="inc\Type\LogicalDevice.h">
       <Filter>Header Files\Type</Filter>
     </ClInclude>
@@ -82,9 +70,6 @@
     </ClInclude>
     <ClInclude Include="inc\Type\Queue.h">
       <Filter>Header Files\Type</Filter>
-    </ClInclude>
-    <ClInclude Include="inc\Info\BufferCreateInfo.h">
-      <Filter>Header Files\Info</Filter>
     </ClInclude>
     <ClInclude Include="inc\Type\Buffer.h">
       <Filter>Header Files\Type</Filter>
@@ -116,9 +101,6 @@
     <ClInclude Include="inc\Info\Format.h">
       <Filter>Header Files\Info</Filter>
     </ClInclude>
-    <ClInclude Include="inc\Info\SwapchainCreateInfo.h">
-      <Filter>Header Files\Info</Filter>
-    </ClInclude>
     <ClInclude Include="inc\Type\Swapchain.h">
       <Filter>Header Files\Type</Filter>
     </ClInclude>
@@ -140,22 +122,10 @@
     <ClInclude Include="inc\Type\CommandPool.h">
       <Filter>Header Files\Type</Filter>
     </ClInclude>
-    <ClInclude Include="inc\Info\CommandPoolCreateInfo.h">
-      <Filter>Header Files\Info</Filter>
-    </ClInclude>
     <ClInclude Include="inc\Info\PipelineStage.h">
       <Filter>Header Files\Info</Filter>
     </ClInclude>
-    <ClInclude Include="inc\Info\PresentInfo.h">
-      <Filter>Header Files\Info</Filter>
-    </ClInclude>
-    <ClInclude Include="inc\Info\SubmitInfo.h">
-      <Filter>Header Files\Info</Filter>
-    </ClInclude>
     <ClInclude Include="inc\Info\CommandBufferAllocateInfo.h">
-      <Filter>Header Files\Info</Filter>
-    </ClInclude>
-    <ClInclude Include="inc\Info\CommandBufferInfo.h">
       <Filter>Header Files\Info</Filter>
     </ClInclude>
     <ClInclude Include="inc\Type\RenderPass.h">
@@ -163,9 +133,6 @@
     </ClInclude>
     <ClInclude Include="inc\Type\FrameBuffer.h">
       <Filter>Header Files\Type</Filter>
-    </ClInclude>
-    <ClInclude Include="inc\Info\MemoryBarrier.h">
-      <Filter>Header Files\Info</Filter>
     </ClInclude>
     <ClInclude Include="inc\Memory\AutoPtr.h">
       <Filter>Header Files\Memory</Filter>
@@ -181,6 +148,12 @@
     </ClInclude>
     <ClInclude Include="inc\Info\RenderPassBeginInfo.h">
       <Filter>Header Files\Info</Filter>
+    </ClInclude>
+    <ClInclude Include="inc\Info\PhysicalDeviceFeatures.h">
+      <Filter>Header Files\Info</Filter>
+    </ClInclude>
+    <ClInclude Include="inc\Type\MemoryBarrier.h">
+      <Filter>Header Files\Type</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

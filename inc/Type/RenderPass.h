@@ -6,7 +6,8 @@
 #include <Info/Common.h>
 #include <Info/Flags.h>
 #include <Info/Format.h>
-#include <Info/MemoryBarrier.h>
+
+#include <Type/MemoryBarrier.h>
 
 
 
@@ -17,7 +18,7 @@ namespace vkpp
 
 enum class AttachmentDescriptionFlagBits
 {
-    eMayAlias = VK_ATTACHMENT_DESCRIPTION_MAY_ALIAS_BIT
+    eMayAlias   = VK_ATTACHMENT_DESCRIPTION_MAY_ALIAS_BIT
 };
 
 using AttachmentDescriptionFlags = internal::Flags<AttachmentDescriptionFlagBits, VkAttachmentDescriptionFlags>;

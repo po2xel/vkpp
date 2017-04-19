@@ -1,5 +1,5 @@
-#ifndef __VKPP_INFO_MEMORY_BARRIER_H__
-#define __VKPP_INFO_MEMORY_BARRIER_H__
+#ifndef __VKPP_TYPE_MEMORY_BARRIER_H__
+#define __VKPP_TYPE_MEMORY_BARRIER_H__
 
 
 
@@ -203,4 +203,4 @@ StaticSizeCheck(MemoryBarrier);
 
 
 
-#endif              // __VKPP_INFO_MEMORY_BARRIER_H__
+#endif              // __VKPP_TYPE_MEMORY_BARRIER_H__

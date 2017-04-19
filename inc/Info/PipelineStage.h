@@ -3,8 +3,12 @@
 
 
 
+#include <array>
+
 #include <Info/Common.h>
 #include <Info/Flags.h>
+#include <Info/Format.h>
+
 #include <Type/ShaderModule.h>
 #include <Type/DescriptorSet.h>
 
