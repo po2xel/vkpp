@@ -55,6 +55,10 @@ using Array = std::vector<T>;
 
 
 
+constexpr auto WholeSize = VK_WHOLE_SIZE;
+
+
+
 inline void ThrowIfFailed(VkResult aResult)
 {
     if (aResult != VK_SUCCESS)
@@ -65,8 +69,8 @@ inline void ThrowIfFailed(VkResult aResult)
 
 enum class SharingMode
 {
-    eExclusive = VK_SHARING_MODE_EXCLUSIVE,
-    eConcurrent = VK_SHARING_MODE_CONCURRENT
+    eExclusive      = VK_SHARING_MODE_EXCLUSIVE,
+    eConcurrent     = VK_SHARING_MODE_CONCURRENT
 };
 
 
@@ -106,6 +110,23 @@ enum class CompareOp
     eGreaterOrEqual = VK_COMPARE_OP_GREATER_OR_EQUAL,
     eAlways         = VK_COMPARE_OP_ALWAYS
 };
+
+
+
+enum class ImageUsageFlagBits
+{
+    eTransferSrc            = VK_IMAGE_USAGE_TRANSFER_SRC_BIT,
+    eTransferDst            = VK_IMAGE_USAGE_TRANSFER_DST_BIT,
+    eSampled                = VK_IMAGE_USAGE_SAMPLED_BIT,
+    eStorage                = VK_IMAGE_USAGE_STORAGE_BIT,
+    eColorAttachment        = VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT,
+    eDepthStencilAttachment = VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT,
+    eTransientAttachment    = VK_IMAGE_USAGE_TRANSIENT_ATTACHMENT_BIT,
+    eInputAttachment        = VK_IMAGE_USAGE_INPUT_ATTACHMENT_BIT
+};
+
+using ImageUsageFlags = internal::Flags<ImageUsageFlagBits, VkImageUsageFlags>;
+
 
 
 struct SpecializationMapEntry : public internal::VkTrait<SpecializationMapEntry, VkSpecializationMapEntry>

@@ -28,6 +28,9 @@
     <Filter Include="Header Files\Memory">
       <UniqueIdentifier>{a7d3981a-bd11-4afa-814a-11603d662c01}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source Files\Shaders">
+      <UniqueIdentifier>{f941ac40-995b-4b3f-9560-e71f460c2f08}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -87,9 +90,6 @@
       <Filter>Header Files\Info</Filter>
     </ClInclude>
     <ClInclude Include="inc\Type\Surface.h">
-      <Filter>Header Files\Type</Filter>
-    </ClInclude>
-    <ClInclude Include="inc\Info\SemaphoreCreateInfo.h">
       <Filter>Header Files\Type</Filter>
     </ClInclude>
     <ClInclude Include="inc\Type\Semaphore.h">
@@ -153,6 +153,12 @@
       <Filter>Header Files\Info</Filter>
     </ClInclude>
     <ClInclude Include="inc\Type\MemoryBarrier.h">
+      <Filter>Header Files\Type</Filter>
+    </ClInclude>
+    <ClInclude Include="inc\Info\MemoryRequirements.h">
+      <Filter>Header Files\Info</Filter>
+    </ClInclude>
+    <ClInclude Include="inc\Type\Memory.h">
       <Filter>Header Files\Type</Filter>
     </ClInclude>
   </ItemGroup>

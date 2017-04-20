@@ -180,10 +180,10 @@
     <ClInclude Include="inc\Info\Flags.h" />
     <ClInclude Include="inc\Info\Format.h" />
     <ClInclude Include="inc\Info\Layers.h" />
+    <ClInclude Include="inc\Info\MemoryRequirements.h" />
     <ClInclude Include="inc\Info\PhysicalDeviceFeatures.h" />
     <ClInclude Include="inc\Info\PipelineStage.h" />
     <ClInclude Include="inc\Info\RenderPassBeginInfo.h" />
-    <ClInclude Include="inc\Info\SemaphoreCreateInfo.h" />
     <ClInclude Include="inc\Info\SurfaceCapabilities.h" />
     <ClInclude Include="inc\Info\SurfaceCreateInfo.h" />
     <ClInclude Include="inc\Info\Windows\SurfaceCreateInfo.h" />
@@ -200,6 +200,7 @@
     <ClInclude Include="inc\Type\Image.h" />
     <ClInclude Include="inc\Type\Instance.h" />
     <ClInclude Include="inc\Type\LogicalDevice.h" />
+    <ClInclude Include="inc\Type\Memory.h" />
     <ClInclude Include="inc\Type\MemoryBarrier.h" />
     <ClInclude Include="inc\Type\PhysicalDevice.h" />
     <ClInclude Include="inc\Type\Queue.h" />

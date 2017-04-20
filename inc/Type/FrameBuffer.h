@@ -114,6 +114,11 @@ public:
 
     explicit FrameBuffer(VkFramebuffer aFrameBuffer) : mFrameBuffer(aFrameBuffer)
     {}
+
+    operator bool() const
+    {
+        return mFrameBuffer != VK_NULL_HANDLE;
+    }
 };
 
 StaticSizeCheck(FrameBuffer);

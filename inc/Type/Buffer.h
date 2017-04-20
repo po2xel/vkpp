@@ -56,18 +56,23 @@ public:
 
     DEFINE_CLASS_MEMBER(BufferCreateInfo)
 
-    BufferCreateInfo(BufferCreateFlags aFlags, DeviceSize aSize, BufferUsageFlags aUsage, SharingMode aSharingMode,
-        uint32_t aQueueFamilyIndexCount, const uint32_t* apQueueFamilyIndices)
-        : flags(aFlags), size(aSize), usage(aUsage), sharingMode(aSharingMode), queueFamilyIndexCount(aQueueFamilyIndexCount), pQueueFamilyIndices(apQueueFamilyIndices)
+    BufferCreateInfo(DeviceSize aSize, const BufferUsageFlags& aUsage, const BufferCreateFlags& aFlags = DefaultFlags)
+        : flags(aFlags), size(aSize), usage(aUsage)
     {}
 
-    BufferCreateInfo(BufferCreateFlags aFlags, DeviceSize aSize, BufferUsageFlags aUsage, SharingMode aSharingMode, const std::vector<uint32_t>& aQueueFamilyIndices)
-        : BufferCreateInfo(aFlags, aSize, aUsage, aSharingMode, static_cast<uint32_t>(aQueueFamilyIndices.size()), aQueueFamilyIndices.data())
+    BufferCreateInfo(DeviceSize aSize, const BufferUsageFlags& aUsage, uint32_t aQueueFamilyIndexCount, const uint32_t* apQueueFamilyIndices, const BufferCreateFlags& aFlags = DefaultFlags)
+        : flags(aFlags), size(aSize), usage(aUsage), sharingMode(SharingMode::eConcurrent), queueFamilyIndexCount(aQueueFamilyIndexCount), pQueueFamilyIndices(apQueueFamilyIndices)
+    {
+        assert(aQueueFamilyIndexCount != 0 && apQueueFamilyIndices != nullptr);
+    }
+
+    BufferCreateInfo(DeviceSize aSize, const BufferUsageFlags& aUsage, const std::vector<uint32_t>& aQueueFamilyIndices, const BufferCreateFlags& aFlags = DefaultFlags)
+        : BufferCreateInfo(aSize, aUsage, static_cast<uint32_t>(aQueueFamilyIndices.size()), aQueueFamilyIndices.data(), aFlags)
     {}
 
     template <std::size_t Q>
-    BufferCreateInfo(BufferCreateFlags aFlags, DeviceSize aSize, BufferUsageFlags aUsage, SharingMode aSharingMode, const std::array<uint32_t, Q>& aQueueFamilyIndices)
-        : BufferCreateInfo(aFlags, aSize, aUsage, aSharingMode, static_cast<uint32_t>(aQueueFamilyIndices.size()), aQueueFamilyIndices.data())
+    BufferCreateInfo(DeviceSize aSize, const BufferUsageFlags& aUsage,const std::array<uint32_t, Q>& aQueueFamilyIndices, const BufferCreateFlags& aFlags = DefaultFlags)
+        : BufferCreateInfo(aSize, aUsage, static_cast<uint32_t>(aQueueFamilyIndices.size()), aQueueFamilyIndices.data(), aFlags)
     {}
 
     BufferCreateInfo& SetNext(const void* apNext)
@@ -77,7 +82,7 @@ public:
         return *this;
     }
 
-    BufferCreateInfo& SetFlags(BufferCreateFlags aFlags)
+    BufferCreateInfo& SetFlags(const BufferCreateFlags& aFlags)
     {
         flags = aFlags;
 
@@ -91,37 +96,42 @@ public:
         return *this;
     }
 
-    BufferCreateInfo& SetUsage(BufferUsageFlags aUsage)
+    BufferCreateInfo& SetUsage(const BufferUsageFlags& aUsage)
     {
         usage = aUsage;
 
         return *this;
     }
 
-    BufferCreateInfo& SetSharingMode(SharingMode aSharingMode)
+    BufferCreateInfo& SetExclusiveMode(void)
     {
-        sharingMode = aSharingMode;
+        sharingMode             = SharingMode::eExclusive;
+        queueFamilyIndexCount   = 0;
+        pQueueFamilyIndices     = nullptr;
 
         return *this;
     }
 
-    BufferCreateInfo& SetQueueFamilyIndices(uint32_t aQueueFamilyIndexCount, const uint32_t* apQueueFamilyIndices)
+    BufferCreateInfo& SetConcurrentMode(uint32_t aQueueFamilyIndexCount, const uint32_t* apQueueFamilyIndices)
     {
-        queueFamilyIndexCount = aQueueFamilyIndexCount;
-        pQueueFamilyIndices = apQueueFamilyIndices;
+        assert(aQueueFamilyIndexCount != 0 && apQueueFamilyIndices != nullptr);
+
+        sharingMode             = SharingMode::eConcurrent;
+        queueFamilyIndexCount   = aQueueFamilyIndexCount;
+        pQueueFamilyIndices     = apQueueFamilyIndices;
 
         return *this;
     }
 
-    BufferCreateInfo& SetQueueFamilyIndices(const std::vector<uint32_t>& aQueueFamilyIndices)
+    BufferCreateInfo& SetConcurrentMode(const std::vector<uint32_t>& aQueueFamilyIndices)
     {
-        return SetQueueFamilyIndices(static_cast<uint32_t>(aQueueFamilyIndices.size()), aQueueFamilyIndices.data());
+        return SetConcurrentMode(static_cast<uint32_t>(aQueueFamilyIndices.size()), aQueueFamilyIndices.data());
     }
 
     template <std::size_t Q>
-    BufferCreateInfo& SetQueueFamilyIndices(const std::array<uint32_t, Q>& aQueueFamilyIndices)
+    BufferCreateInfo& SetConcurrentMode(const std::array<uint32_t, Q>& aQueueFamilyIndices)
     {
-        return SetQueueFamilyIndices(static_cast<uint32_t>(aQueueFamilyIndices.size()), aQueueFamilyIndices.data());
+        return SetConcurrentMode(static_cast<uint32_t>(aQueueFamilyIndices.size()), aQueueFamilyIndices.data());
     }
 };
 
@@ -145,6 +155,80 @@ public:
 };
 
 StaticSizeCheck(Buffer);
+
+
+
+enum class BufferViewCreateFlagBits
+{};
+
+using BufferViewCreateFlags = internal::Flags<BufferViewCreateFlagBits, VkBufferViewCreateFlags>;
+
+
+
+class BufferViewCreateInfo : public internal::VkTrait<BufferViewCreateInfo, VkBufferViewCreateInfo>
+{
+private:
+    const internal::Structure sType = internal::Structure::eBufferView;
+
+public:
+    const void*             pNext{ nullptr };
+    BufferViewCreateFlags   flags;
+    Buffer                  buffer;
+    Format                  format{ Format::eUndefined };
+    DeviceSize              offset{ 0 };
+    DeviceSize              range{ 0 };
+
+    DEFINE_CLASS_MEMBER(BufferViewCreateInfo)
+
+        BufferViewCreateInfo(const Buffer& aBuffer, Format aFormat, DeviceSize aOffset, DeviceSize aRange, const BufferViewCreateFlags& aFlags = DefaultFlags)
+        : flags(aFlags), buffer(aBuffer), format(aFormat), offset(aOffset), range(aRange)
+    {}
+
+    BufferViewCreateInfo& SetNext(const void* apNext)
+    {
+        pNext = apNext;
+
+        return *this;
+    }
+
+    BufferViewCreateInfo& SetFlags(const BufferViewCreateFlags& aFlags)
+    {
+        flags = aFlags;
+
+        return *this;
+    }
+
+    BufferViewCreateInfo& SetBuffer(const Buffer& aBuffer, Format aFormat, DeviceSize aOffset, DeviceSize aRange)
+    {
+        buffer  = aBuffer;
+        format  = aFormat;
+        offset  = aOffset;
+        range   = aRange;
+
+        return *this;
+    }
+};
+
+StaticSizeCheck(BufferViewCreateInfo);
+
+
+
+class BufferView : public internal::VkTrait<BufferView, VkBufferView>
+{
+private:
+    VkBufferView mBufferView{ VK_NULL_HANDLE };
+
+public:
+    BufferView(void) = default;
+
+    BufferView(std::nullptr_t)
+    {}
+
+    explicit BufferView(VkBufferView aBufferView) : mBufferView(aBufferView)
+    {}
+};
+
+StaticSizeCheck(BufferView);
 
 
 

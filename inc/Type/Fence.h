@@ -4,11 +4,54 @@
 
 
 #include <Info/Common.h>
+#include <Info/Flags.h>
 
 
 
 namespace vkpp
 {
+
+
+
+enum class FenceCreateFlagBits
+{
+    eSignaled       = VK_FENCE_CREATE_SIGNALED_BIT
+};
+
+using FenceCreateFlags = internal::Flags<FenceCreateFlagBits, VkFenceCreateFlags>;
+
+
+
+class FenceCreateInfo : public internal::VkTrait<FenceCreateInfo, VkFenceCreateInfo>
+{
+private:
+    const internal::Structure sType = internal::Structure::eFence;
+
+public:
+    const void*             pNext{ nullptr };
+    FenceCreateFlags        flags;
+
+    DEFINE_CLASS_MEMBER(FenceCreateInfo)
+
+    explicit FenceCreateInfo(const FenceCreateFlags& aFlags) noexcept : flags(aFlags)
+    {}
+
+    FenceCreateInfo& SetNext(const void* apNext)
+    {
+        pNext = apNext;
+
+        return *this;
+    }
+
+    FenceCreateInfo& SetFlags(const FenceCreateFlags& aFlags)
+    {
+        flags = aFlags;
+
+        return *this;
+    }
+};
+
+StaticSizeCheck(FenceCreateInfo);
 
 
 

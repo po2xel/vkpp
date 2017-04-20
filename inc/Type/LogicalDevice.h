@@ -4,10 +4,10 @@
 
 
 #include <Info/Common.h>
-#include <Info/SemaphoreCreateInfo.h>
 #include <Info/CommandBufferAllocateInfo.h>
 #include <Info/PipelineStage.h>
 #include <Info/PhysicalDeviceFeatures.h>
+#include <Info/MemoryRequirements.h>
 
 #include <Type/VkDeleter.h>
 #include <Type/AllocationCallbacks.h>
@@ -21,6 +21,8 @@
 #include <Type/FrameBuffer.h>
 #include <Type/ShaderModule.h>
 #include <Type/GraphicsPipeline.h>
+#include <Type/Memory.h>
+#include <Type/Buffer.h>
 
 
 
@@ -230,6 +232,22 @@ public:
         return lQueue;
     }
 
+    MemoryRequirements GetBufferMemoryRequirements(const Buffer& aBuffer) const
+    {
+        MemoryRequirements lMemoryRequirements;
+        vkGetBufferMemoryRequirements(mDevice, aBuffer, &lMemoryRequirements);
+
+        return lMemoryRequirements;
+    }
+
+    MemoryRequirements GetImageMemoryRequirements(const Image& aImage) const
+    {
+        MemoryRequirements lMemoryRequirements;
+        vkGetImageMemoryRequirements(mDevice, aImage, &lMemoryRequirements);
+
+        return lMemoryRequirements;
+    }
+
     Semaphore CreateSemaphore(const SemaphoreCreateInfo& aSemaphoreCreateInfo) const
     {
         Semaphore lSemaphore;
@@ -254,6 +272,83 @@ public:
     void DestroySemaphore(const Semaphore& aSemaphore, const AllocationCallbacks& aAllocator) const
     {
         vkDestroySemaphore(mDevice, aSemaphore, &aAllocator);
+    }
+
+    Fence CreateFence(const FenceCreateInfo& aFenceCreateInfo) const
+    {
+        Fence lFence;
+        ThrowIfFailed(vkCreateFence(mDevice, &aFenceCreateInfo, nullptr, &lFence));
+
+        return lFence;
+    }
+
+    Fence CreateFence(const FenceCreateInfo& aFenceCreateInfo, const AllocationCallbacks& aAllocator) const
+    {
+        Fence lFence;
+        ThrowIfFailed(vkCreateFence(mDevice, &aFenceCreateInfo, &aAllocator, &lFence));
+
+        return lFence;
+    }
+
+    void DestroyFence(const Fence& aFence) const
+    {
+        vkDestroyFence(mDevice, aFence, nullptr);
+    }
+
+    void DestroyFence(const Fence& aFence, const AllocationCallbacks& aAllocator) const
+    {
+        vkDestroyFence(mDevice, aFence, &aAllocator);
+    }
+
+    VkResult GetFenceStatus(const Fence& aFence) const
+    {
+        return vkGetFenceStatus(mDevice, aFence);
+    }
+
+    void ResetFence(const Fence& apFences) const
+    {
+        ThrowIfFailed(vkResetFences(mDevice, 1, &apFences));
+    }
+
+    void ResetFences(uint32_t aFenceCount, const Fence* apFences) const
+    {
+        assert(aFenceCount != 0 && apFences != nullptr);
+
+        ThrowIfFailed(vkResetFences(mDevice, aFenceCount, &apFences[0]));
+    }
+
+    void ResetFences(const std::vector<Fence>& aFences) const
+    {
+        return ResetFences(static_cast<uint32_t>(aFences.size()), aFences.data());
+    }
+
+    template <std::size_t F>
+    void ResetFences(const std::array<Fence, F>& aFences) const
+    {
+        return ResetFences(static_cast<uint32_t>(aFences.size()), aFences.data());
+    }
+
+    void WaitForFence(const Fence& aFence, bool aWaitAll, uint64_t aTimeout) const
+    {
+        ThrowIfFailed(vkWaitForFences(mDevice, 1, &aFence, aWaitAll, aTimeout));
+    }
+
+    void WaitForFences(uint32_t aFenceCount, const Fence* apFences, bool aWaitAll, uint64_t aTimeout) const
+    {
+        assert(aFenceCount != 0 && apFences != nullptr);
+
+        ThrowIfFailed(vkWaitForFences(mDevice, aFenceCount, &apFences[0], aWaitAll, aTimeout));
+    }
+
+    void WaitForFences(const std::vector<Fence>& aFences, bool aWaitAll, uint64_t aTimeout) const
+    {
+        return WaitForFences(static_cast<uint32_t>(aFences.size()), aFences.data(), aWaitAll, aTimeout);
+    }
+
+    template <std::size_t F>
+    void WaitForFences(const std::array<Fence, F>& aFences, bool aWaitAll, uint64_t aTimeout) const
+    {
+        return WaitForFences(static_cast<uint32_t>(aFences.size()), aFences.data(), aWaitAll, aTimeout);
     }
 
     khr::Swapchain CreateSwapchain(const khr::SwapchainCreateInfo& aSwapchainCreateInfo) const
@@ -293,7 +388,7 @@ public:
         return lSwapchainImages;
     }
 
-    uint32_t AcquireNextImage(const khr::Swapchain& aSwapchain, uint32_t aTimeout, const Semaphore& aSemaphore, const Fence& aFence) const
+    uint32_t AcquireNextImage(const khr::Swapchain& aSwapchain, uint64_t aTimeout, const Semaphore& aSemaphore, const Fence& aFence) const
     {
         uint32_t lImageIndex;
         // TODO: Error handling.
@@ -331,9 +426,16 @@ public:
         return lCommandBuffers;
     }
 
-    void FreeCommandBuffers(const CommandPool& aCmdPool, uint32_t aCmdBufferCount, const CommandBuffer* apCmdBuffers) const
+    void FreeCommandBuffer(const CommandPool& aCommandPool, const CommandBuffer& aCommandBuffer) const
     {
-        vkFreeCommandBuffers(mDevice, aCmdPool, aCmdBufferCount, &apCmdBuffers[0]);
+        vkFreeCommandBuffers(mDevice, aCommandPool, 1, &aCommandBuffer);
+    }
+
+    void FreeCommandBuffers(const CommandPool& aCommandPool, uint32_t aCommandBufferCount, const CommandBuffer* apCmdBuffers) const
+    {
+        assert(aCommandBufferCount != 0 && apCmdBuffers != nullptr);
+
+        vkFreeCommandBuffers(mDevice, aCommandPool, aCommandBufferCount, &apCmdBuffers[0]);
     }
 
     void FreeCommandBuffers(const CommandPool& aCommandPool, const std::vector<CommandBuffer>& aCommandBuffers) const
@@ -365,6 +467,84 @@ public:
     void DestroyRenderPass(const RenderPass& aRenderPass, const AllocationCallbacks& aAllocator) const
     {
         vkDestroyRenderPass(mDevice, aRenderPass, &aAllocator);
+    }
+
+    Buffer CreateBuffer(const BufferCreateInfo& aBufferCreateInfo) const
+    {
+        Buffer lBuffer;
+        ThrowIfFailed(vkCreateBuffer(mDevice, &aBufferCreateInfo, nullptr, &lBuffer));
+
+        return lBuffer;
+    }
+
+    Buffer CreateBuffer(const BufferCreateInfo& aBufferCreateInfo, const AllocationCallbacks& aAllocator) const
+    {
+        Buffer lBuffer;
+        ThrowIfFailed(vkCreateBuffer(mDevice, &aBufferCreateInfo, &aAllocator, &lBuffer));
+
+        return lBuffer;
+    }
+
+    void DestroyBuffer(const Buffer& aBuffer) const
+    {
+        vkDestroyBuffer(mDevice, aBuffer, nullptr);
+    }
+
+    void DestroyBuffer(const Buffer& aBuffer, const AllocationCallbacks& aAllocator) const
+    {
+        vkDestroyBuffer(mDevice, aBuffer, &aAllocator);
+    }
+
+    BufferView CreateBufferView(const BufferViewCreateInfo& aBufferViewCreateInfo) const
+    {
+        BufferView lBufferView;
+        ThrowIfFailed(vkCreateBufferView(mDevice, &aBufferViewCreateInfo, nullptr, &lBufferView));
+
+        return lBufferView;
+    }
+
+    BufferView CreateBufferView(const BufferViewCreateInfo& aBufferViewCreateInfo, const AllocationCallbacks& aAllocator) const
+    {
+        BufferView lBufferView;
+        ThrowIfFailed(vkCreateBufferView(mDevice, &aBufferViewCreateInfo, &aAllocator, &lBufferView));
+
+        return lBufferView;
+    }
+
+    void DestroyBufferView(const BufferView& aBufferView) const
+    {
+        vkDestroyBufferView(mDevice, aBufferView, nullptr);
+    }
+
+    void DestroyBufferView(const BufferView& aBufferView, const AllocationCallbacks& aAllocator) const
+    {
+        vkDestroyBufferView(mDevice, aBufferView, &aAllocator);
+    }
+
+    Image CreateImage(const ImageCreateInfo& aImageCreateInfo) const
+    {
+        Image lImage;
+        ThrowIfFailed(vkCreateImage(mDevice, &aImageCreateInfo, nullptr, &lImage));
+
+        return lImage;
+    }
+
+    Image CreateImage(const ImageCreateInfo& aImageCreateInfo, const AllocationCallbacks& aAllocator) const
+    {
+        Image lImage;
+        ThrowIfFailed(vkCreateImage(mDevice, &aImageCreateInfo, &aAllocator, &lImage));
+
+        return lImage;
+    }
+
+    void DestroyImage(const Image& aImage) const
+    {
+        vkDestroyImage(mDevice, aImage, nullptr);
+    }
+
+    void DestroyImage(const Image& aImage, const AllocationCallbacks& aAllocator) const
+    {
+        vkDestroyImage(mDevice, aImage, &aAllocator);
     }
 
     ImageView CreateImageView(const ImageViewCreateInfo& aImageViewCreateInfo) const
@@ -500,6 +680,99 @@ public:
     void DestroyPipeline(const Pipeline& aPipeline, const AllocationCallbacks& aAllocator) const
     {
         vkDestroyPipeline(mDevice, aPipeline, &aAllocator);
+    }
+
+    DeviceMemory AllocateMemory(const MemoryAllocateInfo& aMemoryAllocationInfo) const
+    {
+        DeviceMemory lDeviceMemory;
+        ThrowIfFailed(vkAllocateMemory(mDevice, &aMemoryAllocationInfo, nullptr, &lDeviceMemory));
+
+        return lDeviceMemory;
+    }
+
+    DeviceMemory AllocateMemory(const MemoryAllocateInfo& aMemoryAllocationInfo, const AllocationCallbacks& aAllocator) const
+    {
+        DeviceMemory lDeviceMemory;
+        ThrowIfFailed(vkAllocateMemory(mDevice, &aMemoryAllocationInfo, &aAllocator, &lDeviceMemory));
+
+        return lDeviceMemory;
+    }
+
+    void FreeMemory(const DeviceMemory& aDeviceMemory) const
+    {
+        vkFreeMemory(mDevice, aDeviceMemory, nullptr);
+    }
+
+    void FreeMemory(const DeviceMemory& aDeviceMemory, const AllocationCallbacks& aAllocator) const
+    {
+        vkFreeMemory(mDevice, aDeviceMemory, &aAllocator);
+    }
+
+    void BindBufferMemory(const Buffer& aBuffer, const DeviceMemory& aDeviceMemory, DeviceSize aMemoryOffset = 0) const
+    {
+        ThrowIfFailed(vkBindBufferMemory(mDevice, aBuffer, aDeviceMemory, aMemoryOffset));
+    }
+
+    void BindImageMemory(const Image& aImage, const DeviceMemory& aDeviceMemory, DeviceSize aMemoryOffset = 0) const
+    {
+        ThrowIfFailed(vkBindImageMemory(mDevice, aImage, aDeviceMemory, aMemoryOffset));
+    }
+
+    void* MapMemory(const DeviceMemory& aDeviceMemory, DeviceSize aOffset, DeviceSize aSize, const MemoryMapFlags& aFlags = DefaultFlags) const
+    {
+        void* lpHostData{ nullptr };
+
+        ThrowIfFailed(vkMapMemory(mDevice, aDeviceMemory, aOffset, aSize, aFlags, &lpHostData));
+
+        assert(lpHostData != nullptr);
+
+        return lpHostData;
+    }
+
+    void UnmapMemory(const DeviceMemory& aDeviceMemory) const
+    {
+        vkUnmapMemory(mDevice, aDeviceMemory);
+    }
+
+    void FlushMappedMemoryRange(const MappedMemoryRange& aMappedMemoryRange) const
+    {
+        ThrowIfFailed(vkFlushMappedMemoryRanges(mDevice, 1, &aMappedMemoryRange));
+    }
+
+    void FlushMappedMemoryRanges(uint32_t aMemoryRangeCount, const MappedMemoryRange* aMappedMemoryRanges) const
+    {
+        assert(aMemoryRangeCount != 0 && aMappedMemoryRanges != nullptr);
+
+        ThrowIfFailed(vkFlushMappedMemoryRanges(mDevice, aMemoryRangeCount, &aMappedMemoryRanges[0]));
+    }
+
+    void FlushMappedMemoryRanges(const std::vector<MappedMemoryRange>& aMappedMemoryRanges) const
+    {
+        FlushMappedMemoryRanges(static_cast<uint32_t>(aMappedMemoryRanges.size()), aMappedMemoryRanges.data());
+    }
+
+    template <std::size_t M>
+    void FlushMappedMemoryRanges(const std::array<MappedMemoryRange, M>& aMappedMemoryRanges) const
+    {
+        FlushMappedMemoryRanges(static_cast<uint32_t>(aMappedMemoryRanges.size()), aMappedMemoryRanges.data());
+    }
+
+    void InvalidateMappedMemoryRanges(uint32_t aMemoryRangeCount, const MappedMemoryRange* apMappedMemoryRanges) const
+    {
+        assert(aMemoryRangeCount != 0 && apMappedMemoryRanges != nullptr);
+
+        ThrowIfFailed(vkInvalidateMappedMemoryRanges(mDevice, aMemoryRangeCount, &apMappedMemoryRanges[0]));
+    }
+
+    void InvalidateMappedMemoryRanges(const std::vector<MappedMemoryRange>& aMappedMemoryRanges) const
+    {
+        return InvalidateMappedMemoryRanges(static_cast<uint32_t>(aMappedMemoryRanges.size()), aMappedMemoryRanges.data());
+    }
+
+    template <std::size_t M>
+    void InvalidateMappedMemoryRanges(const std::array<MappedMemoryRange, M>& aMappedMemoryRanges) const
+    {
+        return InvalidateMappedMemoryRanges(static_cast<uint32_t>(aMappedMemoryRanges.size()), aMappedMemoryRanges.data());
     }
 
     VkResult Wait(void) const

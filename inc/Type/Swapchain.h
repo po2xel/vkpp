@@ -6,6 +6,7 @@
 #include <Info/Common.h>
 #include <Info/Flags.h>
 #include <Info/Format.h>
+#include <Info/SurfaceCapabilities.h>
 
 #include <Type/Surface.h>
 
@@ -111,7 +112,7 @@ public:
         const Extent2D& aImageExtent, const ImageUsageFlags& aImageUsage,
         SurfaceTransformFlagBits aPreTransform, CompositeAlphaFlagBits aCompositeAlpha,
         PresentMode aPresentMode, const Swapchain& aOldSwapChain,
-        uint32_t aImageArrayLayers = 1, Bool32 aClipped = VK_TRUE, const SwapchainCreateFlags& aFlags = SwapchainCreateFlags())
+        uint32_t aImageArrayLayers = 1, Bool32 aClipped = VK_TRUE, const SwapchainCreateFlags& aFlags = DefaultFlags)
         : flags(aFlags), surface(aSurface),
         minImageCount(aMinImageCount), imageFormat(aImageFormat), imageColorSpace(aImageColorSpace),
         imageExtent(aImageExtent), imageArrayLayers(aImageArrayLayers), imageUsage(aImageUsage),
@@ -123,7 +124,7 @@ public:
         const Extent2D& aImageExtent, const ImageUsageFlags& aImageUsage,
         uint32_t aQueueFamilyIndexCount, const uint32_t* apQueueFamilyIndices, SurfaceTransformFlagBits aPreTransform, CompositeAlphaFlagBits aCompositeAlpha,
         PresentMode aPresentMode, const Swapchain& aOldSwapChain,
-        uint32_t aImageArrayLayers = 1, Bool32 aClipped = VK_TRUE, const SwapchainCreateFlags& aFlags = SwapchainCreateFlags())
+        uint32_t aImageArrayLayers = 1, Bool32 aClipped = VK_TRUE, const SwapchainCreateFlags& aFlags = DefaultFlags)
         : flags(aFlags), surface(aSurface),
         minImageCount(aMinImageCount), imageFormat(aImageFormat), imageColorSpace(aImageColorSpace),
         imageExtent(aImageExtent), imageArrayLayers(aImageArrayLayers), imageUsage(aImageUsage), sharingMode(SharingMode::eConcurrent),
@@ -135,7 +136,7 @@ public:
         const Extent2D& aImageExtent, const ImageUsageFlags& aImageUsage,
         const std::vector<uint32_t>& aQueueFamilyIndices, SurfaceTransformFlagBits aPreTransform, CompositeAlphaFlagBits aCompositeAlpha,
         PresentMode aPresentMode, const Swapchain& aOldSwapChain,
-        uint32_t aImageArrayLayers = 1, Bool32 aClipped = VK_TRUE, const SwapchainCreateFlags& aFlags = SwapchainCreateFlags())
+        uint32_t aImageArrayLayers = 1, Bool32 aClipped = VK_TRUE, const SwapchainCreateFlags& aFlags = DefaultFlags)
         : SwapchainCreateInfo(aSurface,
             aMinImageCount, aSurfaceFormat.format, aSurfaceFormat.colorSpace,
             aImageExtent, aImageUsage,
@@ -149,7 +150,7 @@ public:
         const Extent2D& aImageExtent, const ImageUsageFlags& aImageUsage, SharingMode aSharingMode,
         const std::array<uint32_t, Q>& aQueueFamilyIndices, SurfaceTransformFlagBits aPreTransform, CompositeAlphaFlagBits aCompositeAlpha,
         PresentMode aPresentMode, const Swapchain& aOldSwapChain,
-        uint32_t aImageArrayLayers = 1, Bool32 aClipped = VK_TRUE, const SwapchainCreateFlags& aFlags = SwapchainCreateFlags())
+        uint32_t aImageArrayLayers = 1, Bool32 aClipped = VK_TRUE, const SwapchainCreateFlags& aFlags = DefaultFlags)
         : SwapchainCreateInfo(aSurface,
             aMinImageCount, aSurfaceFormat.format, aSurfaceFormat.colorSpace,
             aImageExtent, aImageUsage, aSharingMode,
@@ -207,7 +208,7 @@ public:
         return *this;
     }
 
-    SwapchainCreateInfo& SetQueueFamilyIndices(uint32_t aQueueFamilyIndexCount, const uint32_t* apQueueFamilyIndices)
+    SwapchainCreateInfo& SetConcurrentMode(uint32_t aQueueFamilyIndexCount, const uint32_t* apQueueFamilyIndices)
     {
         sharingMode             = SharingMode::eConcurrent;
         queueFamilyIndexCount   = aQueueFamilyIndexCount;
@@ -216,15 +217,15 @@ public:
         return *this;
     }
 
-    SwapchainCreateInfo& SetQueueFamilyIndices(const std::vector<uint32_t>& aQueueFamilyIndices)
+    SwapchainCreateInfo& SetConcurrentMode(const std::vector<uint32_t>& aQueueFamilyIndices)
     {
-        return SetQueueFamilyIndices(static_cast<uint32_t>(aQueueFamilyIndices.size()), aQueueFamilyIndices.data());
+        return SetConcurrentMode(static_cast<uint32_t>(aQueueFamilyIndices.size()), aQueueFamilyIndices.data());
     }
 
     template <std::size_t Q>
-    SwapchainCreateInfo& SetQueueFamilyIndices(const std::array<uint32_t, Q>& aQueueFamilyIndices)
+    SwapchainCreateInfo& SetConcurrentMode(const std::array<uint32_t, Q>& aQueueFamilyIndices)
     {
-        return SetQueueFamilyIndices(static_cast<uint32_t>(aQueueFamilyIndices.size()), aQueueFamilyIndices.data());
+        return SetConcurrentMode(static_cast<uint32_t>(aQueueFamilyIndices.size()), aQueueFamilyIndices.data());
     }
 
     SwapchainCreateInfo& SetPreTransform(SurfaceTransformFlagBits aPreTransform)

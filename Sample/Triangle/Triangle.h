@@ -21,9 +21,30 @@ namespace sample
 
 
 
+struct VertexData
+{
+    float x, y, z, w;
+    float r, g, b, a;
+};
+
+
+
+struct RenderingResourceData
+{
+    vkpp::FrameBuffer   mFrameBuffer;
+    vkpp::CommandBuffer mCommandBuffer;
+    vkpp::Semaphore     mImageAvailableSemaphore;
+    vkpp::Semaphore     mFinishedRenderingSemaphore;
+    vkpp::Fence         mFence;
+};
+
+
+
 class Triangle
 {
 private:
+    constexpr static auto RenderingResourceCount{ 3 };
+
     GLFWwindow* mpWindow{ nullptr };
 
     vkpp::Instance          mInstance;
@@ -48,6 +69,10 @@ private:
     std::vector<vkpp::Image> mSwapchainImages;
     std::vector<vkpp::ImageView> mSwapchainImageViews;
     std::vector<vkpp::FrameBuffer> mFramebuffers;
+    vkpp::DeviceSize mVertexBufferSize{ 0 };
+    vkpp::Buffer mVertexBuffer;
+    vkpp::DeviceMemory mVertexBufferMemory;
+    std::array<RenderingResourceData, RenderingResourceCount> mRenderingResources;
 
     void CheckValidationLayerSupport(void) const;
     void CheckValidationExtensions(void) const;
@@ -69,7 +94,8 @@ private:
     bool PickPhysicalDevice(void);
     void CreateLogicalDevice(void);
     void GetDeviceQueue(void);
-    void CreateSemaphore(void);
+    void CreateSemaphores(void);
+    void CreateFences(void);
 
     void CreateSwapChain(void);
     void CreateSwapchainImageViews(void);
@@ -77,6 +103,10 @@ private:
     void RecordCommandBuffers(void);
     void CreateRenderPass(void);
     void CreateFrameBuffers(void);
+    vkpp::FrameBuffer CreateFrameBuffer(const vkpp::ImageView& aImageView) const;
+    void CreateVertexBuffer(void);
+    void CreateRenderingResources(void);
+    vkpp::DeviceMemory AllocateBufferMemory(const vkpp::Buffer& aBuffer) const;
     vkpp::ShaderModule CreateShaderModule(const std::string& aFilename) const;
     vkpp::PipelineLayout CreatePipelineLayout(void) const;
     void CreatePipeline(void);
@@ -87,11 +117,21 @@ private:
     void MainLoop(void);
 
     void DrawFrame(void);
+    void PrepareFrame(vkpp::FrameBuffer& aFrameBuffer, const vkpp::CommandBuffer& aCommandBuffer, const vkpp::ImageView& aImgeView) const;
 
 public:
     ~Triangle(void)
     {
         mLogicalDevice.Wait();
+
+        for(auto& lRenderingResource : mRenderingResources)
+        {
+            mLogicalDevice.DestroyFrameBuffer(lRenderingResource.mFrameBuffer);
+            mLogicalDevice.FreeCommandBuffer(mPresentQueueCmdPool, lRenderingResource.mCommandBuffer);
+            mLogicalDevice.DestroySemaphore(lRenderingResource.mImageAvailableSemaphore);
+            mLogicalDevice.DestroySemaphore(lRenderingResource.mFinishedRenderingSemaphore);
+            mLogicalDevice.DestroyFence(lRenderingResource.mFence);
+        }
 
         mLogicalDevice.DestroyPipeline(mGraphicsPipeline);
         mLogicalDevice.DestroyRenderPass(mRenderPass);
@@ -104,11 +144,14 @@ public:
 
         mLogicalDevice.DestroySwapchain(mSwapchain);
 
-        mLogicalDevice.FreeCommandBuffers(mPresentQueueCmdPool, mPresentQueueCmdBuffers);
+        // mLogicalDevice.FreeCommandBuffers(mPresentQueueCmdPool, mPresentQueueCmdBuffers);
         mLogicalDevice.DestroyCommandPool(mPresentQueueCmdPool);
 
         mLogicalDevice.DestroySemaphore(mImageAvailSemaphore);
         mLogicalDevice.DestroySemaphore(mRenderingFinishedSemaphore);
+
+        mLogicalDevice.DestroyBuffer(mVertexBuffer);
+        mLogicalDevice.FreeMemory(mVertexBufferMemory);
 
         mInstance.DestroySurface(mSurface);
         mInstance.DestroyDebugReportCallback(mDebugReportCallback);

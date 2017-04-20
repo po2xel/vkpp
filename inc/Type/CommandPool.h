@@ -33,11 +33,8 @@ public:
 
     DEFINE_CLASS_MEMBER(CommandPoolCreateInfo)
 
-    CommandPoolCreateInfo(uint32_t aQueueFamilyIndex) : queueFamilyIndex(aQueueFamilyIndex)
-    {}
-
-    CommandPoolCreateInfo(const CommandPoolCreateFlags& aFlags, uint32_t aQueueFamilyIndex)
-        : flags(aFlags), queueFamilyIndex(aQueueFamilyIndex)
+    CommandPoolCreateInfo(uint32_t aQueueFamilyIndex, const CommandPoolCreateFlags& aFlags = DefaultFlags)
+    : flags(aFlags), queueFamilyIndex(aQueueFamilyIndex)
     {}
 
     CommandPoolCreateInfo& SetFlags(const CommandPoolCreateFlags& aFlags)

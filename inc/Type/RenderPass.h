@@ -285,6 +285,13 @@ using RenderPassCreateFlags = internal::Flags<RenderPassCreateFlagBits, VkRender
 
 
 
+namespace subpass
+{
+    constexpr auto External = VK_SUBPASS_EXTERNAL;
+}           // End of namespace subpass;
+
+
+
 struct SubpassDependency : public internal::VkTrait<SubpassDependency, VkSubpassDependency>
 {
     uint32_t            srcSubpass{ 0 };

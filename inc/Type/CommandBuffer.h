@@ -141,7 +141,7 @@ public:
 
     DEFINE_CLASS_MEMBER(CommandBufferBeginInfo)
 
-    CommandBufferBeginInfo(const CommandBufferUsageFlags& aFlags)
+    explicit CommandBufferBeginInfo(const CommandBufferUsageFlags& aFlags)
     : flags(aFlags)
     {}
 
@@ -267,6 +267,77 @@ public:
         assert(!aRanges.empty());
 
         vkCmdClearColorImage(mCommandBuffer, aImage, static_cast<VkImageLayout>(aImageLayout), &aClearColor, static_cast<uint32_t>(aRanges.size()), &aRanges[0]);
+    }
+
+    void SetViewport(const Viewport& aViewport, uint32_t aFirstViewport = 0) const
+    {
+        vkCmdSetViewport(mCommandBuffer, aFirstViewport, 1, &aViewport);
+    }
+
+    void SetViewports(uint32_t aFirstViewport, uint32_t aViewportCount, const Viewport* apViewports) const
+    {
+        assert(aViewportCount != 0 && apViewports != nullptr);
+
+        vkCmdSetViewport(mCommandBuffer, aFirstViewport, aViewportCount, &apViewports[0]);
+    }
+
+    void SetViewports(uint32_t aFirstViewport, const std::vector<Viewport>& aViewports) const
+    {
+        return SetViewports(aFirstViewport, static_cast<uint32_t>(aViewports.size()), aViewports.data());
+    }
+
+    template <std::size_t V>
+    void SetViewports(uint32_t aFirstViewport, const std::array<Viewport, V>& aViewports) const
+    {
+        return SetViewports(aFirstViewport, static_cast<uint32_t>(aViewports.size()), aViewports.data());
+    }
+
+    void SetScissor(const Rect2D& aScissor, uint32_t aFirstScissor = 0) const
+    {
+        vkCmdSetScissor(mCommandBuffer, aFirstScissor, 1, &aScissor);
+    }
+
+    void SetScissors(uint32_t aFirstScissor, uint32_t aScissorCount, const Rect2D* apScissors) const
+    {
+        assert(aScissorCount != 0 && apScissors != nullptr);
+
+        vkCmdSetScissor(mCommandBuffer, aFirstScissor, aScissorCount, &apScissors[0]);
+    }
+
+    void SetScissors(uint32_t aFirstScissor, const std::vector<Rect2D>& aScissors) const
+    {
+        return SetScissors(aFirstScissor, static_cast<uint32_t>(aScissors.size()), aScissors.data());
+    }
+
+    template <std::size_t S>
+    void SetScissors(uint32_t aFirstScissor, const std::array<Rect2D, S>& aScissors) const
+    {
+        return SetScissors(aFirstScissor, static_cast<uint32_t>(aScissors.size()), aScissors.data());
+    }
+
+    void BindVertexBuffer(const Buffer& aBuffer, const DeviceSize& aOffset) const
+    {
+        vkCmdBindVertexBuffers(mCommandBuffer, 0, 1, &aBuffer, &aOffset);
+    }
+
+    void BindVertexBuffers(uint32_t aFirstBinding, uint32_t aBindingCount, const Buffer* apBuffers, const DeviceSize* apOffsets) const
+    {
+        assert(aBindingCount != 0 && apBuffers != nullptr && apOffsets != nullptr);
+
+        vkCmdBindVertexBuffers(mCommandBuffer, aFirstBinding, aBindingCount, &apBuffers[0], &apOffsets[0]);
+    }
+
+    void BindVertexBuffers(uint32_t aFirstBinding, const std::vector<Buffer>& aBuffers, const std::vector<DeviceSize>& aOffsets) const
+    {
+        assert(aBuffers.size() == aOffsets.size());
+
+        BindVertexBuffers(aFirstBinding, static_cast<uint32_t>(aBuffers.size()), aBuffers.data(), aOffsets.data());
+    }
+
+    template <std::size_t B>
+    void BindVertexBuffers(uint32_t aFirstBinding, const std::array<Buffer, B>& aBuffers, const std::array<DeviceSize, B>& aOffsets) const
+    {
+        BindVertexBuffers(aFirstBinding, static_cast<uint32_t>(aBuffers.size()), aBuffers.data(), aOffsets.data());
     }
 };
 

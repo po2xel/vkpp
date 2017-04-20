@@ -197,6 +197,11 @@ public:
         ThrowIfFailed(vkQueueSubmit(mQueue, aSubmitCount, &apSubmits[0], VK_NULL_HANDLE));
     }
 
+    void Submit(uint32_t aSubmitCount, const SubmitInfo* apSubmits, const Fence& aFence) const
+    {
+        ThrowIfFailed(vkQueueSubmit(mQueue, aSubmitCount, &apSubmits[0], aFence));
+    }
+
     void Submit(const std::vector<SubmitInfo>& aSubmitInfos, const Fence& aFence) const
     {
         ThrowIfFailed(vkQueueSubmit(mQueue, static_cast<uint32_t>(aSubmitInfos.size()), &aSubmitInfos[0], aFence));

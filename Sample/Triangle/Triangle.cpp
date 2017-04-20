@@ -10,6 +10,7 @@
 #include <Info/Layers.h>
 #include <Info/Extensions.h>
 #include <Info/RenderPassBeginInfo.h>
+#include <Type/Buffer.h>
 
 #define GLFW_EXPOSE_NATIVE_WIN32
 #include <GLFW/glfw3native.h>
@@ -282,12 +283,29 @@ void Triangle::GetDeviceQueue(void)
 }
 
 
-void Triangle::CreateSemaphore(void)
+void Triangle::CreateSemaphores(void)
 {
     vkpp::SemaphoreCreateInfo lSemaphoreCreateInfo;
 
-    mImageAvailSemaphore = mLogicalDevice.CreateSemaphore(lSemaphoreCreateInfo);
-    mRenderingFinishedSemaphore = mLogicalDevice.CreateSemaphore(lSemaphoreCreateInfo);
+    for (auto& lRenderingResource : mRenderingResources)
+    {
+        lRenderingResource.mImageAvailableSemaphore = mLogicalDevice.CreateSemaphore(lSemaphoreCreateInfo);
+        lRenderingResource.mFinishedRenderingSemaphore = mLogicalDevice.CreateSemaphore(lSemaphoreCreateInfo);
+    }
+
+    /*mImageAvailSemaphore = mLogicalDevice.CreateSemaphore(lSemaphoreCreateInfo);
+    mRenderingFinishedSemaphore = mLogicalDevice.CreateSemaphore(lSemaphoreCreateInfo);*/
+}
+
+
+void Triangle::CreateFences(void)
+{
+    vkpp::FenceCreateInfo lFenceCreateInfo{ vkpp::FenceCreateFlagBits::eSignaled };
+
+    for (auto& lRenderingResource : mRenderingResources)
+    {
+        lRenderingResource.mFence = mLogicalDevice.CreateFence(lFenceCreateInfo);
+    }
 }
 
 
@@ -344,12 +362,22 @@ void Triangle::CreateSwapchainImageViews(void)
 void Triangle::CreateCommandBuffers(void)
 {
     vkpp::CommandPoolCreateInfo lCmdPoolCreateInfo{
-        mPresentQueueFamilyIndex
+        mPresentQueueFamilyIndex, vkpp::CommandPoolCreateFlagBits::eResetCommandBuffer
     };
 
     mPresentQueueCmdPool = mLogicalDevice.CreateCommandPool(lCmdPoolCreateInfo);
 
-    auto lImageCount = static_cast<uint32_t>(mSwapchainImages.size());
+    vkpp::CommandBufferAllocateInfo lCmdAllocateInfo
+    {
+        mPresentQueueCmdPool, 1, vkpp::CommandBufferLevel::ePrimary
+    };
+
+    for(auto& lRenderingResource : mRenderingResources)
+    {
+        lRenderingResource.mCommandBuffer = mLogicalDevice.AllocateCommandBuffers(lCmdAllocateInfo)[0];
+    }
+
+    /*auto lImageCount = static_cast<uint32_t>(mSwapchainImages.size());
 
     mPresentQueueCmdBuffers.resize(lImageCount);
 
@@ -357,7 +385,7 @@ void Triangle::CreateCommandBuffers(void)
         mPresentQueueCmdPool, static_cast<uint32_t>(lImageCount)
     };
 
-    mPresentQueueCmdBuffers = mLogicalDevice.AllocateCommandBuffers(lCmdBufferAllocateInfo);
+    mPresentQueueCmdBuffers = mLogicalDevice.AllocateCommandBuffers(lCmdBufferAllocateInfo);*/
 }
 
 
@@ -462,10 +490,27 @@ void Triangle::CreateRenderPass(void)
         }
     };
 
+    vkpp::SubpassDependency lDependencies[]
+    {
+        {
+            vkpp::subpass::External, 0,
+            vkpp::PipelineStageFlagBits::eBottomOfPipe, vkpp::PipelineStageFlagBits::eColorAttachmentOutput,
+            vkpp::AccessFlagBits::eMemoryRead, vkpp::AccessFlagBits::eColorAttachmentWrite,
+            vkpp::DependencyFlagBits::eByRegion
+        },
+        {
+            0, vkpp::subpass::External,
+            vkpp::PipelineStageFlagBits::eColorAttachmentOutput, vkpp::PipelineStageFlagBits::eBottomOfPipe,
+            vkpp::AccessFlagBits::eColorAttachmentWrite, vkpp::AccessFlagBits::eMemoryRead,
+            vkpp::DependencyFlagBits::eByRegion
+        }
+    };
+
     vkpp::RenderPassCreateInfo lRenderPassCreateInfo
     {
         1, lAttachmentDescriptions,
-        1, lSubpassDescriptions
+        1, lSubpassDescriptions,
+        2, lDependencies
     };
 
     mRenderPass = mLogicalDevice.CreateRenderPass(lRenderPassCreateInfo);
@@ -485,6 +530,94 @@ void Triangle::CreateFrameBuffers(void)
 
         mFramebuffers.emplace_back(mLogicalDevice.CreateFrameBuffer(lFramebufferCreateInfo));
     }
+}
+
+
+vkpp::FrameBuffer Triangle::CreateFrameBuffer(const vkpp::ImageView& aImageView) const
+{
+    vkpp::FrameBufferCreateInfo lFrameBufferCreateInfo
+    {
+        mRenderPass,
+        1, aImageView.AddressOf(),
+        1024, 768
+    };
+
+    return mLogicalDevice.CreateFrameBuffer(lFrameBufferCreateInfo);
+}
+
+
+void Triangle::CreateVertexBuffer(void)
+{
+    VertexData lVertexData[]
+    {
+        {
+            -0.7f, -0.7f, 0, 1.0f,
+            1.0f, 0, 0, 0
+        },
+        {
+            -0.7f, 0.7f, 0, 1.0f,
+            0, 1.0f, 0, 0
+        },
+        {
+            0.7f, -0.7f, 0, 1.0f,
+            0, 0, 1.0f, 0
+        },
+        {
+            0.7f, 0.7f, 0, 1.0f,
+            0.3f, 0.3f, 0.3f, 0
+        }
+    };
+
+    mVertexBufferSize = sizeof(lVertexData);
+
+    const vkpp::BufferCreateInfo lVertexBufferCreateInfo
+    {
+        sizeof(lVertexData),
+        vkpp::BufferUsageFlagBits::eVertexBuffer
+    };
+
+    mVertexBuffer = mLogicalDevice.CreateBuffer(lVertexBufferCreateInfo);
+    mVertexBufferMemory = AllocateBufferMemory(mVertexBuffer);
+
+    mLogicalDevice.BindBufferMemory(mVertexBuffer, mVertexBufferMemory);
+
+    auto lpMappedMemory = mLogicalDevice.MapMemory(mVertexBufferMemory, 0, mVertexBufferSize);
+    std::memcpy(lpMappedMemory, lVertexData, mVertexBufferSize);
+
+    vkpp::MappedMemoryRange lFlushRange{ mVertexBufferMemory };
+    mLogicalDevice.FlushMappedMemoryRange(lFlushRange);
+    mLogicalDevice.UnmapMemory(mVertexBufferMemory);
+}
+
+
+void Triangle::CreateRenderingResources(void)
+{
+    CreateCommandBuffers();
+    CreateSemaphores();
+    CreateFences();
+}
+
+
+vkpp::DeviceMemory Triangle::AllocateBufferMemory(const vkpp::Buffer& aBuffer) const
+{
+    auto lBufferMemoryRequirements = mLogicalDevice.GetBufferMemoryRequirements(aBuffer);
+    auto lMemoryProperties = mPhysicalDevice.GetMemoryProperties();
+
+    for (uint32_t i = 0; i < lMemoryProperties.memoryTypeCount; ++i)
+    {
+        if ((lBufferMemoryRequirements.memoryTypeBits & (1 << i)) && (lMemoryProperties.memoryTypes[i].propertyFlags & vkpp::MemoryPropertyFlagBits::eHostVisible))
+        {
+            const vkpp::MemoryAllocateInfo lMemoryAllocateInfo
+            {
+                lBufferMemoryRequirements.size, i
+            };
+
+            return mLogicalDevice.AllocateMemory(lMemoryAllocateInfo);
+        }
+    }
+
+    assert(false);
+    return nullptr;
 }
 
 
@@ -533,18 +666,35 @@ void Triangle::CreatePipeline(void)
         }
     };
 
+    const vkpp::VertexInputBindingDescription lVertexInputBindingDescription[]
+    {
+        {
+            0, sizeof(VertexData), vkpp::VertexInputRate::eVertex
+        }
+    };
+
+    const vkpp::VertexInputAttributeDescription lVertexInputAttributeDescription[]
+    {
+        {
+            0, lVertexInputBindingDescription[0].binding, vkpp::Format::eR32G32B32A32SFloat, offsetof(VertexData, x)
+        },
+        {
+            1, lVertexInputBindingDescription[0].binding, vkpp::Format::eR32G32B32A32SFloat, offsetof(VertexData, r)
+        }
+    };
+
     vkpp::PipelineVertexInputStateCreateInfo lVertexInputStateCreateInfo
     {
-        0, nullptr,
-        0, nullptr
+        1, lVertexInputBindingDescription,
+        2, lVertexInputAttributeDescription
     };
 
     vkpp::PipelineInputAssemblyStateCreateInfo lInputAssemblyStateCreateInfo
     {
-        vkpp::PrimitiveTopology::eTriangleList
+        vkpp::PrimitiveTopology::eTriangleStrip
     };
 
-    vkpp::Viewport lViewport
+    /*vkpp::Viewport lViewport
     {
         0.0f, 0.0f,
         300.0f, 300.0f,
@@ -555,12 +705,12 @@ void Triangle::CreatePipeline(void)
     {
         {0, 0} ,
         {300, 300}
-    };
+    };*/
 
     vkpp::PipelineViewportStateCreateInfo lViewportStateCreatInfo
     {
-        1, lViewport.AddressOf(),
-        1, lScissor.AddressOf()
+        1, nullptr, // lViewport.AddressOf(),
+        1, nullptr // lScissor.AddressOf()
     };
 
     vkpp::PipelineRasterizationStateCreateInfo lRasterizationCreateInfo
@@ -594,6 +744,17 @@ void Triangle::CreatePipeline(void)
         {0, 0, 0, 0}
     };
 
+    const vkpp::DynamicState lDynamicStates[]
+    {
+        vkpp::DynamicState::eViewport,
+        vkpp::DynamicState::eScissor
+    };
+
+    const vkpp::PipelineDynamicStateCreateInfo lDynamicStateCreateInfo
+    {
+        2, lDynamicStates
+    };
+
     auto lPipelineLayout = CreatePipelineLayout();
 
     vkpp::GraphicsPipelineCreateInfo lPipelineCreateInfo
@@ -601,7 +762,7 @@ void Triangle::CreatePipeline(void)
         static_cast<uint32_t>(lShaderStageCreateInfos.size()), lShaderStageCreateInfos.data(),
         lVertexInputStateCreateInfo.AddressOf(), lInputAssemblyStateCreateInfo.AddressOf(), nullptr,
         lViewportStateCreatInfo.AddressOf(), lRasterizationCreateInfo.AddressOf(), lMultisampleStateCreatInfo.AddressOf(),
-        nullptr, lColorBlendStateCreateInfo.AddressOf(), nullptr, lPipelineLayout, mRenderPass, 0
+        nullptr, lColorBlendStateCreateInfo.AddressOf(), lDynamicStateCreateInfo.AddressOf(), lPipelineLayout, mRenderPass, 0
     };
 
     mGraphicsPipeline = mLogicalDevice.CreateGraphicsPipeline(nullptr, 1, lPipelineCreateInfo.AddressOf());
@@ -636,14 +797,17 @@ void Triangle::InitVulkan(void)
     CreateSwapchainImageViews();
 
     CreateRenderPass();
-    CreateFrameBuffers();
+    // CreateFrameBuffers();
 
     CreatePipeline();
 
-    CreateSemaphore();
+    CreateVertexBuffer();
+    CreateRenderingResources();
 
-    CreateCommandBuffers();
-    RecordCommandBuffers();
+    // CreateSemaphores();
+
+    // CreateCommandBuffers();
+    // RecordCommandBuffers();
 }
 
 
@@ -665,26 +829,85 @@ void Triangle::MainLoop(void)
 
 void Triangle::DrawFrame(void)
 {
-    auto lImageIndex = mLogicalDevice.AcquireNextImage(mSwapchain, std::numeric_limits<uint32_t>::max(), mImageAvailSemaphore, nullptr);
+    static std::size_t lResourceIndex{ 0 };
+    auto& lCurrentRenderingResource = mRenderingResources[lResourceIndex];
 
-    vkpp::PipelineStageFlags lWaitDstStageMask{ vkpp::PipelineStageFlagBits::eTransfer };
+    lResourceIndex = (lResourceIndex + 1) % RenderingResourceCount;
+
+    mLogicalDevice.WaitForFence(lCurrentRenderingResource.mFence, false, UINT64_MAX);
+    mLogicalDevice.ResetFence(lCurrentRenderingResource.mFence);
+
+    auto lImageIndex = mLogicalDevice.AcquireNextImage(mSwapchain, UINT64_MAX, lCurrentRenderingResource.mImageAvailableSemaphore, nullptr);
+    PrepareFrame(lCurrentRenderingResource.mFrameBuffer, lCurrentRenderingResource.mCommandBuffer, mSwapchainImageViews[lImageIndex]);
+
+    vkpp::PipelineStageFlags lWaitDstStageMask{ vkpp::PipelineStageFlagBits::eColorAttachmentOutput };
 
     vkpp::SubmitInfo lSubmitInfo{
-        1, mImageAvailSemaphore.AddressOf(),
+        1, lCurrentRenderingResource.mImageAvailableSemaphore.AddressOf(),
         &lWaitDstStageMask,
-        1, mPresentQueueCmdBuffers[lImageIndex].AddressOf(),
-        1, mRenderingFinishedSemaphore.AddressOf()
+        1, lCurrentRenderingResource.mCommandBuffer.AddressOf(),
+        1, lCurrentRenderingResource.mFinishedRenderingSemaphore.AddressOf()
     };
 
-    mPresentQueue.Submit(1, lSubmitInfo.AddressOf());
+    mPresentQueue.Submit(1, lSubmitInfo.AddressOf(), lCurrentRenderingResource.mFence);
 
     vkpp::khr::PresentInfo lPresentInfo{
-        1, mRenderingFinishedSemaphore.AddressOf(),
+        1, lCurrentRenderingResource.mFinishedRenderingSemaphore.AddressOf(),
         1, mSwapchain.AddressOf(), &lImageIndex,
         nullptr
     };
 
     mPresentQueue.Present(lPresentInfo);
+}
+
+
+
+void Triangle::PrepareFrame(vkpp::FrameBuffer& aFrameBuffer, const vkpp::CommandBuffer& aCommandBuffer, const vkpp::ImageView& aImageView) const
+{
+    if (aFrameBuffer)
+        mLogicalDevice.DestroyFrameBuffer(aFrameBuffer);
+
+    aFrameBuffer = CreateFrameBuffer(aImageView);
+
+    vkpp::CommandBufferBeginInfo lCmdBufferBeginInfo{ vkpp::CommandBufferUsageFlagBits::eOneTimeSubmit };
+    aCommandBuffer.Begin(lCmdBufferBeginInfo);
+
+    /*vkpp::ImageSubresourceRange lImageSubresourceRange
+    {
+        0, 1,
+        0, 1
+    };*/
+
+    vkpp::ClearValue lClearValue
+    {
+        {1.0f, 0.8f, 0.4f, 0}
+    };
+
+    vkpp::RenderPassBeginInfo lRenderPassBeginInfo
+    {
+        mRenderPass,
+        aFrameBuffer,
+        {
+            {0, 0},
+            {1024, 768}
+        },
+        1, &lClearValue
+    };
+
+    aCommandBuffer.BeginRenderPass(lRenderPassBeginInfo, vkpp::SubpassContents::eInline);
+    aCommandBuffer.BindGraphicsPipeline(mGraphicsPipeline);
+
+    vkpp::Viewport lViewport{ 0, 0, 1024, 768, 0, 1.0f };
+    vkpp::Rect2D lScissor{ {0, 0}, {1024, 768} };
+    aCommandBuffer.SetViewport(lViewport);
+    aCommandBuffer.SetScissor(lScissor);
+    aCommandBuffer.BindVertexBuffer(mVertexBuffer, 0);
+
+    aCommandBuffer.Draw(4, 1);
+
+    aCommandBuffer.EndRenderPass();
+
+    aCommandBuffer.End();
 }
 
 
