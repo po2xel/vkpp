@@ -5,12 +5,13 @@
 
 #include <cstring>
 #include <cstdint>
+#include <vector>
 #include <cassert>
 
 #include <Type/Structure.h>
 #include <Type/VkTrait.h>
-#include <vector>
 #include <Info/Flags.h>
+#include <Info/TypeConsistency.h>
 
 
 
@@ -31,10 +32,6 @@ Class& operator=(const Class::VkType& aRhs) \
     std::memcpy(this, &aRhs, sizeof(Class)); \
     return *this; \
 }
-
-
-
-#define StaticSizeCheck(Class) static_assert(sizeof(Class) == sizeof(Class::VkType))
 
 
 

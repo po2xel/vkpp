@@ -10,7 +10,7 @@
 
 #include <Type/Instance.h>
 #include <Type/VkDeleter.h>
-#include <Type/Swapchain.h>
+#include <Type/LogicalDevice.h>
 
 #include <GLFW/glfw3.h>
 
@@ -155,6 +155,8 @@ public:
 
         mInstance.DestroySurface(mSurface);
         mInstance.DestroyDebugReportCallback(mDebugReportCallback);
+
+        glfwDestroyWindow(mpWindow);
     }
 
     void Run(void)

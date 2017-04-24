@@ -9,7 +9,7 @@
 #include <Info/PhysicalDeviceFeatures.h>
 #include <Info/MemoryRequirements.h>
 
-#include <Type/VkDeleter.h>
+#include <Type/PhysicalDevice.h>
 #include <Type/AllocationCallbacks.h>
 #include <Type/Queue.h>
 #include <Type/Semaphore.h>
@@ -52,22 +52,29 @@ public:
 
     DEFINE_CLASS_MEMBER(QueueCreateInfo)
 
-    QueueCreateInfo(uint32_t aQueueFamilyIndex, uint32_t aQueueCount, const float* apQueuePriorities)
-        : queueFamilyIndex(aQueueFamilyIndex), queueCount(aQueueCount), pQueuePriorities(apQueuePriorities)
+    QueueCreateInfo(uint32_t aQueueFamilyIndex, uint32_t aQueueCount, const float* apQueuePriorities, const QueueCreateFlags& aFlags = DefaultFlags)
+        :flags(aFlags), queueFamilyIndex(aQueueFamilyIndex), queueCount(aQueueCount), pQueuePriorities(apQueuePriorities)
     {}
 
-    QueueCreateInfo(uint32_t aQueueFamilyIndex, const std::vector<float>& aQueuePriorities)
-        : QueueCreateInfo(aQueueFamilyIndex, static_cast<uint32_t>(aQueuePriorities.size()), aQueuePriorities.data())
+    QueueCreateInfo(uint32_t aQueueFamilyIndex, const std::vector<float>& aQueuePriorities, const QueueCreateFlags& aFlags = DefaultFlags)
+        : QueueCreateInfo(aQueueFamilyIndex, static_cast<uint32_t>(aQueuePriorities.size()), aQueuePriorities.data(), aFlags)
     {}
 
     template <std::size_t P>
-    QueueCreateInfo(uint32_t aQueueFamilyIndex, const std::array<float, P>& aQueuePriorities)
-        : QueueCreateInfo(aQueueFamilyIndex, static_cast<uint32_t>(aQueuePriorities.size()), aQueuePriorities.data())
+    QueueCreateInfo(uint32_t aQueueFamilyIndex, const std::array<float, P>& aQueuePriorities, const QueueCreateFlags& aFlags = DefaultFlags)
+        : QueueCreateInfo(aQueueFamilyIndex, static_cast<uint32_t>(aQueuePriorities.size()), aQueuePriorities.data(), aFlags)
     {}
 
     QueueCreateInfo& SetNext(const void* apNext)
     {
         pNext = apNext;
+
+        return *this;
+    }
+
+    QueueCreateInfo& SetFlags(const QueueCreateFlags& aFlags)
+    {
+        flags = aFlags;
 
         return *this;
     }
@@ -99,7 +106,7 @@ public:
     }
 };
 
-StaticSizeCheck(QueueCreateInfo);
+ConsistencyCheck(QueueCreateInfo, pNext, flags, queueFamilyIndex, queueCount, pQueuePriorities)
 
 
 
@@ -119,7 +126,7 @@ public:
     const void*                             pNext{ nullptr };
     DeviceCreateFlags                       flags;
     uint32_t                                queueCreateInfoCount{ 0 };
-    const QueueCreateInfo*                  pQueueCreateInfo{ nullptr };
+    const QueueCreateInfo*                  pQueueCreateInfos{ nullptr };
 
 private:
     [[deprecated]] uint32_t                 enabledLayerCount{ 0 };
@@ -133,24 +140,32 @@ public:
     DEFINE_CLASS_MEMBER(LogicalDeviceCreateInfo)
 
     LogicalDeviceCreateInfo(uint32_t aQueueCreateInfoCount, const QueueCreateInfo* apQueueCreateInfos,
-        uint32_t aEnalbedExtensionCount, const char* const* appEnabledExtensionNames, const PhysicalDeviceFeatures* apEnabledFeatures)
-        : queueCreateInfoCount(aQueueCreateInfoCount), pQueueCreateInfo(apQueueCreateInfos),
-        enabledExtensionCount(aEnalbedExtensionCount), ppEnabledExtensionNames(appEnabledExtensionNames), pEnabledFeatures(apEnabledFeatures)
+        uint32_t aEnalbedExtensionCount, const char* const* appEnabledExtensionNames, const PhysicalDeviceFeatures* apEnabledFeatures, const DeviceCreateFlags& aFlags = DefaultFlags)
+        : flags(aFlags), queueCreateInfoCount(aQueueCreateInfoCount), pQueueCreateInfos(apQueueCreateInfos),
+          enabledExtensionCount(aEnalbedExtensionCount), ppEnabledExtensionNames(appEnabledExtensionNames), pEnabledFeatures(apEnabledFeatures)
     {}
 
     LogicalDeviceCreateInfo(const std::vector<QueueCreateInfo>& aQueueCreateInfos, const std::vector<const char*>& aEnabledExtensions,
-        const PhysicalDeviceFeatures& aEnabledFeatures)
+        const PhysicalDeviceFeatures& aEnabledFeatures, const DeviceCreateFlags& aFlags = DefaultFlags)
         : LogicalDeviceCreateInfo(static_cast<uint32_t>(aQueueCreateInfos.size()), aQueueCreateInfos.data(),
-            static_cast<uint32_t>(aEnabledExtensions.size()), aEnabledExtensions.data(),
-            &aEnabledFeatures)
+          static_cast<uint32_t>(aEnabledExtensions.size()), aEnabledExtensions.data(),
+          &aEnabledFeatures, aFlags)
     {}
 
     template <std::size_t Q, std::size_t E>
     LogicalDeviceCreateInfo(const std::array<QueueCreateInfo, Q>& aQueueCreateInfos, const std::array<const char*, E>& aEnabledExtensions,
-        const PhysicalDeviceFeatures& aEnabledFeatures)
+        const PhysicalDeviceFeatures& aEnabledFeatures, const DeviceCreateFlags& aFlags = DefaultFlags)
         : LogicalDeviceCreateInfo(static_cast<uint32_t>(aQueueCreateInfos.size()), aQueueCreateInfos.data(),
-            static_cast<uint32_t>(aEnabledExtensions.size()), aEnabledExtensions.data(),
-            &aEnabledFeatures)
+          static_cast<uint32_t>(aEnabledExtensions.size()), aEnabledExtensions.data(),
+          &aEnabledFeatures, aFlags)
+    {}
+
+    template <std::size_t E>
+    LogicalDeviceCreateInfo(const std::vector<QueueCreateInfo>& aQueueCreateInfos, const std::array<const char*, E>& aEnabledExtensions,
+        const PhysicalDeviceFeatures* aEnabledFeatures = nullptr, const DeviceCreateFlags& aFlags = DefaultFlags)
+        : LogicalDeviceCreateInfo(static_cast<uint32_t>(aQueueCreateInfos.size()), aQueueCreateInfos.data(),
+          static_cast<uint32_t>(aEnabledExtensions.size()), aEnabledExtensions.data(),
+          aEnabledFeatures, aFlags)
     {}
 
     LogicalDeviceCreateInfo& SetNext(const void* apNext)
@@ -160,7 +175,7 @@ public:
         return *this;
     }
 
-    LogicalDeviceCreateInfo& SetFlags(DeviceCreateFlags aFlags)
+    LogicalDeviceCreateInfo& SetFlags(const DeviceCreateFlags& aFlags)
     {
         flags = aFlags;
 
@@ -169,14 +184,14 @@ public:
 
     LogicalDeviceCreateInfo& SetQueueCreateInfo(const QueueCreateInfo& aQueueCreateInfo)
     {
-        pQueueCreateInfo = aQueueCreateInfo.AddressOf();
+        pQueueCreateInfos = aQueueCreateInfo.AddressOf();
 
         return *this;
     }
 
     LogicalDeviceCreateInfo& SetEnabledExtensions(uint32_t aEnabledExtensionCount, const char* const* appEnabledExtensionNames)
     {
-        enabledExtensionCount = aEnabledExtensionCount;
+        enabledExtensionCount   = aEnabledExtensionCount;
         ppEnabledExtensionNames = appEnabledExtensionNames;
 
         return *this;
@@ -194,34 +209,56 @@ public:
     }
 };
 
-StaticSizeCheck(LogicalDeviceCreateInfo);
+ConsistencyCheck(LogicalDeviceCreateInfo, pNext, flags, queueCreateInfoCount, pQueueCreateInfos, enabledExtensionCount, ppEnabledExtensionNames, pEnabledFeatures)
 
 
 
-class LogicalDevice
+class LogicalDevice : public internal::VkTrait<LogicalDevice, VkDevice>
 {
 private:
-    internal::VkDeleter<VkDevice> mDevice{ vkDestroyDevice };
+   VkDevice mDevice{ VK_NULL_HANDLE };
 
 public:
-    LogicalDevice(void) noexcept = default;
+    DEFINE_CLASS_MEMBER(LogicalDevice)
 
     LogicalDevice(std::nullptr_t) noexcept
     {}
 
-    LogicalDevice(VkDevice aLogicalDevice)
-    {
-        mDevice = aLogicalDevice;
-    }
-
     LogicalDevice(LogicalDevice&& aLogicalDevice) noexcept : mDevice(std::move(aLogicalDevice.mDevice))
     {}
+
+    LogicalDevice(const PhysicalDevice& aPhysicalDevice, const LogicalDeviceCreateInfo& aLogicalDeviceCreateInfo)
+    {
+        Reset(aPhysicalDevice, aLogicalDeviceCreateInfo);
+    }
 
     LogicalDevice& operator=(LogicalDevice&& aLogicalDevice) noexcept
     {
         mDevice = std::move(aLogicalDevice.mDevice);
 
         return *this;
+    }
+
+    void Reset(void)
+    {
+        vkDestroyDevice(mDevice, nullptr);
+        mDevice = VK_NULL_HANDLE;
+    }
+
+    void Reset(const AllocationCallbacks& aAllocator)
+    {
+        vkDestroyDevice(mDevice, &aAllocator);
+        mDevice = VK_NULL_HANDLE;
+    }
+
+    void Reset(const PhysicalDevice& aPhysicalDevice, const LogicalDeviceCreateInfo& aLogicalDeviceCreateInfo)
+    {
+        ThrowIfFailed(vkCreateDevice(aPhysicalDevice, &aLogicalDeviceCreateInfo, nullptr, &mDevice));
+    }
+
+    void Reset(const PhysicalDevice& aPhysicalDevice, const LogicalDeviceCreateInfo& aLogicalDeviceCreateInfo, const AllocationCallbacks& aAllocator)
+    {
+        ThrowIfFailed(vkCreateDevice(aPhysicalDevice, &aLogicalDeviceCreateInfo, &aAllocator, &mDevice));
     }
 
     Queue GetQueue(uint32_t aQueueFamilyIndex, uint32_t aQueueIndex) const
@@ -780,6 +817,8 @@ public:
         return vkDeviceWaitIdle(mDevice);
     }
 };
+
+StaticSizeCheck(LogicalDevice)
 
 
 

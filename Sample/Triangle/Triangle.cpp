@@ -12,8 +12,28 @@
 #include <Info/RenderPassBeginInfo.h>
 #include <Type/Buffer.h>
 
-#define GLFW_EXPOSE_NATIVE_WIN32
 #include <GLFW/glfw3native.h>
+
+
+
+VKAPI_ATTR VkBool32 VKAPI_CALL DebugCallback(VkDebugReportFlagsEXT /*aFlags*/, VkDebugReportObjectTypeEXT /*aObjType*/,
+    uint64_t /*aObj*/, std::size_t /*aLocation*/, int32_t /*aCode*/, const char* /*apLayerPrefix*/, const char* apMsg, void* /*apUserData*/)
+{
+    std::cerr << "Validation Layer: " << apMsg << std::endl;
+
+    return VK_FALSE;
+}
+
+
+
+void PrintApiVersion(uint32_t aApiVersion)
+{
+    auto lMajorVersion = VK_VERSION_MAJOR(aApiVersion);
+    auto lMinorVersion = VK_VERSION_MINOR(aApiVersion);
+    auto lPatchVersion = VK_VERSION_PATCH(aApiVersion);
+
+    std::cout << "Vulkan API Version: " << lMajorVersion << '.' << lMinorVersion << '.' << lPatchVersion << std::endl;
+}
 
 
 
@@ -39,25 +59,6 @@ constexpr std::array<const char*, 1> gRequiredDeviceExtensions{
     KHR_SWAPCHAIN_EXT_NAME
 };
 
-
-
-void PrintApiVersion(uint32_t aApiVersion)
-{
-    auto lMajorVersion = VK_VERSION_MAJOR(aApiVersion);
-    auto lMinorVersion = VK_VERSION_MINOR(aApiVersion);
-    auto lPatchVersion = VK_VERSION_PATCH(aApiVersion);
-
-    std::cout << "Vulkan API Version: " << lMajorVersion << '.' << lMinorVersion << '.' << lPatchVersion << std::endl;
-}
-
-
-VKAPI_ATTR VkBool32 VKAPI_CALL DebugCallback(VkDebugReportFlagsEXT /*aFlags*/, VkDebugReportObjectTypeEXT /*aObjType*/,
-    uint64_t /*aObj*/, std::size_t /*aLocation*/, int32_t /*aCode*/, const char* /*apLayerPrefix*/, const char* apMsg, void* /*apUserData*/)
-{
-    std::cerr << "Validation Layer: " << apMsg << std::endl;
-
-    return VK_FALSE;
-}
 
 
 void Triangle::CheckValidationLayerSupport(void) const
@@ -272,7 +273,7 @@ void Triangle::CreateLogicalDevice(void)
         nullptr
     );
 
-    mLogicalDevice = mPhysicalDevice.CreateLogicalDevice(lLogicalDeiveInfo);
+    mLogicalDevice.Reset(mPhysicalDevice, lLogicalDeiveInfo); // mPhysicalDevice.CreateLogicalDevice(lLogicalDeiveInfo);
 }
 
 
@@ -895,13 +896,15 @@ void Triangle::PrepareFrame(vkpp::FrameBuffer& aFrameBuffer, const vkpp::Command
     };
 
     aCommandBuffer.BeginRenderPass(lRenderPassBeginInfo, vkpp::SubpassContents::eInline);
-    aCommandBuffer.BindGraphicsPipeline(mGraphicsPipeline);
+
+    aCommandBuffer.BindVertexBuffer(mVertexBuffer, 0);
 
     vkpp::Viewport lViewport{ 0, 0, 1024, 768, 0, 1.0f };
-    vkpp::Rect2D lScissor{ {0, 0}, {1024, 768} };
+    vkpp::Rect2D lScissor{ { 0, 0 },{ 1024, 768 } };
     aCommandBuffer.SetViewport(lViewport);
     aCommandBuffer.SetScissor(lScissor);
-    aCommandBuffer.BindVertexBuffer(mVertexBuffer, 0);
+
+    aCommandBuffer.BindGraphicsPipeline(mGraphicsPipeline);
 
     aCommandBuffer.Draw(4, 1);
 

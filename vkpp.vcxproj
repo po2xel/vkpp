@@ -96,7 +96,7 @@
       </PrecompiledHeader>
       <WarningLevel>Level4</WarningLevel>
       <Optimization>Disabled</Optimization>
-      <PreprocessorDefinitions>VK_USE_PLATFORM_WIN32_KHR;NOMINMAX;WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>VK_USE_PLATFORM_WIN32_KHR;GLFW_EXPOSE_NATIVE_WIN32;NOMINMAX;WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <AdditionalIncludeDirectories>inc;Sample;$(VULKAN_SDK)/include;</AdditionalIncludeDirectories>
       <TreatWarningAsError>true</TreatWarningAsError>
       <LanguageStandard>stdcpplatest</LanguageStandard>
@@ -113,7 +113,7 @@
       </PrecompiledHeader>
       <WarningLevel>Level4</WarningLevel>
       <Optimization>Disabled</Optimization>
-      <PreprocessorDefinitions>VK_USE_PLATFORM_WIN32_KHR;NOMINMAX;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>VK_USE_PLATFORM_WIN32_KHR;GLFW_EXPOSE_NATIVE_WIN32;NOMINMAX;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <AdditionalIncludeDirectories>inc;Sample;$(VULKAN_SDK)/include;</AdditionalIncludeDirectories>
       <TreatWarningAsError>true</TreatWarningAsError>
       <LanguageStandard>stdcpplatest</LanguageStandard>
@@ -134,7 +134,7 @@
       <Optimization>MaxSpeed</Optimization>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
-      <PreprocessorDefinitions>VK_USE_PLATFORM_WIN32_KHR;NOMINMAX;WIN32;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>VK_USE_PLATFORM_WIN32_KHR;GLFW_EXPOSE_NATIVE_WIN32;NOMINMAX;WIN32;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <AdditionalIncludeDirectories>inc;Sample;$(VULKAN_SDK)/include;</AdditionalIncludeDirectories>
       <TreatWarningAsError>true</TreatWarningAsError>
       <LanguageStandard>stdcpplatest</LanguageStandard>
@@ -155,7 +155,7 @@
       <Optimization>MaxSpeed</Optimization>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
-      <PreprocessorDefinitions>VK_USE_PLATFORM_WIN32_KHR;NOMINMAX;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>VK_USE_PLATFORM_WIN32_KHR;GLFW_EXPOSE_NATIVE_WIN32;NOMINMAX;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <AdditionalIncludeDirectories>inc;Sample;$(VULKAN_SDK)/include;</AdditionalIncludeDirectories>
       <TreatWarningAsError>true</TreatWarningAsError>
       <LanguageStandard>stdcpplatest</LanguageStandard>
@@ -170,12 +170,12 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="Sample\Application\Application.cpp" />
     <ClCompile Include="Sample\Triangle\Triangle.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="inc\Info\CommandBufferAllocateInfo.h" />
     <ClInclude Include="inc\Info\Common.h" />
-    <ClInclude Include="inc\Info\DebugReportCallbackCreateInfo.h" />
     <ClInclude Include="inc\Info\Extensions.h" />
     <ClInclude Include="inc\Info\Flags.h" />
     <ClInclude Include="inc\Info\Format.h" />
@@ -184,9 +184,8 @@
     <ClInclude Include="inc\Info\PhysicalDeviceFeatures.h" />
     <ClInclude Include="inc\Info\PipelineStage.h" />
     <ClInclude Include="inc\Info\RenderPassBeginInfo.h" />
+    <ClInclude Include="inc\Info\TypeConsistency.h" />
     <ClInclude Include="inc\Info\SurfaceCapabilities.h" />
-    <ClInclude Include="inc\Info\SurfaceCreateInfo.h" />
-    <ClInclude Include="inc\Info\Windows\SurfaceCreateInfo.h" />
     <ClInclude Include="inc\Memory\AutoPtr.h" />
     <ClInclude Include="inc\Type\AllocationCallbacks.h" />
     <ClInclude Include="inc\Type\Buffer.h" />
@@ -212,6 +211,8 @@
     <ClInclude Include="inc\Type\Swapchain.h" />
     <ClInclude Include="inc\Type\VkDeleter.h" />
     <ClInclude Include="inc\Type\VkTrait.h" />
+    <ClInclude Include="inc\Type\Windows\SurfaceCreateInfo.h" />
+    <ClInclude Include="Sample\Application\Application.h" />
     <ClInclude Include="Sample\Triangle\Triangle.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

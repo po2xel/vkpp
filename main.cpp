@@ -5,6 +5,7 @@
 #include <Triangle/Triangle.h>
 
 #include <Memory/AutoPtr.h>
+#include "Application/Application.h"
 
 
 using namespace vkpp;
@@ -18,6 +19,8 @@ void Destroy(VkInstance, VkAllocationCallbacks*)
 
 int main(int /*argc*/, char* /*argv*/[])
 {
+    sample::Application lApplication{ "Hello World", 1 };
+    lApplication;
     //{
     //    AutoPtr<VkInstance> lInstance{ nullptr, vkDestroyInstance };
     //    lInstance;
@@ -36,8 +39,8 @@ int main(int /*argc*/, char* /*argv*/[])
 
     try
     {
-        sample::Triangle lTriangle;
-        lTriangle.Run();
+        // sample::Triangle lTriangle;
+        // lTriangle.Run();
         /*vkpp::Instance lInstance{ lInstanceInfo };
 
         auto lPhysicalDevices = lInstance.EnumeratePhysicalDevices();

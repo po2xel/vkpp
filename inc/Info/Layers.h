@@ -41,7 +41,7 @@ struct LayerProperty : public internal::VkTrait<LayerProperty, VkLayerProperties
     DEFINE_CLASS_MEMBER(LayerProperty)
 };
 
-StaticSizeCheck(LayerProperty);
+ConsistencyCheck(LayerProperty, layerName, specVersion, implementationVersion, description)
 
 
 

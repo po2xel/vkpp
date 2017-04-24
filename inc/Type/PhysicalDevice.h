@@ -11,8 +11,8 @@
 #include <Info/SurfaceCapabilities.h>
 #include <Info/PhysicalDeviceFeatures.h>
 
-#include <Type/LogicalDevice.h>
 #include <Type/Surface.h>
+#include <Type/Swapchain.h>
 
 
 
@@ -77,7 +77,7 @@ struct QueueFamilyProperties : public internal::VkTrait<QueueFamilyProperties, V
     DEFINE_CLASS_MEMBER(QueueFamilyProperties)
 };
 
-StaticSizeCheck(QueueFamilyProperties);
+ConsistencyCheck(QueueFamilyProperties, queueFlags, queueCount, timestampValidBits, minImageTransferGranularity)
 
 
 
@@ -92,7 +92,7 @@ struct PhysicalDeviceSparseProperties : public internal::VkTrait<PhysicalDeviceS
     DEFINE_CLASS_MEMBER(PhysicalDeviceSparseProperties)
 };
 
-StaticSizeCheck(PhysicalDeviceSparseProperties);
+ConsistencyCheck(PhysicalDeviceSparseProperties, residencyStandard2DBlockShape, residencyStandard2DMultisampleBlockShape, residencyStandard3DBlockShape, residencyAlignedMipSize, residencyNonResidentStrict)
 
 
 
@@ -104,7 +104,7 @@ struct MemoryType : public internal::VkTrait<MemoryType, VkMemoryType>
     DEFINE_CLASS_MEMBER(MemoryType)
 };
 
-StaticSizeCheck(MemoryType);
+ConsistencyCheck(MemoryType, propertyFlags, heapIndex)
 
 
 
@@ -116,7 +116,7 @@ struct MemoryHeap : public internal::VkTrait<MemoryHeap, VkMemoryHeap>
     DEFINE_CLASS_MEMBER(MemoryHeap)
 };
 
-StaticSizeCheck(MemoryHeap);
+ConsistencyCheck(MemoryHeap, size, flags)
 
 
 
@@ -131,12 +131,14 @@ struct PhysicalDeviceMemoryProperties : public internal::VkTrait<PhysicalDeviceM
     DEFINE_CLASS_MEMBER(PhysicalDeviceMemoryProperties)
 };
 
+ConsistencyCheck(PhysicalDeviceMemoryProperties, memoryTypeCount, memoryTypes, memoryHeapCount, memoryHeaps)
+
 
 
 struct PhysicalDeviceProperties : public internal::VkTrait<PhysicalDeviceProperties, VkPhysicalDeviceProperties>
 {
     uint32_t            apiVersion{ 0 };
-    uint32_t            apiDriverVersion{ 0 };
+    uint32_t            driverVersion{ 0 };
     uint32_t            vendorID{ 0 };
     uint32_t            deviceID{ 0 };
     PhysicalDeviceType  deviceType;
@@ -148,7 +150,7 @@ struct PhysicalDeviceProperties : public internal::VkTrait<PhysicalDevicePropert
     DEFINE_CLASS_MEMBER(PhysicalDeviceProperties)
 };
 
-StaticSizeCheck(PhysicalDeviceSparseProperties);
+ConsistencyCheck(PhysicalDeviceProperties, apiVersion, driverVersion, vendorID, deviceID, deviceType, deviceName, pipelineCacheUUID, limits, sparseProperties)
 
 
 
@@ -283,22 +285,6 @@ public:
         ThrowIfFailed(vkGetPhysicalDeviceSurfacePresentModesKHR(mPhysicalDevice, aSurface, &lPresentModeCount, reinterpret_cast<VkPresentModeKHR*>(lPresentModes.data())));
 
         return lPresentModes;
-    }
-
-    LogicalDevice CreateLogicalDevice(const LogicalDeviceCreateInfo& aCreateInfo) const
-    {
-        VkDevice lLogicalDevice;
-        ThrowIfFailed(vkCreateDevice(mPhysicalDevice, &aCreateInfo, nullptr, &lLogicalDevice));
-
-        return lLogicalDevice;
-    }
-
-    LogicalDevice CreateLogicalDevice(const LogicalDeviceCreateInfo& aCreateInfo, const AllocationCallbacks& aAllocator) const
-    {
-        VkDevice lLogicalDevice;
-        ThrowIfFailed(vkCreateDevice(mPhysicalDevice, &aCreateInfo, &aAllocator, &lLogicalDevice));
-
-        return lLogicalDevice;
     }
 };
 

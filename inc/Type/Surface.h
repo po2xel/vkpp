@@ -5,6 +5,10 @@
 
 #include <Info/Common.h>
 
+#ifdef VK_USE_PLATFORM_WIN32_KHR
+#include <Type/Windows/SurfaceCreateInfo.h>
+#endif
+
 
 
 namespace vkpp::khr

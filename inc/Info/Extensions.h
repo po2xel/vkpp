@@ -29,7 +29,7 @@ struct ExtensionProperty : public internal::VkTrait<ExtensionProperty, VkExtensi
     DEFINE_CLASS_MEMBER(ExtensionProperty)
 };
 
-StaticSizeCheck(ExtensionProperty);
+ConsistencyCheck(ExtensionProperty, extensionName, specVersion)
 
 
 

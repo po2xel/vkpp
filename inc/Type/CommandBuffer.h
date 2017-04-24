@@ -68,17 +68,17 @@ public:
     const void*                 pNext{ nullptr };
     RenderPass                  renderPass;
     uint32_t                    subpass{ 0 };
-    FrameBuffer                 frameBuffer;
+    FrameBuffer                 framebuffer;
     Bool32                      occlusionQueryEnable{ VK_FALSE };
     QueryControlFlags           queryFlags;
     QueryPipelineStatisticFlags pipelineStatistics;
 
     DEFINE_CLASS_MEMBER(CommandBufferInheritanceInfo)
 
-    CommandBufferInheritanceInfo(const RenderPass& aRenderPass, uint32_t aSubpass, const FrameBuffer& aFrameBuffer, Bool32 aOcclusionQueryEnable,
-        QueryControlFlags aQueryFlags = QueryControlFlags(), QueryPipelineStatisticFlags aPipelineStatistics = QueryPipelineStatisticFlags())
-        : renderPass(aRenderPass), subpass(aSubpass), frameBuffer(aFrameBuffer), occlusionQueryEnable(aOcclusionQueryEnable),
-        queryFlags(aQueryFlags), pipelineStatistics(aPipelineStatistics)
+    CommandBufferInheritanceInfo(const RenderPass& aRenderPass, uint32_t aSubpass, const FrameBuffer& aFramebuffer, Bool32 aOcclusionQueryEnable,
+        QueryControlFlags aQueryFlags = DefaultFlags, QueryPipelineStatisticFlags aPipelineStatistics = DefaultFlags)
+        : renderPass(aRenderPass), subpass(aSubpass), framebuffer(aFramebuffer), occlusionQueryEnable(aOcclusionQueryEnable),
+          queryFlags(aQueryFlags), pipelineStatistics(aPipelineStatistics)
     {}
 
     CommandBufferInheritanceInfo& SetNext(const void* apNext)
@@ -96,9 +96,9 @@ public:
         return *this;
     }
 
-    CommandBufferInheritanceInfo& SetFrameBuffer(const FrameBuffer& aFrameBuffer)
+    CommandBufferInheritanceInfo& SetFramebuffer(const FrameBuffer& aFrameBuffer)
     {
-        frameBuffer = aFrameBuffer;
+        framebuffer = aFrameBuffer;
 
         return *this;
     }
@@ -125,7 +125,7 @@ public:
     }
 };
 
-StaticSizeCheck(CommandBufferInheritanceInfo);
+ConsistencyCheck(CommandBufferInheritanceInfo, pNext, renderPass, subpass, framebuffer, occlusionQueryEnable, queryFlags, pipelineStatistics)
 
 
 
@@ -164,7 +164,7 @@ public:
     }
 };
 
-StaticSizeCheck(CommandBufferBeginInfo);
+ConsistencyCheck(CommandBufferBeginInfo, pNext, flags, pInheritanceInfo)
 
 
 
@@ -340,6 +340,8 @@ public:
         BindVertexBuffers(aFirstBinding, static_cast<uint32_t>(aBuffers.size()), aBuffers.data(), aOffsets.data());
     }
 };
+
+StaticSizeCheck(CommandBuffer)
 
 
 

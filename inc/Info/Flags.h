@@ -26,15 +26,15 @@ private:
 public:
     constexpr const static auto AllFlags{ 0 };
 
-    Flags(void) = default;
+    constexpr Flags(void) = default;
 
-    Flags(const DefaultFlags&)
+    constexpr Flags(const DefaultFlags&)
     {}
 
-    Flags(BitType aBit) : mMask(static_cast<VkType>(aBit))
+    constexpr Flags(BitType aBit) : mMask(static_cast<VkType>(aBit))
     {}
 
-    Flags(const Flags& aRhs) : mMask(aRhs.mMask)
+    constexpr Flags(const Flags& aRhs) : mMask(aRhs.mMask)
     {}
 
     Flags& operator=(const Flags& aRhs)

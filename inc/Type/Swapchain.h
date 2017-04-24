@@ -97,7 +97,7 @@ public:
     Extent2D                    imageExtent;
     uint32_t                    imageArrayLayers{ 0 };
     ImageUsageFlags             imageUsage;
-    SharingMode                 sharingMode{ SharingMode::eExclusive };
+    SharingMode                 imageSharingMode{ SharingMode::eExclusive };
     uint32_t                    queueFamilyIndexCount{ 0 };
     const uint32_t*             pQueueFamilyIndices{ nullptr };
     SurfaceTransformFlagBits    preTransform;
@@ -127,7 +127,7 @@ public:
         uint32_t aImageArrayLayers = 1, Bool32 aClipped = VK_TRUE, const SwapchainCreateFlags& aFlags = DefaultFlags)
         : flags(aFlags), surface(aSurface),
         minImageCount(aMinImageCount), imageFormat(aImageFormat), imageColorSpace(aImageColorSpace),
-        imageExtent(aImageExtent), imageArrayLayers(aImageArrayLayers), imageUsage(aImageUsage), sharingMode(SharingMode::eConcurrent),
+        imageExtent(aImageExtent), imageArrayLayers(aImageArrayLayers), imageUsage(aImageUsage), imageSharingMode(SharingMode::eConcurrent),
         queueFamilyIndexCount(aQueueFamilyIndexCount), pQueueFamilyIndices(apQueueFamilyIndices), preTransform(aPreTransform), compositeAlpha(aCompositeAlpha),
         presentMode(aPresentMode), clipped(aClipped), oldSwapchain(aOldSwapChain)
     {}
@@ -201,7 +201,7 @@ public:
 
     SwapchainCreateInfo& SetExclusiveMode(void)
     {
-        sharingMode             = SharingMode::eExclusive;
+        imageSharingMode             = SharingMode::eExclusive;
         queueFamilyIndexCount   = 0;
         pQueueFamilyIndices     = nullptr;
 
@@ -210,7 +210,7 @@ public:
 
     SwapchainCreateInfo& SetConcurrentMode(uint32_t aQueueFamilyIndexCount, const uint32_t* apQueueFamilyIndices)
     {
-        sharingMode             = SharingMode::eConcurrent;
+        imageSharingMode             = SharingMode::eConcurrent;
         queueFamilyIndexCount   = aQueueFamilyIndexCount;
         pQueueFamilyIndices     = apQueueFamilyIndices;
 
@@ -264,7 +264,8 @@ public:
     }
 };
 
-StaticSizeCheck(SwapchainCreateInfo);
+ConsistencyCheck(SwapchainCreateInfo, pNext, flags, surface, minImageCount, imageFormat, imageColorSpace, imageExtent, imageArrayLayers, imageUsage, imageSharingMode,
+    queueFamilyIndexCount, pQueueFamilyIndices, preTransform, compositeAlpha, presentMode, clipped, oldSwapchain)
 
 
 

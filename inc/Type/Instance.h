@@ -6,10 +6,8 @@
 #include <vector>
 
 #include <Info/Common.h>
-#include <Info/SurfaceCreateInfo.h>
 #include <Info/Layers.h>
 #include <Info/Extensions.h>
-#include <Info/DebugReportCallbackCreateInfo.h>
 
 #include <Type/VkDeleter.h>
 #include <Type/AllocationCallbacks.h>
@@ -39,7 +37,7 @@ public:
 
     DEFINE_CLASS_MEMBER(ApplicationInfo)
 
-    ApplicationInfo(const char* apApplicationName, uint32_t aApplicationVersion, const char* apEngineName = nullptr, uint32_t aEngineVersion = 0, uint32_t aApiVersion = DEFAULT_VK_API_VERSION)
+    constexpr ApplicationInfo(const char* apApplicationName, uint32_t aApplicationVersion, const char* apEngineName = nullptr, uint32_t aEngineVersion = 0, uint32_t aApiVersion = DEFAULT_VK_API_VERSION)
         : pApplicationName(apApplicationName), applicationVersion(aApplicationVersion), pEngineName(apEngineName), engineVersion(aEngineVersion), apiVersion(aApiVersion)
     {}
 
@@ -74,7 +72,7 @@ public:
     }
 };
 
-StaticSizeCheck(ApplicationInfo);
+ConsistencyCheck(ApplicationInfo, pNext, pApplicationName, applicationVersion, pEngineName, engineVersion, apiVersion)
 
 
 
@@ -88,7 +86,7 @@ public:
     VkInstanceCreateFlags       flags{ 0 };
     const ApplicationInfo*      pApplicationInfo{ nullptr };
     uint32_t                    enabledLayerCount{ 0 };
-    const char* const*          ppEnalbedLayerNames{ nullptr };
+    const char* const*          ppEnabledLayerNames{ nullptr };
     uint32_t                    enabledExtensionCount{ 0 };
     const char* const*          ppEnabledExtensionNames{ nullptr };
 
@@ -96,7 +94,7 @@ public:
 
     explicit InstanceInfo(const ApplicationInfo& aAppInfo, uint32_t aEnabledLayerCount = 0, const char* const* appEnabledLayerNames = nullptr,
         uint32_t aEnabledExtensionCount = 0, const char* const* appEnabledExtensionNames = nullptr)
-        : pApplicationInfo(aAppInfo.AddressOf()), enabledLayerCount(aEnabledLayerCount), ppEnalbedLayerNames(appEnabledLayerNames),
+        : pApplicationInfo(aAppInfo.AddressOf()), enabledLayerCount(aEnabledLayerCount), ppEnabledLayerNames(appEnabledLayerNames),
         enabledExtensionCount(aEnabledExtensionCount), ppEnabledExtensionNames(appEnabledExtensionNames)
     {}
 
@@ -125,8 +123,8 @@ public:
 
     InstanceInfo& SetEnabledLayers(uint32_t aEnabledLayerCount, const char* const* appEnabledLayerNames)
     {
-        enabledLayerCount = aEnabledLayerCount;
-        ppEnalbedLayerNames = appEnabledLayerNames;
+        enabledLayerCount   = aEnabledLayerCount;
+        ppEnabledLayerNames = appEnabledLayerNames;
 
         return *this;
     }
@@ -162,7 +160,7 @@ public:
     }
 };
 
-StaticSizeCheck(InstanceInfo);
+ConsistencyCheck(InstanceInfo, pNext, flags, pApplicationInfo, enabledLayerCount, ppEnabledLayerNames, enabledExtensionCount, ppEnabledExtensionNames)
 
 
 
@@ -301,6 +299,8 @@ public:
         lpFunc(mInstance, aDebugReportCallback, nullptr);
     }
 };
+
+StaticSizeCheck(Instance)
 
 
 

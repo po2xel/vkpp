@@ -22,14 +22,17 @@
     <Filter Include="Source Files\Sample">
       <UniqueIdentifier>{d674c2cc-7711-4dca-b089-32f971e381f1}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Header Files\Info\Windows">
-      <UniqueIdentifier>{f8739f43-469d-4b3a-a6ca-9c5e9775af05}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Header Files\Memory">
       <UniqueIdentifier>{a7d3981a-bd11-4afa-814a-11603d662c01}</UniqueIdentifier>
     </Filter>
     <Filter Include="Source Files\Shaders">
       <UniqueIdentifier>{f941ac40-995b-4b3f-9560-e71f460c2f08}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Sample\Application">
+      <UniqueIdentifier>{1b99dc75-43f2-4640-803d-44a706cce10f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Type\Windows">
+      <UniqueIdentifier>{227bdd41-9e15-48ac-b89d-8033b7ede746}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -38,6 +41,9 @@
     </ClCompile>
     <ClCompile Include="Sample\Triangle\Triangle.cpp">
       <Filter>Source Files\Sample</Filter>
+    </ClCompile>
+    <ClCompile Include="Sample\Application\Application.cpp">
+      <Filter>Source Files\Sample\Application</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -83,12 +89,6 @@
     <ClInclude Include="inc\Info\Layers.h">
       <Filter>Header Files\Info</Filter>
     </ClInclude>
-    <ClInclude Include="inc\Info\Windows\SurfaceCreateInfo.h">
-      <Filter>Header Files\Info\Windows</Filter>
-    </ClInclude>
-    <ClInclude Include="inc\Info\SurfaceCreateInfo.h">
-      <Filter>Header Files\Info</Filter>
-    </ClInclude>
     <ClInclude Include="inc\Type\Surface.h">
       <Filter>Header Files\Type</Filter>
     </ClInclude>
@@ -103,9 +103,6 @@
     </ClInclude>
     <ClInclude Include="inc\Type\Swapchain.h">
       <Filter>Header Files\Type</Filter>
-    </ClInclude>
-    <ClInclude Include="inc\Info\DebugReportCallbackCreateInfo.h">
-      <Filter>Header Files\Info</Filter>
     </ClInclude>
     <ClInclude Include="inc\Type\DebugReportCallback.h">
       <Filter>Header Files\Type</Filter>
@@ -160,6 +157,15 @@
     </ClInclude>
     <ClInclude Include="inc\Type\Memory.h">
       <Filter>Header Files\Type</Filter>
+    </ClInclude>
+    <ClInclude Include="inc\Info\TypeConsistency.h">
+      <Filter>Header Files\Info</Filter>
+    </ClInclude>
+    <ClInclude Include="Sample\Application\Application.h">
+      <Filter>Source Files\Sample\Application</Filter>
+    </ClInclude>
+    <ClInclude Include="inc\Type\Windows\SurfaceCreateInfo.h">
+      <Filter>Header Files\Type\Windows</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

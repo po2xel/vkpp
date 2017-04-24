@@ -6,6 +6,7 @@
 #include <Info/Common.h>
 #include <Info/Flags.h>
 #include <Info/Format.h>
+#include <Info/PipelineStage.h>
 
 #include <Type/MemoryBarrier.h>
 
