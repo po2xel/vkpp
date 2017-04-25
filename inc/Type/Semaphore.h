@@ -50,7 +50,7 @@ public:
     }
 };
 
-StaticSizeCheck(SemaphoreCreateInfo);
+ConsistencyCheck(SemaphoreCreateInfo, pNext, flags)
 
 
 

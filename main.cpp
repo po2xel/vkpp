@@ -20,7 +20,7 @@ void Destroy(VkInstance, VkAllocationCallbacks*)
 int main(int /*argc*/, char* /*argv*/[])
 {
     sample::Application lApplication{ "Hello World", 1 };
-    lApplication;
+    lApplication.MainLoop();
     //{
     //    AutoPtr<VkInstance> lInstance{ nullptr, vkDestroyInstance };
     //    lInstance;

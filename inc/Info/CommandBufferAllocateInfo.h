@@ -61,7 +61,7 @@ public:
     }
 };
 
-StaticSizeCheck(CommandBufferAllocateInfo);
+ConsistencyCheck(CommandBufferAllocateInfo, pNext, commandPool, level, commandBufferCount)
 
 
 

@@ -370,7 +370,7 @@ public:
     }
 };
 
-StaticSizeCheck(ImageViewCreateInfo);
+ConsistencyCheck(ImageViewCreateInfo, pNext, flags, image, viewType, format, components, subresourceRange)
 
 
 
@@ -389,7 +389,7 @@ public:
     {}
 };
 
-StaticSizeCheck(ImageView);
+StaticSizeCheck(ImageView)
 
 
 

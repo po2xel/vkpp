@@ -29,6 +29,15 @@ struct QueueParams
 };
 
 
+struct SwapchainParams
+{
+    vkpp::khr::Swapchain Handle;
+    vkpp::khr::SurfaceFormat mSurfaceFormat;
+
+    std::vector<vkpp::Image> mSwapchainImages;
+    std::vector<vkpp::ImageView> mSwapchainImageViews;
+};
+
 
 class Application
 {
@@ -46,7 +55,12 @@ private:
     QueueParams mPresentQueue;
     QueueParams mGraphicsQueue;
     vkpp::LogicalDevice mLogicalDevice;
-    vkpp::khr::Swapchain mSwapchain;
+    SwapchainParams mSwapchain;
+    vkpp::CommandPool mCommandPool;
+    std::vector<vkpp::CommandBuffer> mCommandBuffers;
+
+    vkpp::Semaphore mImageAvailSemaphore;
+    vkpp::Semaphore mRenderingFinishedSemaphore;
 
     void CreateInstance(const char* apApplicationName, uint32_t aApplicationVersion, const char* apEngineName = nullptr, uint32_t aEngineVersion = 0);
     void CreateNativeWindow(void);
@@ -58,6 +72,11 @@ private:
     void CreateLogicalDevice(void);
     void GetDeviceQueues(void);
     void CreateSwapchain(void);
+    void CreateSwapchainImageViews(void);
+    void CreateCommandPool(void);
+    void CreateCommandBuffers(void);
+    void RecordCommandBuffers(void);
+    void CreateSemaphores(void);
 
     static uint32_t GetSwapchainImageCount(const vkpp::khr::SurfaceCapabilities& aSurfaceCapabilities);
     static vkpp::khr::SurfaceFormat GetSwapchainFormat(const std::vector<vkpp::khr::SurfaceFormat>& aSurfaceFormats);
@@ -66,10 +85,14 @@ private:
     static vkpp::khr::SurfaceTransformFlagBits GetSwapchainTransform(const vkpp::khr::SurfaceCapabilities& aSurfaceCapabilities);
     static vkpp::khr::PresentMode GetSwapchainPresentMode(const std::vector<vkpp::khr::PresentMode>& aPresentModes);
 
+    void DrawFrame(void);
+
 public:
     Application(const char* apApplicationName, uint32_t aApplicationVersion, const char* apEngineName = nullptr, uint32_t aEngineVersion = 0);
 
     virtual ~Application(void);
+
+    void MainLoop(void);
 };
 
 

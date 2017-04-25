@@ -29,7 +29,14 @@ public:
 
     explicit Swapchain(VkSwapchainKHR aSwapchain) : mSwpchain(aSwapchain)
     {}
+
+    operator bool(void) const
+    {
+        return mSwpchain != VK_NULL_HANDLE;
+    }
 };
+
+StaticSizeCheck(Swapchain)
 
 
 

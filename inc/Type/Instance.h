@@ -283,6 +283,8 @@ public:
         vkDestroySurfaceKHR(mInstance, aSurface, &aAllocator);
     }
 
+#ifdef _DEBUG
+
     ext::DebugReportCallback CreateDebugReportCallback(const ext::DebugReportCallbackCreateInfo& aDebugReportCallbackInfo) const
     {
         auto lpFunc = reinterpret_cast<PFN_vkCreateDebugReportCallbackEXT>(vkGetInstanceProcAddr(mInstance, "vkCreateDebugReportCallbackEXT"));
@@ -298,6 +300,8 @@ public:
         auto lpFunc = reinterpret_cast<PFN_vkDestroyDebugReportCallbackEXT>(vkGetInstanceProcAddr(mInstance, "vkDestroyDebugReportCallbackEXT"));
         lpFunc(mInstance, aDebugReportCallback, nullptr);
     }
+
+#endif              // End of _DEBUG
 };
 
 StaticSizeCheck(Instance)

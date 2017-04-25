@@ -58,8 +58,14 @@ Application::Application(const char* apApplicationName, uint32_t aApplicationVer
     GetDeviceQueues();
 
     CreateSwapchain();
-}
+    CreateSwapchainImageViews();
 
+    CreateCommandPool();
+    CreateCommandBuffers();
+    RecordCommandBuffers();
+
+    CreateSemaphores();
+}
 
 
 Application::~Application(void)
@@ -67,7 +73,18 @@ Application::~Application(void)
 #ifdef _DEBUG
     mInstance.DestroyDebugReportCallback(mDebugReportCallback);
 #endif              // End of _DEBUG
+    mLogicalDevice.Wait();
 
+    mLogicalDevice.DestroySemaphore(mRenderingFinishedSemaphore);
+    mLogicalDevice.DestroySemaphore(mImageAvailSemaphore);
+
+    mLogicalDevice.FreeCommandBuffers(mCommandPool, mCommandBuffers);
+    mLogicalDevice.DestroyCommandPool(mCommandPool);
+
+    for (auto& lSwapchainImageView : mSwapchain.mSwapchainImageViews)
+        mLogicalDevice.DestroyImageView(lSwapchainImageView);
+
+    mLogicalDevice.DestroySwapchain(mSwapchain.Handle);
     mLogicalDevice.Reset();
     mInstance.DestroySurface(mSurface);
 
@@ -83,7 +100,7 @@ void Application::CreateNativeWindow(void)
 {
     glfwInit();
     glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
-    glfwWindowHint(GLFW_RESIZABLE, GLFW_TRUE);
+    glfwWindowHint(GLFW_RESIZABLE, GLFW_FALSE);
 
     mpWindow = glfwCreateWindow(1024, 768, "Hello Vulkan", nullptr, nullptr);
 }
@@ -91,6 +108,22 @@ void Application::CreateNativeWindow(void)
 
 void Application::CreateInstance(const char* apApplicationName, uint32_t aApplicationVersion, const char* apEngineName, uint32_t aEngineVersion)
 {
+    const auto& lLayers = vkpp::Instance::GetLayers();
+
+    std::cout << "Instance Layers:\n";
+    for (auto& lLayer : lLayers)
+        std::cout << '\t' << lLayer.layerName << '\t' << lLayer.specVersion << '\t' << lLayer.implementationVersion << '\t' << lLayer.description << std::endl;
+
+    std::cout << std::endl;
+
+    const auto& lExtensions = vkpp::Instance::GetExtensions();
+
+    std::cout << "Instance Extensions:\n";
+    for (auto& lExt : lExtensions)
+        std::cout << '\t' << lExt.extensionName << '\t' << lExt.specVersion << std::endl;
+
+    std::cout << std::endl;
+
     const vkpp::ApplicationInfo lApplicationInfo
     {
         apApplicationName, aApplicationVersion, apEngineName, aEngineVersion
@@ -133,7 +166,6 @@ void Application::SetupDebugCallback(void)
 }
 
 
-
 void Application::CreateSurface(void)
 {
     const vkpp::khr::SurfaceCreateInfo lSurfaceCreateInfo
@@ -163,14 +195,14 @@ bool Application::CheckPhysicalDeviceProperties(const vkpp::PhysicalDevice& aPhy
 {
     const auto& lPhysicalLayers = aPhysicalDevice.GetLayers();
 
-    std::cout << "Device Layers:\n";
+    std::cout << "Physical Device Layers:\n";
     for (auto& lLayer : lPhysicalLayers)
         std::cout << '\t' << lLayer.layerName << '\t' << lLayer.specVersion << '\t' << lLayer.implementationVersion << '\t' << lLayer.description << std::endl;
 
     std::cout << std::endl;
 
     const auto& lPhysicalExts = aPhysicalDevice.GetExtensions();
-    std::cout << "Device Extensions:\n";
+    std::cout << "Physical Device Extensions:\n";
     for (auto& lPhysicalExt : lPhysicalExts)
         std::cout << '\t' << lPhysicalExt.extensionName << '\t' << lPhysicalExt.specVersion << std::endl;
 
@@ -179,8 +211,7 @@ bool Application::CheckPhysicalDeviceProperties(const vkpp::PhysicalDevice& aPhy
     const auto& lPhysicalDeviceProperties = aPhysicalDevice.GetProperties();
     PrintApiVersion(lPhysicalDeviceProperties.apiVersion);
 
-    const auto& lPhysicalDeviceFeatures = aPhysicalDevice.GetFeatures();
-    lPhysicalDeviceFeatures;
+    // const auto& lPhysicalDeviceFeatures = aPhysicalDevice.GetFeatures();
 
     const auto& lQueueFamilyProperties = aPhysicalDevice.GetQueueFamilyProperties();
 
@@ -234,6 +265,9 @@ void Application::GetDeviceQueues(void)
 
 void Application::CreateSwapchain(void)
 {
+    if (mSwapchain.Handle)
+        mLogicalDevice.Wait();
+
     const auto lSurfaceFormats = mPhysicalDevice.GetSurfaceFormats(mSurface);
     const auto lDesiredFormat = GetSwapchainFormat(lSurfaceFormats);
 
@@ -246,15 +280,174 @@ void Application::CreateSwapchain(void)
     const auto lSurfacePresentModes = mPhysicalDevice.GetSurfacePresentModes(mSurface);
     const auto lDesiredPresentMode = GetSwapchainPresentMode(lSurfacePresentModes);
 
+    auto lOldSwapchain = mSwapchain.Handle;
+
     const vkpp::khr::SwapchainCreateInfo lSwapchainCreateInfo
     {
         mSurface,
         lDesiredImageCount, lDesiredFormat.format, lDesiredFormat.colorSpace, lDesiredExtent, lDesiredUsage,
         lDesiredTransform, vkpp::khr::CompositeAlphaFlagBits::eOpaque,
-        lDesiredPresentMode, mSwapchain
+        lDesiredPresentMode, lOldSwapchain
     };
 
-    mSwapchain = mLogicalDevice.CreateSwapchain(lSwapchainCreateInfo);
+    mSwapchain.Handle = mLogicalDevice.CreateSwapchain(lSwapchainCreateInfo);
+    mSwapchain.mSurfaceFormat = lDesiredFormat;
+
+    if (lOldSwapchain)
+        mLogicalDevice.DestroySwapchain(lOldSwapchain);
+
+    mSwapchain.mSwapchainImages = mLogicalDevice.GetSwapchainImages(mSwapchain.Handle);
+}
+
+
+void Application::CreateSwapchainImageViews(void)
+{
+    for (auto& lSwapchainImage : mSwapchain.mSwapchainImages)
+    {
+        vkpp::ImageViewCreateInfo lImageViewCreateInfo
+        {
+            lSwapchainImage, vkpp::ImageViewType::e2D, mSwapchain.mSurfaceFormat.format,
+            {
+                vkpp::ComponentSwizzle::eIdentity, vkpp::ComponentSwizzle::eIdentity,
+                vkpp::ComponentSwizzle::eIdentity, vkpp::ComponentSwizzle::eIdentity
+            },
+            {
+                vkpp::ImageAspectFlagBits::eColor, 
+                0, 1,
+                0, 1
+            }
+        };
+
+        mSwapchain.mSwapchainImageViews.emplace_back(mLogicalDevice.CreateImageView(lImageViewCreateInfo));
+    }
+}
+
+
+void Application::CreateCommandPool(void)
+{
+    vkpp::CommandPoolCreateInfo lCommandPoolCreateInfo{ mPresentQueue.mFamilyIndex };
+    mCommandPool = mLogicalDevice.CreateCommandPool(lCommandPoolCreateInfo);
+}
+
+
+void Application::CreateCommandBuffers(void)
+{
+    auto lSwapchainImageCount = static_cast<uint32_t>(mSwapchain.mSwapchainImages.size());
+
+    vkpp::CommandBufferAllocateInfo lCommandBufferAllocateInfo
+    {
+        mCommandPool, lSwapchainImageCount
+    };
+
+    mCommandBuffers = mLogicalDevice.AllocateCommandBuffers(lCommandBufferAllocateInfo);
+}
+
+
+void Application::RecordCommandBuffers(void)
+{
+    vkpp::CommandBufferBeginInfo lCommandBufferBeginInfo{ vkpp::CommandBufferUsageFlagBits::eSimultaneousUse };
+    vkpp::ClearColorValue lClearColorValue
+    {
+        1.0f, 0.8f, 0.4f, 0.0f
+    };
+
+    vkpp::ImageSubresourceRange lImageSubresourceRange
+    {
+        vkpp::ImageAspectFlagBits::eColor,
+        0, 1,
+        0, 1
+    };
+
+      for(std::size_t lIndex = 0; lIndex < mSwapchain.mSwapchainImages.size(); ++lIndex)
+      {
+          vkpp::ImageMemoryBarrier lBarrierFromPresentToClear
+          {
+              vkpp::AccessFlagBits::eMemoryRead, vkpp::AccessFlagBits::eTransferWrite,
+              vkpp::ImageLayout::eUndefined, vkpp::ImageLayout::eTransferDstOptimal,
+              VK_QUEUE_FAMILY_IGNORED, VK_QUEUE_FAMILY_IGNORED,
+              mSwapchain.mSwapchainImages[lIndex],
+              lImageSubresourceRange
+          },
+
+              lBarrierFromClearToPresent
+          {
+              vkpp::AccessFlagBits::eTransferWrite, vkpp::AccessFlagBits::eMemoryRead,
+              vkpp::ImageLayout::eTransferDstOptimal, vkpp::ImageLayout::ePresentSrcKHR,
+              VK_QUEUE_FAMILY_IGNORED, VK_QUEUE_FAMILY_IGNORED,
+              mSwapchain.mSwapchainImages[lIndex],
+              lImageSubresourceRange
+          };
+
+          vkpp::CommandPipelineBarrier lCommandPipelineBarrier
+          {
+              vkpp::PipelineStageFlagBits::eTransfer, vkpp::PipelineStageFlagBits::eTransfer,
+              vkpp::DefaultFlags,
+              0, nullptr,
+              0, nullptr,
+              1, lBarrierFromPresentToClear.AddressOf()
+          };
+
+          mCommandBuffers[lIndex].Begin(lCommandBufferBeginInfo);
+
+          mCommandBuffers[lIndex].PipelineBarrier(lCommandPipelineBarrier);
+          mCommandBuffers[lIndex].ClearColorImage(mSwapchain.mSwapchainImages[lIndex], vkpp::ImageLayout::eTransferDstOptimal, lClearColorValue, {lImageSubresourceRange});
+
+          lCommandPipelineBarrier.SetImageMemoryBarriers(1, lBarrierFromClearToPresent.AddressOf());
+          mCommandBuffers[lIndex].PipelineBarrier(lCommandPipelineBarrier);
+
+          mCommandBuffers[lIndex].End();
+      }
+}
+
+
+void Application::DrawFrame(void)
+{
+    auto lImageIndex = mLogicalDevice.AcquireNextImage(mSwapchain.Handle, UINT64_MAX, mImageAvailSemaphore, nullptr);
+    vkpp::PipelineStageFlags lWaitDstStageMask = vkpp::PipelineStageFlagBits::eTransfer;
+
+    vkpp::SubmitInfo lSubmitInfo
+    {
+        1, mImageAvailSemaphore.AddressOf(),
+        &lWaitDstStageMask,
+        1, mCommandBuffers[lImageIndex].AddressOf(),
+        1, mRenderingFinishedSemaphore.AddressOf()
+    };
+
+    mPresentQueue.mQueue.Submit(lSubmitInfo);
+
+    vkpp::khr::PresentInfo lPresentInfo
+    {
+        1, mRenderingFinishedSemaphore.AddressOf(),
+        1, mSwapchain.Handle.AddressOf(),
+        &lImageIndex
+    };
+
+    mPresentQueue.mQueue.Present(lPresentInfo);
+}
+
+
+void Application::MainLoop(void)
+{
+    while (!glfwWindowShouldClose(mpWindow))
+    {
+        glfwPollEvents();
+        DrawFrame();
+    }
+
+    mLogicalDevice.Wait();
+    glfwDestroyWindow(mpWindow);
+    mpWindow = nullptr;
+
+    glfwTerminate();
+}
+
+
+void Application::CreateSemaphores(void)
+{
+    vkpp::SemaphoreCreateInfo lSemaphoreCreateInfo;
+
+    mImageAvailSemaphore = mLogicalDevice.CreateSemaphore(lSemaphoreCreateInfo);
+    mRenderingFinishedSemaphore = mLogicalDevice.CreateSemaphore(lSemaphoreCreateInfo);
 }
 
 
@@ -295,7 +488,7 @@ vkpp::Extent2D Application::GetSwapchainExtent(const vkpp::khr::SurfaceCapabilit
 vkpp::ImageUsageFlags Application::GetSwapchainUsageFlags(const vkpp::khr::SurfaceCapabilities& aSurfaceCapabilities)
 {
     if (aSurfaceCapabilities.supportedUsageFlags & vkpp::ImageUsageFlagBits::eColorAttachment)
-        return vkpp::ImageUsageFlagBits::eColorAttachment;
+        return vkpp::ImageUsageFlags(vkpp::ImageUsageFlagBits::eColorAttachment) | vkpp::ImageUsageFlagBits::eTransferDst;
 
     assert(false);
     return vkpp::DefaultFlags;
@@ -328,6 +521,7 @@ vkpp::khr::PresentMode Application::GetSwapchainPresentMode(const std::vector<vk
     assert(false);
     return static_cast<vkpp::khr::PresentMode>(-1);
 }
+
 
 
 }                   // End of namespace sample.

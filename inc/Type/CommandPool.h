@@ -52,7 +52,7 @@ public:
     }
 };
 
-StaticSizeCheck(CommandPoolCreateInfo);
+ConsistencyCheck(CommandPoolCreateInfo, pNext, flags, queueFamilyIndex)
 
 
 

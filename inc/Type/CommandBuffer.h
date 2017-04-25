@@ -176,9 +176,66 @@ struct CommandPipelineBarrier
     uint32_t                    memoryBarrierCount{ 0 };
     const MemoryBarrier*        pMemoryBarriers{ nullptr };
     uint32_t                    bufferMemoryBarrierCount{ 0 };
-    const BufferMemoryBarrier*  pBufferMemoryBuffers{ nullptr };
+    const BufferMemoryBarrier*  pBufferMemoryBarriers{ nullptr };
     uint32_t                    imageMemoryBarrierCount{ 0 };
     const ImageMemoryBarrier*   pImageMemoryBarriers{ nullptr };
+
+    CommandPipelineBarrier& SetStageMask(const PipelineStageFlags& aSrcStageMask, const PipelineStageFlags& aDstStageMask)
+    {
+        srcStageMask = aSrcStageMask;
+        dstStageMask = aDstStageMask;
+
+        return *this;
+    }
+
+    CommandPipelineBarrier& SetDependencyFlags(const DependencyFlags& aDependencyFlags)
+    {
+        dependencyFlags = aDependencyFlags;
+
+        return *this;
+    }
+
+    CommandPipelineBarrier& SetMemoryBarriers(uint32_t aMemoryBarrierCount, const MemoryBarrier* apMemoryBarriers)
+    {
+        memoryBarrierCount  = aMemoryBarrierCount;
+        pMemoryBarriers     = apMemoryBarriers;
+
+        return *this;
+    }
+
+    template <typename Array>
+    CommandPipelineBarrier& SetMemoryBarriers(const Array& aMemoryBarriers)
+    {
+        return SetMemoryBarriers(static_cast<uint32_t>(aMemoryBarriers.size()), aMemoryBarriers.data());
+    }
+
+    CommandPipelineBarrier& SetBufferMemoryBarriers(uint32_t aBufferMemoryBarrierCount, const BufferMemoryBarrier* apBufferMemoryBarriers)
+    {
+        bufferMemoryBarrierCount    = aBufferMemoryBarrierCount;
+        pBufferMemoryBarriers        = apBufferMemoryBarriers;
+
+        return *this;
+    }
+
+    template <typename Array>
+    CommandPipelineBarrier& SetBufferMemoryBarriers(const Array& aBufferMemoryBarriers)
+    {
+        return SetBufferMemoryBarriers(static_cast<uint32_t>(aBufferMemoryBarriers.size()), aBufferMemoryBarriers.data());
+    }
+
+    CommandPipelineBarrier& SetImageMemoryBarriers(uint32_t aImageMemoryBarrierCount, const ImageMemoryBarrier* apImageMemoryBarriers)
+    {
+        imageMemoryBarrierCount = aImageMemoryBarrierCount;
+        pImageMemoryBarriers    = apImageMemoryBarriers;
+
+        return *this;
+    }
+
+    template <typename Array>
+    CommandPipelineBarrier& SetImageMemoryBarriers(const Array& aImageMemoryBarriers)
+    {
+        return SetImageMemoryBarriers(static_cast<uint32_t>(aImageMemoryBarriers.size()), aImageMemoryBarriers.data());
+    }
 };
 
 
@@ -258,7 +315,7 @@ public:
      {
          vkCmdPipelineBarrier(mCommandBuffer, aCmdPipelineBarrier.srcStageMask, aCmdPipelineBarrier.dstStageMask, aCmdPipelineBarrier.dependencyFlags,
              aCmdPipelineBarrier.memoryBarrierCount, reinterpret_cast<const VkMemoryBarrier*>(aCmdPipelineBarrier.pMemoryBarriers),
-             aCmdPipelineBarrier.bufferMemoryBarrierCount, reinterpret_cast<const VkBufferMemoryBarrier*>(aCmdPipelineBarrier.pBufferMemoryBuffers),
+             aCmdPipelineBarrier.bufferMemoryBarrierCount, reinterpret_cast<const VkBufferMemoryBarrier*>(aCmdPipelineBarrier.pBufferMemoryBarriers),
              aCmdPipelineBarrier.imageMemoryBarrierCount, reinterpret_cast<const VkImageMemoryBarrier*>(aCmdPipelineBarrier.pImageMemoryBarriers));
      }
 

@@ -99,7 +99,7 @@ public:
     }
 };
 
-StaticSizeCheck(SubmitInfo);
+ConsistencyCheck(SubmitInfo, pNext, waitSemaphoreCount, pWaitSemaphores, pWaitDstStageMask, commandBufferCount, pCommandBuffers, signalSemaphoreCount, pSignalSemaphores)
 
 
 
@@ -124,10 +124,10 @@ public:
 
     DEFINE_CLASS_MEMBER(PresentInfo)
 
-        PresentInfo(uint32_t aWaitSemaphoreCount, const Semaphore* apWaitSemaphores,
-            uint32_t aSwapchainCount, const Swapchain* apSwapchains, const uint32_t* apImageIndices, Result* apResults)
-        : waitSemaphoreCount(aWaitSemaphoreCount), pWaitSemaphores(apWaitSemaphores),
-        swapchainCount(aSwapchainCount), pSwapchains(apSwapchains), pImageIndices(apImageIndices), pResults(apResults)
+    PresentInfo(uint32_t aWaitSemaphoreCount, const Semaphore* apWaitSemaphores,
+        uint32_t aSwapchainCount, const Swapchain* apSwapchains, const uint32_t* apImageIndices, Result* apResults = nullptr)
+    : waitSemaphoreCount(aWaitSemaphoreCount), pWaitSemaphores(apWaitSemaphores),
+      swapchainCount(aSwapchainCount), pSwapchains(apSwapchains), pImageIndices(apImageIndices), pResults(apResults)
     {}
 
     PresentInfo& SetNext(const void* apNext)
@@ -139,8 +139,8 @@ public:
 
     PresentInfo& SetWaitSemaphores(uint32_t aWaitSemaphoreCount, const Semaphore* apWaitSemaphores)
     {
-        waitSemaphoreCount = aWaitSemaphoreCount;
-        pWaitSemaphores = apWaitSemaphores;
+        waitSemaphoreCount  = aWaitSemaphoreCount;
+        pWaitSemaphores     = apWaitSemaphores;
 
         return *this;
     }
@@ -158,14 +158,17 @@ public:
 
     PresentInfo& SetSwapchainImages(uint32_t aSwapchainCount, const Swapchain* apSwapchains, const uint32_t* apImageIndices, Result* apResults)
     {
-        swapchainCount = aSwapchainCount;
-        pSwapchains = apSwapchains;
-        pImageIndices = apImageIndices;
-        pResults = apResults;
+        swapchainCount  = aSwapchainCount;
+        pSwapchains     = apSwapchains;
+        pImageIndices   = apImageIndices;
+        pResults        = apResults;
 
         return *this;
     }
 };
+
+
+ConsistencyCheck(PresentInfo, pNext, waitSemaphoreCount, pWaitSemaphores, swapchainCount, pSwapchains, pImageIndices, pResults)
 
 
 
@@ -190,6 +193,11 @@ public:
     VkResult Wait(void) const
     {
         return vkQueueWaitIdle(mQueue);
+    }
+
+    void Submit(const SubmitInfo& aSubmit) const
+    {
+        return Submit(1, aSubmit.AddressOf());
     }
 
     void Submit(uint32_t aSubmitCount, const SubmitInfo* apSubmits) const
@@ -219,7 +227,7 @@ public:
     }
 };
 
-StaticSizeCheck(Queue);
+StaticSizeCheck(Queue)
 
 
 
