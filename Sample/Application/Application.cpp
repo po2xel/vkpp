@@ -51,7 +51,7 @@ Application::Application(const char* apApplicationName, uint32_t aApplicationVer
 
     SetupDebugCallback();
 
-    CreateNativeWindow();
+    CreateNativeWindow(apApplicationName);
     CreateSurface();
     PickPhysicalDevice();
     CreateLogicalDevice();
@@ -59,12 +59,6 @@ Application::Application(const char* apApplicationName, uint32_t aApplicationVer
 
     CreateSwapchain();
     CreateSwapchainImageViews();
-
-    CreateCommandPool();
-    CreateCommandBuffers();
-    RecordCommandBuffers();
-
-    CreateSemaphores();
 }
 
 
@@ -73,13 +67,6 @@ Application::~Application(void)
 #ifdef _DEBUG
     mInstance.DestroyDebugReportCallback(mDebugReportCallback);
 #endif              // End of _DEBUG
-    mLogicalDevice.Wait();
-
-    mLogicalDevice.DestroySemaphore(mRenderingFinishedSemaphore);
-    mLogicalDevice.DestroySemaphore(mImageAvailSemaphore);
-
-    mLogicalDevice.FreeCommandBuffers(mCommandPool, mCommandBuffers);
-    mLogicalDevice.DestroyCommandPool(mCommandPool);
 
     for (auto& lSwapchainImageView : mSwapchain.mSwapchainImageViews)
         mLogicalDevice.DestroyImageView(lSwapchainImageView);
@@ -96,13 +83,13 @@ Application::~Application(void)
 }
 
 
-void Application::CreateNativeWindow(void)
+void Application::CreateNativeWindow(const char* apTitle)
 {
     glfwInit();
     glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
     glfwWindowHint(GLFW_RESIZABLE, GLFW_FALSE);
 
-    mpWindow = glfwCreateWindow(1024, 768, "Hello Vulkan", nullptr, nullptr);
+    mpWindow = glfwCreateWindow(1024, 768, apTitle, nullptr, nullptr);
 }
 
 
@@ -323,109 +310,6 @@ void Application::CreateSwapchainImageViews(void)
 }
 
 
-void Application::CreateCommandPool(void)
-{
-    vkpp::CommandPoolCreateInfo lCommandPoolCreateInfo{ mPresentQueue.mFamilyIndex };
-    mCommandPool = mLogicalDevice.CreateCommandPool(lCommandPoolCreateInfo);
-}
-
-
-void Application::CreateCommandBuffers(void)
-{
-    auto lSwapchainImageCount = static_cast<uint32_t>(mSwapchain.mSwapchainImages.size());
-
-    vkpp::CommandBufferAllocateInfo lCommandBufferAllocateInfo
-    {
-        mCommandPool, lSwapchainImageCount
-    };
-
-    mCommandBuffers = mLogicalDevice.AllocateCommandBuffers(lCommandBufferAllocateInfo);
-}
-
-
-void Application::RecordCommandBuffers(void)
-{
-    vkpp::CommandBufferBeginInfo lCommandBufferBeginInfo{ vkpp::CommandBufferUsageFlagBits::eSimultaneousUse };
-    vkpp::ClearColorValue lClearColorValue
-    {
-        1.0f, 0.8f, 0.4f, 0.0f
-    };
-
-    vkpp::ImageSubresourceRange lImageSubresourceRange
-    {
-        vkpp::ImageAspectFlagBits::eColor,
-        0, 1,
-        0, 1
-    };
-
-      for(std::size_t lIndex = 0; lIndex < mSwapchain.mSwapchainImages.size(); ++lIndex)
-      {
-          vkpp::ImageMemoryBarrier lBarrierFromPresentToClear
-          {
-              vkpp::AccessFlagBits::eMemoryRead, vkpp::AccessFlagBits::eTransferWrite,
-              vkpp::ImageLayout::eUndefined, vkpp::ImageLayout::eTransferDstOptimal,
-              VK_QUEUE_FAMILY_IGNORED, VK_QUEUE_FAMILY_IGNORED,
-              mSwapchain.mSwapchainImages[lIndex],
-              lImageSubresourceRange
-          },
-
-              lBarrierFromClearToPresent
-          {
-              vkpp::AccessFlagBits::eTransferWrite, vkpp::AccessFlagBits::eMemoryRead,
-              vkpp::ImageLayout::eTransferDstOptimal, vkpp::ImageLayout::ePresentSrcKHR,
-              VK_QUEUE_FAMILY_IGNORED, VK_QUEUE_FAMILY_IGNORED,
-              mSwapchain.mSwapchainImages[lIndex],
-              lImageSubresourceRange
-          };
-
-          vkpp::CommandPipelineBarrier lCommandPipelineBarrier
-          {
-              vkpp::PipelineStageFlagBits::eTransfer, vkpp::PipelineStageFlagBits::eTransfer,
-              vkpp::DefaultFlags,
-              0, nullptr,
-              0, nullptr,
-              1, lBarrierFromPresentToClear.AddressOf()
-          };
-
-          mCommandBuffers[lIndex].Begin(lCommandBufferBeginInfo);
-
-          mCommandBuffers[lIndex].PipelineBarrier(lCommandPipelineBarrier);
-          mCommandBuffers[lIndex].ClearColorImage(mSwapchain.mSwapchainImages[lIndex], vkpp::ImageLayout::eTransferDstOptimal, lClearColorValue, {lImageSubresourceRange});
-
-          lCommandPipelineBarrier.SetImageMemoryBarriers(1, lBarrierFromClearToPresent.AddressOf());
-          mCommandBuffers[lIndex].PipelineBarrier(lCommandPipelineBarrier);
-
-          mCommandBuffers[lIndex].End();
-      }
-}
-
-
-void Application::DrawFrame(void)
-{
-    auto lImageIndex = mLogicalDevice.AcquireNextImage(mSwapchain.Handle, UINT64_MAX, mImageAvailSemaphore, nullptr);
-    vkpp::PipelineStageFlags lWaitDstStageMask = vkpp::PipelineStageFlagBits::eTransfer;
-
-    vkpp::SubmitInfo lSubmitInfo
-    {
-        1, mImageAvailSemaphore.AddressOf(),
-        &lWaitDstStageMask,
-        1, mCommandBuffers[lImageIndex].AddressOf(),
-        1, mRenderingFinishedSemaphore.AddressOf()
-    };
-
-    mPresentQueue.mQueue.Submit(lSubmitInfo);
-
-    vkpp::khr::PresentInfo lPresentInfo
-    {
-        1, mRenderingFinishedSemaphore.AddressOf(),
-        1, mSwapchain.Handle.AddressOf(),
-        &lImageIndex
-    };
-
-    mPresentQueue.mQueue.Present(lPresentInfo);
-}
-
-
 void Application::MainLoop(void)
 {
     while (!glfwWindowShouldClose(mpWindow))
@@ -439,15 +323,6 @@ void Application::MainLoop(void)
     mpWindow = nullptr;
 
     glfwTerminate();
-}
-
-
-void Application::CreateSemaphores(void)
-{
-    vkpp::SemaphoreCreateInfo lSemaphoreCreateInfo;
-
-    mImageAvailSemaphore = mLogicalDevice.CreateSemaphore(lSemaphoreCreateInfo);
-    mRenderingFinishedSemaphore = mLogicalDevice.CreateSemaphore(lSemaphoreCreateInfo);
 }
 
 

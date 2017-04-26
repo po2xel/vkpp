@@ -1,9 +1,13 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
-VisualStudioVersion = 15.0.26228.10
+VisualStudioVersion = 15.0.26403.7
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "vkpp", "vkpp.vcxproj", "{AAD8EBAE-DED6-462D-8661-EF3913014722}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ClearFrame", "Sample\ClearFrame\ClearFrame.vcxproj", "{996726EC-C629-4C39-B6BE-B4FEAAD84B99}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "StagingTriangle", "Sample\StagingTriangle\StagingTriangle.vcxproj", "{603FD503-C27C-4669-AC8D-26236FBABB37}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -21,6 +25,22 @@ Global
 		{AAD8EBAE-DED6-462D-8661-EF3913014722}.Release|x64.Build.0 = Release|x64
 		{AAD8EBAE-DED6-462D-8661-EF3913014722}.Release|x86.ActiveCfg = Release|Win32
 		{AAD8EBAE-DED6-462D-8661-EF3913014722}.Release|x86.Build.0 = Release|Win32
+		{996726EC-C629-4C39-B6BE-B4FEAAD84B99}.Debug|x64.ActiveCfg = Debug|x64
+		{996726EC-C629-4C39-B6BE-B4FEAAD84B99}.Debug|x64.Build.0 = Debug|x64
+		{996726EC-C629-4C39-B6BE-B4FEAAD84B99}.Debug|x86.ActiveCfg = Debug|Win32
+		{996726EC-C629-4C39-B6BE-B4FEAAD84B99}.Debug|x86.Build.0 = Debug|Win32
+		{996726EC-C629-4C39-B6BE-B4FEAAD84B99}.Release|x64.ActiveCfg = Release|x64
+		{996726EC-C629-4C39-B6BE-B4FEAAD84B99}.Release|x64.Build.0 = Release|x64
+		{996726EC-C629-4C39-B6BE-B4FEAAD84B99}.Release|x86.ActiveCfg = Release|Win32
+		{996726EC-C629-4C39-B6BE-B4FEAAD84B99}.Release|x86.Build.0 = Release|Win32
+		{603FD503-C27C-4669-AC8D-26236FBABB37}.Debug|x64.ActiveCfg = Debug|x64
+		{603FD503-C27C-4669-AC8D-26236FBABB37}.Debug|x64.Build.0 = Debug|x64
+		{603FD503-C27C-4669-AC8D-26236FBABB37}.Debug|x86.ActiveCfg = Debug|Win32
+		{603FD503-C27C-4669-AC8D-26236FBABB37}.Debug|x86.Build.0 = Debug|Win32
+		{603FD503-C27C-4669-AC8D-26236FBABB37}.Release|x64.ActiveCfg = Release|x64
+		{603FD503-C27C-4669-AC8D-26236FBABB37}.Release|x64.Build.0 = Release|x64
+		{603FD503-C27C-4669-AC8D-26236FBABB37}.Release|x86.ActiveCfg = Release|Win32
+		{603FD503-C27C-4669-AC8D-26236FBABB37}.Release|x86.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

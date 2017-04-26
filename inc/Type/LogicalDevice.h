@@ -455,6 +455,16 @@ public:
         vkDestroyCommandPool(mDevice, aCmdPool, nullptr);
     }
 
+    CommandBuffer AllocateCommandBuffer(const CommandBufferAllocateInfo& aCommandBufferAllocateInfo) const
+    {
+        assert(aCommandBufferAllocateInfo.commandBufferCount == 1);
+
+        CommandBuffer lCommandBuffer;
+        ThrowIfFailed(vkAllocateCommandBuffers(mDevice, &aCommandBufferAllocateInfo, &lCommandBuffer));
+
+        return lCommandBuffer;
+    }
+
     std::vector<CommandBuffer> AllocateCommandBuffers(const CommandBufferAllocateInfo& aCommandBufferAllocateInfo) const
     {
         std::vector<CommandBuffer> lCommandBuffers(aCommandBufferAllocateInfo.commandBufferCount);

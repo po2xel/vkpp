@@ -41,7 +41,7 @@ struct SwapchainParams
 
 class Application
 {
-private:
+protected:
     GLFWwindow* mpWindow{ nullptr };
 
     vkpp::Instance mInstance;
@@ -55,15 +55,13 @@ private:
     QueueParams mPresentQueue;
     QueueParams mGraphicsQueue;
     vkpp::LogicalDevice mLogicalDevice;
-    SwapchainParams mSwapchain;
-    vkpp::CommandPool mCommandPool;
-    std::vector<vkpp::CommandBuffer> mCommandBuffers;
+    SwapchainParams mSwapchain;    
 
     vkpp::Semaphore mImageAvailSemaphore;
     vkpp::Semaphore mRenderingFinishedSemaphore;
 
     void CreateInstance(const char* apApplicationName, uint32_t aApplicationVersion, const char* apEngineName = nullptr, uint32_t aEngineVersion = 0);
-    void CreateNativeWindow(void);
+    void CreateNativeWindow(const char* apTitle);
 
     void SetupDebugCallback(void);
     void CreateSurface(void);
@@ -73,10 +71,6 @@ private:
     void GetDeviceQueues(void);
     void CreateSwapchain(void);
     void CreateSwapchainImageViews(void);
-    void CreateCommandPool(void);
-    void CreateCommandBuffers(void);
-    void RecordCommandBuffers(void);
-    void CreateSemaphores(void);
 
     static uint32_t GetSwapchainImageCount(const vkpp::khr::SurfaceCapabilities& aSurfaceCapabilities);
     static vkpp::khr::SurfaceFormat GetSwapchainFormat(const std::vector<vkpp::khr::SurfaceFormat>& aSurfaceFormats);
@@ -85,7 +79,7 @@ private:
     static vkpp::khr::SurfaceTransformFlagBits GetSwapchainTransform(const vkpp::khr::SurfaceCapabilities& aSurfaceCapabilities);
     static vkpp::khr::PresentMode GetSwapchainPresentMode(const std::vector<vkpp::khr::PresentMode>& aPresentModes);
 
-    void DrawFrame(void);
+    virtual void DrawFrame(void) = 0;
 
 public:
     Application(const char* apApplicationName, uint32_t aApplicationVersion, const char* apEngineName = nullptr, uint32_t aEngineVersion = 0);

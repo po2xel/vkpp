@@ -5,22 +5,19 @@
 #include <Triangle/Triangle.h>
 
 #include <Memory/AutoPtr.h>
-#include "Application/Application.h"
+#include "ClearFrame/ClearFrame.h"
+
 
 
 using namespace vkpp;
 
 
-void Destroy(VkInstance, VkAllocationCallbacks*)
-{
-    std::cout << "Hello\n";
-}
-
 
 int main(int /*argc*/, char* /*argv*/[])
 {
-    sample::Application lApplication{ "Hello World", 1 };
-    lApplication.MainLoop();
+    /*sample::ClearFrame lClearFrame{ "Hello World", 1 };
+    lClearFrame.MainLoop();*/
+
     //{
     //    AutoPtr<VkInstance> lInstance{ nullptr, vkDestroyInstance };
     //    lInstance;
