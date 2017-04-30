@@ -110,7 +110,7 @@ struct AttachementDescription : public internal::VkTrait<AttachementDescription,
     }
 };
 
-StaticSizeCheck(AttachementDescription);
+ConsistencyCheck(AttachementDescription, flags, format, samples, loadOp, storeOp, stencilLoadOp, stencilStoreOp, initialLayout, finalLayout)
 
 
 
@@ -133,7 +133,7 @@ struct AttachmentReference : public internal::VkTrait<AttachmentReference, VkAtt
     }
 };
 
-StaticSizeCheck(AttachmentReference);
+ConsistencyCheck(AttachmentReference, attachment, layout)
 
 
 
@@ -275,7 +275,8 @@ struct SubpassDescription : public internal::VkTrait<SubpassDescription, VkSubpa
     }
 };
 
-StaticSizeCheck(SubpassDescription);
+ConsistencyCheck(SubpassDescription, flags, pipelineBindPoint, inputAttachmentCount, pInputAttachments, colorAttachmentCount, pColorAttachments, pResolveAttachments,
+    pDepthStencilAttachment, preserveAttachmentCount, pPreserveAttachments)
 
 
 
@@ -301,14 +302,14 @@ struct SubpassDependency : public internal::VkTrait<SubpassDependency, VkSubpass
     PipelineStageFlags  dstStageMask;
     AccessFlags         srcAccessMask;
     AccessFlags         dstAccessMask;
-    DependencyFlags     depdencyFlags;
+    DependencyFlags     dependencyFlags;
 
     DEFINE_CLASS_MEMBER(SubpassDependency)
 
     SubpassDependency(uint32_t aSrcSubpass, uint32_t aDstSubpass, const PipelineStageFlags& aSrcStageMask = DefaultFlags, const PipelineStageFlags& aDstStageMask = DefaultFlags,
-        const AccessFlags& aSrcAccessMask = DefaultFlags, const AccessFlags& aDstAccessMask = DefaultFlags, const DependencyFlags& aDepdencyFlags = DefaultFlags)
+        const AccessFlags& aSrcAccessMask = DefaultFlags, const AccessFlags& aDstAccessMask = DefaultFlags, const DependencyFlags& aDependencyFlags = DefaultFlags)
         : srcSubpass(aSrcSubpass), dstSubpass(aDstSubpass), srcStageMask(aSrcStageMask), dstStageMask(aDstStageMask),
-        srcAccessMask(aSrcAccessMask), dstAccessMask(aDstAccessMask), depdencyFlags(aDepdencyFlags)
+        srcAccessMask(aSrcAccessMask), dstAccessMask(aDstAccessMask), dependencyFlags(aDependencyFlags)
     {}
 
     SubpassDependency& SetSubpass(uint32_t aSrcSubpass, uint32_t aDstSubpass)
@@ -337,13 +338,13 @@ struct SubpassDependency : public internal::VkTrait<SubpassDependency, VkSubpass
 
     SubpassDependency& SetDependencyFlags(const DependencyFlags& aDependencyFlags)
     {
-        depdencyFlags   = aDependencyFlags;
+        dependencyFlags   = aDependencyFlags;
 
         return *this;
     }
 };
 
-StaticSizeCheck(SubpassDependency);
+ConsistencyCheck(SubpassDependency, srcSubpass, dstSubpass, srcStageMask, dstStageMask, srcAccessMask, dstAccessMask, dependencyFlags)
 
 
 
@@ -458,7 +459,7 @@ public:
     }
 };
 
-StaticSizeCheck(RenderPassCreateInfo);
+ConsistencyCheck(RenderPassCreateInfo, pNext, flags, attachmentCount, pAttachments, subpassCount, pSubpasses, dependencyCount, pDependencies)
 
 
 
@@ -477,7 +478,7 @@ public:
     {}
 };
 
-StaticSizeCheck(RenderPass);
+StaticSizeCheck(RenderPass)
 
 
 

@@ -5,7 +5,7 @@
 
 #include <Info/Common.h>
 #include <Type/RenderPass.h>
-#include <Type/FrameBuffer.h>
+#include <Type/Framebuffer.h>
 
 
 
@@ -22,25 +22,25 @@ private:
 public:
     const void*         pNext{ nullptr };
     RenderPass          renderPass;
-    FrameBuffer         framebuffer;
+    Framebuffer         framebuffer;
     Rect2D              renderArea;
     uint32_t            clearValueCount{ 0 };
     const ClearValue*   pClearValues{ nullptr };
 
     DEFINE_CLASS_MEMBER(RenderPassBeginInfo)
 
-    RenderPassBeginInfo(const RenderPass& aRenderPass, const FrameBuffer& aFrameBuffer, const Rect2D& aRenderArea,
+    RenderPassBeginInfo(const RenderPass& aRenderPass, const Framebuffer& aFrameBuffer, const Rect2D& aRenderArea,
         uint32_t aClearValueCount, const ClearValue* apClearValues)
         : renderPass(aRenderPass), framebuffer(aFrameBuffer), renderArea(aRenderArea), clearValueCount(aClearValueCount), pClearValues(apClearValues)
     {}
 
-    RenderPassBeginInfo(const RenderPass& aRenderPass, const FrameBuffer& aFrameBuffer, const Rect2D& aRenderArea,
+    RenderPassBeginInfo(const RenderPass& aRenderPass, const Framebuffer& aFrameBuffer, const Rect2D& aRenderArea,
         const std::vector<ClearValue>& aClearValues)
         : RenderPassBeginInfo(aRenderPass, aFrameBuffer, aRenderArea, static_cast<uint32_t>(aClearValues.size()), aClearValues.data())
     {}
 
     template <std::size_t C>
-    RenderPassBeginInfo(const RenderPass& aRenderPass, const FrameBuffer& aFrameBuffer, const Rect2D& aRenderArea,
+    RenderPassBeginInfo(const RenderPass& aRenderPass, const Framebuffer& aFrameBuffer, const Rect2D& aRenderArea,
         const std::array<ClearValue, C>& aClearValues)
         : RenderPassBeginInfo(aRenderPass, aFrameBuffer, aRenderArea, static_cast<uint32_t>(aClearValues.size()), aClearValues.data())
     {}
@@ -59,7 +59,7 @@ public:
         return *this;
     }
 
-    RenderPassBeginInfo& SetFrameBuffer(const FrameBuffer& aFrameBuffer)
+    RenderPassBeginInfo& SetFrameBuffer(const Framebuffer& aFrameBuffer)
     {
         framebuffer = aFrameBuffer;
 
@@ -93,7 +93,7 @@ public:
     }
 };
 
-StaticSizeCheck(RenderPassBeginInfo);
+ConsistencyCheck(RenderPassBeginInfo, pNext, renderPass, framebuffer, renderArea, clearValueCount, pClearValues)
 
 
 

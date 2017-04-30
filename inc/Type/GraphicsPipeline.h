@@ -29,7 +29,7 @@ public:
     {}
 };
 
-StaticSizeCheck(Pipeline);
+StaticSizeCheck(Pipeline)
 
 
 
@@ -48,7 +48,7 @@ public:
     {}
 };
 
-StaticSizeCheck(Pipeline);
+StaticSizeCheck(PipelineCache)
 
 
 
@@ -95,7 +95,8 @@ public:
     {}
 };
 
-StaticSizeCheck(GraphicsPipelineCreateInfo);
+ConsistencyCheck(GraphicsPipelineCreateInfo, pNext, flags, stageCount, pStages, pVertexInputState, pInputAssemblyState, pTessellationState, pViewportState,
+    pRasterizationState, pMultisampleState, pDepthStencilState, pColorBlendState, pDynamicState, layout, renderPass, subpass, basePipelineHandle, basePipelineIndex)
 
 
 

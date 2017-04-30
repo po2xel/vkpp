@@ -128,9 +128,6 @@
     <ClInclude Include="inc\Type\RenderPass.h">
       <Filter>Header Files\Type</Filter>
     </ClInclude>
-    <ClInclude Include="inc\Type\FrameBuffer.h">
-      <Filter>Header Files\Type</Filter>
-    </ClInclude>
     <ClInclude Include="inc\Memory\AutoPtr.h">
       <Filter>Header Files\Memory</Filter>
     </ClInclude>
@@ -166,6 +163,9 @@
     </ClInclude>
     <ClInclude Include="inc\Type\Windows\SurfaceCreateInfo.h">
       <Filter>Header Files\Type\Windows</Filter>
+    </ClInclude>
+    <ClInclude Include="inc\Type\Framebuffer_C36FF42C-84C7-42CE-B62B-B358B901F293.h">
+      <Filter>Header Files\Type</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

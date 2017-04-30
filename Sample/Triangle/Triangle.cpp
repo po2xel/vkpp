@@ -160,11 +160,11 @@ vkpp::khr::SurfaceFormat Triangle::GetSwapchainFormat(void) const
     auto lSurfaceFormats = mPhysicalDevice.GetSurfaceFormats(mSurface);
 
     if (lSurfaceFormats.size() == 1 && lSurfaceFormats[0].format == vkpp::Format::eUndefined)
-        return { vkpp::Format::eR8G8B8A8Unorm, vkpp::khr::ColorSpace::esRGBNonLinear };
+        return { vkpp::Format::eRGBA8Unorm, vkpp::khr::ColorSpace::esRGBNonLinear };
 
     for (vkpp::khr::SurfaceFormat& lSurfaceFormat : lSurfaceFormats)
     {
-        if (lSurfaceFormat.format == vkpp::Format::eR8G8B8A8Unorm)
+        if (lSurfaceFormat.format == vkpp::Format::eRGBA8Unorm)
             return lSurfaceFormat;
     }
 
@@ -522,28 +522,28 @@ void Triangle::CreateFrameBuffers(void)
 {
     for (const auto& lImageView : mSwapchainImageViews)
     {
-        vkpp::FrameBufferCreateInfo lFramebufferCreateInfo
+        vkpp::FramebufferCreateInfo lFramebufferCreateInfo
         {
             mRenderPass,
             1, lImageView.AddressOf(),
             300, 300, 1
         };
 
-        mFramebuffers.emplace_back(mLogicalDevice.CreateFrameBuffer(lFramebufferCreateInfo));
+        mFramebuffers.emplace_back(mLogicalDevice.CreateFramebuffer(lFramebufferCreateInfo));
     }
 }
 
 
-vkpp::FrameBuffer Triangle::CreateFrameBuffer(const vkpp::ImageView& aImageView) const
+vkpp::Framebuffer Triangle::CreateFrameBuffer(const vkpp::ImageView& aImageView) const
 {
-    vkpp::FrameBufferCreateInfo lFrameBufferCreateInfo
+    vkpp::FramebufferCreateInfo lFrameBufferCreateInfo
     {
         mRenderPass,
         1, aImageView.AddressOf(),
         1024, 768
     };
 
-    return mLogicalDevice.CreateFrameBuffer(lFrameBufferCreateInfo);
+    return mLogicalDevice.CreateFramebuffer(lFrameBufferCreateInfo);
 }
 
 
@@ -677,10 +677,10 @@ void Triangle::CreatePipeline(void)
     const vkpp::VertexInputAttributeDescription lVertexInputAttributeDescription[]
     {
         {
-            0, lVertexInputBindingDescription[0].binding, vkpp::Format::eR32G32B32A32SFloat, offsetof(VertexData, x)
+            0, lVertexInputBindingDescription[0].binding, vkpp::Format::eRGBA32SFloat, offsetof(VertexData, x)
         },
         {
-            1, lVertexInputBindingDescription[0].binding, vkpp::Format::eR32G32B32A32SFloat, offsetof(VertexData, r)
+            1, lVertexInputBindingDescription[0].binding, vkpp::Format::eRGBA32SFloat, offsetof(VertexData, r)
         }
     };
 
@@ -863,10 +863,10 @@ void Triangle::DrawFrame(void)
 
 
 
-void Triangle::PrepareFrame(vkpp::FrameBuffer& aFrameBuffer, const vkpp::CommandBuffer& aCommandBuffer, const vkpp::ImageView& aImageView) const
+void Triangle::PrepareFrame(vkpp::Framebuffer& aFrameBuffer, const vkpp::CommandBuffer& aCommandBuffer, const vkpp::ImageView& aImageView) const
 {
     if (aFrameBuffer)
-        mLogicalDevice.DestroyFrameBuffer(aFrameBuffer);
+        mLogicalDevice.DestroyFramebuffer(aFrameBuffer);
 
     aFrameBuffer = CreateFrameBuffer(aImageView);
 

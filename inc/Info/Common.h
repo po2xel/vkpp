@@ -152,7 +152,7 @@ struct SpecializationMapEntry : public internal::VkTrait<SpecializationMapEntry,
     }
 };
 
-StaticSizeCheck(SpecializationMapEntry);
+ConsistencyCheck(SpecializationMapEntry, constantID, offset, size)
 
 
 
@@ -186,7 +186,7 @@ struct SpecializationInfo : public internal::VkTrait<SpecializationInfo, VkSpeci
     }
 };
 
-StaticSizeCheck(SpecializationInfo);
+ConsistencyCheck(SpecializationInfo, mapEntryCount, pMapEntries, dataSize, pData)
 
 
 
@@ -228,7 +228,7 @@ struct Viewport : public internal::VkTrait<Viewport, VkViewport>
     }
 };
 
-StaticSizeCheck(Viewport);
+ConsistencyCheck(Viewport, x, y, width, height, minDepth, maxDepth)
 
 
 
@@ -251,7 +251,32 @@ struct Offset2D : public internal::VkTrait<Offset2D, VkOffset2D>
     }
 };
 
-StaticSizeCheck(Offset2D);
+ConsistencyCheck(Offset2D, x, y)
+
+
+
+struct Offset3D : public internal::VkTrait<Offset3D, VkOffset3D>
+{
+    int32_t     x{ 0 };
+    int32_t     y{ 0 };
+    int32_t     z{ 0 };
+
+    DEFINE_CLASS_MEMBER(Offset3D)
+
+    Offset3D(int32_t aX, int32_t aY, int32_t aZ) : x(aX), y(aY), z(aZ)
+    {}
+
+    Offset3D& SetOffset(int32_t aX, int32_t aY, int32_t aZ)
+    {
+        x = aX;
+        y = aY;
+        z = aZ;
+
+        return *this;
+    }
+};
+
+ConsistencyCheck(Offset3D, x, y, z)
 
 
 
@@ -291,7 +316,7 @@ struct Extent2D : public internal::VkTrait<Extent2D, VkExtent2D>
     }
 };
 
-StaticSizeCheck(Extent2D);
+ConsistencyCheck(Extent2D, width, height)
 
 
 
@@ -340,7 +365,7 @@ struct Extent3D : public internal::VkTrait<Extent3D, VkExtent3D>
     }
 };
 
-StaticSizeCheck(Extent3D);
+ConsistencyCheck(Extent3D, width, height, depth)
 
 
 
@@ -369,7 +394,7 @@ struct Rect2D : public internal::VkTrait<Rect2D, VkRect2D>
     }
 };
 
-StaticSizeCheck(Rect2D);
+ConsistencyCheck(Rect2D, offset, extent)
 
 
 

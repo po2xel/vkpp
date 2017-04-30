@@ -135,7 +135,38 @@ public:
     }
 };
 
-StaticSizeCheck(BufferCreateInfo);
+ConsistencyCheck(BufferCreateInfo, pNext, flags, size, usage, sharingMode, queueFamilyIndexCount, pQueueFamilyIndices)
+
+
+
+struct BufferCopy : public internal::VkTrait<BufferCopy, VkBufferCopy>
+{
+    DeviceSize srcOffset{ 0 };
+    DeviceSize dstOffset{ 0 };
+    DeviceSize size{ 0 };
+
+    DEFINE_CLASS_MEMBER(BufferCopy)
+
+    BufferCopy(DeviceSize aSrcOffset, DeviceSize aDstOffset, DeviceSize aSize) : srcOffset(aSrcOffset), dstOffset(aDstOffset), size(aSize)
+    {}
+
+    BufferCopy& SetOffset(DeviceSize aSrcOffset, DeviceSize aDstOffset)
+    {
+        srcOffset = aSrcOffset;
+        dstOffset = aDstOffset;
+
+        return *this;
+    }
+
+    BufferCopy& SetSize(DeviceSize aSize)
+    {
+        size = aSize;
+
+        return *this;
+    }
+};
+
+ConsistencyCheck(BufferCopy, srcOffset, dstOffset, size)
 
 
 
@@ -154,7 +185,7 @@ public:
     {}
 };
 
-StaticSizeCheck(Buffer);
+StaticSizeCheck(Buffer)
 
 
 
@@ -209,7 +240,7 @@ public:
     }
 };
 
-StaticSizeCheck(BufferViewCreateInfo);
+ConsistencyCheck(BufferViewCreateInfo, pNext, flags, buffer, format, offset, range)
 
 
 
@@ -228,7 +259,7 @@ public:
     {}
 };
 
-StaticSizeCheck(BufferView);
+StaticSizeCheck(BufferView)
 
 
 

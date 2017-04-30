@@ -4,6 +4,7 @@
 #include <array>
 #include <iostream>
 #include <cassert>
+#include <fstream>
 
 #include <GLFW/glfw3native.h>
 
@@ -284,6 +285,7 @@ void Application::CreateSwapchain(void)
         mLogicalDevice.DestroySwapchain(lOldSwapchain);
 
     mSwapchain.mSwapchainImages = mLogicalDevice.GetSwapchainImages(mSwapchain.Handle);
+    mSwapchain.mExtent = lDesiredExtent;
 }
 
 
@@ -340,11 +342,11 @@ uint32_t Application::GetSwapchainImageCount(const vkpp::khr::SurfaceCapabilitie
 vkpp::khr::SurfaceFormat Application::GetSwapchainFormat(const std::vector<vkpp::khr::SurfaceFormat>& aSurfaceFormats)
 {
     if (aSurfaceFormats.size() == 1 && aSurfaceFormats[0].format == vkpp::Format::eUndefined)
-        return { vkpp::Format::eR8G8B8A8Unorm, vkpp::khr::ColorSpace::esRGBNonLinear };
+        return { vkpp::Format::eRGBA8Unorm, vkpp::khr::ColorSpace::esRGBNonLinear };
 
     for (auto& lSurfaceFormat : aSurfaceFormats)
     {
-        if (lSurfaceFormat.format == vkpp::Format::eR8G8B8A8Unorm)
+        if (lSurfaceFormat.format == vkpp::Format::eRGBA8Unorm)
             return lSurfaceFormat;
     }
 
@@ -395,6 +397,24 @@ vkpp::khr::PresentMode Application::GetSwapchainPresentMode(const std::vector<vk
 
     assert(false);
     return static_cast<vkpp::khr::PresentMode>(-1);
+}
+
+
+vkpp::ShaderModule Application::CreateShaderModule(const std::string& aFilename) const
+{
+    std::ifstream lFin(aFilename, std::ios::binary);
+    assert(lFin);
+
+    std::vector<char> lShaderContent((std::istreambuf_iterator<char>(lFin)), std::istreambuf_iterator<char>());
+    assert(!lShaderContent.empty());
+
+    return mLogicalDevice.CreateShaderModule({ lShaderContent });
+}
+
+
+void Application::DestroyShaderModule(const vkpp::ShaderModule& aShaderModule) const
+{
+    mLogicalDevice.DestroyShaderModule(aShaderModule);
 }
 
 

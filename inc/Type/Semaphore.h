@@ -69,7 +69,7 @@ public:
     {}
 };
 
-StaticSizeCheck(Semaphore);
+StaticSizeCheck(Semaphore)
 
 
 

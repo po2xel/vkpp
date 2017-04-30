@@ -78,7 +78,7 @@ public:
     {}
 };
 
-StaticSizeCheck(DebugReportCallback);
+StaticSizeCheck(DebugReportCallback)
 
 
 

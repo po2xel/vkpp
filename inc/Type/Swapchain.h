@@ -76,7 +76,7 @@ struct SurfaceFormat : public internal::VkTrait<SurfaceFormat, VkSurfaceFormatKH
     }
 };
 
-StaticSizeCheck(SurfaceFormat);
+ConsistencyCheck(SurfaceFormat, format, colorSpace)
 
 
 

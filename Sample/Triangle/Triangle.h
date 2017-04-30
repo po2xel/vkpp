@@ -31,7 +31,7 @@ struct VertexData
 
 struct RenderingResourceData
 {
-    vkpp::FrameBuffer   mFrameBuffer;
+    vkpp::Framebuffer   mFrameBuffer;
     vkpp::CommandBuffer mCommandBuffer;
     vkpp::Semaphore     mImageAvailableSemaphore;
     vkpp::Semaphore     mFinishedRenderingSemaphore;
@@ -68,7 +68,7 @@ private:
     vkpp::khr::Swapchain    mSwapchain;
     std::vector<vkpp::Image> mSwapchainImages;
     std::vector<vkpp::ImageView> mSwapchainImageViews;
-    std::vector<vkpp::FrameBuffer> mFramebuffers;
+    std::vector<vkpp::Framebuffer> mFramebuffers;
     vkpp::DeviceSize mVertexBufferSize{ 0 };
     vkpp::Buffer mVertexBuffer;
     vkpp::DeviceMemory mVertexBufferMemory;
@@ -103,7 +103,7 @@ private:
     void RecordCommandBuffers(void);
     void CreateRenderPass(void);
     void CreateFrameBuffers(void);
-    vkpp::FrameBuffer CreateFrameBuffer(const vkpp::ImageView& aImageView) const;
+    vkpp::Framebuffer CreateFrameBuffer(const vkpp::ImageView& aImageView) const;
     void CreateVertexBuffer(void);
     void CreateRenderingResources(void);
     vkpp::DeviceMemory AllocateBufferMemory(const vkpp::Buffer& aBuffer) const;
@@ -117,7 +117,7 @@ private:
     void MainLoop(void);
 
     void DrawFrame(void);
-    void PrepareFrame(vkpp::FrameBuffer& aFrameBuffer, const vkpp::CommandBuffer& aCommandBuffer, const vkpp::ImageView& aImgeView) const;
+    void PrepareFrame(vkpp::Framebuffer& aFrameBuffer, const vkpp::CommandBuffer& aCommandBuffer, const vkpp::ImageView& aImgeView) const;
 
 public:
     ~Triangle(void)
@@ -126,7 +126,7 @@ public:
 
         for(auto& lRenderingResource : mRenderingResources)
         {
-            mLogicalDevice.DestroyFrameBuffer(lRenderingResource.mFrameBuffer);
+            mLogicalDevice.DestroyFramebuffer(lRenderingResource.mFrameBuffer);
             mLogicalDevice.FreeCommandBuffer(mPresentQueueCmdPool, lRenderingResource.mCommandBuffer);
             mLogicalDevice.DestroySemaphore(lRenderingResource.mImageAvailableSemaphore);
             mLogicalDevice.DestroySemaphore(lRenderingResource.mFinishedRenderingSemaphore);
@@ -137,7 +137,7 @@ public:
         mLogicalDevice.DestroyRenderPass(mRenderPass);
 
         for (const auto& lFrameBuffer : mFramebuffers)
-            mLogicalDevice.DestroyFrameBuffer(lFrameBuffer);
+            mLogicalDevice.DestroyFramebuffer(lFrameBuffer);
 
         for (const auto& lImageView : mSwapchainImageViews)
             mLogicalDevice.DestroyImageView(lImageView);

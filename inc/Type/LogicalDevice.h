@@ -18,7 +18,7 @@
 #include <Type/Image.h>
 #include <Type/CommandPool.h>
 #include <Type/CommandBuffer.h>
-#include <Type/FrameBuffer.h>
+#include <Type/Framebuffer.h>
 #include <Type/ShaderModule.h>
 #include <Type/GraphicsPipeline.h>
 #include <Type/Memory.h>
@@ -365,25 +365,25 @@ public:
         return ResetFences(static_cast<uint32_t>(aFences.size()), aFences.data());
     }
 
-    void WaitForFence(const Fence& aFence, bool aWaitAll, uint64_t aTimeout) const
+    void WaitForFence(const Fence& aFence, bool aWaitAll = false, uint64_t aTimeout = UINT64_MAX) const
     {
         ThrowIfFailed(vkWaitForFences(mDevice, 1, &aFence, aWaitAll, aTimeout));
     }
 
-    void WaitForFences(uint32_t aFenceCount, const Fence* apFences, bool aWaitAll, uint64_t aTimeout) const
+    void WaitForFences(uint32_t aFenceCount, const Fence* apFences, bool aWaitAll = false, uint64_t aTimeout = UINT64_MAX) const
     {
         assert(aFenceCount != 0 && apFences != nullptr);
 
         ThrowIfFailed(vkWaitForFences(mDevice, aFenceCount, &apFences[0], aWaitAll, aTimeout));
     }
 
-    void WaitForFences(const std::vector<Fence>& aFences, bool aWaitAll, uint64_t aTimeout) const
+    void WaitForFences(const std::vector<Fence>& aFences, bool aWaitAll = false, uint64_t aTimeout = UINT64_MAX) const
     {
         return WaitForFences(static_cast<uint32_t>(aFences.size()), aFences.data(), aWaitAll, aTimeout);
     }
 
     template <std::size_t F>
-    void WaitForFences(const std::array<Fence, F>& aFences, bool aWaitAll, uint64_t aTimeout) const
+    void WaitForFences(const std::array<Fence, F>& aFences, bool aWaitAll = false, uint64_t aTimeout = UINT64_MAX) const
     {
         return WaitForFences(static_cast<uint32_t>(aFences.size()), aFences.data(), aWaitAll, aTimeout);
     }
@@ -620,28 +620,28 @@ public:
         vkDestroyImageView(mDevice, aImageView, &aAllocator);
     }
 
-    FrameBuffer CreateFrameBuffer(const FrameBufferCreateInfo& aFrameBufferCreateInfo) const
+    Framebuffer CreateFramebuffer(const FramebufferCreateInfo& aFrameBufferCreateInfo) const
     {
-        FrameBuffer lFrameBuffer;
+        Framebuffer lFrameBuffer;
         ThrowIfFailed(vkCreateFramebuffer(mDevice, &aFrameBufferCreateInfo, nullptr, &lFrameBuffer));
 
         return lFrameBuffer;
     }
 
-    FrameBuffer CreateFrameBuffer(const FrameBufferCreateInfo& aFrameBufferCreateInfo, const AllocationCallbacks& aAllocator) const
+    Framebuffer CreateFramebuffer(const FramebufferCreateInfo& aFrameBufferCreateInfo, const AllocationCallbacks& aAllocator) const
     {
-        FrameBuffer lFrameBuffer;
+        Framebuffer lFrameBuffer;
         ThrowIfFailed(vkCreateFramebuffer(mDevice, &aFrameBufferCreateInfo, &aAllocator, &lFrameBuffer));
 
         return lFrameBuffer;
     }
 
-    void DestroyFrameBuffer(const FrameBuffer& aFrameBuffer) const
+    void DestroyFramebuffer(const Framebuffer& aFrameBuffer) const
     {
         vkDestroyFramebuffer(mDevice, aFrameBuffer, nullptr);
     }
 
-    void DestroyFrameBuffer(const FrameBuffer& aFrameBuffer, const AllocationCallbacks& aAllocator) const
+    void DestroyFramebuffer(const Framebuffer& aFrameBuffer, const AllocationCallbacks& aAllocator) const
     {
         vkDestroyFramebuffer(mDevice, aFrameBuffer, &aAllocator);
     }
@@ -696,6 +696,11 @@ public:
     void DestroyPipelineLayout(const PipelineLayout& aPipelineLayout, const AllocationCallbacks& aAllocator) const
     {
         vkDestroyPipelineLayout(mDevice, aPipelineLayout, &aAllocator);
+    }
+
+    Pipeline CreateGraphicsPipeline(uint32_t aCreateInfoCount, const GraphicsPipelineCreateInfo* apGraphicsPipelineCraeteInfos) const
+    {
+        return CreateGraphicsPipeline(VK_NULL_HANDLE, aCreateInfoCount, apGraphicsPipelineCraeteInfos);
     }
 
     Pipeline CreateGraphicsPipeline(const PipelineCache& aPipelineCache, uint32_t aCreateInfoCount, const GraphicsPipelineCreateInfo* apGraphicsPipelineCraeteInfos) const

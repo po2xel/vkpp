@@ -156,7 +156,7 @@ struct VertexInputBindingDescription : public internal::VkTrait<VertexInputBindi
     }
 };
 
-StaticSizeCheck(VertexInputBindingDescription);
+ConsistencyCheck(VertexInputBindingDescription, binding, stride, inputRate)
 
 
 
@@ -202,7 +202,7 @@ struct VertexInputAttributeDescription : public internal::VkTrait<VertexInputAtt
     }
 };
 
-StaticSizeCheck(VertexInputAttributeDescription);
+ConsistencyCheck(VertexInputAttributeDescription, location, binding, format, offset)
 
 
 
@@ -215,7 +215,7 @@ public:
     const void*                             pNext{ nullptr };
     PipelineVertexInputStateCreateFlags     flags;
     uint32_t                                vertexBindingDescriptionCount{ 0 };
-    const VertexInputBindingDescription*    pVeretexBindingDescriptions{ nullptr };
+    const VertexInputBindingDescription*    pVertexBindingDescriptions{ nullptr };
     uint32_t                                vertexAttributeDescriptionCount{ 0 };
     const VertexInputAttributeDescription*  pVertexAttributeDescriptions{ nullptr };
 
@@ -223,7 +223,7 @@ public:
 
     PipelineVertexInputStateCreateInfo(uint32_t aVertexBindingDescriptionCount, const VertexInputBindingDescription* apVertexBindingDescriptions,
         uint32_t aVertexAttributeDescriptionCount, const VertexInputAttributeDescription* apVertexAttributeDescriptions, const PipelineVertexInputStateCreateFlags& aFlags = DefaultFlags)
-        : flags(aFlags), vertexBindingDescriptionCount(aVertexBindingDescriptionCount), pVeretexBindingDescriptions(apVertexBindingDescriptions),
+        : flags(aFlags), vertexBindingDescriptionCount(aVertexBindingDescriptionCount), pVertexBindingDescriptions(apVertexBindingDescriptions),
           vertexAttributeDescriptionCount(aVertexAttributeDescriptionCount), pVertexAttributeDescriptions(apVertexAttributeDescriptions)
     {}
 
@@ -257,7 +257,7 @@ public:
     PipelineVertexInputStateCreateInfo& SetVertexBindingDescriptions(uint32_t aVertexBindingDescriptionCount, const VertexInputBindingDescription* apVertexBindingDescriptions)
     {
         vertexBindingDescriptionCount   = aVertexBindingDescriptionCount;
-        pVeretexBindingDescriptions     = apVertexBindingDescriptions;
+        pVertexBindingDescriptions      = apVertexBindingDescriptions;
 
         return *this;
     }
@@ -293,7 +293,7 @@ public:
     }
 };
 
-StaticSizeCheck(PipelineVertexInputStateCreateInfo);
+ConsistencyCheck(PipelineVertexInputStateCreateInfo, pNext, flags, vertexBindingDescriptionCount, pVertexBindingDescriptions, vertexAttributeDescriptionCount, pVertexAttributeDescriptions)
 
 
 
@@ -354,7 +354,7 @@ public:
     }
 };
 
-StaticSizeCheck(PipelineInputAssemblyStateCreateInfo);
+ConsistencyCheck(PipelineInputAssemblyStateCreateInfo, pNext, flags, topology, primitiveRestartEnable)
 
 
 
@@ -403,7 +403,7 @@ public:
     }
 };
 
-StaticSizeCheck(PipelineTessellationStateCreateInfo);
+ConsistencyCheck(PipelineTessellationStateCreateInfo, pNext, flags, patchControlPoints)
 
 
 
@@ -496,7 +496,7 @@ public:
     }
 };
 
-StaticSizeCheck(PipelineViewportStateCreateInfo);
+ConsistencyCheck(PipelineViewportStateCreateInfo, pNext, flags, viewportCount, pViewports, scissorCount, pScissors)
 
 
 
@@ -576,9 +576,12 @@ public:
 
         return *this;
     }
+
+    // TODO: Setters
 };
 
-StaticSizeCheck(PipelineRasterizationStateCreateInfo);
+ConsistencyCheck(PipelineRasterizationStateCreateInfo, pNext, flags, depthClampEnable, rasterizerDiscardEnable, polygonMode, cullMode, frontFace,
+    depthBiasEnable, depthBiasConstantFactor, depthBiasClamp, depthBiasSlopeFactor, lineWidth)
 
 
 
@@ -629,7 +632,11 @@ public:
 
         return *this;
     }
+
+    // TODO: Setters.
 };
+
+ConsistencyCheck(PipelineMultisampleStateCreateInfo, pNext, flags, rasterizationSamples, sampleShadingEnable, minSampleShading, pSampleMask, alphaToCoverageEnable, alphaToOneEnable)
 
 
 
@@ -671,7 +678,7 @@ struct StencilOpState : public internal::VkTrait<StencilOpState, VkStencilOpStat
     {}
 };
 
-StaticSizeCheck(StencilOpState);
+ConsistencyCheck(StencilOpState, failOp, passOp, depthFailOp, compareOp, compareMask, writeMask, reference)
 
 
 
@@ -696,7 +703,8 @@ public:
     DEFINE_CLASS_MEMBER(PipelineDepthStencilStateCreateInfo)
 };
 
-StaticSizeCheck(PipelineDepthStencilStateCreateInfo);
+ConsistencyCheck(PipelineDepthStencilStateCreateInfo, pNext, flags, depthTestEnable, depthWriteEnable, depthCompareOp, depthBoundsTestEnable, stencilTestEnable,
+    front, back, minDepthBounds, maxDepthBounds)
 
 
 
@@ -768,7 +776,8 @@ struct PipelineColorBlendAttachmentState : public internal::VkTrait<PipelineColo
     {}
 };
 
-StaticSizeCheck(PipelineColorBlendAttachmentState);
+ConsistencyCheck(PipelineColorBlendAttachmentState, blendEnable, srcColorBlendFactor, dstColorBlendFactor, colorBlendOp,
+    srcAlphaBlendFactor, dstAlphaBlendFactor, alphaBlendOp, colorWriteMask)
 
 
 
@@ -809,7 +818,7 @@ private:
 public:
     const void*                                 pNext{ nullptr };
     PipelineColorBlendStateCreateFlags          flags;
-    Bool32                                      logicalOpEnable{ VK_FALSE };
+    Bool32                                      logicOpEnable{ VK_FALSE };
     LogicalOp                                   logicOp;
     uint32_t                                    attachmentCount{ 0 };
     const PipelineColorBlendAttachmentState*    pAttachments{ nullptr };
@@ -817,16 +826,16 @@ public:
 
     DEFINE_CLASS_MEMBER(PipelineColorBlendStateCreateInfo)
 
-    PipelineColorBlendStateCreateInfo(Bool32 aLogicalOpEnable, LogicalOp aLogicOp, uint32_t aAttachmentCount, const PipelineColorBlendAttachmentState* apAttachments,
+    PipelineColorBlendStateCreateInfo(Bool32 aLogicOpEnable, LogicalOp aLogicOp, uint32_t aAttachmentCount, const PipelineColorBlendAttachmentState* apAttachments,
         const std::array<float, 4>& aBlendConstants, const PipelineColorBlendStateCreateFlags& aFlags = DefaultFlags)
-        : flags(aFlags), logicalOpEnable(aLogicalOpEnable), logicOp(aLogicOp), attachmentCount(aAttachmentCount),
+        : flags(aFlags), logicOpEnable(aLogicOpEnable), logicOp(aLogicOp), attachmentCount(aAttachmentCount),
           pAttachments(apAttachments), blendConstants{aBlendConstants[0], aBlendConstants[1], aBlendConstants[2], aBlendConstants[3]}
     {}
 
     // TODO
 };
 
-StaticSizeCheck(PipelineColorBlendStateCreateInfo);
+ConsistencyCheck(PipelineColorBlendStateCreateInfo, pNext, flags, logicOpEnable, logicOp, attachmentCount, pAttachments, blendConstants)
 
 
 
@@ -914,7 +923,7 @@ public:
     }
 };
 
-StaticSizeCheck(PipelineDynamicStateCreateInfo);
+ConsistencyCheck(PipelineDynamicStateCreateInfo, pNext, flags, dynamicStateCount, pDynamicStates)
 
 
 
@@ -952,7 +961,7 @@ struct PushConstantRange : internal::VkTrait<PushConstantRange, VkPushConstantRa
     }
 };
 
-StaticSizeCheck(PushConstantRange);
+ConsistencyCheck(PushConstantRange, stageFlags, offset, size)
 
 
 
@@ -1040,7 +1049,7 @@ public:
     }
 };
 
-StaticSizeCheck(PipelineLayoutCreateInfo);
+ConsistencyCheck(PipelineLayoutCreateInfo, pNext, flags, setLayoutCount, pSetLayouts, pushConstantRangeCount, pPushConstantRanges)
 
 
 
@@ -1059,7 +1068,7 @@ public:
     {}
 };
 
-StaticSizeCheck(PipelineLayout);
+StaticSizeCheck(PipelineLayout)
 
 
 

@@ -71,7 +71,7 @@ public:
     {}
 };
 
-StaticSizeCheck(CommandPool);
+StaticSizeCheck(CommandPool)
 
 
 

@@ -3,6 +3,8 @@
 
 
 
+#include <cstring>          // std::memcpy
+
 #include <Info/Common.h>
 #include <Info/Flags.h>
 
@@ -58,6 +60,15 @@ enum class ImageTiling
 {
     eOptimal    = VK_IMAGE_TILING_OPTIMAL,
     eLinear     = VK_IMAGE_TILING_LINEAR
+};
+
+
+
+enum class Filter
+{
+    eNearest        = VK_FILTER_NEAREST,
+    eLinear         = VK_FILTER_LINEAR,
+    eCubicIMG       = VK_FILTER_CUBIC_IMG
 };
 
 
@@ -179,9 +190,17 @@ public:
     {
         return SetConcurrentMode(static_cast<uint32_t>(aQueueFamilyIndices.size()), aQueueFamilyIndices.data());
     }
+
+    ImageCreateInfo& SetInitialLayout(const ImageLayout& aInitialLayout)
+    {
+        initialLayout = aInitialLayout;
+
+        return *this;
+    }
 };
 
-StaticSizeCheck(ImageCreateInfo);
+ConsistencyCheck(ImageCreateInfo, pNext, flags, imageType, format, samples, tiling, usage, extent, mipLevels, arrayLayers,
+    sharingMode, queueFamilyIndexCount, pQueueFamilyIndices)
 
 
 
@@ -200,7 +219,7 @@ public:
     {}
 };
 
-StaticSizeCheck(Image);
+StaticSizeCheck(Image)
 
 
 
@@ -274,6 +293,166 @@ struct ComponentMapping : public internal::VkTrait<ComponentMapping, VkComponent
     }
 };
 
+ConsistencyCheck(ComponentMapping, r, g, b, a)
+
+
+
+struct ImageSubresourceLayers : public internal::VkTrait<ImageSubresourceLayers, VkImageSubresourceLayers>
+{
+    ImageAspectFlags    aspectMask;
+    uint32_t            mipLevel{ 0 };
+    uint32_t            baseArrayLayer{ 0 };
+    uint32_t            layerCount{ 0 };
+
+    DEFINE_CLASS_MEMBER(ImageSubresourceLayers)
+
+    ImageSubresourceLayers(const ImageAspectFlags& aAspectMask, uint32_t aMipLevel, uint32_t aBaseArrayLayer, uint32_t aLayerCount)
+        : aspectMask(aAspectMask), mipLevel(aMipLevel), baseArrayLayer(aBaseArrayLayer), layerCount(aLayerCount)
+    {}
+
+    ImageSubresourceLayers& SetAspectMask(const ImageAspectFlags& aAspectMask)
+    {
+        aspectMask = aAspectMask;
+
+        return *this;
+    }
+
+    ImageSubresourceLayers& SetMipLevel(uint32_t aMipLevel)
+    {
+        mipLevel = aMipLevel;
+
+        return *this;
+    }
+
+    ImageSubresourceLayers& SetArrayLayer(uint32_t aBaseArrayLayer, uint32_t aLayerCount)
+    {
+        baseArrayLayer  = aBaseArrayLayer;
+        layerCount      = aLayerCount;
+
+        return *this;
+    }
+};
+
+ConsistencyCheck(ImageSubresourceLayers, aspectMask, mipLevel, baseArrayLayer, layerCount)
+
+
+
+struct ImageCopy : public internal::VkTrait<ImageCopy, VkImageCopy>
+{
+    ImageSubresourceLayers  srcSubresource;
+    Offset3D                srcOffset;
+    ImageSubresourceLayers  dstSubresource;
+    Offset3D                dstOffset;
+    Extent3D                extent;
+
+    DEFINE_CLASS_MEMBER(ImageCopy)
+
+    ImageCopy(const ImageSubresourceLayers& aSrcSubresource, const Offset3D& aSrcOffset, const ImageSubresourceLayers& aDstSubresource, const Offset3D& aDstOffset, const Extent3D& aExtent)
+        : srcSubresource(aSrcSubresource), srcOffset(aSrcOffset), dstSubresource(aDstSubresource), dstOffset(aDstOffset), extent(aExtent)
+    {}
+
+    ImageCopy& SetSubresourceLayers(const ImageSubresourceLayers& aSrcSubresource, const ImageSubresourceLayers& aDstSubResource)
+    {
+        srcSubresource = aSrcSubresource;
+        dstSubresource = aDstSubResource;
+
+        return *this;
+    }
+
+    ImageCopy& SetOffset(const Offset3D& aSrcOffset, const Offset3D& aDstOffset)
+    {
+        srcOffset   = aSrcOffset;
+        dstOffset   = aDstOffset;
+
+        return *this;
+    }
+
+    ImageCopy& SetExtent(const Extent3D& aExtent)
+    {
+        extent  = aExtent;
+
+        return *this;
+    }
+};
+
+ConsistencyCheck(ImageCopy, srcSubresource, srcOffset, dstSubresource, dstOffset, extent)
+
+
+
+struct ImageBlit : public internal::VkTrait<ImageBlit, VkImageBlit>
+{
+    ImageSubresourceLayers      srcSubresource;
+    Offset3D                    srcOffsets[2];
+    ImageSubresourceLayers      dstSubresource;
+    Offset3D                    dstOffsets[2];
+    
+    DEFINE_CLASS_MEMBER(ImageBlit)
+
+    ImageBlit(const ImageSubresourceLayers& aSrcSubresoure, const std::array<Offset3D, 2>& aSrcOffsets, const ImageSubresourceLayers& aDstSubresource, const std::array<Offset3D, 2>& aDstOffsets)
+        : srcSubresource(aSrcSubresoure), srcOffsets{aSrcOffsets[0], aSrcOffsets[1]}, dstSubresource(aDstSubresource), dstOffsets{aDstOffsets[0], aDstOffsets[1]}
+    {}
+
+    ImageBlit& SetSubresourceLayers(const ImageSubresourceLayers& aSrcSubresource, const ImageSubresourceLayers& aDstSubresource)
+    {
+        srcSubresource  = aSrcSubresource;
+        dstSubresource  = aDstSubresource;
+
+        return *this;
+    }
+
+    ImageBlit& SetOffsets(const std::array<Offset3D, 2>& aSrcOffsets, const std::array<Offset3D, 2>& aDstOffsets)
+    {
+        std::memcpy(srcOffsets, aSrcOffsets.data(), aSrcOffsets.size());
+        std::memcpy(dstOffsets, aDstOffsets.data(), aDstOffsets.size());
+
+        return *this;
+    }
+};
+
+ConsistencyCheck(ImageBlit, srcSubresource, srcOffsets, dstSubresource, dstOffsets)
+
+
+
+struct ImageResolve : public internal::VkTrait<ImageResolve, VkImageResolve>
+{
+    ImageSubresourceLayers      srcSubresource;
+    Offset3D                    srcOffset;
+    ImageSubresourceLayers      dstSubresource;
+    Offset3D                    dstOffset;
+    Extent3D                    extent;
+
+    DEFINE_CLASS_MEMBER(ImageResolve)
+
+    ImageResolve(const ImageSubresourceLayers& aSrcSubresource, const Offset3D& aSrcOffset, const ImageSubresourceLayers& aDstSubresource, const Offset3D& aDstOffset, const Extent3D& aExtent)
+        : srcSubresource(aSrcSubresource), srcOffset(aSrcOffset), dstSubresource(aDstSubresource), dstOffset(aDstOffset), extent(aExtent)
+    {}
+
+    ImageResolve& SetSubresourceLayers(const ImageSubresourceLayers& aSrcSubresource, const ImageSubresourceLayers& aDstSubresource)
+    {
+        srcSubresource = aSrcSubresource;
+        dstSubresource = aDstSubresource;
+
+        return *this;
+    }
+
+    ImageResolve& SetOffset(const Offset3D& aSrcOffset, const Offset3D& aDstOffset)
+    {
+        srcOffset       = aSrcOffset;
+        dstOffset       = aDstOffset;
+
+        return *this;
+    }
+
+    ImageResolve& SetExtent(const Extent3D& aExtent)
+    {
+        extent = aExtent;
+
+        return *this;
+    }
+};
+
+ConsistencyCheck(ImageResolve, srcSubresource, srcOffset, dstSubresource, dstOffset, extent)
+
 
 
 struct ImageSubresourceRange : public internal::VkTrait<ImageSubresourceRange, VkImageSubresourceRange>
@@ -314,7 +493,7 @@ struct ImageSubresourceRange : public internal::VkTrait<ImageSubresourceRange, V
     }
 };
 
-StaticSizeCheck(ImageSubresourceRange);
+ConsistencyCheck(ImageSubresourceRange, aspectMask, baseMipLevel, levelCount, baseArrayLayer, layerCount)
 
 
 

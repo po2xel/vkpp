@@ -51,7 +51,7 @@ public:
     }
 };
 
-StaticSizeCheck(FenceCreateInfo);
+ConsistencyCheck(FenceCreateInfo, pNext, flags)
 
 
 
@@ -70,7 +70,7 @@ public:
     {}
 };
 
-StaticSizeCheck(Fence);
+StaticSizeCheck(Fence)
 
 
 

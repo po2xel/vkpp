@@ -44,7 +44,7 @@ public:
     }
 };
 
-StaticSizeCheck(MemoryAllocateInfo);
+StaticSizeCheck(MemoryAllocateInfo)
 
 
 
@@ -63,7 +63,7 @@ public:
     {}
 };
 
-StaticSizeCheck(DeviceMemory);
+StaticSizeCheck(DeviceMemory)
 
 
 
@@ -113,7 +113,7 @@ public:
     }
 };
 
-StaticSizeCheck(MappedMemoryRange);
+ConsistencyCheck(MappedMemoryRange, pNext, memory, offset, size)
 
 
 

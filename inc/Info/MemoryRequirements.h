@@ -19,7 +19,7 @@ struct MemoryRequirements : public internal::VkTrait<MemoryRequirements, VkMemor
     uint32_t        memoryTypeBits{ 0 };
 };
 
-StaticSizeCheck(MemoryRequirements);
+ConsistencyCheck(MemoryRequirements, size, alignment, memoryTypeBits)
 
 
 

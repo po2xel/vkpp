@@ -106,7 +106,7 @@ public:
     }
 };
 
-StaticSizeCheck(ImageMemoryBarrier);
+ConsistencyCheck(ImageMemoryBarrier, pNext, srcAccessMask, dstAccessMask, oldLayout, newLayout, srcQueueFamilyIndex, dstQueueFamilyIndex, image, subresourceRange)
 
 
 
@@ -166,7 +166,7 @@ public:
     }
 };
 
-StaticSizeCheck(BufferMemoryBarrier);
+ConsistencyCheck(BufferMemoryBarrier, pNext, srcAccessMask, dstAccessMask, srcQueueFamilyIndex, dstQueueFamilyIndex, buffer, offset, size)
 
 
 
@@ -195,7 +195,7 @@ public:
     }
 };
 
-StaticSizeCheck(MemoryBarrier);
+ConsistencyCheck(MemoryBarrier, pNext, srcAccessMask, dstAccessMask)
 
 
 

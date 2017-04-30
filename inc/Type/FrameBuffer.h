@@ -20,7 +20,7 @@ using FrameBufferCreateFlags = internal::Flags<FrameBufferCreateFlagBits, VkFram
 
 
 
-class FrameBufferCreateInfo : public internal::VkTrait<FrameBufferCreateInfo, VkFramebufferCreateInfo>
+class FramebufferCreateInfo : public internal::VkTrait<FramebufferCreateInfo, VkFramebufferCreateInfo>
 {
 private:
     const internal::Structure sType = internal::Structure::eFrameBuffer;
@@ -35,40 +35,40 @@ public:
     uint32_t                height{ 1 };
     uint32_t                layers{ 1 };
 
-    DEFINE_CLASS_MEMBER(FrameBufferCreateInfo)
+    DEFINE_CLASS_MEMBER(FramebufferCreateInfo)
 
-    FrameBufferCreateInfo(const RenderPass& aRenderPass, uint32_t aAttachmentCount, const ImageView* apAttachments,
+    FramebufferCreateInfo(const RenderPass& aRenderPass, uint32_t aAttachmentCount, const ImageView* apAttachments,
         uint32_t aWidth = 1 , uint32_t aHeight = 1, uint32_t aLayers = 1, const FrameBufferCreateFlags& aFlags = DefaultFlags)
         : flags(aFlags), renderPass(aRenderPass), attachmentCount(aAttachmentCount), pAttachments(apAttachments),
           width(aWidth), height(aHeight), layers(aLayers)
     {}
 
-    FrameBufferCreateInfo(const RenderPass& aRenderPass, const std::vector<ImageView>& aAttachments,
+    FramebufferCreateInfo(const RenderPass& aRenderPass, const std::vector<ImageView>& aAttachments,
         uint32_t aWidth = 1, uint32_t aHeight = 1, uint32_t aLayers = 1, const FrameBufferCreateFlags& aFlags = DefaultFlags)
-        : FrameBufferCreateInfo(aRenderPass, static_cast<uint32_t>(aAttachments.size()), aAttachments.data(), aWidth, aHeight, aLayers, aFlags)
+        : FramebufferCreateInfo(aRenderPass, static_cast<uint32_t>(aAttachments.size()), aAttachments.data(), aWidth, aHeight, aLayers, aFlags)
     {}
 
     template <std::size_t A>
-    FrameBufferCreateInfo(const RenderPass& aRenderPass, const std::array<ImageView, A>& aAttachments,
+    FramebufferCreateInfo(const RenderPass& aRenderPass, const std::array<ImageView, A>& aAttachments,
         uint32_t aWidth = 1, uint32_t aHeight = 1, uint32_t aLayers = 1, const FrameBufferCreateFlags& aFlags = DefaultFlags)
-        : FrameBufferCreateInfo(aRenderPass, static_cast<uint32_t>(aAttachments.size()), aAttachments.data(), aWidth, aHeight, aLayers, aFlags)
+        : FramebufferCreateInfo(aRenderPass, static_cast<uint32_t>(aAttachments.size()), aAttachments.data(), aWidth, aHeight, aLayers, aFlags)
     {}
 
-    FrameBufferCreateInfo& SetFlags(const FrameBufferCreateFlags& aFlags)
+    FramebufferCreateInfo& SetFlags(const FrameBufferCreateFlags& aFlags)
     {
         flags = aFlags;
 
         return *this;
     }
 
-    FrameBufferCreateInfo& SetRenderPass(const RenderPass& aRenderPass)
+    FramebufferCreateInfo& SetRenderPass(const RenderPass& aRenderPass)
     {
         renderPass  = aRenderPass;
 
         return *this;
     }
 
-    FrameBufferCreateInfo& SetAttachments(uint32_t aAttachmentCount, const ImageView* apAttachments)
+    FramebufferCreateInfo& SetAttachments(uint32_t aAttachmentCount, const ImageView* apAttachments)
     {
         attachmentCount = aAttachmentCount;
         pAttachments    = apAttachments;
@@ -76,18 +76,18 @@ public:
         return *this;
     }
 
-    FrameBufferCreateInfo& SetAttachments(const std::vector<ImageView>& aAttachments)
+    FramebufferCreateInfo& SetAttachments(const std::vector<ImageView>& aAttachments)
     {
         return SetAttachments(static_cast<uint32_t>(aAttachments.size()), aAttachments.data());
     }
 
     template <std::size_t A>
-    FrameBufferCreateInfo& SetAttachments(const std::array<ImageView, A>& aAttachments)
+    FramebufferCreateInfo& SetAttachments(const std::array<ImageView, A>& aAttachments)
     {
         return SetAttachments(static_cast<uint32_t>(aAttachments.size()), aAttachments.data());
     }
 
-    FrameBufferCreateInfo& SetDimension(uint32_t aWidth, uint32_t aHeight = 1, uint32_t aLayers = 1)
+    FramebufferCreateInfo& SetDimension(uint32_t aWidth, uint32_t aHeight = 1, uint32_t aLayers = 1)
     {
         width   = aWidth;
         height  = aHeight;
@@ -97,22 +97,22 @@ public:
     }
 };
 
-StaticSizeCheck(FrameBufferCreateInfo);
+StaticSizeCheck(FramebufferCreateInfo);
 
 
 
-class FrameBuffer : public internal::VkTrait<FrameBuffer, VkFramebuffer>
+class Framebuffer : public internal::VkTrait<Framebuffer, VkFramebuffer>
 {
 private:
     VkFramebuffer mFrameBuffer{ VK_NULL_HANDLE };
 
 public:
-    FrameBuffer(void) = default;
+    Framebuffer(void) = default;
 
-    FrameBuffer(std::nullptr_t)
+    Framebuffer(std::nullptr_t)
     {}
 
-    explicit FrameBuffer(VkFramebuffer aFrameBuffer) : mFrameBuffer(aFrameBuffer)
+    explicit Framebuffer(VkFramebuffer aFrameBuffer) : mFrameBuffer(aFrameBuffer)
     {}
 
     operator bool() const
@@ -121,7 +121,7 @@ public:
     }
 };
 
-StaticSizeCheck(FrameBuffer);
+StaticSizeCheck(Framebuffer);
 
 
 

@@ -58,7 +58,8 @@ struct SurfaceCapabilities : public internal::VkTrait<SurfaceCapabilities, VkSur
     DEFINE_CLASS_MEMBER(SurfaceCapabilities)
 };
 
-StaticSizeCheck(SurfaceCapabilities);
+ConsistencyCheck(SurfaceCapabilities, minImageCount, maxImageCount, currentExtent, minImageExtent, maxImageExtent, maxImageArrayLayers,
+    supportedTransforms, currentTransform, supportedCompositeAlpha, supportedUsageFlags)
 
 
 

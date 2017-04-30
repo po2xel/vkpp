@@ -82,7 +82,7 @@ public:
     }
 };
 
-StaticSizeCheck(ShaderModuleCreateInfo);
+ConsistencyCheck(ShaderModuleCreateInfo, pNext, flags, codeSize, pCode)
 
 
 
@@ -101,7 +101,7 @@ public:
     {}
 };
 
-StaticSizeCheck(ShaderModule);
+StaticSizeCheck(ShaderModule)
 
 
 }                   // End of namespace vkpp.

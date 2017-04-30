@@ -33,6 +33,7 @@ struct SwapchainParams
 {
     vkpp::khr::Swapchain Handle;
     vkpp::khr::SurfaceFormat mSurfaceFormat;
+    vkpp::Extent2D mExtent;
 
     std::vector<vkpp::Image> mSwapchainImages;
     std::vector<vkpp::ImageView> mSwapchainImageViews;
@@ -78,6 +79,8 @@ protected:
     static vkpp::ImageUsageFlags GetSwapchainUsageFlags(const vkpp::khr::SurfaceCapabilities& aSurfaceCapabilities);
     static vkpp::khr::SurfaceTransformFlagBits GetSwapchainTransform(const vkpp::khr::SurfaceCapabilities& aSurfaceCapabilities);
     static vkpp::khr::PresentMode GetSwapchainPresentMode(const std::vector<vkpp::khr::PresentMode>& aPresentModes);
+    vkpp::ShaderModule CreateShaderModule(const std::string& aFilename) const;
+    void DestroyShaderModule(const vkpp::ShaderModule& aShaderModule) const;
 
     virtual void DrawFrame(void) = 0;
 

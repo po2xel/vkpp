@@ -55,7 +55,7 @@ public:
     }
 };
 
-StaticSizeCheck(AllocationCallbacks);
+ConsistencyCheck(AllocationCallbacks, pUserData, pfnAllocation, pfnReallocation, pfnFree, pfnInternalAllocation, pfnInternalFree)
 
 
 

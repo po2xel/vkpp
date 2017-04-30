@@ -39,9 +39,15 @@ public:
     DEFINE_CLASS_MEMBER(SubmitInfo)
 
     SubmitInfo(uint32_t aWaitSemaphoreCount, const Semaphore* apWaitSemaphores, const PipelineStageFlags* apWaitDstStageMask,
-        uint32_t aCommandBufferCount, const CommandBuffer* apCommandBuffers, uint32_t aSignalSemaphoreCount, const Semaphore* apSignalSemaphores)
+        uint32_t aCommandBufferCount, const CommandBuffer* apCommandBuffers, uint32_t aSignalSemaphoreCount = 0, const Semaphore* apSignalSemaphores = nullptr)
         : waitSemaphoreCount(aWaitSemaphoreCount), pWaitSemaphores(apWaitSemaphores), pWaitDstStageMask(apWaitDstStageMask),
         commandBufferCount(aCommandBufferCount), pCommandBuffers(apCommandBuffers), signalSemaphoreCount(aSignalSemaphoreCount), pSignalSemaphores(apSignalSemaphores)
+    {}
+
+    explicit SubmitInfo(const CommandBuffer& aCommandBuffer) : commandBufferCount(1), pCommandBuffers(aCommandBuffer.AddressOf())
+    {}
+
+    explicit SubmitInfo(const std::vector<CommandBuffer>& aCommandBuffers) : commandBufferCount(static_cast<uint32_t>(aCommandBuffers.size())), pCommandBuffers(aCommandBuffers.data())
     {}
 
     SubmitInfo& SetNext(const void* apNext)
@@ -198,6 +204,11 @@ public:
     void Submit(const SubmitInfo& aSubmit) const
     {
         return Submit(1, aSubmit.AddressOf());
+    }
+
+    void Submit(const SubmitInfo& aSubmit, const Fence& aFence) const
+    {
+        return Submit(1, aSubmit.AddressOf(), aFence);
     }
 
     void Submit(uint32_t aSubmitCount, const SubmitInfo* apSubmits) const

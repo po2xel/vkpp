@@ -27,7 +27,7 @@ public:
     {}
 };
 
-StaticSizeCheck(DescriptorSetLayout);
+StaticSizeCheck(DescriptorSetLayout)
 
 
 
