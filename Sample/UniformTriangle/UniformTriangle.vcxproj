@@ -20,10 +20,10 @@
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>15.0</VCProjectVersion>
-    <ProjectGuid>{AAD8EBAE-DED6-462D-8661-EF3913014722}</ProjectGuid>
+    <ProjectGuid>{48695dc3-1e78-4b30-bbe7-5f1e6a59f860}</ProjectGuid>
     <Keyword>Win32Proj</Keyword>
-    <RootNamespace>vkpp</RootNamespace>
-    <WindowsTargetPlatformVersion>10.0.14393.0</WindowsTargetPlatformVersion>
+    <RootNamespace>UniformTriangle</RootNamespace>
+    <WindowsTargetPlatformVersion>10.0.15063.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
@@ -70,43 +70,26 @@
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
-    <LinkIncremental>true</LinkIncremental>
-    <OutDir>bin/$(ProjectName)/$(PlatformTarget)/$(Configuration)/</OutDir>
-    <IntDir>obj/$(ProjectName)/$(PlatformTarget)/$(Configuration)/</IntDir>
-  </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <LinkIncremental>true</LinkIncremental>
-    <OutDir>bin/$(ProjectName)/$(PlatformTarget)/$(Configuration)/</OutDir>
-    <IntDir>obj/$(ProjectName)/$(PlatformTarget)/$(Configuration)/</IntDir>
+    <OutDir>$(SolutionDir)bin/$(ProjectName)/$(PlatformTarget)/$(Configuration)/</OutDir>
+    <IntDir>$(SolutionDir)obj/$(ProjectName)/$(PlatformTarget)/$(Configuration)/</IntDir>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <LinkIncremental>true</LinkIncremental>
+    <OutDir>$(SolutionDir)bin/$(ProjectName)/$(PlatformTarget)/$(Configuration)/</OutDir>
+    <IntDir>$(SolutionDir)obj/$(ProjectName)/$(PlatformTarget)/$(Configuration)/</IntDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>false</LinkIncremental>
-    <OutDir>bin/$(ProjectName)/$(PlatformTarget)/$(Configuration)/</OutDir>
-    <IntDir>obj/$(ProjectName)/$(PlatformTarget)/$(Configuration)/</IntDir>
+    <OutDir>$(SolutionDir)bin/$(ProjectName)/$(PlatformTarget)/$(Configuration)/</OutDir>
+    <IntDir>$(SolutionDir)obj/$(ProjectName)/$(PlatformTarget)/$(Configuration)/</IntDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <LinkIncremental>false</LinkIncremental>
-    <OutDir>bin/$(ProjectName)/$(PlatformTarget)/$(Configuration)/</OutDir>
-    <IntDir>obj/$(ProjectName)/$(PlatformTarget)/$(Configuration)/</IntDir>
+    <OutDir>$(SolutionDir)bin/$(ProjectName)/$(PlatformTarget)/$(Configuration)/</OutDir>
+    <IntDir>$(SolutionDir)obj/$(ProjectName)/$(PlatformTarget)/$(Configuration)/</IntDir>
   </PropertyGroup>
-  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
-    <ClCompile>
-      <PrecompiledHeader>
-      </PrecompiledHeader>
-      <WarningLevel>Level4</WarningLevel>
-      <Optimization>Disabled</Optimization>
-      <PreprocessorDefinitions>VK_USE_PLATFORM_WIN32_KHR;GLFW_EXPOSE_NATIVE_WIN32;NOMINMAX;WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>inc;Sample;$(VULKAN_SDK)/include;</AdditionalIncludeDirectories>
-      <TreatWarningAsError>true</TreatWarningAsError>
-      <LanguageStandard>stdcpplatest</LanguageStandard>
-    </ClCompile>
-    <Link>
-      <SubSystem>Console</SubSystem>
-      <AdditionalLibraryDirectories>lib/$(PlatformTarget)/$(Configuration)/;$(VULKAN_SDK)/Lib32</AdditionalLibraryDirectories>
-      <AdditionalDependencies>vulkan-1.lib;glfw3.lib;%(AdditionalDependencies)</AdditionalDependencies>
-    </Link>
-  </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
       <PrecompiledHeader>
@@ -114,16 +97,32 @@
       <WarningLevel>Level4</WarningLevel>
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>VK_USE_PLATFORM_WIN32_KHR;GLFW_EXPOSE_NATIVE_WIN32;NOMINMAX;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>inc;Sample;$(VULKAN_SDK)/include;</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)Sample/glm;$(SolutionDir)inc;$(SolutionDir)Sample;$(VULKAN_SDK)/include</AdditionalIncludeDirectories>
+      <TreatWarningAsError>true</TreatWarningAsError>
+      <LanguageStandard>stdcpplatest</LanguageStandard>
+      <DisableSpecificWarnings>
+      </DisableSpecificWarnings>
+    </ClCompile>
+    <Link>
+      <SubSystem>Console</SubSystem>
+      <AdditionalLibraryDirectories>$(SolutionDir)lib/$(PlatformTarget)/$(Configuration)/;$(VULKAN_SDK)/Lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>vulkan-1.lib;VkLayer_core_validation.lib;VkLayer_object_tracker.lib;VkLayer_parameter_validation.lib;glfw3.lib;%(AdditionalDependencies)</AdditionalDependencies>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <ClCompile>
+      <PrecompiledHeader>
+      </PrecompiledHeader>
+      <WarningLevel>Level4</WarningLevel>
+      <Optimization>Disabled</Optimization>
+      <PreprocessorDefinitions>VK_USE_PLATFORM_WIN32_KHR;GLFW_EXPOSE_NATIVE_WIN32;NOMINMAX;WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>$(SolutionDir)Sample/glm;$(SolutionDir)inc;$(SolutionDir)Sample;$(VULKAN_SDK)/include</AdditionalIncludeDirectories>
       <TreatWarningAsError>true</TreatWarningAsError>
       <LanguageStandard>stdcpplatest</LanguageStandard>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
-      <AdditionalLibraryDirectories>lib/$(PlatformTarget)/$(Configuration)/;$(VULKAN_SDK)/Lib</AdditionalLibraryDirectories>
-      <AdditionalDependencies>vulkan-1.lib;VkLayer_core_validation.lib;VkLayer_object_tracker.lib;VkLayer_parameter_validation.lib;glfw3.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <IgnoreAllDefaultLibraries>
-      </IgnoreAllDefaultLibraries>
+      <AdditionalLibraryDirectories>$(SolutionDir)lib/$(PlatformTarget)/$(Configuration)/;$(VULKAN_SDK)/Lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -135,7 +134,7 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <PreprocessorDefinitions>VK_USE_PLATFORM_WIN32_KHR;GLFW_EXPOSE_NATIVE_WIN32;NOMINMAX;WIN32;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>inc;Sample;$(VULKAN_SDK)/include;</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)Sample/glm;$(SolutionDir)inc;$(SolutionDir)Sample;$(VULKAN_SDK)/include</AdditionalIncludeDirectories>
       <TreatWarningAsError>true</TreatWarningAsError>
       <LanguageStandard>stdcpplatest</LanguageStandard>
     </ClCompile>
@@ -143,8 +142,7 @@
       <SubSystem>Console</SubSystem>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
-      <AdditionalLibraryDirectories>lib/$(PlatformTarget)/$(Configuration)/;$(VULKAN_SDK)/Lib32</AdditionalLibraryDirectories>
-      <AdditionalDependencies>vulkan-1.lib;glfw3.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(SolutionDir)lib/$(PlatformTarget)/$(Configuration)/;$(VULKAN_SDK)/Lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -156,7 +154,7 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <PreprocessorDefinitions>VK_USE_PLATFORM_WIN32_KHR;GLFW_EXPOSE_NATIVE_WIN32;NOMINMAX;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>inc;Sample;$(VULKAN_SDK)/include;</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)Sample/glm;$(SolutionDir)inc;$(SolutionDir)Sample;$(VULKAN_SDK)/include</AdditionalIncludeDirectories>
       <TreatWarningAsError>true</TreatWarningAsError>
       <LanguageStandard>stdcpplatest</LanguageStandard>
     </ClCompile>
@@ -164,58 +162,21 @@
       <SubSystem>Console</SubSystem>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
-      <AdditionalLibraryDirectories>lib/$(PlatformTarget)/$(Configuration)/;$(VULKAN_SDK)/Lib</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>$(SolutionDir)lib/$(PlatformTarget)/$(Configuration)/;$(VULKAN_SDK)/Lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <AdditionalDependencies>vulkan-1.lib;glfw3.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="main.cpp" />
-    <ClCompile Include="Sample\Application\Application.cpp" />
-    <ClCompile Include="Sample\Triangle\Triangle.cpp" />
+    <ClCompile Include="..\Application\Application.cpp" />
+    <ClCompile Include="main.cpp">
+      <DisableSpecificWarnings Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">4201</DisableSpecificWarnings>
+    </ClCompile>
+    <ClCompile Include="UniformTriangle.cpp">
+      <DisableSpecificWarnings Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">4201</DisableSpecificWarnings>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="inc\Info\CommandBufferAllocateInfo.h" />
-    <ClInclude Include="inc\Info\Common.h" />
-    <ClInclude Include="inc\Info\Extensions.h" />
-    <ClInclude Include="inc\Info\Flags.h" />
-    <ClInclude Include="inc\Info\Format.h" />
-    <ClInclude Include="inc\Info\Layers.h" />
-    <ClInclude Include="inc\Info\MemoryRequirements.h" />
-    <ClInclude Include="inc\Info\PhysicalDeviceFeatures.h" />
-    <ClInclude Include="inc\Info\PipelineStage.h" />
-    <ClInclude Include="inc\Info\RenderPassBeginInfo.h" />
-    <ClInclude Include="inc\Info\TypeConsistency.h" />
-    <ClInclude Include="inc\Info\SurfaceCapabilities.h" />
-    <ClInclude Include="inc\Memory\AutoPtr.h" />
-    <ClInclude Include="inc\Type\AllocationCallbacks.h" />
-    <ClInclude Include="inc\Type\Buffer.h" />
-    <ClInclude Include="inc\Type\CommandBuffer.h" />
-    <ClInclude Include="inc\Type\CommandPool.h" />
-    <ClInclude Include="inc\Type\DebugReportCallback.h" />
-    <ClInclude Include="inc\Type\DescriptorPool.h" />
-    <ClInclude Include="inc\Type\DescriptorSet.h" />
-    <ClInclude Include="inc\Type\Fence.h" />
-    <ClInclude Include="inc\Type\Framebuffer_C36FF42C-84C7-42CE-B62B-B358B901F293.h" />
-    <ClInclude Include="inc\Type\GraphicsPipeline.h" />
-    <ClInclude Include="inc\Type\Image.h" />
-    <ClInclude Include="inc\Type\Instance.h" />
-    <ClInclude Include="inc\Type\LogicalDevice.h" />
-    <ClInclude Include="inc\Type\Memory.h" />
-    <ClInclude Include="inc\Type\MemoryBarrier.h" />
-    <ClInclude Include="inc\Type\PhysicalDevice.h" />
-    <ClInclude Include="inc\Type\Queue.h" />
-    <ClInclude Include="inc\Type\RenderPass.h" />
-    <ClInclude Include="inc\Type\Sampler.h" />
-    <ClInclude Include="inc\Type\Semaphore.h" />
-    <ClInclude Include="inc\Type\ShaderModule.h" />
-    <ClInclude Include="inc\Type\Structure.h" />
-    <ClInclude Include="inc\Type\Surface.h" />
-    <ClInclude Include="inc\Type\Swapchain.h" />
-    <ClInclude Include="inc\Type\VkDeleter.h" />
-    <ClInclude Include="inc\Type\VkTrait.h" />
-    <ClInclude Include="inc\Type\Windows\SurfaceCreateInfo.h" />
-    <ClInclude Include="Sample\Application\Application.h" />
-    <ClInclude Include="Sample\Triangle\Triangle.h" />
+    <ClInclude Include="UniformTriangle.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

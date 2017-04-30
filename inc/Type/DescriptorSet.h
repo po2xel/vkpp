@@ -4,11 +4,155 @@
 
 
 #include <Info/Common.h>
+#include <Info/Flags.h>
+
+#include <Type/ShaderModule.h>
+#include <Type/Sampler.h>
+#include <Type/Image.h>
+#include <Type/Buffer.h>
 
 
 
 namespace vkpp
 {
+
+
+
+enum class DescriptorType
+{
+    eSampler                = VK_DESCRIPTOR_TYPE_SAMPLER,
+    eCombinedImageSampler   = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER,
+    eSampledImage           = VK_DESCRIPTOR_TYPE_SAMPLED_IMAGE,
+    eStorageImage           = VK_DESCRIPTOR_TYPE_STORAGE_IMAGE,
+    eUniformTexelBuffer     = VK_DESCRIPTOR_TYPE_UNIFORM_TEXEL_BUFFER,
+    eStorageTexelBuffer     = VK_DESCRIPTOR_TYPE_STORAGE_TEXEL_BUFFER,
+    eUniformBuffer          = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER,
+    eStorageBuffer          = VK_DESCRIPTOR_TYPE_STORAGE_BUFFER,
+    eUniformBufferDynamic   = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC,
+    eStorageBufferDynamic   = VK_DESCRIPTOR_TYPE_STORAGE_BUFFER_DYNAMIC,
+    eInputAttachment        = VK_DESCRIPTOR_TYPE_INPUT_ATTACHMENT
+};
+
+
+
+struct DescriptorSetLayoutBinding : public internal::VkTrait<DescriptorSetLayoutBinding, VkDescriptorSetLayoutBinding>
+{
+    uint32_t            binding{ 0 };
+    DescriptorType      descriptorType;
+    uint32_t            descriptorCount{ 0 };
+    ShaderStageFlags    stageFlags;
+    const Sampler*      pImmutableSamplers{ nullptr };
+
+    DEFINE_CLASS_MEMBER(DescriptorSetLayoutBinding)
+
+    DescriptorSetLayoutBinding(uint32_t aBinding, DescriptorType aDescriptorType, uint32_t aDescriptorCount, const ShaderStageFlags& aStageFlags, const Sampler* apImmutableSamplers = nullptr)
+        : binding(aBinding), descriptorType(aDescriptorType), descriptorCount(aDescriptorCount), stageFlags(aStageFlags), pImmutableSamplers(apImmutableSamplers)
+    {}
+
+    DescriptorSetLayoutBinding& SetBinding(uint32_t aBinding)
+    {
+        binding = aBinding;
+
+        return *this;
+    }
+
+    DescriptorSetLayoutBinding& SetDescriptorType(DescriptorType aDescriptorType, uint32_t aDescriptorCount)
+    {
+        descriptorType  = aDescriptorType;
+        descriptorCount = aDescriptorCount;
+
+        return *this;
+    }
+
+    DescriptorSetLayoutBinding& SetShaderStageFlags(const ShaderStageFlags& aFlags)
+    {
+        stageFlags  = aFlags;
+
+        return *this;
+    }
+
+    DescriptorSetLayoutBinding& SetImmutableSamplers(const Sampler* apImmultableSamplers)
+    {
+        pImmutableSamplers = apImmultableSamplers;
+
+        return *this;
+    }
+};
+
+ConsistencyCheck(DescriptorSetLayoutBinding, binding, descriptorType, descriptorCount, stageFlags, pImmutableSamplers)
+
+
+
+enum class DescriptorSetLayoutCreateFlagBits
+{
+    ePushDescriptorKHR      = VK_DESCRIPTOR_SET_LAYOUT_CREATE_PUSH_DESCRIPTOR_BIT_KHR
+};
+
+using DescriptorSetLayoutCreateFlags = internal::Flags<DescriptorSetLayoutCreateFlagBits, VkDescriptorSetLayoutCreateFlags>;
+
+
+
+class DescriptorSetLayoutCreateInfo : public internal::VkTrait<DescriptorSetLayoutCreateInfo, VkDescriptorSetLayoutCreateInfo>
+{
+private:
+    const internal::Structure sType = internal::Structure::eDescriptorSetLayout;
+
+public:
+    const void*                         pNext{ nullptr };
+    DescriptorSetLayoutCreateFlags      flags;
+    uint32_t                            bindingCount{ 0 };
+    const DescriptorSetLayoutBinding*   pBindings{ nullptr };
+
+    DEFINE_CLASS_MEMBER(DescriptorSetLayoutCreateInfo)
+
+    DescriptorSetLayoutCreateInfo(uint32_t aBindingCount, const DescriptorSetLayoutBinding* apBindings, const DescriptorSetLayoutCreateFlags& aFlags = DefaultFlags)
+        : flags(aFlags), bindingCount(aBindingCount), pBindings(apBindings)
+    {}
+
+    DescriptorSetLayoutCreateInfo(const std::vector<DescriptorSetLayoutBinding>& aBindings, const DescriptorSetLayoutCreateFlags& aFlags = DefaultFlags)
+        : DescriptorSetLayoutCreateInfo(static_cast<uint32_t>(aBindings.size()), aBindings.data(), aFlags)
+    {}
+
+    template <std::size_t D>
+    DescriptorSetLayoutCreateInfo(const std::array<DescriptorSetLayoutBinding, D>& aBindings, const DescriptorSetLayoutCreateFlags& aFlags = DefaultFlags)
+        : DescriptorSetLayoutCreateInfo(static_cast<uint32_t>(aBindings.size()), aBindings.data(), aFlags)
+    {}
+
+    DescriptorSetLayoutCreateInfo& SetNext(const void* apNext)
+    {
+        pNext = apNext;
+
+        return *this;
+    }
+
+    DescriptorSetLayoutCreateInfo& SetFlags(const DescriptorSetLayoutCreateFlags& aFlags)
+    {
+        flags = aFlags;
+
+        return *this;
+    }
+
+    DescriptorSetLayoutCreateInfo& SetBindings(uint32_t aBindingCount, const DescriptorSetLayoutBinding* apBindings)
+    {
+        bindingCount    = aBindingCount;
+        pBindings       = apBindings;
+
+        return *this;
+    }
+
+    DescriptorSetLayoutCreateInfo& SetBindings(const std::vector<DescriptorSetLayoutBinding>& aBindings)
+    {
+        return SetBindings(static_cast<uint32_t>(aBindings.size()), aBindings.data());
+    }
+
+    template <std::size_t D>
+    DescriptorSetLayoutCreateInfo& SetBindings(const std::array<DescriptorSetLayoutBinding, D>& aBindings)
+    {
+        return SetBindings(static_cast<uint32_t>(aBindings.size()), aBindings.data());
+    }
+};
+
+ConsistencyCheck(DescriptorSetLayoutCreateInfo, pNext, flags, bindingCount, pBindings)
 
 
 
@@ -28,6 +172,252 @@ public:
 };
 
 StaticSizeCheck(DescriptorSetLayout)
+
+
+
+class DescriptorSet : public internal::VkTrait<DescriptorSet, VkDescriptorSet>
+{
+private:
+    VkDescriptorSet mDescriptorSet{ VK_NULL_HANDLE };
+
+public:
+    DescriptorSet(void) = default;
+
+    DescriptorSet(std::nullptr_t)
+    {}
+
+    explicit DescriptorSet(VkDescriptorSet aDescriptorSet) : mDescriptorSet(aDescriptorSet)
+    {}
+};
+
+StaticSizeCheck(DescriptorSet)
+
+
+
+struct DescriptorImageInfo : public internal::VkTrait<DescriptorImageInfo, VkDescriptorImageInfo>
+{
+    Sampler     sampler;
+    ImageView   imageView;
+    ImageLayout imageLayout;
+
+    DEFINE_CLASS_MEMBER(DescriptorImageInfo)
+
+    DescriptorImageInfo(const Sampler& aSampler, const ImageView& aImageView, const ImageLayout& aImageLayout)
+        : sampler(aSampler), imageView(aImageView), imageLayout(aImageLayout)
+    {}
+
+    DescriptorImageInfo& SetSampler(const Sampler& aSampler)
+    {
+        sampler = aSampler;
+
+        return *this;
+    }
+
+    DescriptorImageInfo& SetImageView(const ImageView& aImageView)
+    {
+        imageView = aImageView;
+
+        return *this;
+    }
+
+    DescriptorImageInfo& SetImageLayout(const ImageLayout& aImageLayout)
+    {
+        imageLayout = aImageLayout;
+
+        return *this;   
+    }
+};
+
+ConsistencyCheck(DescriptorImageInfo, sampler, imageView, imageLayout)
+
+
+
+struct DescriptorBufferInfo : public internal::VkTrait<DescriptorBufferInfo, VkDescriptorBufferInfo>
+{
+    Buffer      buffer;
+    DeviceSize  offset{ 0 };
+    DeviceSize  range{ 0 };
+
+    DEFINE_CLASS_MEMBER(DescriptorBufferInfo)
+
+    DescriptorBufferInfo(const Buffer& aBuffer, DeviceSize aOffset, DeviceSize aRange)
+        : buffer(aBuffer), offset(aOffset), range(aRange)
+    {}
+
+    DescriptorBufferInfo& SetBuffer(const Buffer& aBuffer)
+    {
+        buffer = aBuffer;
+
+        return *this;
+    }
+
+    DescriptorBufferInfo& SetExtent(DeviceSize aOffset, DeviceSize aRange)
+    {
+        offset  = aOffset;
+        range   = aRange;
+
+        return *this;
+    }
+};
+
+ConsistencyCheck(DescriptorBufferInfo, buffer, offset, range)
+
+
+
+class WriteDescriptorSetInfo : public internal::VkTrait<WriteDescriptorSetInfo, VkWriteDescriptorSet>
+{
+private:
+    const internal::Structure sType = internal::Structure::eWriteDescriptorSet;
+
+public:
+    const void*                 pNext{ nullptr };
+    DescriptorSet               dstSet;
+    uint32_t                    dstBinding{ 0 };
+    uint32_t                    dstArrayElement{ 0 };
+    uint32_t                    descriptorCount{ 0 };
+    DescriptorType              descriptorType;
+    const DescriptorImageInfo*  pImageInfo{ nullptr };
+    const DescriptorBufferInfo* pBufferInfo{ nullptr };
+    const BufferView*           pTexelBufferView{ nullptr };
+
+    DEFINE_CLASS_MEMBER(WriteDescriptorSetInfo)
+
+    WriteDescriptorSetInfo(const DescriptorSet& aDstSet, uint32_t aDstBinding, uint32_t aDstArrayElement, uint32_t aDescriptorCount, DescriptorType aDescriptorType,
+        const DescriptorImageInfo* apImageInfo = nullptr, const DescriptorBufferInfo* apBufferInfo = nullptr, const BufferView* apTexelBufferView = nullptr)
+        : dstSet(aDstSet), dstBinding(aDstBinding), dstArrayElement(aDstArrayElement), descriptorCount(aDescriptorCount), descriptorType(aDescriptorType),
+          pImageInfo(apImageInfo), pBufferInfo(apBufferInfo), pTexelBufferView(apTexelBufferView)
+    {}
+
+    WriteDescriptorSetInfo(const DescriptorSet& aDstSet, uint32_t aDstBinding, uint32_t aDstArrayElement, DescriptorType aDescriptorType,
+        const DescriptorImageInfo& aImageInfo)
+        : WriteDescriptorSetInfo(aDstSet, aDstBinding, aDstArrayElement, 1, aDescriptorType, aImageInfo.AddressOf())
+    {}
+
+    WriteDescriptorSetInfo(const DescriptorSet& aDstSet, uint32_t aDstBinding, uint32_t aDstArrayElement, DescriptorType aDescriptorType,
+        const DescriptorBufferInfo& aBufferInfo)
+        : WriteDescriptorSetInfo(aDstSet, aDstBinding, aDstArrayElement, 1, aDescriptorType, nullptr, aBufferInfo.AddressOf())
+    {}
+
+    WriteDescriptorSetInfo(const DescriptorSet& aDstSet, uint32_t aDstBinding, uint32_t aDstArrayElement, DescriptorType aDescriptorType,
+        const BufferView& aTexelBufferView)
+        : WriteDescriptorSetInfo(aDstSet, aDstBinding, aDstArrayElement, 1, aDescriptorType, nullptr, nullptr, aTexelBufferView.AddressOf())
+    {}
+
+    WriteDescriptorSetInfo& SetDstDescriptorSet(const DescriptorSet& aDstSet)
+    {
+        dstSet = aDstSet;
+
+        return *this;
+    }
+
+    WriteDescriptorSetInfo& SetBinding(uint32_t aBinding, uint32_t aDstArrayElement, uint32_t aDescriptorCount)
+    {
+        dstBinding      = aBinding;
+        dstArrayElement = aDstArrayElement;
+        descriptorCount = aDescriptorCount;
+
+        return *this;
+    }
+
+    WriteDescriptorSetInfo& SetDescriptorType(DescriptorType aDescriptorType)
+    {
+        descriptorType = aDescriptorType;
+
+        return *this;
+    }
+
+    // TODO: apImageInfo points to an array.
+    WriteDescriptorSetInfo& SetImageInfo(const DescriptorImageInfo* apImageInfo)
+    {
+        pImageInfo = apImageInfo;
+
+        return *this;
+    }
+
+    WriteDescriptorSetInfo& SetImageInfo(const DescriptorImageInfo& aImageInfo)
+    {
+        return SetImageInfo(aImageInfo.AddressOf());
+    }
+
+    WriteDescriptorSetInfo& SetBufferInfo(const DescriptorBufferInfo* apBufferInfo)
+    {
+        pBufferInfo = apBufferInfo;
+
+        return *this;
+    }
+
+    WriteDescriptorSetInfo& SetBufferInfo(const DescriptorBufferInfo& aBufferInfo)
+    {
+        return SetBufferInfo(aBufferInfo.AddressOf());
+    }
+
+    WriteDescriptorSetInfo& SetTexelBufferView(const BufferView* apTexelBufferView)
+    {
+        pTexelBufferView = apTexelBufferView;
+
+        return *this;
+    }
+
+    WriteDescriptorSetInfo& SetTexelBufferView(const BufferView& aTexelBufferView)
+    {
+        return SetTexelBufferView(aTexelBufferView.AddressOf());
+    }
+};
+
+ConsistencyCheck(WriteDescriptorSetInfo, pNext, dstSet, dstBinding, dstArrayElement, descriptorCount, descriptorType, pImageInfo, pBufferInfo, pTexelBufferView)
+
+
+
+class CopyDescriptorSetInfo : public internal::VkTrait<CopyDescriptorSetInfo, VkCopyDescriptorSet>
+{
+private:
+    const internal::Structure sType = internal::Structure::eCopyDescriptorSet;
+
+public:
+    const void*         pNext{ nullptr };
+    DescriptorSet       srcSet;
+    uint32_t            srcBinding{ 0 };
+    uint32_t            srcArrayElement{ 0 };
+    DescriptorSet       dstSet;
+    uint32_t            dstBinding{ 0 };
+    uint32_t            dstArrayElement{ 0 };
+    uint32_t            descriptorCount{ 0 };
+
+    DEFINE_CLASS_MEMBER(CopyDescriptorSetInfo)
+
+    CopyDescriptorSetInfo(const DescriptorSet& aSrcSet, uint32_t aSrcBinding, uint32_t aSrcArrayElement,
+        const DescriptorSet& aDstSet, uint32_t aDstBinding, uint32_t aDstArrayElement, uint32_t aDescriptorCount)
+        : srcSet(aSrcSet), srcBinding(aSrcBinding), srcArrayElement(aSrcArrayElement),
+          dstSet(aDstSet), dstBinding(aDstBinding), dstArrayElement(aDstArrayElement), descriptorCount(aDescriptorCount)
+    {}
+
+    CopyDescriptorSetInfo& SetSrcDescriptorSet(const DescriptorSet& aSrcSet, uint32_t aSrcBinding, uint32_t aSrcArrayElement)
+    {
+        srcSet          = aSrcSet;
+        srcBinding      = aSrcBinding;
+        srcArrayElement = aSrcArrayElement;
+
+        return *this;
+    }
+
+    CopyDescriptorSetInfo& SetDstDescriptorSet(const DescriptorSet& aDstSet, uint32_t aDstBinding, uint32_t aDstArrayElement)
+    {
+        dstSet          = aDstSet;
+        dstBinding      = aDstBinding;
+        dstArrayElement = aDstArrayElement;
+
+        return *this;
+    }
+
+    CopyDescriptorSetInfo& SetDescriptorCount(uint32_t aDescriptorCount)
+    {
+        descriptorCount = aDescriptorCount;
+
+        return *this;
+    }
+};
+
+ConsistencyCheck(CopyDescriptorSetInfo, pNext, srcSet, srcBinding, srcArrayElement, dstSet, dstBinding, dstArrayElement, descriptorCount)
 
 
 

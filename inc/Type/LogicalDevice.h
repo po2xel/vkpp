@@ -20,9 +20,11 @@
 #include <Type/CommandBuffer.h>
 #include <Type/Framebuffer.h>
 #include <Type/ShaderModule.h>
+#include <Type/DescriptorSet.h>
 #include <Type/GraphicsPipeline.h>
 #include <Type/Memory.h>
 #include <Type/Buffer.h>
+#include <Type/DescriptorPool.h>
 
 
 
@@ -102,7 +104,7 @@ public:
     template <std::size_t P>
     QueueCreateInfo& SetQueuePriorities(const std::array<float, P>& aQueuePriorities)
     {
-        return SetQueuePriorities(static_cast<uint32_t>(aQueuePriorities.size()), aQueuePriorities.data())
+        return SetQueuePriorities(static_cast<uint32_t>(aQueuePriorities.size()), aQueuePriorities.data());
     }
 };
 
@@ -450,9 +452,19 @@ public:
         return lCommandPool;
     }
 
-    void DestroyCommandPool(const CommandPool& aCmdPool) const
+    void DestroyCommandPool(const CommandPool& aCommandPool) const
     {
-        vkDestroyCommandPool(mDevice, aCmdPool, nullptr);
+        vkDestroyCommandPool(mDevice, aCommandPool, nullptr);
+    }
+
+    void DestroyCommandPool(const CommandPool& aCommandPool, const AllocationCallbacks& aAllocator) const
+    {
+        vkDestroyCommandPool(mDevice, aCommandPool, &aAllocator);
+    }
+
+    void ResetCommandPool(const CommandPool& aCommandPool, const CommandPoolResetFlags& aFlags) const
+    {
+        ThrowIfFailed(vkResetCommandPool(mDevice, aCommandPool, static_cast<VkCommandPoolResetFlags>(aFlags)));
     }
 
     CommandBuffer AllocateCommandBuffer(const CommandBufferAllocateInfo& aCommandBufferAllocateInfo) const
@@ -488,6 +500,101 @@ public:
     void FreeCommandBuffers(const CommandPool& aCommandPool, const std::vector<CommandBuffer>& aCommandBuffers) const
     {
         return FreeCommandBuffers(aCommandPool, static_cast<uint32_t>(aCommandBuffers.size()), aCommandBuffers.data());
+    }
+
+    DescriptorPool CreateDescriptorPool(const DescriptorPoolCreateInfo& aDescriptorPoolCreateInfo) const
+    {
+        DescriptorPool lDescriptorPool;
+        ThrowIfFailed(vkCreateDescriptorPool(mDevice, &aDescriptorPoolCreateInfo, nullptr, &lDescriptorPool));
+
+        return lDescriptorPool;
+    }
+
+    DescriptorPool CreateDescriptorPool(const DescriptorPoolCreateInfo& aDescriptorPoolCreateInfo, const AllocationCallbacks& aAllocator) const
+    {
+        DescriptorPool lDescriptorPool;
+        ThrowIfFailed(vkCreateDescriptorPool(mDevice, &aDescriptorPoolCreateInfo, &aAllocator, &lDescriptorPool));
+
+        return lDescriptorPool;
+    }
+
+    void DestroyDescriptorPool(const DescriptorPool& aDescriptorPool) const
+    {
+        vkDestroyDescriptorPool(mDevice, aDescriptorPool, nullptr);
+    }
+
+    void DestroyDescriptorPool(const DescriptorPool& aDescriptorPool, const AllocationCallbacks& aAllocator) const
+    {
+        vkDestroyDescriptorPool(mDevice, aDescriptorPool, &aAllocator);
+    }
+
+    void ResetDescriptorPool(const DescriptorPool& aDescriptorPool, const DescriptorPoolResetFlags& aFlags = DefaultFlags) const
+    {
+        ThrowIfFailed(vkResetDescriptorPool(mDevice, aDescriptorPool, aFlags));
+    }
+
+    DescriptorSet AllocateDescriptorSet(const DescriptorSetAllocateInfo& aDescriptorSetAllocateInfo) const
+    {
+        assert(aDescriptorSetAllocateInfo.descriptorSetCount == 1);
+
+        DescriptorSet lDescriptorSet;
+        ThrowIfFailed(vkAllocateDescriptorSets(mDevice, &aDescriptorSetAllocateInfo, &lDescriptorSet));
+
+        return lDescriptorSet;
+    }
+
+    std::vector<DescriptorSet> AllocateDescriptorSets(const DescriptorSetAllocateInfo& aDescriptorSetAllocateInfo) const
+    {
+        std::vector<DescriptorSet> lDescriptorSets(aDescriptorSetAllocateInfo.descriptorSetCount);
+        ThrowIfFailed(vkAllocateDescriptorSets(mDevice, &aDescriptorSetAllocateInfo, &lDescriptorSets[0]));
+
+        return lDescriptorSets;
+    }
+
+    void FreeDescriptorSet(const DescriptorPool& aDescriptorPool, const DescriptorSet& aDescriptorSet) const
+    {
+        assert(aDescriptorPool);
+
+        vkFreeDescriptorSets(mDevice, aDescriptorPool, 1, &aDescriptorSet);
+    }
+
+    void FreeDescriptorSets(const DescriptorPool& aDescriptorPool, uint32_t aDescriptorSetCount, const DescriptorSet* apDescriptorSets) const
+    {
+        assert(aDescriptorPool);
+        assert(aDescriptorSetCount != 0 && apDescriptorSets != nullptr);
+
+        vkFreeDescriptorSets(mDevice, aDescriptorPool, aDescriptorSetCount, &apDescriptorSets[0]);
+    }
+
+    void FreeDescriptorSets(const DescriptorPool& aDescriptorPool, const std::vector<DescriptorSet>& aDescriptorSets) const
+    {
+        FreeDescriptorSets(aDescriptorPool, static_cast<uint32_t>(aDescriptorSets.size()), aDescriptorSets.data());
+    }
+
+    void UpdateDescriptorSet(const WriteDescriptorSetInfo& aDescriptorWrite) const
+    {
+        UpdateDescriptorSets(1, aDescriptorWrite.AddressOf());
+    }
+
+    void UpdateDescriptorSet(const CopyDescriptorSetInfo& aDescriptorCopy) const
+    {
+        UpdateDescriptorSets(0, nullptr, 1, aDescriptorCopy.AddressOf());
+    }
+
+    void UpdateDescriptorSets(uint32_t aDescriptorWriteCount, const WriteDescriptorSetInfo* apDescriptorWrites, uint32_t aDescriptorCopyCount = 0, const CopyDescriptorSetInfo* apDescriptorCopies = nullptr) const
+    {
+        vkUpdateDescriptorSets(mDevice, aDescriptorWriteCount, &apDescriptorWrites[0], aDescriptorCopyCount, &apDescriptorCopies[0]);
+    }
+
+    void UpdateDescriptorSets(const std::vector<WriteDescriptorSetInfo>& aDescriptorWrites, const std::vector<CopyDescriptorSetInfo>& aDescriptorCopies) const
+    {
+        UpdateDescriptorSets(static_cast<uint32_t>(aDescriptorWrites.size()), aDescriptorWrites.data(), static_cast<uint32_t>(aDescriptorCopies.size()), aDescriptorCopies.data());
+    }
+
+    template <std::size_t W, std::size_t C>
+    void UpdateDescriptorSets(const std::array<WriteDescriptorSetInfo, W>& aDescriptorWrites, const std::array<CopyDescriptorSetInfo, C>& aDescriptorCopies)
+    {
+        UpdateDescriptorSets(static_cast<uint32_t>(aDescriptorWrites.size()), aDescriptorWrites.data(), static_cast<uint32_t>(aDescriptorCopies.size()), aDescriptorCopies.data());
     }
 
     RenderPass CreateRenderPass(const RenderPassCreateInfo& aRenderPassCreateInfo) const
@@ -670,6 +777,32 @@ public:
     void DestroyShaderModule(const ShaderModule& aShaderModule, const AllocationCallbacks& aAllocator) const
     {
         vkDestroyShaderModule(mDevice, aShaderModule, &aAllocator);
+    }
+
+    DescriptorSetLayout CreateDescriptorSetLayout(const DescriptorSetLayoutCreateInfo& aDescriptorSetLayoutCreateInfo) const
+    {
+        DescriptorSetLayout lDescriptorSetLayout;
+        ThrowIfFailed(vkCreateDescriptorSetLayout(mDevice, &aDescriptorSetLayoutCreateInfo, nullptr, &lDescriptorSetLayout));
+
+        return lDescriptorSetLayout;
+    }
+
+    DescriptorSetLayout CreateDescriptorSetLayout(const DescriptorSetLayoutCreateInfo& aDescriptorSetLayoutCreateInfo, const AllocationCallbacks& aAllocator) const
+    {
+        DescriptorSetLayout lDescriptorSetLayout;
+        ThrowIfFailed(vkCreateDescriptorSetLayout(mDevice, &aDescriptorSetLayoutCreateInfo, &aAllocator, &lDescriptorSetLayout));
+
+        return lDescriptorSetLayout;
+    }
+
+    void DestroyDescriptorSetLayout(const DescriptorSetLayout& aDescriptorSetLayout) const
+    {
+        vkDestroyDescriptorSetLayout(mDevice, aDescriptorSetLayout, nullptr);
+    }
+
+    void DestroyDescriptorSetLayout(const DescriptorSetLayout& aDescriptorSetLayout, const AllocationCallbacks& aAllocator) const
+    {
+        vkDestroyDescriptorSetLayout(mDevice, aDescriptorSetLayout, &aAllocator);
     }
 
     PipelineLayout CreatePipelineLayout(const PipelineLayoutCreateInfo& aPipelineLayoutCreateInfo) const

@@ -167,5 +167,11 @@
     <ClInclude Include="inc\Type\Framebuffer_C36FF42C-84C7-42CE-B62B-B358B901F293.h">
       <Filter>Header Files\Type</Filter>
     </ClInclude>
+    <ClInclude Include="inc\Type\Sampler.h">
+      <Filter>Header Files\Type</Filter>
+    </ClInclude>
+    <ClInclude Include="inc\Type\DescriptorPool.h">
+      <Filter>Header Files\Type</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

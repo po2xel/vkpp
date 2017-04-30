@@ -333,6 +333,34 @@ public:
         vkCmdBindPipeline(mCommandBuffer, VK_PIPELINE_BIND_POINT_COMPUTE, aPipeline);
     }
 
+    void BindGraphicsDescriptorSet(const PipelineLayout& aPipelineLayout, uint32_t aFirstSet, const DescriptorSet& aDescriptorSet,
+        uint32_t aDynamicOffsetCount = 0, const uint32_t* apDynamicOffsets = nullptr) const
+    {
+        vkCmdBindDescriptorSets(mCommandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, aPipelineLayout, aFirstSet, 1, &aDescriptorSet,
+            aDynamicOffsetCount, &apDynamicOffsets[0]);
+    }
+
+    void BindComputeDescriptorSet(const PipelineLayout& aPipelineLayout, uint32_t aFirstSet, const DescriptorSet& aDescriptorSet,
+        uint32_t aDynamicOffsetCount = 0, const uint32_t* apDynamicOffsets = nullptr) const
+    {
+        vkCmdBindDescriptorSets(mCommandBuffer, VK_PIPELINE_BIND_POINT_COMPUTE, aPipelineLayout, aFirstSet, 1, &aDescriptorSet,
+            aDynamicOffsetCount, &apDynamicOffsets[0]);
+    }
+
+    void BindGraphicsDescriptorSets(const PipelineLayout& aPipelineLayout, uint32_t aFirstSet, uint32_t aDescriptorSetCount, const DescriptorSet* apDescriptorSets,
+        uint32_t aDynamicOffsetCount = 0, const uint32_t* apDynamicOffsets = nullptr) const
+    {
+        vkCmdBindDescriptorSets(mCommandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, aPipelineLayout, aFirstSet, aDescriptorSetCount, &apDescriptorSets[0],
+            aDynamicOffsetCount, &apDynamicOffsets[0]);
+    }
+
+    void BindComputeDescriptorSets(const PipelineLayout& aPipelineLayout, uint32_t aFirstSet, uint32_t aDescriptorSetCount, const DescriptorSet* apDescriptorSets,
+        uint32_t aDynamicOffsetCount = 0, const uint32_t* apDynamicOffsets = nullptr) const
+    {
+        vkCmdBindDescriptorSets(mCommandBuffer, VK_PIPELINE_BIND_POINT_COMPUTE, aPipelineLayout, aFirstSet, aDescriptorSetCount, &apDescriptorSets[0],
+            aDynamicOffsetCount, &apDynamicOffsets[0]);
+    }
+
     void Draw(uint32_t aVertexCount, uint32_t aInstanceCount = 1, uint32_t aFirstVertex = 0, uint32_t aFirstInstance = 0) const
     {
         vkCmdDraw(mCommandBuffer, aVertexCount, aInstanceCount, aFirstVertex, aFirstInstance);
@@ -391,7 +419,7 @@ public:
     {
         static_assert(V > 0);
 
-        return SetViewports(aFirstViewport, static_cast<uint32_t>(V), aViewports.data());
+        return SetViewports(aFirstViewport, static_cast<uint32_t>(aViewports.size()), aViewports.data());
     }
 
     void SetScissor(const Rect2D& aScissor, uint32_t aFirstScissor = 0) const
@@ -416,7 +444,7 @@ public:
     {
         static_assert(S > 0);
 
-        return SetScissors(aFirstScissor, static_cast<uint32_t>(S), aScissors.data());
+        return SetScissors(aFirstScissor, static_cast<uint32_t>(aScissors.size()), aScissors.data());
     }
 
     void BindVertexBuffer(const Buffer& aBuffer, const DeviceSize& aOffset) const
@@ -443,7 +471,7 @@ public:
     {
         static_assert(B > 0);
 
-        BindVertexBuffers(aFirstBinding, static_cast<uint32_t>(B), aBuffers.data(), aOffsets.data());
+        BindVertexBuffers(aFirstBinding, static_cast<uint32_t>(aBuffers.size()), aBuffers.data(), aOffsets.data());
     }
 
     void BindIndexBuffer(const Buffer& aBuffer, DeviceSize aOffset, IndexType aIndexType) const
@@ -469,7 +497,7 @@ public:
     {
         static_assert(R > 0);
 
-        vkCmdCopyBuffer(mCommandBuffer, aSrcBuffer, aDstBuffer, static_cast<uint32_t>(R), &aRegions[0]);
+        vkCmdCopyBuffer(mCommandBuffer, aSrcBuffer, aDstBuffer, static_cast<uint32_t>(aRegions.size()), &aRegions[0]);
     }
 
     // Copy Data Between Images
@@ -490,7 +518,7 @@ public:
     {
         static_assert(R > 0);
 
-        vkCmdCopyImage(mCommandBuffer, aSrcImage, static_cast<VkImageLayout>(aSrcImageLayout), aDstImage, static_cast<VkImageLayout>(aDstImageLayout), static_cast<uint32_t>(R), &aRegions[0]);
+        vkCmdCopyImage(mCommandBuffer, aSrcImage, static_cast<VkImageLayout>(aSrcImageLayout), aDstImage, static_cast<VkImageLayout>(aDstImageLayout), static_cast<uint32_t>(aRegions.size()), &aRegions[0]);
     }
 
     // Copy Data From Buffers to Images
@@ -511,7 +539,7 @@ public:
     {
         static_assert(R > 0);
 
-        vkCmdCopyBufferToImage(mCommandBuffer, aSrcBuffer, aDstImage, static_cast<VkImageLayout>(aDstImageLayout), static_cast<uint32_t>(R), &aRegions[0]);
+        vkCmdCopyBufferToImage(mCommandBuffer, aSrcBuffer, aDstImage, static_cast<VkImageLayout>(aDstImageLayout), static_cast<uint32_t>(aRegions.size()), &aRegions[0]);
     }
 
     // Copy Data From Images to Buffers
@@ -532,7 +560,7 @@ public:
     {
         static_assert(R > 0);
 
-        vkCmdCopyImageToBuffer(mCommandBuffer, aSrcImage, static_cast<VkImageLayout>(aSrcImageLayout), aDstBuffer, static_cast<uint32_t>(R), &aRegions[0]);
+        vkCmdCopyImageToBuffer(mCommandBuffer, aSrcImage, static_cast<VkImageLayout>(aSrcImageLayout), aDstBuffer, static_cast<uint32_t>(aRegions.size()), &aRegions[0]);
     }
 
     // Image Copies with Scaling
@@ -553,7 +581,7 @@ public:
     {
         static_assert(R > 0);
 
-        vkCmdBlitImage(mCommandBuffer, aSrcImage, static_cast<VkImageLayout>(aSrcImageLayout), aDstImage, static_cast<VkImageLayout>(aDstImageLayout), static_cast<uint32_t>(R), &aRegions[0], static_cast<VkFilter>(aFilter));
+        vkCmdBlitImage(mCommandBuffer, aSrcImage, static_cast<VkImageLayout>(aSrcImageLayout), aDstImage, static_cast<VkImageLayout>(aDstImageLayout), static_cast<uint32_t>(aRegions.size()), &aRegions[0], static_cast<VkFilter>(aFilter));
     }
 };
 

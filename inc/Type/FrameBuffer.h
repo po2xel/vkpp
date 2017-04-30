@@ -23,7 +23,7 @@ using FrameBufferCreateFlags = internal::Flags<FrameBufferCreateFlagBits, VkFram
 class FramebufferCreateInfo : public internal::VkTrait<FramebufferCreateInfo, VkFramebufferCreateInfo>
 {
 private:
-    const internal::Structure sType = internal::Structure::eFrameBuffer;
+    const internal::Structure sType = internal::Structure::eFramebuffer;
 
 public:
     const void*             pNext{ nullptr };

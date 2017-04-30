@@ -21,6 +21,15 @@ using CommandPoolCreateFlags = internal::Flags<CommandPoolCreateFlagBits, VkComm
 
 
 
+enum class CommandPoolResetFlagBits
+{
+    eReleaseResources       = VK_COMMAND_POOL_RESET_RELEASE_RESOURCES_BIT
+};
+
+using CommandPoolResetFlags = internal::Flags<CommandPoolResetFlagBits, VkCommandPoolResetFlags>;
+
+
+
 class CommandPoolCreateInfo : public internal::VkTrait<CommandPoolCreateInfo, VkCommandPoolCreateInfo>
 {
 private:
