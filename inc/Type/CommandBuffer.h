@@ -333,9 +333,14 @@ public:
         vkCmdBindPipeline(mCommandBuffer, VK_PIPELINE_BIND_POINT_COMPUTE, aPipeline);
     }
 
-    void Draw(uint32_t aVertexCount, uint32_t aInstanceCount, uint32_t aFirstVertex = 0, uint32_t aFirstInstance = 0) const
+    void Draw(uint32_t aVertexCount, uint32_t aInstanceCount = 1, uint32_t aFirstVertex = 0, uint32_t aFirstInstance = 0) const
     {
         vkCmdDraw(mCommandBuffer, aVertexCount, aInstanceCount, aFirstVertex, aFirstInstance);
+    }
+
+    void DrawIndexed(uint32_t aIndexCount, uint32_t aInstanceCount = 1, uint32_t aFirstIndex = 0, uint32_t aVertexOffset = 0, uint32_t aFirstInstance = 0) const
+    {
+        vkCmdDrawIndexed(mCommandBuffer, aIndexCount, aInstanceCount, aFirstIndex, aVertexOffset, aFirstInstance);
     }
 
     void PipelineBarrier(const PipelineStageFlags& aSrcStageMask, const PipelineStageFlags& aDstStageMask, const DependencyFlags& aDependencyFlags,
@@ -439,6 +444,11 @@ public:
         static_assert(B > 0);
 
         BindVertexBuffers(aFirstBinding, static_cast<uint32_t>(B), aBuffers.data(), aOffsets.data());
+    }
+
+    void BindIndexBuffer(const Buffer& aBuffer, DeviceSize aOffset, IndexType aIndexType) const
+    {
+        vkCmdBindIndexBuffer(mCommandBuffer, aBuffer, aOffset, static_cast<VkIndexType>(aIndexType));
     }
 
     // Copy Data Between Buffers

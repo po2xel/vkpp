@@ -12,6 +12,14 @@ namespace vkpp
 
 
 
+enum class IndexType
+{
+    eUInt16     = VK_INDEX_TYPE_UINT16,
+    eUInt32     = VK_INDEX_TYPE_UINT32
+};
+
+
+
 enum class BufferCreateFlagBits
 {
     eSparseBinding      = VK_BUFFER_CREATE_SPARSE_BINDING_BIT,
