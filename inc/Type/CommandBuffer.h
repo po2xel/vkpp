@@ -313,6 +313,26 @@ public:
         ThrowIfFailed(vkEndCommandBuffer(mCommandBuffer));
     }
 
+    void Execute(const CommandBuffer& aCommandBuffer) const
+    {
+        vkCmdExecuteCommands(mCommandBuffer, 1, &aCommandBuffer);
+    }
+
+    void Execute(const std::vector<CommandBuffer>& aCommandBuffers) const
+    {
+        assert(!aCommandBuffers.empty());
+
+        vkCmdExecuteCommands(mCommandBuffer, static_cast<uint32_t>(aCommandBuffers.size()), &aCommandBuffers[0]);
+    }
+
+    template <std::size_t C>
+    void Execute(const std::array<CommandBuffer, C>& aCommandBuffers) const
+    {
+        static_assert(!aCommandBuffers.empty());
+
+        vkCmdExecuteCommands(mCommandBuffer, static_cast<uint32_t>(aCommandBuffers.size()), &aCommandBuffers[0]);
+    }
+
     void BeginRenderPass(const RenderPassBeginInfo& aRenderPassBeginInfo, SubpassContents aSubpassContents) const
     {
         vkCmdBeginRenderPass(mCommandBuffer, &aRenderPassBeginInfo, static_cast<VkSubpassContents>(aSubpassContents));
@@ -359,6 +379,13 @@ public:
     {
         vkCmdBindDescriptorSets(mCommandBuffer, VK_PIPELINE_BIND_POINT_COMPUTE, aPipelineLayout, aFirstSet, aDescriptorSetCount, &apDescriptorSets[0],
             aDynamicOffsetCount, &apDynamicOffsets[0]);
+    }
+
+    void PushConstants(const PipelineLayout& aPipelineLayout, const ShaderStageFlags& aShaderStageFlags, uint32_t aOffset, uint32_t aSize, const void* apValues) const
+    {
+        assert(aSize > 0 && apValues != nullptr);
+
+        vkCmdPushConstants(mCommandBuffer, aPipelineLayout, aShaderStageFlags, aOffset, aSize, apValues);
     }
 
     void Draw(uint32_t aVertexCount, uint32_t aInstanceCount = 1, uint32_t aFirstVertex = 0, uint32_t aFirstInstance = 0) const
@@ -417,7 +444,7 @@ public:
     template <std::size_t V>
     void SetViewports(uint32_t aFirstViewport, const std::array<Viewport, V>& aViewports) const
     {
-        static_assert(V > 0);
+        static_assert(!aViewports.empty());
 
         return SetViewports(aFirstViewport, static_cast<uint32_t>(aViewports.size()), aViewports.data());
     }
@@ -442,7 +469,7 @@ public:
     template <std::size_t S>
     void SetScissors(uint32_t aFirstScissor, const std::array<Rect2D, S>& aScissors) const
     {
-        static_assert(S > 0);
+        static_assert(!aScissors.empty());
 
         return SetScissors(aFirstScissor, static_cast<uint32_t>(aScissors.size()), aScissors.data());
     }
@@ -469,7 +496,7 @@ public:
     template <std::size_t B>
     void BindVertexBuffers(uint32_t aFirstBinding, const std::array<Buffer, B>& aBuffers, const std::array<DeviceSize, B>& aOffsets) const
     {
-        static_assert(B > 0);
+        static_assert(!aBuffers.empty());
 
         BindVertexBuffers(aFirstBinding, static_cast<uint32_t>(aBuffers.size()), aBuffers.data(), aOffsets.data());
     }
@@ -495,7 +522,7 @@ public:
     template <std::size_t R>
     void Copy(const Buffer& aSrcBuffer, const Buffer& aDstBuffer, const std::array<BufferCopy, R>& aRegions) const
     {
-        static_assert(R > 0);
+        static_assert(!aRegions.empty());
 
         vkCmdCopyBuffer(mCommandBuffer, aSrcBuffer, aDstBuffer, static_cast<uint32_t>(aRegions.size()), &aRegions[0]);
     }
@@ -516,7 +543,7 @@ public:
     template <std::size_t R>
     void Copy(const Image& aSrcImage, ImageLayout aSrcImageLayout, const Image& aDstImage, ImageLayout aDstImageLayout, const std::array<ImageCopy, R>& aRegions) const
     {
-        static_assert(R > 0);
+        static_assert(!aRegions.empty());
 
         vkCmdCopyImage(mCommandBuffer, aSrcImage, static_cast<VkImageLayout>(aSrcImageLayout), aDstImage, static_cast<VkImageLayout>(aDstImageLayout), static_cast<uint32_t>(aRegions.size()), &aRegions[0]);
     }
@@ -537,7 +564,7 @@ public:
     template <std::size_t R>
     void Copy(const Buffer& aSrcBuffer, const Image& aDstImage, ImageLayout aDstImageLayout, const std::array<BufferImageCopy, R>& aRegions) const
     {
-        static_assert(R > 0);
+        static_assert(!aRegions.empty());
 
         vkCmdCopyBufferToImage(mCommandBuffer, aSrcBuffer, aDstImage, static_cast<VkImageLayout>(aDstImageLayout), static_cast<uint32_t>(aRegions.size()), &aRegions[0]);
     }
@@ -558,7 +585,7 @@ public:
     template <std::size_t R>
     void Copy(const Image& aSrcImage, ImageLayout aSrcImageLayout, const Buffer& aDstBuffer, const std::array<BufferImageCopy, R>& aRegions) const
     {
-        static_assert(R > 0);
+        static_assert(!aRegions.empty());
 
         vkCmdCopyImageToBuffer(mCommandBuffer, aSrcImage, static_cast<VkImageLayout>(aSrcImageLayout), aDstBuffer, static_cast<uint32_t>(aRegions.size()), &aRegions[0]);
     }
@@ -579,7 +606,7 @@ public:
     template <std::size_t R>
     void Blit(const Image& aSrcImage, ImageLayout aSrcImageLayout, const Image& aDstImage, ImageLayout aDstImageLayout, const std::array<ImageBlit, R>& aRegions, Filter aFilter) const
     {
-        static_assert(R > 0);
+        static_assert(!aRegions.empty());
 
         vkCmdBlitImage(mCommandBuffer, aSrcImage, static_cast<VkImageLayout>(aSrcImageLayout), aDstImage, static_cast<VkImageLayout>(aDstImageLayout), static_cast<uint32_t>(aRegions.size()), &aRegions[0], static_cast<VkFilter>(aFilter));
     }

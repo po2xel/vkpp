@@ -17,15 +17,17 @@ struct DefaultFlags
 
 
 
-template <typename BitType, typename VkType = VkFlags>
+template <typename B, typename V = VkFlags>
 class Flags
 {
+public:
+    using BitType = B;
+    using VkType = V;
+
 private:
     VkType mMask{ 0 };
 
 public:
-    constexpr const static auto AllFlags{ 0 };
-
     constexpr Flags(void) = default;
 
     constexpr Flags(const DefaultFlags&)
@@ -116,6 +118,8 @@ public:
 
     Flags operator~(void) const
     {
+        constexpr const static auto AllFlags{ 0 };
+
         auto lResult{ *this };
         lResult.mMask ^= AllFlags;
 

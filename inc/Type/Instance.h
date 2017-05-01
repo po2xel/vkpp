@@ -3,13 +3,10 @@
 
 
 
-#include <vector>
-
 #include <Info/Common.h>
 #include <Info/Layers.h>
 #include <Info/Extensions.h>
 
-#include <Type/VkDeleter.h>
 #include <Type/AllocationCallbacks.h>
 #include <Type/PhysicalDevice.h>
 #include <Type/Surface.h>
