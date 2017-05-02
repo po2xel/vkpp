@@ -85,7 +85,7 @@ enum class SwapchainCreateFlagBits
     eBindSFR    = VK_SWAPCHAIN_CREATE_BIND_SFR_BIT_KHX
 };
 
-using SwapchainCreateFlags = internal::Flags<SwapchainCreateFlagBits, VkSwapchainCreateFlagsKHR>;
+VKPP_ENUM_BIT_MASK_FLAGS_KHR(SwapchainCreate)
 
 
 

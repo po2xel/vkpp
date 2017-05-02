@@ -38,7 +38,7 @@ enum class AccessFlagBits
     eCommandProcessWirteNVX         = VK_ACCESS_COMMAND_PROCESS_WRITE_BIT_NVX
 };
 
-using AccessFlags = internal::Flags<AccessFlagBits, VkAccessFlags>;
+VKPP_ENUM_BIT_MASK_FLAGS(Access)
 
 
 

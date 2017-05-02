@@ -70,7 +70,7 @@ StaticSizeCheck(DeviceMemory)
 enum class MemoryMapFlagBits
 {};
 
-using MemoryMapFlags = internal::Flags<MemoryMapFlagBits, VkMemoryMapFlags>;
+VKPP_ENUM_BIT_MASK_FLAGS(MemoryMap)
 
 
 

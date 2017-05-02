@@ -266,7 +266,7 @@ void UniformTriangle::CreateGraphicsPipeline(void)
     {
         VK_FALSE, vkpp::BlendFactor::eOne, vkpp::BlendFactor::eZero, vkpp::BlendOp::eAdd,
         vkpp::BlendFactor::eOne, vkpp::BlendFactor::eZero, vkpp::BlendOp::eAdd,
-        vkpp::ColorComponentFlags(vkpp::ColorComponentFlagBits::eR) | vkpp::ColorComponentFlagBits::eG | vkpp::ColorComponentFlagBits::eB | vkpp::ColorComponentFlagBits::eA
+        vkpp::ColorComponentFlagBits::eR | vkpp::ColorComponentFlagBits::eG | vkpp::ColorComponentFlagBits::eB | vkpp::ColorComponentFlagBits::eA
     };
 
     const vkpp::PipelineColorBlendStateCreateInfo lColorBlendStateCreateInfo
@@ -321,10 +321,10 @@ void UniformTriangle::CreateGraphicsPipeline(void)
 //{
 //    vkpp::BufferCreateInfo lVertexBufferCreateInfo
 //    {
-//        sizeof(gVertexData), vkpp::BufferUsageFlags(vkpp::BufferUsageFlagBits::eVertexBuffer) | vkpp::BufferUsageFlagBits::eTransferDst
+//        sizeof(gVertexData), vkpp::BufferUsageFlagBits::eVertexBuffer | vkpp::BufferUsageFlagBits::eTransferDst
 //    };
 //
-//    mVertexBufferMemory = AllocateBufferMemory(mVertexBuffer, vkpp::MemoryPropertyFlags(vkpp::MemoryPropertyFlagBits::eHostVisible) | vkpp::MemoryPropertyFlagBits::eHostCoherent);
+//    mVertexBufferMemory = AllocateBufferMemory(mVertexBuffer, vkpp::MemoryPropertyFlagBits::eHostVisible | vkpp::MemoryPropertyFlagBits::eHostCoherent);
 //    // mVertexBufferMemory = AllocateBufferMemory(mVertexBuffer, vkpp::MemoryPropertyFlagBits::eDeviceLocal);
 //
 //    auto lMappedMemory = mLogicalDevice.MapMemory(mVertexBufferMemory, 0, sizeof(gVertexData));
@@ -344,7 +344,7 @@ void UniformTriangle::CreateVertexBuffer(void)
 {
     vkpp::BufferCreateInfo lVertexBufferCreateInfo
     {
-        sizeof(gVertexData), vkpp::BufferUsageFlags(vkpp::BufferUsageFlagBits::eVertexBuffer) | vkpp::BufferUsageFlagBits::eTransferDst
+        sizeof(gVertexData), vkpp::BufferUsageFlagBits::eVertexBuffer | vkpp::BufferUsageFlagBits::eTransferDst
     };
 
     mVertexBuffer = mLogicalDevice.CreateBuffer(lVertexBufferCreateInfo);
@@ -358,7 +358,7 @@ void UniformTriangle::CreateVertexBuffer(void)
     };
 
     auto lStagingBuffer = mLogicalDevice.CreateBuffer(lStagingBufferCreateInfo);
-    auto lStagingBufferMemory = AllocateBufferMemory(lStagingBuffer, vkpp::MemoryPropertyFlags(vkpp::MemoryPropertyFlagBits::eHostVisible) | vkpp::MemoryPropertyFlagBits::eHostCoherent);
+    auto lStagingBufferMemory = AllocateBufferMemory(lStagingBuffer, vkpp::MemoryPropertyFlagBits::eHostVisible | vkpp::MemoryPropertyFlagBits::eHostCoherent);
     mLogicalDevice.BindBufferMemory(lStagingBuffer, lStagingBufferMemory);
 
     auto lMappedMemory = mLogicalDevice.MapMemory(lStagingBufferMemory, 0, sizeof(gVertexData));
@@ -380,7 +380,7 @@ void UniformTriangle::CreateIndexBuffer(void)
     };
 
     auto lStagingBuffer = mLogicalDevice.CreateBuffer(lStagingBufferCreateInfo);
-    auto lStagingBufferMemory = AllocateBufferMemory(lStagingBuffer, vkpp::MemoryPropertyFlags(vkpp::MemoryPropertyFlagBits::eHostVisible) | vkpp::MemoryPropertyFlagBits::eHostCoherent);
+    auto lStagingBufferMemory = AllocateBufferMemory(lStagingBuffer, vkpp::MemoryPropertyFlagBits::eHostVisible | vkpp::MemoryPropertyFlagBits::eHostCoherent);
     mLogicalDevice.BindBufferMemory(lStagingBuffer, lStagingBufferMemory);
 
     auto lMappedMemory = mLogicalDevice.MapMemory(lStagingBufferMemory, 0, sizeof(gIndices));
@@ -389,7 +389,7 @@ void UniformTriangle::CreateIndexBuffer(void)
 
     const vkpp::BufferCreateInfo lIndexBufferCreateInfo
     {
-        sizeof(gIndices), vkpp::BufferUsageFlags(vkpp::BufferUsageFlagBits::eIndexBuffer) | vkpp::BufferUsageFlagBits::eTransferDst
+        sizeof(gIndices), vkpp::BufferUsageFlagBits::eIndexBuffer | vkpp::BufferUsageFlagBits::eTransferDst
     };
 
     mIndexBuffer = mLogicalDevice.CreateBuffer(lIndexBufferCreateInfo);
@@ -413,12 +413,12 @@ void UniformTriangle::CreateUniformBuffer(void)
     };
 
     mUniformStagingBuffer = mLogicalDevice.CreateBuffer(lStagingBufferCreateInfo);
-    mUniformStagingBufferMemory = AllocateBufferMemory(mUniformStagingBuffer, vkpp::MemoryPropertyFlags(vkpp::MemoryPropertyFlagBits::eHostVisible) | vkpp::MemoryPropertyFlagBits::eHostCoherent);
+    mUniformStagingBufferMemory = AllocateBufferMemory(mUniformStagingBuffer, vkpp::MemoryPropertyFlagBits::eHostVisible | vkpp::MemoryPropertyFlagBits::eHostCoherent);
     mLogicalDevice.BindBufferMemory(mUniformStagingBuffer, mUniformStagingBufferMemory);
 
     const vkpp::BufferCreateInfo lUniformBufferCreateInfo
     {
-        lUniformBufferSize, vkpp::BufferUsageFlags(vkpp::BufferUsageFlagBits::eUniformBuffer) | vkpp::BufferUsageFlagBits::eTransferDst
+        lUniformBufferSize, vkpp::BufferUsageFlagBits::eUniformBuffer | vkpp::BufferUsageFlagBits::eTransferDst
     };
 
     mUniformBuffer = mLogicalDevice.CreateBuffer(lUniformBufferCreateInfo);

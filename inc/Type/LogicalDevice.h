@@ -33,10 +33,10 @@ namespace vkpp
 
 
 
-enum class QueueCreateFlagBits
+enum class DeviceQueueCreateFlagBits
 {};
 
-using QueueCreateFlags = internal::Flags<QueueCreateFlagBits, VkDeviceQueueCreateFlags>;
+VKPP_ENUM_BIT_MASK_FLAGS(DeviceQueueCreate)
 
 
 
@@ -46,24 +46,24 @@ private:
     const internal::Structure sType = internal::Structure::eQueue;
 
 public:
-    const void*         pNext{ nullptr };
-    QueueCreateFlags    flags;
-    uint32_t            queueFamilyIndex{ 0 };
-    uint32_t            queueCount{ 0 };
-    const float*        pQueuePriorities{ nullptr };
+    const void*                 pNext{ nullptr };
+    DeviceQueueCreateFlags      flags;
+    uint32_t                    queueFamilyIndex{ 0 };
+    uint32_t                    queueCount{ 0 };
+    const float*                pQueuePriorities{ nullptr };
 
     DEFINE_CLASS_MEMBER(QueueCreateInfo)
 
-    QueueCreateInfo(uint32_t aQueueFamilyIndex, uint32_t aQueueCount, const float* apQueuePriorities, const QueueCreateFlags& aFlags = DefaultFlags)
+    QueueCreateInfo(uint32_t aQueueFamilyIndex, uint32_t aQueueCount, const float* apQueuePriorities, const DeviceQueueCreateFlags& aFlags = DefaultFlags)
         :flags(aFlags), queueFamilyIndex(aQueueFamilyIndex), queueCount(aQueueCount), pQueuePriorities(apQueuePriorities)
     {}
 
-    QueueCreateInfo(uint32_t aQueueFamilyIndex, const std::vector<float>& aQueuePriorities, const QueueCreateFlags& aFlags = DefaultFlags)
+    QueueCreateInfo(uint32_t aQueueFamilyIndex, const std::vector<float>& aQueuePriorities, const DeviceQueueCreateFlags& aFlags = DefaultFlags)
         : QueueCreateInfo(aQueueFamilyIndex, static_cast<uint32_t>(aQueuePriorities.size()), aQueuePriorities.data(), aFlags)
     {}
 
     template <std::size_t P>
-    QueueCreateInfo(uint32_t aQueueFamilyIndex, const std::array<float, P>& aQueuePriorities, const QueueCreateFlags& aFlags = DefaultFlags)
+    QueueCreateInfo(uint32_t aQueueFamilyIndex, const std::array<float, P>& aQueuePriorities, const DeviceQueueCreateFlags& aFlags = DefaultFlags)
         : QueueCreateInfo(aQueueFamilyIndex, static_cast<uint32_t>(aQueuePriorities.size()), aQueuePriorities.data(), aFlags)
     {}
 
@@ -74,7 +74,7 @@ public:
         return *this;
     }
 
-    QueueCreateInfo& SetFlags(const QueueCreateFlags& aFlags)
+    QueueCreateInfo& SetFlags(const DeviceQueueCreateFlags& aFlags)
     {
         flags = aFlags;
 
@@ -115,7 +115,7 @@ ConsistencyCheck(QueueCreateInfo, pNext, flags, queueFamilyIndex, queueCount, pQ
 enum class DeviceCreateFlagBits
 {};
 
-using DeviceCreateFlags = internal::Flags<DeviceCreateFlagBits, VkDeviceCreateFlags>;
+VKPP_ENUM_BIT_MASK_FLAGS(DeviceCreate)
 
 
 
@@ -727,30 +727,30 @@ public:
         vkDestroyImageView(mDevice, aImageView, &aAllocator);
     }
 
-    Framebuffer CreateFramebuffer(const FramebufferCreateInfo& aFrameBufferCreateInfo) const
+    Framebuffer CreateFramebuffer(const FramebufferCreateInfo& aFramebufferCreateInfo) const
     {
-        Framebuffer lFrameBuffer;
-        ThrowIfFailed(vkCreateFramebuffer(mDevice, &aFrameBufferCreateInfo, nullptr, &lFrameBuffer));
+        Framebuffer lFramebuffer;
+        ThrowIfFailed(vkCreateFramebuffer(mDevice, &aFramebufferCreateInfo, nullptr, &lFramebuffer));
 
-        return lFrameBuffer;
+        return lFramebuffer;
     }
 
-    Framebuffer CreateFramebuffer(const FramebufferCreateInfo& aFrameBufferCreateInfo, const AllocationCallbacks& aAllocator) const
+    Framebuffer CreateFramebuffer(const FramebufferCreateInfo& aFramebufferCreateInfo, const AllocationCallbacks& aAllocator) const
     {
-        Framebuffer lFrameBuffer;
-        ThrowIfFailed(vkCreateFramebuffer(mDevice, &aFrameBufferCreateInfo, &aAllocator, &lFrameBuffer));
+        Framebuffer lFramebuffer;
+        ThrowIfFailed(vkCreateFramebuffer(mDevice, &aFramebufferCreateInfo, &aAllocator, &lFramebuffer));
 
-        return lFrameBuffer;
+        return lFramebuffer;
     }
 
-    void DestroyFramebuffer(const Framebuffer& aFrameBuffer) const
+    void DestroyFramebuffer(const Framebuffer& aFramebuffer) const
     {
-        vkDestroyFramebuffer(mDevice, aFrameBuffer, nullptr);
+        vkDestroyFramebuffer(mDevice, aFramebuffer, nullptr);
     }
 
-    void DestroyFramebuffer(const Framebuffer& aFrameBuffer, const AllocationCallbacks& aAllocator) const
+    void DestroyFramebuffer(const Framebuffer& aFramebuffer, const AllocationCallbacks& aAllocator) const
     {
-        vkDestroyFramebuffer(mDevice, aFrameBuffer, &aAllocator);
+        vkDestroyFramebuffer(mDevice, aFramebuffer, &aAllocator);
     }
 
     ShaderModule CreateShaderModule(const ShaderModuleCreateInfo& aShaderModuleCreateInfo) const

@@ -17,7 +17,7 @@ enum class SemaphoreCreateFlagBits
 {};
 
 
-using SemaphoreCreateFlags = internal::Flags<SemaphoreCreateFlagBits, VkSemaphoreCreateFlags>;
+VKPP_ENUM_BIT_MASK_FLAGS(SemaphoreCreate)
 
 
 

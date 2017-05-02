@@ -29,20 +29,20 @@ public:
 
     DEFINE_CLASS_MEMBER(RenderPassBeginInfo)
 
-    RenderPassBeginInfo(const RenderPass& aRenderPass, const Framebuffer& aFrameBuffer, const Rect2D& aRenderArea,
+    RenderPassBeginInfo(const RenderPass& aRenderPass, const Framebuffer& aFramebuffer, const Rect2D& aRenderArea,
         uint32_t aClearValueCount, const ClearValue* apClearValues)
-        : renderPass(aRenderPass), framebuffer(aFrameBuffer), renderArea(aRenderArea), clearValueCount(aClearValueCount), pClearValues(apClearValues)
+        : renderPass(aRenderPass), framebuffer(aFramebuffer), renderArea(aRenderArea), clearValueCount(aClearValueCount), pClearValues(apClearValues)
     {}
 
-    RenderPassBeginInfo(const RenderPass& aRenderPass, const Framebuffer& aFrameBuffer, const Rect2D& aRenderArea,
+    RenderPassBeginInfo(const RenderPass& aRenderPass, const Framebuffer& aFramebuffer, const Rect2D& aRenderArea,
         const std::vector<ClearValue>& aClearValues)
-        : RenderPassBeginInfo(aRenderPass, aFrameBuffer, aRenderArea, static_cast<uint32_t>(aClearValues.size()), aClearValues.data())
+        : RenderPassBeginInfo(aRenderPass, aFramebuffer, aRenderArea, static_cast<uint32_t>(aClearValues.size()), aClearValues.data())
     {}
 
     template <std::size_t C>
-    RenderPassBeginInfo(const RenderPass& aRenderPass, const Framebuffer& aFrameBuffer, const Rect2D& aRenderArea,
+    RenderPassBeginInfo(const RenderPass& aRenderPass, const Framebuffer& aFramebuffer, const Rect2D& aRenderArea,
         const std::array<ClearValue, C>& aClearValues)
-        : RenderPassBeginInfo(aRenderPass, aFrameBuffer, aRenderArea, static_cast<uint32_t>(aClearValues.size()), aClearValues.data())
+        : RenderPassBeginInfo(aRenderPass, aFramebuffer, aRenderArea, static_cast<uint32_t>(aClearValues.size()), aClearValues.data())
     {}
 
     RenderPassBeginInfo& SetNext(const void* apNext)
@@ -59,9 +59,9 @@ public:
         return *this;
     }
 
-    RenderPassBeginInfo& SetFrameBuffer(const Framebuffer& aFrameBuffer)
+    RenderPassBeginInfo& SetFramebuffer(const Framebuffer& aFramebuffer)
     {
-        framebuffer = aFrameBuffer;
+        framebuffer = aFramebuffer;
 
         return *this;
     }

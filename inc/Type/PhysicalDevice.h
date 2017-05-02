@@ -41,7 +41,7 @@ enum class MemoryPropertyFlagBits
     eLazilyAllocated    = VK_MEMORY_PROPERTY_LAZILY_ALLOCATED_BIT
 };
 
-using MemoryPropertyFlags = internal::Flags<MemoryPropertyFlagBits, VkMemoryPropertyFlags>;
+VKPP_ENUM_BIT_MASK_FLAGS(MemoryProperty)
 
 
 
@@ -51,7 +51,7 @@ enum class MemoryHeapFlagBits
     eMultiInstanceKHX   = VK_MEMORY_HEAP_MULTI_INSTANCE_BIT_KHX
 };
 
-using MemoryHeapFlags = internal::Flags<MemoryHeapFlagBits, VkMemoryHeapFlags>;
+VKPP_ENUM_BIT_MASK_FLAGS(MemoryHeap)
 
 
 
@@ -63,7 +63,7 @@ enum class QueueFlagBits
     eSparseBinding  = VK_QUEUE_SPARSE_BINDING_BIT
 };
 
-using QueueFlags = internal::Flags<QueueFlagBits, VkQueueFlags>;
+VKPP_ENUM_BIT_MASK_FLAGS(Queue)
 
 
 

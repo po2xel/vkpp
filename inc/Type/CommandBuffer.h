@@ -27,7 +27,7 @@ enum class CommandBufferUsageFlagBits
     eSimultaneousUse        = VK_COMMAND_BUFFER_USAGE_SIMULTANEOUS_USE_BIT
 };
 
-using CommandBufferUsageFlags = internal::Flags<CommandBufferUsageFlagBits, VkCommandBufferUsageFlags>;
+VKPP_ENUM_BIT_MASK_FLAGS(CommandBufferUsage)
 
 
 
@@ -36,7 +36,7 @@ enum class QueryControlFlagBits
     ePrecise        = VK_QUERY_CONTROL_PRECISE_BIT
 };
 
-using QueryControlFlags = internal::Flags<QueryControlFlagBits, VkQueryControlFlags>;
+VKPP_ENUM_BIT_MASK_FLAGS(QueryControl)
 
 
 
@@ -55,7 +55,7 @@ enum class QueryPipelineStatisticFlagBits
     eComputeShaderInvocations                   = VK_QUERY_PIPELINE_STATISTIC_COMPUTE_SHADER_INVOCATIONS_BIT
 };
 
-using QueryPipelineStatisticFlags = internal::Flags<QueryPipelineStatisticFlagBits, VkQueryPipelineStatisticFlags>;
+VKPP_ENUM_BIT_MASK_FLAGS(QueryPipelineStatistic)
 
 
 
@@ -96,9 +96,9 @@ public:
         return *this;
     }
 
-    CommandBufferInheritanceInfo& SetFramebuffer(const Framebuffer& aFrameBuffer)
+    CommandBufferInheritanceInfo& SetFramebuffer(const Framebuffer& aFramebuffer)
     {
-        framebuffer = aFrameBuffer;
+        framebuffer = aFramebuffer;
 
         return *this;
     }

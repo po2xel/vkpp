@@ -22,7 +22,7 @@ enum class DebugReportFlagBits
     eDebug              = VK_DEBUG_REPORT_DEBUG_BIT_EXT
 };
 
-using DebugReportFlags = internal::Flags<DebugReportFlagBits, VkDebugReportFlagsEXT>;
+VKPP_ENUM_BIT_MASK_FLAGS_EXT(DebugReport)
 
 
 

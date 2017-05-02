@@ -27,7 +27,7 @@ enum class BufferCreateFlagBits
     eSparseAliased      = VK_BUFFER_CREATE_SPARSE_ALIASED_BIT
 };
 
-using BufferCreateFlags = internal::Flags<BufferCreateFlagBits, VkBufferCreateFlags>;
+VKPP_ENUM_BIT_MASK_FLAGS(BufferCreate)
 
 
 
@@ -44,7 +44,7 @@ enum class BufferUsageFlagBits
     eIndirectBuffer     = VK_BUFFER_USAGE_INDIRECT_BUFFER_BIT
 };
 
-using BufferUsageFlags = internal::Flags<BufferUsageFlagBits, VkBufferUsageFlags>;
+VKPP_ENUM_BIT_MASK_FLAGS(BufferUsage)
 
 
 
@@ -200,7 +200,7 @@ StaticSizeCheck(Buffer)
 enum class BufferViewCreateFlagBits
 {};
 
-using BufferViewCreateFlags = internal::Flags<BufferViewCreateFlagBits, VkBufferViewCreateFlags>;
+VKPP_ENUM_BIT_MASK_FLAGS(BufferViewCreate)
 
 
 

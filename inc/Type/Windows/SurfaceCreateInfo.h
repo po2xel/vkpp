@@ -20,7 +20,7 @@ namespace vkpp::khr
 enum class SurfaceCreateFlagBits
 {};
 
-using SurfaceCreateFlags = internal::Flags<SurfaceCreateFlagBits, VkWin32SurfaceCreateFlagsKHR>;
+VKPP_ENUM_BIT_MASK_FLAGS_OS_KHR(SurfaceCreate)
 
 
 

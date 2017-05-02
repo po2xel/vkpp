@@ -26,7 +26,7 @@ enum class SurfaceTransformFlagBits
     eInherit                    = VK_SURFACE_TRANSFORM_INHERIT_BIT_KHR
 };
 
-using SurfaceTransformFlags = internal::Flags<SurfaceTransformFlagBits, VkSurfaceTransformFlagsKHR>;
+VKPP_ENUM_BIT_MASK_FLAGS_KHR(SurfaceTransform)
 
 
 
@@ -38,7 +38,7 @@ enum class CompositeAlphaFlagBits
     eInherit        = VK_COMPOSITE_ALPHA_INHERIT_BIT_KHR
 };
 
-using CompositeAlphaFlags = internal::Flags<CompositeAlphaFlagBits, VkCompositeAlphaFlagsKHR>;
+VKPP_ENUM_BIT_MASK_FLAGS_KHR(CompositeAlpha)
 
 
 

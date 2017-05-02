@@ -77,7 +77,7 @@ enum class DependencyFlagBits
     eDeviceGroupKHX = VK_DEPENDENCY_DEVICE_GROUP_BIT_KHX
 };
 
-using DependencyFlags = internal::Flags<DependencyFlagBits, VkDependencyFlags>;
+VKPP_ENUM_BIT_MASK_FLAGS(Dependency)
 
 
 
@@ -120,7 +120,7 @@ enum class ImageUsageFlagBits
     eInputAttachment        = VK_IMAGE_USAGE_INPUT_ATTACHMENT_BIT
 };
 
-using ImageUsageFlags = internal::Flags<ImageUsageFlagBits, VkImageUsageFlags>;
+VKPP_ENUM_BIT_MASK_FLAGS(ImageUsage)
 
 
 

@@ -43,7 +43,7 @@ enum class ImageCreateFlagBits
     e2DArrayCompatibleKHR           = VK_IMAGE_CREATE_2D_ARRAY_COMPATIBLE_BIT_KHR
 };
 
-using ImageCreateFlags = internal::Flags<ImageCreateFlagBits, VkImageCreateFlags>;
+VKPP_ENUM_BIT_MASK_FLAGS(ImageCreate)
 
 
 
@@ -226,7 +226,7 @@ StaticSizeCheck(Image)
 enum class ImageViewCreateFlagBits
 {};
 
-using ImageViewCreateFlags = internal::Flags<ImageViewCreateFlagBits, VkImageViewCreateFlags>;
+VKPP_ENUM_BIT_MASK_FLAGS(ImageViewCreate)
 
 
 
@@ -264,7 +264,7 @@ enum class ImageAspectFlagBits
     eMetaData   = VK_IMAGE_ASPECT_METADATA_BIT
 };
 
-using ImageAspectFlags = internal::Flags<ImageAspectFlagBits, VkImageAspectFlags>;
+VKPP_ENUM_BIT_MASK_FLAGS(ImageAspect)
 
 
 

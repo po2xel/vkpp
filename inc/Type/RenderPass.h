@@ -22,7 +22,7 @@ enum class AttachmentDescriptionFlagBits
     eMayAlias   = VK_ATTACHMENT_DESCRIPTION_MAY_ALIAS_BIT
 };
 
-using AttachmentDescriptionFlags = internal::Flags<AttachmentDescriptionFlagBits, VkAttachmentDescriptionFlags>;
+VKPP_ENUM_BIT_MASK_FLAGS(AttachmentDescription)
 
 
 
@@ -143,7 +143,7 @@ enum class SubpassDescriptionFlagBits
     ePerViewPositionXOnlyNVX    = VK_SUBPASS_DESCRIPTION_PER_VIEW_POSITION_X_ONLY_BIT_NVX
 };
 
-using SubpassDescriptionFlags = internal::Flags<SubpassDescriptionFlagBits, VkSubpassDescriptionFlags>;
+VKPP_ENUM_BIT_MASK_FLAGS(SubpassDescription)
 
 
 
@@ -283,7 +283,7 @@ ConsistencyCheck(SubpassDescription, flags, pipelineBindPoint, inputAttachmentCo
 enum RenderPassCreateFlagBits
 {};
 
-using RenderPassCreateFlags = internal::Flags<RenderPassCreateFlagBits, VkRenderPassCreateFlags>;
+VKPP_ENUM_BIT_MASK_FLAGS(RenderPassCreate)
 
 
 

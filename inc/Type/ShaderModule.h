@@ -25,14 +25,14 @@ enum class ShaderStageFlagBits
     eAll                    = VK_SHADER_STAGE_ALL
 };
 
-using ShaderStageFlags = internal::Flags<ShaderStageFlagBits, VkShaderStageFlags>;
+VKPP_ENUM_BIT_MASK_FLAGS(ShaderStage)
 
 
 
 enum class ShaderModuleCreateFlagBits
 {};
 
-using ShaderModuleCreateFlags = internal::Flags<ShaderModuleCreateFlagBits, VkShaderModuleCreateFlags>;
+VKPP_ENUM_BIT_MASK_FLAGS(ShaderModuleCreate)
 
 
 

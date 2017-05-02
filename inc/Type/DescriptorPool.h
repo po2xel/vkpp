@@ -17,7 +17,7 @@ namespace vkpp
 enum DescriptorPoolResetFlagBits
 {};
 
-using DescriptorPoolResetFlags = internal::Flags<DescriptorPoolResetFlagBits, VkDescriptorPoolResetFlags>;
+VKPP_ENUM_BIT_MASK_FLAGS(DescriptorPoolReset)
 
 
 
@@ -41,7 +41,7 @@ enum class DescriptorPoolCreateFlagBits
     eFreeDescriptorSet  = VK_DESCRIPTOR_POOL_CREATE_FREE_DESCRIPTOR_SET_BIT
 };
 
-using DescriptorPoolCreateFlags = internal::Flags<DescriptorPoolCreateFlagBits, VkDescriptorPoolCreateFlags>;
+VKPP_ENUM_BIT_MASK_FLAGS(DescriptorPoolCreate)
 
 
 

@@ -88,7 +88,7 @@ enum class DescriptorSetLayoutCreateFlagBits
     ePushDescriptorKHR      = VK_DESCRIPTOR_SET_LAYOUT_CREATE_PUSH_DESCRIPTOR_BIT_KHR
 };
 
-using DescriptorSetLayoutCreateFlags = internal::Flags<DescriptorSetLayoutCreateFlagBits, VkDescriptorSetLayoutCreateFlags>;
+VKPP_ENUM_BIT_MASK_FLAGS(DescriptorSetLayoutCreate)
 
 
 

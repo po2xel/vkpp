@@ -17,7 +17,7 @@ enum class CommandPoolCreateFlagBits
     eResetCommandBuffer = VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT
 };
 
-using CommandPoolCreateFlags = internal::Flags<CommandPoolCreateFlagBits, VkCommandPoolCreateFlags>;
+VKPP_ENUM_BIT_MASK_FLAGS(CommandPoolCreate)
 
 
 
@@ -26,7 +26,7 @@ enum class CommandPoolResetFlagBits
     eReleaseResources       = VK_COMMAND_POOL_RESET_RELEASE_RESOURCES_BIT
 };
 
-using CommandPoolResetFlags = internal::Flags<CommandPoolResetFlagBits, VkCommandPoolResetFlags>;
+VKPP_ENUM_BIT_MASK_FLAGS(CommandPoolReset)
 
 
 

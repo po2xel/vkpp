@@ -13,10 +13,10 @@ namespace vkpp
 
 
 
-enum class FrameBufferCreateFlagBits
+enum class FramebufferCreateFlagBits
 {};
 
-using FrameBufferCreateFlags = internal::Flags<FrameBufferCreateFlagBits, VkFramebufferCreateFlags>;
+VKPP_ENUM_BIT_MASK_FLAGS(FramebufferCreate)
 
 
 
@@ -27,7 +27,7 @@ private:
 
 public:
     const void*             pNext{ nullptr };
-    FrameBufferCreateFlags  flags;
+    FramebufferCreateFlags  flags;
     RenderPass              renderPass;
     uint32_t                attachmentCount{ 0 };
     const ImageView*        pAttachments{ nullptr };
@@ -38,23 +38,23 @@ public:
     DEFINE_CLASS_MEMBER(FramebufferCreateInfo)
 
     FramebufferCreateInfo(const RenderPass& aRenderPass, uint32_t aAttachmentCount, const ImageView* apAttachments,
-        uint32_t aWidth = 1 , uint32_t aHeight = 1, uint32_t aLayers = 1, const FrameBufferCreateFlags& aFlags = DefaultFlags)
+        uint32_t aWidth = 1 , uint32_t aHeight = 1, uint32_t aLayers = 1, const FramebufferCreateFlags& aFlags = DefaultFlags)
         : flags(aFlags), renderPass(aRenderPass), attachmentCount(aAttachmentCount), pAttachments(apAttachments),
           width(aWidth), height(aHeight), layers(aLayers)
     {}
 
     FramebufferCreateInfo(const RenderPass& aRenderPass, const std::vector<ImageView>& aAttachments,
-        uint32_t aWidth = 1, uint32_t aHeight = 1, uint32_t aLayers = 1, const FrameBufferCreateFlags& aFlags = DefaultFlags)
+        uint32_t aWidth = 1, uint32_t aHeight = 1, uint32_t aLayers = 1, const FramebufferCreateFlags& aFlags = DefaultFlags)
         : FramebufferCreateInfo(aRenderPass, static_cast<uint32_t>(aAttachments.size()), aAttachments.data(), aWidth, aHeight, aLayers, aFlags)
     {}
 
     template <std::size_t A>
     FramebufferCreateInfo(const RenderPass& aRenderPass, const std::array<ImageView, A>& aAttachments,
-        uint32_t aWidth = 1, uint32_t aHeight = 1, uint32_t aLayers = 1, const FrameBufferCreateFlags& aFlags = DefaultFlags)
+        uint32_t aWidth = 1, uint32_t aHeight = 1, uint32_t aLayers = 1, const FramebufferCreateFlags& aFlags = DefaultFlags)
         : FramebufferCreateInfo(aRenderPass, static_cast<uint32_t>(aAttachments.size()), aAttachments.data(), aWidth, aHeight, aLayers, aFlags)
     {}
 
-    FramebufferCreateInfo& SetFlags(const FrameBufferCreateFlags& aFlags)
+    FramebufferCreateInfo& SetFlags(const FramebufferCreateFlags& aFlags)
     {
         flags = aFlags;
 
@@ -104,7 +104,7 @@ StaticSizeCheck(FramebufferCreateInfo);
 class Framebuffer : public internal::VkTrait<Framebuffer, VkFramebuffer>
 {
 private:
-    VkFramebuffer mFrameBuffer{ VK_NULL_HANDLE };
+    VkFramebuffer mFramebuffer{ VK_NULL_HANDLE };
 
 public:
     Framebuffer(void) = default;
@@ -112,12 +112,12 @@ public:
     Framebuffer(std::nullptr_t)
     {}
 
-    explicit Framebuffer(VkFramebuffer aFrameBuffer) : mFrameBuffer(aFrameBuffer)
+    explicit Framebuffer(VkFramebuffer aFramebuffer) : mFramebuffer(aFramebuffer)
     {}
 
     operator bool() const
     {
-        return mFrameBuffer != VK_NULL_HANDLE;
+        return mFramebuffer != VK_NULL_HANDLE;
     }
 };
 

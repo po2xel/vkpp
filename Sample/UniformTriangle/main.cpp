@@ -1,6 +1,7 @@
 #include <iostream>
 
 #include "UniformTriangle/UniformTriangle.h"
+#include <Info/SurfaceCapabilities.h>
 
 
 

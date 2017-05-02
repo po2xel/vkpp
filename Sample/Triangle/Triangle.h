@@ -31,7 +31,7 @@ struct VertexData
 
 struct RenderingResourceData
 {
-    vkpp::Framebuffer   mFrameBuffer;
+    vkpp::Framebuffer   mFramebuffer;
     vkpp::CommandBuffer mCommandBuffer;
     vkpp::Semaphore     mImageAvailableSemaphore;
     vkpp::Semaphore     mFinishedRenderingSemaphore;
@@ -102,8 +102,8 @@ private:
     void CreateCommandBuffers(void);
     void RecordCommandBuffers(void);
     void CreateRenderPass(void);
-    void CreateFrameBuffers(void);
-    vkpp::Framebuffer CreateFrameBuffer(const vkpp::ImageView& aImageView) const;
+    void CreateFramebuffers(void);
+    vkpp::Framebuffer CreateFramebuffer(const vkpp::ImageView& aImageView) const;
     void CreateVertexBuffer(void);
     void CreateRenderingResources(void);
     vkpp::DeviceMemory AllocateBufferMemory(const vkpp::Buffer& aBuffer) const;
@@ -117,7 +117,7 @@ private:
     void MainLoop(void);
 
     void DrawFrame(void);
-    void PrepareFrame(vkpp::Framebuffer& aFrameBuffer, const vkpp::CommandBuffer& aCommandBuffer, const vkpp::ImageView& aImgeView) const;
+    void PrepareFrame(vkpp::Framebuffer& aFramebuffer, const vkpp::CommandBuffer& aCommandBuffer, const vkpp::ImageView& aImgeView) const;
 
 public:
     ~Triangle(void)
@@ -126,7 +126,7 @@ public:
 
         for(auto& lRenderingResource : mRenderingResources)
         {
-            mLogicalDevice.DestroyFramebuffer(lRenderingResource.mFrameBuffer);
+            mLogicalDevice.DestroyFramebuffer(lRenderingResource.mFramebuffer);
             mLogicalDevice.FreeCommandBuffer(mPresentQueueCmdPool, lRenderingResource.mCommandBuffer);
             mLogicalDevice.DestroySemaphore(lRenderingResource.mImageAvailableSemaphore);
             mLogicalDevice.DestroySemaphore(lRenderingResource.mFinishedRenderingSemaphore);
@@ -136,8 +136,8 @@ public:
         mLogicalDevice.DestroyPipeline(mGraphicsPipeline);
         mLogicalDevice.DestroyRenderPass(mRenderPass);
 
-        for (const auto& lFrameBuffer : mFramebuffers)
-            mLogicalDevice.DestroyFramebuffer(lFrameBuffer);
+        for (const auto& lFramebuffer : mFramebuffers)
+            mLogicalDevice.DestroyFramebuffer(lFramebuffer);
 
         for (const auto& lImageView : mSwapchainImageViews)
             mLogicalDevice.DestroyImageView(lImageView);

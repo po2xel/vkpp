@@ -41,14 +41,14 @@ enum class PipelineStageFlagBits
     eCommandProcessNVX              = VK_PIPELINE_STAGE_COMMAND_PROCESS_BIT_NVX
 };
 
-using PipelineStageFlags = internal::Flags<PipelineStageFlagBits, VkPipelineStageFlags>;
+VKPP_ENUM_BIT_MASK_FLAGS(PipelineStage)
 
 
 
 enum class PipelineShaderStageCreateFlagBits
 {};
 
-using PipelineShaderStageCreateFlags = internal::Flags<PipelineShaderStageCreateFlagBits, VkPipelineShaderStageCreateFlags>;
+VKPP_ENUM_BIT_MASK_FLAGS(PipelineShaderStageCreate)
 
 
 
@@ -110,7 +110,7 @@ public:
 enum class PipelineVertexInputStateCreateFlagBits
 {};
 
-using PipelineVertexInputStateCreateFlags = internal::Flags<PipelineVertexInputStateCreateFlagBits, VkPipelineVertexInputStateCreateFlags>;
+VKPP_ENUM_BIT_MASK_FLAGS(PipelineVertexInputStateCreate)
 
 
 
@@ -300,7 +300,7 @@ ConsistencyCheck(PipelineVertexInputStateCreateInfo, pNext, flags, vertexBinding
 enum class PipelineInputAssemblyStateCreateFlagBits
 {};
 
-using PipelineInputAssemblyStateCreateFlags = internal::Flags<PipelineInputAssemblyStateCreateFlagBits, VkPipelineInputAssemblyStateCreateFlags>;
+VKPP_ENUM_BIT_MASK_FLAGS(PipelineInputAssemblyStateCreate)
 
 
 
@@ -361,7 +361,7 @@ ConsistencyCheck(PipelineInputAssemblyStateCreateInfo, pNext, flags, topology, p
 enum class PipelineTessellationStateCreateFlagBits
 {};
 
-using PipelineTessellationStateCreateFlags = internal::Flags<PipelineTessellationStateCreateFlagBits, VkPipelineTessellationStateCreateFlags>;
+VKPP_ENUM_BIT_MASK_FLAGS(PipelineTessellationStateCreate)
 
 
 
@@ -410,7 +410,7 @@ ConsistencyCheck(PipelineTessellationStateCreateInfo, pNext, flags, patchControl
 enum class PipelineViewportStateCreateFlagBits
 {};
 
-using PipelineViewportStateCreateFlags = internal::Flags<PipelineViewportStateCreateFlagBits, VkPipelineViewportStateCreateFlags>;
+VKPP_ENUM_BIT_MASK_FLAGS(PipelineViewportStateCreate)
 
 
 
@@ -503,7 +503,7 @@ ConsistencyCheck(PipelineViewportStateCreateInfo, pNext, flags, viewportCount, p
 enum class PipelineRasterizationStateCreateFlagBits
 {};
 
-using PipelineRasterizationStateCreateFlags = internal::Flags<PipelineRasterizationStateCreateFlagBits, VkPipelineRasterizationStateCreateFlags>;
+VKPP_ENUM_BIT_MASK_FLAGS(PipelineRasterizationStateCreate)
 
 
 
@@ -524,7 +524,7 @@ enum class CullModeFlagBits
     eFrontAndBack   = VK_CULL_MODE_FRONT_AND_BACK
 };
 
-using CullModeFlags = internal::Flags<CullModeFlagBits, VkCullModeFlags>;
+VKPP_ENUM_BIT_MASK_FLAGS(CullMode)
 
 
 
@@ -588,7 +588,7 @@ ConsistencyCheck(PipelineRasterizationStateCreateInfo, pNext, flags, depthClampE
 enum class PipelineMultisampleStateCreateFlagBits
 {};
 
-using PipelineMultisampleStateCreateFlags = internal::Flags<PipelineMultisampleStateCreateFlagBits, VkPipelineMultisampleStateCreateFlags>;
+VKPP_ENUM_BIT_MASK_FLAGS(PipelineMultisampleStateCreate)
 
 
 
@@ -643,7 +643,7 @@ ConsistencyCheck(PipelineMultisampleStateCreateInfo, pNext, flags, rasterization
 enum class PipelineDepthStencilStateCreateFlagBits
 {};
 
-using PipelineDepthStencilStateCreateFlags = internal::Flags<PipelineDepthStencilStateCreateFlagBits, VkPipelineDepthStencilStateCreateFlags>;
+VKPP_ENUM_BIT_MASK_FLAGS(PipelineDepthStencilStateCreate)
 
 
 
@@ -752,7 +752,7 @@ enum class ColorComponentFlagBits
     eA      = VK_COLOR_COMPONENT_A_BIT,
 };
 
-using ColorComponentFlags = internal::Flags<ColorComponentFlagBits, VkColorComponentFlags>;
+VKPP_ENUM_BIT_MASK_FLAGS(ColorComponent)
 
 
 
@@ -784,7 +784,7 @@ ConsistencyCheck(PipelineColorBlendAttachmentState, blendEnable, srcColorBlendFa
 enum class PipelineColorBlendStateCreateFlagBits
 {};
 
-using PipelineColorBlendStateCreateFlags = internal::Flags<PipelineColorBlendStateCreateFlagBits, VkPipelineColorBlendStateCreateFlags>;
+VKPP_ENUM_BIT_MASK_FLAGS(PipelineColorBlendStateCreate)
 
 
 
@@ -842,7 +842,7 @@ ConsistencyCheck(PipelineColorBlendStateCreateInfo, pNext, flags, logicOpEnable,
 enum class PipelineDynamicStateCreateFlagBits
 {};
 
-using PipelineDynamicStateCreateFlags = internal::Flags<PipelineDynamicStateCreateFlagBits, VkPipelineDynamicStateCreateFlags>;
+VKPP_ENUM_BIT_MASK_FLAGS(PipelineDynamicStateCreate)
 
 
 
@@ -930,7 +930,7 @@ ConsistencyCheck(PipelineDynamicStateCreateInfo, pNext, flags, dynamicStateCount
 enum class PipelineLayoutCreateFlagBits
 {};
 
-using PipelineLayoutCreateFlags = internal::Flags<PipelineLayoutCreateFlagBits, VkPipelineLayoutCreateFlags>;
+VKPP_ENUM_BIT_MASK_FLAGS(PipelineLayoutCreate)
 
 
 
@@ -1081,7 +1081,7 @@ enum class PipelineCreateFlagBits
     eDispatchBaseKHX                = VK_PIPELINE_CREATE_DISPATCH_BASE_KHX
 };
 
-using PipelineCreateFlags = internal::Flags<PipelineCreateFlagBits, VkPipelineCreateFlags>;
+VKPP_ENUM_BIT_MASK_FLAGS(PipelineCreate)
 
 
 

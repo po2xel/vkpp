@@ -518,7 +518,7 @@ void Triangle::CreateRenderPass(void)
 }
 
 
-void Triangle::CreateFrameBuffers(void)
+void Triangle::CreateFramebuffers(void)
 {
     for (const auto& lImageView : mSwapchainImageViews)
     {
@@ -534,16 +534,16 @@ void Triangle::CreateFrameBuffers(void)
 }
 
 
-vkpp::Framebuffer Triangle::CreateFrameBuffer(const vkpp::ImageView& aImageView) const
+vkpp::Framebuffer Triangle::CreateFramebuffer(const vkpp::ImageView& aImageView) const
 {
-    vkpp::FramebufferCreateInfo lFrameBufferCreateInfo
+    vkpp::FramebufferCreateInfo lFramebufferCreateInfo
     {
         mRenderPass,
         1, aImageView.AddressOf(),
         1024, 768
     };
 
-    return mLogicalDevice.CreateFramebuffer(lFrameBufferCreateInfo);
+    return mLogicalDevice.CreateFramebuffer(lFramebufferCreateInfo);
 }
 
 
@@ -798,7 +798,7 @@ void Triangle::InitVulkan(void)
     CreateSwapchainImageViews();
 
     CreateRenderPass();
-    // CreateFrameBuffers();
+    // CreateFramebuffers();
 
     CreatePipeline();
 
@@ -839,7 +839,7 @@ void Triangle::DrawFrame(void)
     mLogicalDevice.ResetFence(lCurrentRenderingResource.mFence);
 
     auto lImageIndex = mLogicalDevice.AcquireNextImage(mSwapchain, UINT64_MAX, lCurrentRenderingResource.mImageAvailableSemaphore, nullptr);
-    PrepareFrame(lCurrentRenderingResource.mFrameBuffer, lCurrentRenderingResource.mCommandBuffer, mSwapchainImageViews[lImageIndex]);
+    PrepareFrame(lCurrentRenderingResource.mFramebuffer, lCurrentRenderingResource.mCommandBuffer, mSwapchainImageViews[lImageIndex]);
 
     vkpp::PipelineStageFlags lWaitDstStageMask{ vkpp::PipelineStageFlagBits::eColorAttachmentOutput };
 
@@ -863,12 +863,12 @@ void Triangle::DrawFrame(void)
 
 
 
-void Triangle::PrepareFrame(vkpp::Framebuffer& aFrameBuffer, const vkpp::CommandBuffer& aCommandBuffer, const vkpp::ImageView& aImageView) const
+void Triangle::PrepareFrame(vkpp::Framebuffer& aFramebuffer, const vkpp::CommandBuffer& aCommandBuffer, const vkpp::ImageView& aImageView) const
 {
-    if (aFrameBuffer)
-        mLogicalDevice.DestroyFramebuffer(aFrameBuffer);
+    if (aFramebuffer)
+        mLogicalDevice.DestroyFramebuffer(aFramebuffer);
 
-    aFrameBuffer = CreateFrameBuffer(aImageView);
+    aFramebuffer = CreateFramebuffer(aImageView);
 
     vkpp::CommandBufferBeginInfo lCmdBufferBeginInfo{ vkpp::CommandBufferUsageFlagBits::eOneTimeSubmit };
     aCommandBuffer.Begin(lCmdBufferBeginInfo);
@@ -887,7 +887,7 @@ void Triangle::PrepareFrame(vkpp::Framebuffer& aFrameBuffer, const vkpp::Command
     vkpp::RenderPassBeginInfo lRenderPassBeginInfo
     {
         mRenderPass,
-        aFrameBuffer,
+        aFramebuffer,
         {
             {0, 0},
             {1024, 768}

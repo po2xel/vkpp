@@ -18,7 +18,7 @@ enum class FenceCreateFlagBits
     eSignaled       = VK_FENCE_CREATE_SIGNALED_BIT
 };
 
-using FenceCreateFlags = internal::Flags<FenceCreateFlagBits, VkFenceCreateFlags>;
+VKPP_ENUM_BIT_MASK_FLAGS(FenceCreate)
 
 
 
