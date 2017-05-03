@@ -727,6 +727,14 @@ public:
         vkDestroyImageView(mDevice, aImageView, &aAllocator);
     }
 
+    SubresourceLayout GetImageSubresourceLayout(const Image& aImage, const ImageSubresource& aSubresource) const
+    {
+        SubresourceLayout lSubresourceLayout;
+        vkGetImageSubresourceLayout(mDevice, aImage, &aSubresource, &lSubresourceLayout);
+
+        return lSubresourceLayout;
+    }
+
     Framebuffer CreateFramebuffer(const FramebufferCreateInfo& aFramebufferCreateInfo) const
     {
         Framebuffer lFramebuffer;

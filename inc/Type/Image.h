@@ -297,6 +297,80 @@ ConsistencyCheck(ComponentMapping, r, g, b, a)
 
 
 
+struct ImageSubresource : public internal::VkTrait<ImageSubresource, VkImageSubresource>
+{
+    ImageAspectFlags    aspectMask;
+    uint32_t            mipLevel{ 0 };
+    uint32_t            arrayLayer{ 0 };
+
+    DEFINE_CLASS_MEMBER(ImageSubresource)
+
+    ImageSubresource(const ImageAspectFlags& aAspectMask, uint32_t aMipLevel, uint32_t aArrayLayer)
+        : aspectMask(aAspectMask), mipLevel(aMipLevel), arrayLayer(aArrayLayer)
+    {}
+
+    ImageSubresource& SetAspectMask(const ImageAspectFlags& aAspectMask)
+    {
+        aspectMask = aAspectMask;
+
+        return *this;
+    }
+
+    ImageSubresource& SetSubrange(uint32_t aMipLevel, uint32_t aArrayLayer)
+    {
+        mipLevel        = aMipLevel;
+        arrayLayer      = aArrayLayer;
+
+        return *this;
+    }
+};
+
+ConsistencyCheck(ImageSubresource, aspectMask, mipLevel, arrayLayer)
+
+
+
+struct SubresourceLayout : public internal::VkTrait<SubresourceLayout, VkSubresourceLayout>
+{
+    DeviceSize      offset{ 0 };
+    DeviceSize      size{ 0 };
+    DeviceSize      rowPitch{ 0 };
+    DeviceSize      arrayPitch{ 0 };
+    DeviceSize      depthPitch{ 0 };
+
+    DEFINE_CLASS_MEMBER(SubresourceLayout)
+
+    SubresourceLayout(DeviceSize aOffset, DeviceSize aSize, DeviceSize aRowPitch, DeviceSize aArrayPitch, DeviceSize aDepthPitch)
+        : offset(aOffset), size(aSize), rowPitch(aRowPitch), arrayPitch(aArrayPitch), depthPitch(aDepthPitch)
+    {}
+
+    SubresourceLayout& SetOffset(DeviceSize aOffset)
+    {
+        offset = aOffset;
+
+        return *this;
+    }
+
+    SubresourceLayout& SetSize(DeviceSize aSize)
+    {
+        size = aSize;
+
+        return *this;
+    }
+
+    SubresourceLayout& SetPitch(DeviceSize aRowPitch, DeviceSize aArrayPitch, DeviceSize aDepthPitch)
+    {
+        rowPitch        = aRowPitch;
+        arrayPitch      = aArrayPitch;
+        depthPitch      = aDepthPitch;
+
+        return *this;
+    }
+};
+
+ConsistencyCheck(SubresourceLayout, offset, size, rowPitch, arrayPitch, depthPitch)
+
+
+
 struct ImageSubresourceLayers : public internal::VkTrait<ImageSubresourceLayers, VkImageSubresourceLayers>
 {
     ImageAspectFlags    aspectMask;
