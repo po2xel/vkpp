@@ -16,6 +16,7 @@
 #include <Type/Fence.h>
 #include <Type/Swapchain.h>
 #include <Type/Image.h>
+#include <Type/Sampler.h>
 #include <Type/CommandPool.h>
 #include <Type/CommandBuffer.h>
 #include <Type/Framebuffer.h>
@@ -733,6 +734,32 @@ public:
         vkGetImageSubresourceLayout(mDevice, aImage, &aSubresource, &lSubresourceLayout);
 
         return lSubresourceLayout;
+    }
+
+    Sampler CreateSampler(const SamplerCreateInfo& aSamplerCreateInfo) const
+    {
+        Sampler lSampler;
+        ThrowIfFailed(vkCreateSampler(mDevice, &aSamplerCreateInfo, nullptr, &lSampler));
+
+        return lSampler;
+    }
+
+    Sampler CreateSampler(const SamplerCreateInfo& aSamplerCreateInfo, const AllocationCallbacks& aAllocator) const
+    {
+        Sampler lSampler;
+        ThrowIfFailed(vkCreateSampler(mDevice, &aSamplerCreateInfo, &aAllocator, &lSampler));
+
+        return lSampler;
+    }
+
+    void DestroySampler(const Sampler& aSampler) const
+    {
+        vkDestroySampler(mDevice, aSampler, nullptr);
+    }
+
+    void DestroySampler(const Sampler& aSampler, const AllocationCallbacks& aAllocator) const
+    {
+        vkDestroySampler(mDevice, aSampler, &aAllocator);
     }
 
     Framebuffer CreateFramebuffer(const FramebufferCreateInfo& aFramebufferCreateInfo) const

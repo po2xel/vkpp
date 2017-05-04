@@ -72,16 +72,14 @@ void ClearFrame::RecordCommandBuffers(void)
         {
             vkpp::AccessFlagBits::eMemoryRead, vkpp::AccessFlagBits::eTransferWrite,
             vkpp::ImageLayout::eUndefined, vkpp::ImageLayout::eTransferDstOptimal,
-            VK_QUEUE_FAMILY_IGNORED, VK_QUEUE_FAMILY_IGNORED,
             mSwapchain.mSwapchainImages[lIndex],
             lImageSubresourceRange
         },
 
-            lBarrierFromClearToPresent
+        lBarrierFromClearToPresent
         {
             vkpp::AccessFlagBits::eTransferWrite, vkpp::AccessFlagBits::eMemoryRead,
             vkpp::ImageLayout::eTransferDstOptimal, vkpp::ImageLayout::ePresentSrcKHR,
-            VK_QUEUE_FAMILY_IGNORED, VK_QUEUE_FAMILY_IGNORED,
             mSwapchain.mSwapchainImages[lIndex],
             lImageSubresourceRange
         };

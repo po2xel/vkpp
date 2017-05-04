@@ -168,6 +168,7 @@ ConsistencyCheck(CommandBufferBeginInfo, pNext, flags, pInheritanceInfo)
 
 
 
+// TODO
 struct CommandPipelineBarrier
 {
     PipelineStageFlags          srcStageMask;
@@ -507,20 +508,20 @@ public:
     }
 
     // Copy Data Between Buffers
-    void Copy(const Buffer& aSrcBuffer, const Buffer& aDstBuffer, const BufferCopy& aRegion) const
+    void Copy(Buffer& aDstBuffer, const Buffer& aSrcBuffer, const BufferCopy& aRegion) const
     {
         vkCmdCopyBuffer(mCommandBuffer, aSrcBuffer, aDstBuffer, 1, &aRegion);
     }
 
-    void Copy(const Buffer& aSrcBuffer, const Buffer& aDstBuffer, const std::vector<BufferCopy>& aRegions) const
+    void Copy(Buffer& aDstBuffer, const Buffer& aSrcBuffer, const std::vector<BufferCopy>& aRegions) const
     {
-        assert(!aRegions.size());
+        assert(!aRegions.empty());
 
         vkCmdCopyBuffer(mCommandBuffer, aSrcBuffer, aDstBuffer, static_cast<uint32_t>(aRegions.size()), &aRegions[0]);
     }
 
     template <std::size_t R>
-    void Copy(const Buffer& aSrcBuffer, const Buffer& aDstBuffer, const std::array<BufferCopy, R>& aRegions) const
+    void Copy(Buffer& aDstBuffer, const Buffer& aSrcBuffer, const std::array<BufferCopy, R>& aRegions) const
     {
         static_assert(!aRegions.empty());
 
@@ -528,85 +529,107 @@ public:
     }
 
     // Copy Data Between Images
-    void Copy(const Image& aSrcImage, ImageLayout aSrcImageLayout, const Image& aDstImage, ImageLayout aDstImageLayout, const ImageCopy& aRegion) const
+    void Copy(Image& aDstImage, ImageLayout aDstImageLayout, const Image& aSrcImage, ImageLayout aSrcImageLayout, const ImageCopy& aRegion) const
     {
+        assert(vkpp::ImageLayout::eTransferDstOptimal == aDstImageLayout || vkpp::ImageLayout::eGeneral == aDstImageLayout);
+        assert(vkpp::ImageLayout::eTransferSrcOptimal == aSrcImageLayout || vkpp::ImageLayout::eGeneral == aSrcImageLayout);
+
         vkCmdCopyImage(mCommandBuffer, aSrcImage, static_cast<VkImageLayout>(aSrcImageLayout), aDstImage, static_cast<VkImageLayout>(aDstImageLayout), 1, &aRegion);
     }
 
-    void Copy(const Image& aSrcImage, ImageLayout aSrcImageLayout, const Image& aDstImage, ImageLayout aDstImageLayout, const std::vector<ImageCopy>& aRegions) const
+    void Copy(Image& aDstImage, ImageLayout aDstImageLayout, const Image& aSrcImage, ImageLayout aSrcImageLayout, const std::vector<ImageCopy>& aRegions) const
     {
         assert(!aRegions.empty());
+        assert(vkpp::ImageLayout::eTransferDstOptimal == aDstImageLayout || vkpp::ImageLayout::eGeneral == aDstImageLayout);
+        assert(vkpp::ImageLayout::eTransferSrcOptimal == aSrcImageLayout || vkpp::ImageLayout::eGeneral == aSrcImageLayout);
 
         vkCmdCopyImage(mCommandBuffer, aSrcImage, static_cast<VkImageLayout>(aSrcImageLayout), aDstImage, static_cast<VkImageLayout>(aDstImageLayout), static_cast<uint32_t>(aRegions.size()), &aRegions[0]);
     }
 
     template <std::size_t R>
-    void Copy(const Image& aSrcImage, ImageLayout aSrcImageLayout, const Image& aDstImage, ImageLayout aDstImageLayout, const std::array<ImageCopy, R>& aRegions) const
+    void Copy(Image& aDstImage, ImageLayout aDstImageLayout, const Image& aSrcImage, ImageLayout aSrcImageLayout, const std::array<ImageCopy, R>& aRegions) const
     {
         static_assert(!aRegions.empty());
+        assert(vkpp::ImageLayout::eTransferDstOptimal == aDstImageLayout || vkpp::ImageLayout::eGeneral == aDstImageLayout);
+        assert(vkpp::ImageLayout::eTransferSrcOptimal == aSrcImageLayout || vkpp::ImageLayout::eGeneral == aSrcImageLayout);
 
         vkCmdCopyImage(mCommandBuffer, aSrcImage, static_cast<VkImageLayout>(aSrcImageLayout), aDstImage, static_cast<VkImageLayout>(aDstImageLayout), static_cast<uint32_t>(aRegions.size()), &aRegions[0]);
     }
 
     // Copy Data From Buffers to Images
-    void Copy(const Buffer& aSrcBuffer, const Image& aDstImage, ImageLayout aDstImageLayout, const BufferImageCopy& aRegion) const
+    void Copy(Image& aDstImage, ImageLayout aDstImageLayout, const Buffer& aSrcBuffer, const BufferImageCopy& aRegion) const
     {
+        assert(vkpp::ImageLayout::eTransferDstOptimal == aDstImageLayout || vkpp::ImageLayout::eGeneral == aDstImageLayout);
+
         vkCmdCopyBufferToImage(mCommandBuffer, aSrcBuffer, aDstImage, static_cast<VkImageLayout>(aDstImageLayout), 1, &aRegion);
     }
 
-    void Copy(const Buffer& aSrcBuffer, const Image& aDstImage, ImageLayout aDstImageLayout, const std::vector<BufferImageCopy>& aRegions) const
+    void Copy(Image& aDstImage, ImageLayout aDstImageLayout, const Buffer& aSrcBuffer, const std::vector<BufferImageCopy>& aRegions) const
     {
+        assert(vkpp::ImageLayout::eTransferDstOptimal == aDstImageLayout || vkpp::ImageLayout::eGeneral == aDstImageLayout);
         assert(!aRegions.empty());
 
         vkCmdCopyBufferToImage(mCommandBuffer, aSrcBuffer, aDstImage, static_cast<VkImageLayout>(aDstImageLayout), static_cast<uint32_t>(aRegions.size()), &aRegions[0]);
     }
 
     template <std::size_t R>
-    void Copy(const Buffer& aSrcBuffer, const Image& aDstImage, ImageLayout aDstImageLayout, const std::array<BufferImageCopy, R>& aRegions) const
+    void Copy(Image& aDstImage, ImageLayout aDstImageLayout, const Buffer& aSrcBuffer, const std::array<BufferImageCopy, R>& aRegions) const
     {
+        assert(vkpp::ImageLayout::eTransferDstOptimal == aDstImageLayout || vkpp::ImageLayout::eGeneral == aDstImageLayout);
         static_assert(!aRegions.empty());
 
         vkCmdCopyBufferToImage(mCommandBuffer, aSrcBuffer, aDstImage, static_cast<VkImageLayout>(aDstImageLayout), static_cast<uint32_t>(aRegions.size()), &aRegions[0]);
     }
 
     // Copy Data From Images to Buffers
-    void Copy(const Image& aSrcImage, ImageLayout aSrcImageLayout, const Buffer& aDstBuffer, const BufferImageCopy& aRegion) const
+    void Copy(Buffer& aDstBuffer, const Image& aSrcImage, ImageLayout aSrcImageLayout, const BufferImageCopy& aRegion) const
     {
+        assert(vkpp::ImageLayout::eTransferSrcOptimal == aSrcImageLayout || vkpp::ImageLayout::eGeneral == aSrcImageLayout);
+
         vkCmdCopyImageToBuffer(mCommandBuffer, aSrcImage, static_cast<VkImageLayout>(aSrcImageLayout), aDstBuffer, 1, &aRegion);
     }
 
-    void Copy(const Image& aSrcImage, ImageLayout aSrcImageLayout, const Buffer& aDstBuffer, const std::vector<BufferImageCopy>& aRegions) const
+    void Copy(Buffer& aDstBuffer, const Image& aSrcImage, ImageLayout aSrcImageLayout, const std::vector<BufferImageCopy>& aRegions) const
     {
+        assert(vkpp::ImageLayout::eTransferSrcOptimal == aSrcImageLayout || vkpp::ImageLayout::eGeneral == aSrcImageLayout);
         assert(!aRegions.empty());
 
         vkCmdCopyImageToBuffer(mCommandBuffer, aSrcImage, static_cast<VkImageLayout>(aSrcImageLayout), aDstBuffer, static_cast<uint32_t>(aRegions.size()), &aRegions[0]);
     }
 
     template <std::size_t R>
-    void Copy(const Image& aSrcImage, ImageLayout aSrcImageLayout, const Buffer& aDstBuffer, const std::array<BufferImageCopy, R>& aRegions) const
+    void Copy(Buffer& aDstBuffer, const Image& aSrcImage, ImageLayout aSrcImageLayout, const std::array<BufferImageCopy, R>& aRegions) const
     {
+        assert(vkpp::ImageLayout::eTransferSrcOptimal == aSrcImageLayout || vkpp::ImageLayout::eGeneral == aSrcImageLayout);
         static_assert(!aRegions.empty());
 
         vkCmdCopyImageToBuffer(mCommandBuffer, aSrcImage, static_cast<VkImageLayout>(aSrcImageLayout), aDstBuffer, static_cast<uint32_t>(aRegions.size()), &aRegions[0]);
     }
 
     // Image Copies with Scaling
-    void Blit(const Image& aSrcImage, ImageLayout aSrcImageLayout, const Image& aDstImage, ImageLayout aDstImageLayout, const ImageBlit& aRegion, Filter aFilter) const
+    void Blit(Image& aDstImage, ImageLayout aDstImageLayout, const Image& aSrcImage, ImageLayout aSrcImageLayout, const ImageBlit& aRegion, Filter aFilter) const
     {
+        assert(vkpp::ImageLayout::eTransferDstOptimal == aDstImageLayout || vkpp::ImageLayout::eGeneral == aDstImageLayout);
+        assert(vkpp::ImageLayout::eTransferSrcOptimal == aSrcImageLayout || vkpp::ImageLayout::eGeneral == aSrcImageLayout);
+
         vkCmdBlitImage(mCommandBuffer, aSrcImage, static_cast<VkImageLayout>(aSrcImageLayout), aDstImage, static_cast<VkImageLayout>(aDstImageLayout), 1, &aRegion, static_cast<VkFilter>(aFilter));
     }
 
-    void Blit(const Image& aSrcImage, ImageLayout aSrcImageLayout, const Image& aDstImage, ImageLayout aDstImageLayout, const std::vector<ImageBlit>& aRegions, Filter aFilter) const
+    void Blit(Image& aDstImage, ImageLayout aDstImageLayout, const Image& aSrcImage, ImageLayout aSrcImageLayout, const std::vector<ImageBlit>& aRegions, Filter aFilter) const
     {
         assert(!aRegions.empty());
+        assert(vkpp::ImageLayout::eTransferDstOptimal == aDstImageLayout || vkpp::ImageLayout::eGeneral == aDstImageLayout);
+        assert(vkpp::ImageLayout::eTransferSrcOptimal == aSrcImageLayout || vkpp::ImageLayout::eGeneral == aSrcImageLayout);
 
         vkCmdBlitImage(mCommandBuffer, aSrcImage, static_cast<VkImageLayout>(aSrcImageLayout), aDstImage, static_cast<VkImageLayout>(aDstImageLayout), static_cast<uint32_t>(aRegions.size()), &aRegions[0], static_cast<VkFilter>(aFilter));
     }
 
     template <std::size_t R>
-    void Blit(const Image& aSrcImage, ImageLayout aSrcImageLayout, const Image& aDstImage, ImageLayout aDstImageLayout, const std::array<ImageBlit, R>& aRegions, Filter aFilter) const
+    void Blit(Image& aDstImage, ImageLayout aDstImageLayout, const Image& aSrcImage, ImageLayout aSrcImageLayout, const std::array<ImageBlit, R>& aRegions, Filter aFilter) const
     {
         static_assert(!aRegions.empty());
+        assert(vkpp::ImageLayout::eTransferDstOptimal == aDstImageLayout || vkpp::ImageLayout::eGeneral == aDstImageLayout);
+        assert(vkpp::ImageLayout::eTransferSrcOptimal == aSrcImageLayout || vkpp::ImageLayout::eGeneral == aSrcImageLayout);
 
         vkCmdBlitImage(mCommandBuffer, aSrcImage, static_cast<VkImageLayout>(aSrcImageLayout), aDstImage, static_cast<VkImageLayout>(aDstImageLayout), static_cast<uint32_t>(aRegions.size()), &aRegions[0], static_cast<VkFilter>(aFilter));
     }

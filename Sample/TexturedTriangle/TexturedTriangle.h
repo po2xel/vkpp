@@ -33,6 +33,7 @@ struct VertexData
 {
     glm::vec2 inPosition;
     glm::vec3 inColor;
+    glm::vec2 texCoord;
 };
 
 
@@ -65,6 +66,10 @@ private:
     vkpp::DeviceMemory mUniformBufferMemory;
     vkpp::Buffer mUniformStagingBuffer;
     vkpp::DeviceMemory mUniformStagingBufferMemory;
+    vkpp::Image mTextureImage;
+    vkpp::DeviceMemory mTextureImageMemory;
+    vkpp::ImageView mTextureImageView;
+    vkpp::Sampler mTextureSampler;
 
     vkpp::DescriptorPool mDescriptorPool;
     vkpp::DescriptorSet mDescriptorSet;
@@ -82,13 +87,22 @@ private:
     void CreateIndexBuffer(void);
     void CreateUniformBuffer(void);
     void CreateTextureImage(void);
+    void CreateTextureImageView(void);
+    void CreateTextureSampler(void);
     void CreateDescriptorPool(void);
     void CreateDescriptorSet(void);
     void CopyBuffer(vkpp::Buffer& aDstBuffer, const vkpp::Buffer& aSrcBuffer, vkpp::DeviceSize aSize) const;
+    void CopyImage(vkpp::Image& aDstImage, const vkpp::Image& aSrcImage, uint32_t aWidth, uint32_t aHeight) const;
     vkpp::DeviceMemory AllocateBufferMemory(const vkpp::Buffer& aBuffer, const vkpp::MemoryPropertyFlags& aMemoryProperties) const;
     vkpp::DeviceMemory AllocateImageMemory(const vkpp::Image& aImage, const vkpp::MemoryPropertyFlags& aMemoryProperties) const;
     vkpp::Framebuffer CreateFramebuffer(const vkpp::ImageView& aImageView) const;
     void PrepareFrame(vkpp::Framebuffer& aFramebuffer, const vkpp::CommandBuffer& aCommandBuffer, const vkpp::ImageView& aImageView) const;
+
+    vkpp::CommandBuffer BeginOneTimeCommandBuffer(void) const;
+    void EndOneTimeCommandBuffer(const vkpp::CommandBuffer& aCommandBuffer) const;
+
+    template <vkpp::ImageLayout OldLayout, vkpp::ImageLayout NewLayout>
+    void TransitionImageLayout(const vkpp::Image& aImage, const vkpp::AccessFlags& aSrcAccessMask, const vkpp::AccessFlags& aDstAccessMask) const;
 
     void UpdateUniformBuffer(void);
 

@@ -61,7 +61,8 @@ public:
     DEFINE_CLASS_MEMBER(ImageMemoryBarrier)
 
     ImageMemoryBarrier(const AccessFlags& aSrcAccessMask, const AccessFlags& aDstAccessMask, const ImageLayout& aOldLayout, const ImageLayout& aNewLayout,
-        uint32_t aSrcQueueFamilyIndex, uint32_t aDstQueueFamilyIndex, const Image& aImage, const ImageSubresourceRange& aSubresourceRange)
+        const Image& aImage, const ImageSubresourceRange& aSubresourceRange,
+        uint32_t aSrcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED, uint32_t aDstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED)
         : srcAccessMask(aSrcAccessMask), dstAccessMask(aDstAccessMask), oldLayout(aOldLayout), newLayout(aNewLayout),
         srcQueueFamilyIndex(aSrcQueueFamilyIndex), dstQueueFamilyIndex(aDstQueueFamilyIndex), image(aImage), subresourceRange(aSubresourceRange)
     {}

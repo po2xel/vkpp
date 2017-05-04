@@ -14,10 +14,10 @@ namespace sample
 
 const VertexData gVertexData[]
 {
-    { { -0.5f, -0.5f },{ 1.0f, 0.0f, 0.0f } },
-    { { 0.5f, -0.5f },{ 0.0f, 1.0f, 0.0f } },
-    { { 0.5f, 0.5f },{ 0.0f, 0.0f, 1.0f } },
-    { { -0.5f, 0.5f },{ 1.0f, 1.0f, 1.0f } }
+    { { -0.5f, -0.5f }, { 1.0f, 0.0f, 0.0f }, { 0.0f, 2.0f} },
+    { { 0.5f, -0.5f }, { 0.0f, 1.0f, 0.0f }, { 2.0f, 2.0f} },
+    { { 0.5f, 0.5f }, { 0.0f, 0.0f, 1.0f }, { 2.0f, 0.0f} },
+    { { -0.5f, 0.5f }, { 1.0f, 1.0f, 1.0f }, { 0.0f, 0.0f } }
 };
 
 const uint16_t gIndices[]
@@ -39,6 +39,8 @@ TexturedTriangle::TexturedTriangle(const char* apApplicationName, uint32_t aAppl
     CreateIndexBuffer();
     CreateUniformBuffer();
     CreateTextureImage();
+    CreateTextureImageView();
+    CreateTextureSampler();
 
     CreateDescriptorPool();
     CreateDescriptorSet();
@@ -51,6 +53,12 @@ TexturedTriangle::~TexturedTriangle(void)
 
     // mLogicalDevice.FreeDescriptorSet(mDescriptorPool, mDescriptorSet);
     mLogicalDevice.DestroyDescriptorPool(mDescriptorPool);
+
+    mLogicalDevice.DestroySampler(mTextureSampler);
+    mLogicalDevice.DestroyImageView(mTextureImageView);
+
+    mLogicalDevice.FreeMemory(mTextureImageMemory);
+    mLogicalDevice.DestroyImage(mTextureImage);
 
     mLogicalDevice.FreeMemory(mUniformBufferMemory);
     mLogicalDevice.DestroyBuffer(mUniformBuffer);
@@ -187,16 +195,19 @@ void TexturedTriangle::CreateRenderPass(void)
 
 vkpp::DescriptorSetLayout TexturedTriangle::CreateDescriptorSetLayout(void) const
 {
-    const vkpp::DescriptorSetLayoutBinding lSetLayoutBinding
+    const vkpp::DescriptorSetLayoutBinding lSetLayoutBinding[]
     {
-        0, vkpp::DescriptorType::eUniformBuffer,
-        1, vkpp::ShaderStageFlagBits::eVertex
+        {
+            0, vkpp::DescriptorType::eUniformBuffer,
+            1, vkpp::ShaderStageFlagBits::eVertex
+        },
+        {
+            1, vkpp::DescriptorType::eCombinedImageSampler,
+            1, vkpp::ShaderStageFlagBits::eFragment
+        }
     };
 
-    const vkpp::DescriptorSetLayoutCreateInfo lSetLayoutCreateInfo
-    {
-        1, lSetLayoutBinding.AddressOf()
-    };
+    const vkpp::DescriptorSetLayoutCreateInfo lSetLayoutCreateInfo{ 2, lSetLayoutBinding };
 
     return mLogicalDevice.CreateDescriptorSetLayout(lSetLayoutCreateInfo);
 }
@@ -233,13 +244,16 @@ void TexturedTriangle::CreateGraphicsPipeline(void)
         },
         {
             1, lVertexInputBindingDescriptions[0].binding, vkpp::Format::eRGB32SFloat, offsetof(VertexData, inColor)
+        },
+        {
+            2, lVertexInputBindingDescriptions[0].binding, vkpp::Format::eRG32SFloat, offsetof(VertexData, texCoord)
         }
     };
 
     const vkpp::PipelineVertexInputStateCreateInfo lVertexInputStateCreateInfo
     {
         1, lVertexInputBindingDescriptions,
-        2, lVertexInputAttributeDescriptions
+        3, lVertexInputAttributeDescriptions
     };
 
     const vkpp::PipelineInputAssemblyStateCreateInfo lInputAssemblyStateCreateInfo
@@ -440,7 +454,7 @@ void TexturedTriangle::CreateTextureImage(void)
 
     const auto lImageSize = lTexWidth * lTexHeight * 4;
 
-    const vkpp::ImageCreateInfo lImageCreateInfo
+    const vkpp::ImageCreateInfo lStagingImageCreateInfo
     {
         vkpp::ImageType::e2D, vkpp::Format::eRGBA8Unorm,
         {static_cast<uint32_t>(lTexWidth), static_cast<uint32_t>(lTexHeight), 1},
@@ -449,7 +463,7 @@ void TexturedTriangle::CreateTextureImage(void)
         vkpp::ImageUsageFlagBits::eTransferSrc, vkpp::ImageLayout::ePreinitialized
     };
 
-    auto lStagingImage = mLogicalDevice.CreateImage(lImageCreateInfo);
+    auto lStagingImage = mLogicalDevice.CreateImage(lStagingImageCreateInfo);
     auto lStagingImageMemory = AllocateImageMemory(lStagingImage, vkpp::MemoryPropertyFlagBits::eHostVisible | vkpp::MemoryPropertyFlagBits::eHostCoherent);
     mLogicalDevice.BindImageMemory(lStagingImage, lStagingImageMemory);
 
@@ -475,23 +489,70 @@ void TexturedTriangle::CreateTextureImage(void)
 
     mLogicalDevice.UnmapMemory(lStagingImageMemory);
 
+    const vkpp::ImageCreateInfo lImageCreateInfo
+    {
+        vkpp::ImageType::e2D, vkpp::Format::eRGBA8Unorm,
+        {static_cast<uint32_t>(lTexWidth), static_cast<uint32_t>(lTexHeight), 1},
+        1, 1,
+        vkpp::SampleCountFlagBits::e1, vkpp::ImageTiling::eOptimal,
+        vkpp::ImageUsageFlagBits::eTransferDst | vkpp::ImageUsageFlagBits::eSampled, vkpp::ImageLayout::eUndefined
+    };
+
+    mTextureImage = mLogicalDevice.CreateImage(lImageCreateInfo);
+    mTextureImageMemory = AllocateImageMemory(mTextureImage, vkpp::MemoryPropertyFlagBits::eDeviceLocal);
+    mLogicalDevice.BindImageMemory(mTextureImage, mTextureImageMemory);
+
+    TransitionImageLayout<vkpp::ImageLayout::ePreinitialized, vkpp::ImageLayout::eTransferSrcOptimal>(lStagingImage, vkpp::AccessFlagBits::eHostWrite, vkpp::AccessFlagBits::eTransferRead);
+    TransitionImageLayout<vkpp::ImageLayout::eUndefined, vkpp::ImageLayout::eTransferDstOptimal>(mTextureImage, vkpp::DefaultFlags, vkpp::AccessFlagBits::eTransferWrite);
+
+    CopyImage(mTextureImage, lStagingImage, static_cast<uint32_t>(lTexWidth), static_cast<uint32_t>(lTexHeight));
+
+    TransitionImageLayout<vkpp::ImageLayout::eTransferDstOptimal, vkpp::ImageLayout::eShaderReadOnlyOptimal>(mTextureImage, vkpp::AccessFlagBits::eTransferWrite, vkpp::AccessFlagBits::eShaderRead);
+
     mLogicalDevice.FreeMemory(lStagingImageMemory);
     mLogicalDevice.DestroyImage(lStagingImage);
 }
 
 
-void TexturedTriangle::CreateDescriptorPool(void)
+void TexturedTriangle::CreateTextureImageView(void)
 {
-    const vkpp::DescriptorPoolSize lPoolSize
+    const vkpp::ImageViewCreateInfo lImageViewCreateInfo
     {
-        vkpp::DescriptorType::eUniformBuffer, 1
+        mTextureImage, 
+        vkpp::ImageViewType::e2D, vkpp::Format::eRGBA8Unorm,
+        {vkpp::ComponentSwizzle::eIdentity, vkpp::ComponentSwizzle::eIdentity, vkpp::ComponentSwizzle::eIdentity, vkpp::ComponentSwizzle::eIdentity },
+        {vkpp::ImageAspectFlagBits::eColor, 0, 1, 0, 1}
     };
 
-    const vkpp::DescriptorPoolCreateInfo lPoolCreateInfo
+    mTextureImageView = mLogicalDevice.CreateImageView(lImageViewCreateInfo);
+}
+
+
+void TexturedTriangle::CreateTextureSampler(void)
+{
+    const vkpp::SamplerCreateInfo lSamplerCreateInfo
     {
-        1, lPoolSize.AddressOf(),
-        1
+        vkpp::Filter::eLinear, vkpp::Filter::eLinear,
+        vkpp::SamplerMipmapMode::eLinear,
+        vkpp::SamplerAddressMode::eRepeat, vkpp::SamplerAddressMode::eMirroredRepeat, vkpp::SamplerAddressMode::eRepeat,
+        0.0f, VK_FALSE, 1.0f,
+        VK_FALSE, vkpp::CompareOp::eAlways,
+        0.0f, 0.0f, vkpp::BorderColor::eIntOpaqueBlack
     };
+
+    mTextureSampler = mLogicalDevice.CreateSampler(lSamplerCreateInfo);
+}
+
+
+void TexturedTriangle::CreateDescriptorPool(void)
+{
+    const vkpp::DescriptorPoolSize lPoolSizes[]
+    {
+        { vkpp::DescriptorType::eUniformBuffer, 1 },
+        { vkpp::DescriptorType::eCombinedImageSampler, 1 }
+    };
+
+    const vkpp::DescriptorPoolCreateInfo lPoolCreateInfo{ 2, lPoolSizes, 1 };
 
     mDescriptorPool = mLogicalDevice.CreateDescriptorPool(lPoolCreateInfo);
 }
@@ -511,55 +572,65 @@ void TexturedTriangle::CreateDescriptorSet(void)
         mUniformBuffer, 0, sizeof(UniformBufferObject)
     };
 
-    const vkpp::WriteDescriptorSetInfo lWriteInfo
+    const vkpp::DescriptorImageInfo lImageInfo
     {
-        mDescriptorSet,
-        0, 0,
-        vkpp::DescriptorType::eUniformBuffer,
-        lBufferInfo
+        mTextureSampler, mTextureImageView, vkpp::ImageLayout::eShaderReadOnlyOptimal
     };
 
-    mLogicalDevice.UpdateDescriptorSet(lWriteInfo);
+    const vkpp::WriteDescriptorSetInfo lWriteInfos[]
+    {
+        {
+            mDescriptorSet,
+            0, 0,
+            vkpp::DescriptorType::eUniformBuffer,
+            lBufferInfo
+        },
+        {
+            mDescriptorSet,
+            1, 0,
+            vkpp::DescriptorType::eCombinedImageSampler,
+            lImageInfo
+        }
+    };
+
+    mLogicalDevice.UpdateDescriptorSets(2, lWriteInfos);
 }
 
 
 void TexturedTriangle::CopyBuffer(vkpp::Buffer& aDstBuffer, const vkpp::Buffer& aSrcBuffer, vkpp::DeviceSize aSize) const
 {
-    const vkpp::CommandBufferAllocateInfo lAllocateInfo
-    {
-        mCommandPool, 1
-    };
+    const auto& lCommandBuffer = BeginOneTimeCommandBuffer();
 
-    auto lCommandBuffer = mLogicalDevice.AllocateCommandBuffer(lAllocateInfo);
-
-    const vkpp::CommandBufferBeginInfo lCmdBeginInfo
-    {
-        vkpp::CommandBufferUsageFlagBits::eOneTimeSubmit
-    };
-
-    lCommandBuffer.Begin(lCmdBeginInfo);
-
-    vkpp::BufferCopy lBufferCopy
+    const vkpp::BufferCopy lBufferCopy
     {
         0, 0, aSize
     };
 
-    lCommandBuffer.Copy(aSrcBuffer, aDstBuffer, lBufferCopy);
+    lCommandBuffer.Copy(aDstBuffer, aSrcBuffer, lBufferCopy);
 
-    lCommandBuffer.End();
+    EndOneTimeCommandBuffer(lCommandBuffer);
+}
 
-    const vkpp::SubmitInfo lSubmitInfo{ lCommandBuffer };
 
-    const vkpp::FenceCreateInfo lFenceCreateInfo;
+void TexturedTriangle::CopyImage(vkpp::Image& aDstImage, const vkpp::Image& aSrcImage, uint32_t aWidth, uint32_t aHeight) const
+{
+    const auto& lCommandBuffer = BeginOneTimeCommandBuffer();
 
-    auto lFence = mLogicalDevice.CreateFence(lFenceCreateInfo);
+    const vkpp::ImageSubresourceLayers lSubresourceLayers
+    {
+        vkpp::ImageAspectFlagBits::eColor, 0, 0, 1
+    };
 
-    mGraphicsQueue.mQueue.Submit(lSubmitInfo, lFence);
+    const vkpp::ImageCopy lImageCopy
+    {
+        lSubresourceLayers, {0, 0, 0},
+        lSubresourceLayers, {0, 0, 0},
+        {aWidth, aHeight, 1}
+    };
 
-    mLogicalDevice.WaitForFence(lFence);
+    lCommandBuffer.Copy(aDstImage, vkpp::ImageLayout::eTransferDstOptimal, aSrcImage, vkpp::ImageLayout::eTransferSrcOptimal, lImageCopy);
 
-    mLogicalDevice.DestroyFence(lFence);
-    mLogicalDevice.FreeCommandBuffer(mCommandPool, lCommandBuffer);
+    EndOneTimeCommandBuffer(lCommandBuffer);
 }
 
 
@@ -606,7 +677,6 @@ vkpp::DeviceMemory TexturedTriangle::AllocateImageMemory(const vkpp::Image& aIma
 
     assert(false);
     return nullptr;
-
 }
 
 
@@ -680,6 +750,79 @@ void TexturedTriangle::PrepareFrame(vkpp::Framebuffer& aFramebuffer, const vkpp:
     aCommandBuffer.EndRenderPass();
 
     aCommandBuffer.End();
+}
+
+
+vkpp::CommandBuffer TexturedTriangle::BeginOneTimeCommandBuffer(void) const
+{
+    const vkpp::CommandBufferAllocateInfo lCommandBufferAllocateInfo
+    {
+        mCommandPool, 1
+    };
+
+    auto lCommandBuffer = mLogicalDevice.AllocateCommandBuffer(lCommandBufferAllocateInfo);
+
+    const vkpp::CommandBufferBeginInfo lCommandBufferBeginInfo
+    {
+        vkpp::CommandBufferUsageFlagBits::eOneTimeSubmit
+    };
+
+    lCommandBuffer.Begin(lCommandBufferBeginInfo);
+
+    return lCommandBuffer;
+}
+
+
+void TexturedTriangle::EndOneTimeCommandBuffer(const vkpp::CommandBuffer& aCommandBuffer) const
+{
+    aCommandBuffer.End();
+
+    const vkpp::SubmitInfo lSubmitInfo
+    {
+        0, nullptr, nullptr,
+        1, aCommandBuffer.AddressOf()
+    };
+
+    const vkpp::FenceCreateInfo lFenceCreateInfo;
+
+    auto lFence = mLogicalDevice.CreateFence(lFenceCreateInfo);
+
+    mGraphicsQueue.mQueue.Submit(lSubmitInfo, lFence);
+
+    mLogicalDevice.WaitForFence(lFence);
+    mLogicalDevice.DestroyFence(lFence);
+    mLogicalDevice.FreeCommandBuffer(mCommandPool, aCommandBuffer);
+}
+
+
+template <vkpp::ImageLayout OldLayout, vkpp::ImageLayout NewLayout>
+void TexturedTriangle::TransitionImageLayout(const vkpp::Image& aImage, const vkpp::AccessFlags& aSrcAccessMask, const vkpp::AccessFlags& aDstAccessMask) const
+{
+    const auto& lCommandBuffer = BeginOneTimeCommandBuffer();
+
+    const vkpp::ImageMemoryBarrier lImageMemoryBarrier
+    {
+        aSrcAccessMask, aDstAccessMask,
+        OldLayout, NewLayout,
+        aImage,
+        {
+            vkpp::ImageAspectFlagBits::eColor,
+            0, 1, 0, 1
+        }
+    };
+
+    const vkpp::CommandPipelineBarrier lCommandPipelineBarrier
+    {
+        vkpp::PipelineStageFlagBits::eTopOfPipe, vkpp::PipelineStageFlagBits::eTopOfPipe,
+        vkpp::DependencyFlagBits::eByRegion,
+        0, nullptr,
+        0, nullptr,
+        1, lImageMemoryBarrier.AddressOf()
+    };
+
+    lCommandBuffer.PipelineBarrier(lCommandPipelineBarrier);
+
+    EndOneTimeCommandBuffer(lCommandBuffer);
 }
 
 

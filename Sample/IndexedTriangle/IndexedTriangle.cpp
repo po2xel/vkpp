@@ -392,7 +392,7 @@ void IndexedTriangle::CopyBuffer(vkpp::Buffer& aDstBuffer, const vkpp::Buffer& a
         0, 0, aSize
     };
 
-    lCommandBuffer.Copy(aSrcBuffer, aDstBuffer, lBufferCopy);
+    lCommandBuffer.Copy(aDstBuffer, aSrcBuffer, lBufferCopy);
 
     lCommandBuffer.End();
 
