@@ -694,11 +694,15 @@ public:
 
     void DestroyImage(const Image& aImage) const
     {
+        assert(aImage);
+
         vkDestroyImage(mDevice, aImage, nullptr);
     }
 
     void DestroyImage(const Image& aImage, const AllocationCallbacks& aAllocator) const
     {
+        assert(aImage);
+
         vkDestroyImage(mDevice, aImage, &aAllocator);
     }
 

@@ -43,7 +43,8 @@ public:
           width(aWidth), height(aHeight), layers(aLayers)
     {}
 
-    FramebufferCreateInfo(const RenderPass& aRenderPass, const std::vector<ImageView>& aAttachments,
+    // TODO: aAttachments shouldn't be a temporary variable.
+    /*FramebufferCreateInfo(const RenderPass& aRenderPass, const std::vector<ImageView>& aAttachments,
         uint32_t aWidth = 1, uint32_t aHeight = 1, uint32_t aLayers = 1, const FramebufferCreateFlags& aFlags = DefaultFlags)
         : FramebufferCreateInfo(aRenderPass, static_cast<uint32_t>(aAttachments.size()), aAttachments.data(), aWidth, aHeight, aLayers, aFlags)
     {}
@@ -52,7 +53,15 @@ public:
     FramebufferCreateInfo(const RenderPass& aRenderPass, const std::array<ImageView, A>& aAttachments,
         uint32_t aWidth = 1, uint32_t aHeight = 1, uint32_t aLayers = 1, const FramebufferCreateFlags& aFlags = DefaultFlags)
         : FramebufferCreateInfo(aRenderPass, static_cast<uint32_t>(aAttachments.size()), aAttachments.data(), aWidth, aHeight, aLayers, aFlags)
-    {}
+    {}*/
+
+    template <typename T>
+    FramebufferCreateInfo(const RenderPass& aRenderPass, T&& aAttachments,
+        uint32_t aWidth = 1, uint32_t aHeight = 1, uint32_t aLayers = 1, const FramebufferCreateFlags& aFlags = DefaultFlags)
+        : FramebufferCreateInfo(aRenderPass, static_cast<uint32_t>(aAttachments.size()), aAttachments.data(), aWidth, aHeight, aLayers, aFlags)
+    {
+        static_assert(std::is_lvalue_reference_v<T&&>, "Argument \"aAttachments\" shouldn't be rvalue reference.");
+    }
 
     FramebufferCreateInfo& SetFlags(const FramebufferCreateFlags& aFlags)
     {

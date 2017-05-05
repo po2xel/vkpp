@@ -160,11 +160,11 @@ vkpp::khr::SurfaceFormat Triangle::GetSwapchainFormat(void) const
     auto lSurfaceFormats = mPhysicalDevice.GetSurfaceFormats(mSurface);
 
     if (lSurfaceFormats.size() == 1 && lSurfaceFormats[0].format == vkpp::Format::eUndefined)
-        return { vkpp::Format::eRGBA8Unorm, vkpp::khr::ColorSpace::esRGBNonLinear };
+        return { vkpp::Format::eRGBA8uNorm, vkpp::khr::ColorSpace::esRGBNonLinear };
 
     for (vkpp::khr::SurfaceFormat& lSurfaceFormat : lSurfaceFormats)
     {
-        if (lSurfaceFormat.format == vkpp::Format::eRGBA8Unorm)
+        if (lSurfaceFormat.format == vkpp::Format::eRGBA8uNorm)
             return lSurfaceFormat;
     }
 
@@ -677,10 +677,10 @@ void Triangle::CreatePipeline(void)
     const vkpp::VertexInputAttributeDescription lVertexInputAttributeDescription[]
     {
         {
-            0, lVertexInputBindingDescription[0].binding, vkpp::Format::eRGBA32SFloat, offsetof(VertexData, x)
+            0, lVertexInputBindingDescription[0].binding, vkpp::Format::eRGBA32sFloat, offsetof(VertexData, x)
         },
         {
-            1, lVertexInputBindingDescription[0].binding, vkpp::Format::eRGBA32SFloat, offsetof(VertexData, r)
+            1, lVertexInputBindingDescription[0].binding, vkpp::Format::eRGBA32sFloat, offsetof(VertexData, r)
         }
     };
 

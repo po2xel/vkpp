@@ -224,10 +224,10 @@ void UniformTriangle::CreateGraphicsPipeline(void)
     const vkpp::VertexInputAttributeDescription lVertexInputAttributeDescriptions[]
     {
         {
-            0, lVertexInputBindingDescriptions[0].binding, vkpp::Format::eRG32SFloat, offsetof(VertexData, inPosition)
+            0, lVertexInputBindingDescriptions[0].binding, vkpp::Format::eRG32sFloat, offsetof(VertexData, inPosition)
         },
         {
-            1, lVertexInputBindingDescriptions[0].binding, vkpp::Format::eRGB32SFloat, offsetof(VertexData, inColor)
+            1, lVertexInputBindingDescriptions[0].binding, vkpp::Format::eRGB32sFloat, offsetof(VertexData, inColor)
         }
     };
 

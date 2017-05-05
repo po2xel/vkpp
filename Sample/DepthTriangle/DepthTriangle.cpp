@@ -1,5 +1,5 @@
 
-#include "TexturedTriangle.h"
+#include "DepthTriangle.h"
 
 #define STB_IMAGE_IMPLEMENTATION
 #include <stb/stb_image.h>
@@ -14,23 +14,30 @@ namespace sample
 
 const VertexData gVertexData[]
 {
-    { { -0.5f, -0.5f }, { 1.0f, 0.0f, 0.0f }, { 0.0f, 2.0f} },
-    { { 0.5f, -0.5f }, { 0.0f, 1.0f, 0.0f }, { 2.0f, 2.0f} },
-    { { 0.5f, 0.5f }, { 0.0f, 0.0f, 1.0f }, { 2.0f, 0.0f} },
-    { { -0.5f, 0.5f }, { 1.0f, 1.0f, 1.0f }, { 0.0f, 0.0f } }
+    { { -0.5f, -0.5f, 0.0f }, { 1.0f, 0.0f, 0.0f }, { 0.0f, 2.0f} },
+    { { 0.5f, -0.5f, 0.0f }, { 0.0f, 1.0f, 0.0f }, { 2.0f, 2.0f} },
+    { { 0.5f, 0.5f, 0.0f }, { 0.0f, 0.0f, 1.0f }, { 2.0f, 0.0f} },
+    { { -0.5f, 0.5f, 0.0f }, { 1.0f, 1.0f, 1.0f }, { 0.0f, 0.0f } },
+
+    { { -0.5f, -0.5f, -0.5f },{ 1.0f, 0.0f, 0.0f },{ 0.0f, 2.0f } },
+    { { 0.5f, -0.5f, -0.5f },{ 0.0f, 1.0f, 0.0f },{ 2.0f, 2.0f } },
+    { { 0.5f, 0.5f, -0.5f },{ 0.0f, 0.0f, 1.0f },{ 2.0f, 0.0f } },
+    { { -0.5f, 0.5f, -0.5f },{ 1.0f, 1.0f, 1.0f },{ 0.0f, 0.0f } }
 };
 
 const uint16_t gIndices[]
 {
-    0, 1, 2, 2, 3, 0
+    0, 1, 2, 2, 3, 0,
+    4, 5, 6, 6, 7, 4
 };
 
 
 
-TexturedTriangle::TexturedTriangle(const char* apApplicationName, uint32_t aApplicationVersion, const char* apEngineName, uint32_t aEngineVersion)
+DepthTriangle::DepthTriangle(const char* apApplicationName, uint32_t aApplicationVersion, const char* apEngineName, uint32_t aEngineVersion)
     : Application(apApplicationName, aApplicationVersion, apEngineName, aEngineVersion), mRenderingResources(DefaultResourceSize)
 {
     CreateCommandPool();
+    CreateDepthResources();
     CreateRenderingResources();
     CreateRenderPass();
     CreateGraphicsPipeline();
@@ -47,7 +54,7 @@ TexturedTriangle::TexturedTriangle(const char* apApplicationName, uint32_t aAppl
 }
 
 
-TexturedTriangle::~TexturedTriangle(void)
+DepthTriangle::~DepthTriangle(void)
 {
     mLogicalDevice.Wait();
 
@@ -86,11 +93,15 @@ TexturedTriangle::~TexturedTriangle(void)
         mLogicalDevice.DestroyFramebuffer(lRenderingResource.mFramebuffer);
     }
 
+    mLogicalDevice.FreeMemory(mDepthImageMemory);
+    mLogicalDevice.DestroyImageView(mDepthImageView);
+    mLogicalDevice.DestroyImage(mDepthImage);
+
     mLogicalDevice.DestroyCommandPool(mCommandPool);
 }
 
 
-void TexturedTriangle::CreateCommandPool(void)
+void DepthTriangle::CreateCommandPool(void)
 {
     const vkpp::CommandPoolCreateInfo lCommandPoolCreateInfo
     {
@@ -101,7 +112,36 @@ void TexturedTriangle::CreateCommandPool(void)
 }
 
 
-void TexturedTriangle::CreateRenderingResources(void)
+void DepthTriangle::CreateDepthResources(void)
+{
+    const vkpp::ImageCreateInfo lImageCreateInfo
+    {
+        vkpp::ImageType::e2D, vkpp::Format::eD32sFloat,
+        { mSwapchain.mExtent.width, mSwapchain.mExtent.height, 1 },
+        1, 1,
+        vkpp::SampleCountFlagBits::e1,
+        vkpp::ImageTiling::eOptimal,
+        vkpp::ImageUsageFlagBits::eDepthStencilAttachment,
+        vkpp::ImageLayout::eUndefined
+    };
+
+    mDepthImage = mLogicalDevice.CreateImage(lImageCreateInfo);
+    mDepthImageMemory = AllocateImageMemory(mDepthImage, vkpp::MemoryPropertyFlagBits::eDeviceLocal);
+    mLogicalDevice.BindImageMemory(mDepthImage, mDepthImageMemory);
+
+    const vkpp::ImageViewCreateInfo lImageViewCreateInfo
+    {
+        mDepthImage,
+        vkpp::ImageViewType::e2D, vkpp::Format::eD32sFloat,
+        {vkpp::ComponentSwizzle::eIdentity, vkpp::ComponentSwizzle::eIdentity, vkpp::ComponentSwizzle::eIdentity, vkpp::ComponentSwizzle::eIdentity},
+        {vkpp::ImageAspectFlagBits::eDepth, 0, 1, 0, 1}
+    };
+
+    mDepthImageView = mLogicalDevice.CreateImageView(lImageViewCreateInfo);
+}
+
+
+void DepthTriangle::CreateRenderingResources(void)
 {
     for(auto& lRenderingResource : mRenderingResources)
     {
@@ -113,7 +153,7 @@ void TexturedTriangle::CreateRenderingResources(void)
 }
 
 
-void TexturedTriangle::AllocateCommandBuffers(vkpp::CommandBuffer& aCommandBuffer) const
+void DepthTriangle::AllocateCommandBuffers(vkpp::CommandBuffer& aCommandBuffer) const
 {
     const vkpp::CommandBufferAllocateInfo lCommandBufferAllocateInfo
     {
@@ -124,7 +164,7 @@ void TexturedTriangle::AllocateCommandBuffers(vkpp::CommandBuffer& aCommandBuffe
 }
 
 
-void TexturedTriangle::CreateSemaphore(vkpp::Semaphore& aSemaphore) const
+void DepthTriangle::CreateSemaphore(vkpp::Semaphore& aSemaphore) const
 {
     vkpp::SemaphoreCreateInfo lSemaphoreCreateInfo;
 
@@ -132,7 +172,7 @@ void TexturedTriangle::CreateSemaphore(vkpp::Semaphore& aSemaphore) const
 }
 
 
-void TexturedTriangle::CreateFence(vkpp::Fence& aFence) const
+void DepthTriangle::CreateFence(vkpp::Fence& aFence) const
 {
     vkpp::FenceCreateInfo lFenceCreateInfo{ vkpp::FenceCreateFlagBits::eSignaled };
 
@@ -140,7 +180,7 @@ void TexturedTriangle::CreateFence(vkpp::Fence& aFence) const
 }
 
 
-void TexturedTriangle::CreateRenderPass(void)
+void DepthTriangle::CreateRenderPass(void)
 {
     const vkpp::AttachementDescription lAttachementDescriptions[]
     {
@@ -149,6 +189,12 @@ void TexturedTriangle::CreateRenderPass(void)
             vkpp::AttachmentLoadOp::eClear, vkpp::AttachmentStoreOp::eStore,
             vkpp::AttachmentLoadOp::eDontCare, vkpp::AttachmentStoreOp::eDontCare,
             vkpp::ImageLayout::eUndefined, vkpp::ImageLayout::ePresentSrcKHR
+        },
+        {
+            vkpp::Format::eD32sFloat, vkpp::SampleCountFlagBits::e1,
+            vkpp::AttachmentLoadOp::eClear, vkpp::AttachmentStoreOp::eDontCare,
+            vkpp::AttachmentLoadOp::eDontCare, vkpp::AttachmentStoreOp::eDontCare,
+            vkpp::ImageLayout::eUndefined, vkpp::ImageLayout::eDepthStencilAttachmentOptimal
         }
     };
 
@@ -157,12 +203,19 @@ void TexturedTriangle::CreateRenderPass(void)
         {0, vkpp::ImageLayout::eColorAttachmentOptimal}
     };
 
+    const vkpp::AttachmentReference lDepthAttachment
+    {
+        1, vkpp::ImageLayout::eDepthStencilAttachmentOptimal
+    };
+
     const vkpp::SubpassDescription lSubpassDescriptions[]
     {
         {
             vkpp::PipelineBindPoint::eGraphics,
             0, nullptr,
-            1, lColorAttachments
+            1, lColorAttachments,
+            nullptr,
+            lDepthAttachment.AddressOf()
         }
     };
 
@@ -184,7 +237,7 @@ void TexturedTriangle::CreateRenderPass(void)
 
     const vkpp::RenderPassCreateInfo lRenderPassCreateInfo
     {
-        1, lAttachementDescriptions,
+        2, lAttachementDescriptions,
         1, lSubpassDescriptions,
         2, lSubpassDependencies
     };
@@ -193,7 +246,7 @@ void TexturedTriangle::CreateRenderPass(void)
 }
 
 
-vkpp::DescriptorSetLayout TexturedTriangle::CreateDescriptorSetLayout(void) const
+vkpp::DescriptorSetLayout DepthTriangle::CreateDescriptorSetLayout(void) const
 {
     const vkpp::DescriptorSetLayoutBinding lSetLayoutBinding[]
     {
@@ -213,7 +266,7 @@ vkpp::DescriptorSetLayout TexturedTriangle::CreateDescriptorSetLayout(void) cons
 }
 
 
-void TexturedTriangle::CreateGraphicsPipeline(void)
+void DepthTriangle::CreateGraphicsPipeline(void)
 {
     const auto& lVertexShaderModule = CreateShaderModule("Shader/vert.spv");
     const auto& lFragmentShaderModule = CreateShaderModule("Shader/frag.spv");
@@ -240,7 +293,7 @@ void TexturedTriangle::CreateGraphicsPipeline(void)
     const vkpp::VertexInputAttributeDescription lVertexInputAttributeDescriptions[]
     {
         {
-            0, lVertexInputBindingDescriptions[0].binding, vkpp::Format::eRG32sFloat, offsetof(VertexData, inPosition)
+            0, lVertexInputBindingDescriptions[0].binding, vkpp::Format::eRGB32sFloat, offsetof(VertexData, inPosition)
         },
         {
             1, lVertexInputBindingDescriptions[0].binding, vkpp::Format::eRGB32sFloat, offsetof(VertexData, inColor)
@@ -279,6 +332,11 @@ void TexturedTriangle::CreateGraphicsPipeline(void)
         vkpp::SampleCountFlagBits::e1,
         VK_FALSE, 1.0f, nullptr,
         VK_FALSE, VK_FALSE
+    };
+
+    const vkpp::PipelineDepthStencilStateCreateInfo lDepthStencilStateCreateInfo
+    {
+        VK_TRUE, VK_TRUE, vkpp::CompareOp::eLess
     };
 
     const vkpp::PipelineColorBlendAttachmentState lColorBlendAttachmentState
@@ -321,7 +379,7 @@ void TexturedTriangle::CreateGraphicsPipeline(void)
         lViewportStateCreateInfo.AddressOf(),
         lRasterizationStateCreateInfo.AddressOf(),
         lMultisampleStateCreateInfo.AddressOf(),
-        nullptr,
+        lDepthStencilStateCreateInfo.AddressOf(),
         lColorBlendStateCreateInfo.AddressOf(),
         lDynamicStateCreateInfo.AddressOf(),
         mPipelineLayout,
@@ -359,7 +417,7 @@ void TexturedTriangle::CreateGraphicsPipeline(void)
 //}
 
 
-void TexturedTriangle::CreateVertexBuffer(void)
+void DepthTriangle::CreateVertexBuffer(void)
 {
     vkpp::BufferCreateInfo lVertexBufferCreateInfo
     {
@@ -391,7 +449,7 @@ void TexturedTriangle::CreateVertexBuffer(void)
 }
 
 
-void TexturedTriangle::CreateIndexBuffer(void)
+void DepthTriangle::CreateIndexBuffer(void)
 {
     const vkpp::BufferCreateInfo lStagingBufferCreateInfo
     {
@@ -422,7 +480,7 @@ void TexturedTriangle::CreateIndexBuffer(void)
 }
 
 
-void TexturedTriangle::CreateUniformBuffer(void)
+void DepthTriangle::CreateUniformBuffer(void)
 {
     constexpr auto lUniformBufferSize = sizeof(UniformBufferObject);
 
@@ -446,7 +504,7 @@ void TexturedTriangle::CreateUniformBuffer(void)
 }
 
 
-void TexturedTriangle::CreateTextureImage(void)
+void DepthTriangle::CreateTextureImage(void)
 {
     int lTexWidth{ 0 }, lTexHeight{ 0 }, lTexChannels{ 0 };
     std::unique_ptr<stbi_uc, decltype(&stbi_image_free)> lpPixels{ stbi_load("Texture/statue.jpg", &lTexWidth, &lTexHeight, &lTexChannels, STBI_rgb_alpha), stbi_image_free };
@@ -514,7 +572,7 @@ void TexturedTriangle::CreateTextureImage(void)
 }
 
 
-void TexturedTriangle::CreateTextureImageView(void)
+void DepthTriangle::CreateTextureImageView(void)
 {
     const vkpp::ImageViewCreateInfo lImageViewCreateInfo
     {
@@ -528,7 +586,7 @@ void TexturedTriangle::CreateTextureImageView(void)
 }
 
 
-void TexturedTriangle::CreateTextureSampler(void)
+void DepthTriangle::CreateTextureSampler(void)
 {
     const vkpp::SamplerCreateInfo lSamplerCreateInfo
     {
@@ -544,7 +602,7 @@ void TexturedTriangle::CreateTextureSampler(void)
 }
 
 
-void TexturedTriangle::CreateDescriptorPool(void)
+void DepthTriangle::CreateDescriptorPool(void)
 {
     const vkpp::DescriptorPoolSize lPoolSizes[]
     {
@@ -558,7 +616,7 @@ void TexturedTriangle::CreateDescriptorPool(void)
 }
 
 
-void TexturedTriangle::CreateDescriptorSet(void)
+void DepthTriangle::CreateDescriptorSet(void)
 {
     const vkpp::DescriptorSetAllocateInfo lSetAllocateInfo
     {
@@ -597,7 +655,7 @@ void TexturedTriangle::CreateDescriptorSet(void)
 }
 
 
-void TexturedTriangle::CopyBuffer(vkpp::Buffer& aDstBuffer, const vkpp::Buffer& aSrcBuffer, vkpp::DeviceSize aSize) const
+void DepthTriangle::CopyBuffer(vkpp::Buffer& aDstBuffer, const vkpp::Buffer& aSrcBuffer, vkpp::DeviceSize aSize) const
 {
     const auto& lCommandBuffer = BeginOneTimeCommandBuffer();
 
@@ -612,7 +670,7 @@ void TexturedTriangle::CopyBuffer(vkpp::Buffer& aDstBuffer, const vkpp::Buffer& 
 }
 
 
-void TexturedTriangle::CopyImage(vkpp::Image& aDstImage, const vkpp::Image& aSrcImage, uint32_t aWidth, uint32_t aHeight) const
+void DepthTriangle::CopyImage(vkpp::Image& aDstImage, const vkpp::Image& aSrcImage, uint32_t aWidth, uint32_t aHeight) const
 {
     const auto& lCommandBuffer = BeginOneTimeCommandBuffer();
 
@@ -634,7 +692,7 @@ void TexturedTriangle::CopyImage(vkpp::Image& aDstImage, const vkpp::Image& aSrc
 }
 
 
-vkpp::DeviceMemory TexturedTriangle::AllocateBufferMemory(const vkpp::Buffer& aBuffer, const vkpp::MemoryPropertyFlags& aMemoryProperties) const
+vkpp::DeviceMemory DepthTriangle::AllocateBufferMemory(const vkpp::Buffer& aBuffer, const vkpp::MemoryPropertyFlags& aMemoryProperties) const
 {
     const auto& lBufferMemRequirements = mLogicalDevice.GetBufferMemoryRequirements(aBuffer);
     const auto& lDeviceMemoryProperties = mPhysicalDevice.GetMemoryProperties();
@@ -657,7 +715,7 @@ vkpp::DeviceMemory TexturedTriangle::AllocateBufferMemory(const vkpp::Buffer& aB
 }
 
 
-vkpp::DeviceMemory TexturedTriangle::AllocateImageMemory(const vkpp::Image& aImage, const vkpp::MemoryPropertyFlags& aMemoryProperties) const
+vkpp::DeviceMemory DepthTriangle::AllocateImageMemory(const vkpp::Image& aImage, const vkpp::MemoryPropertyFlags& aMemoryProperties) const
 {
     const auto& lImageMemRequirements = mLogicalDevice.GetImageMemoryRequirements(aImage);
     const auto& lDeviceMemoryProperties = mPhysicalDevice.GetMemoryProperties();
@@ -680,19 +738,23 @@ vkpp::DeviceMemory TexturedTriangle::AllocateImageMemory(const vkpp::Image& aIma
 }
 
 
-vkpp::Framebuffer TexturedTriangle::CreateFramebuffer(const vkpp::ImageView& aImageView) const
+vkpp::Framebuffer DepthTriangle::CreateFramebuffer(const vkpp::ImageView& aImageView) const
 {
+    const std::array<vkpp::ImageView, 2> lAttachments{ aImageView, mDepthImageView };
+
     vkpp::FramebufferCreateInfo lFramebufferCreateInfo
-    {
-        mRenderPass, 1, aImageView.AddressOf(),
+    (
+        mRenderPass,
+        // std::array<vkpp::ImageView, 2>{aImageView, mDepthImageView},
+        lAttachments,
         mSwapchain.mExtent.width, mSwapchain.mExtent.height
-    };
+    );
 
     return mLogicalDevice.CreateFramebuffer(lFramebufferCreateInfo);
 }
 
 
-void TexturedTriangle::PrepareFrame(vkpp::Framebuffer& aFramebuffer, const vkpp::CommandBuffer& aCommandBuffer, const vkpp::ImageView& aImageView) const
+void DepthTriangle::PrepareFrame(vkpp::Framebuffer& aFramebuffer, const vkpp::CommandBuffer& aCommandBuffer, const vkpp::ImageView& aImageView) const
 {
     if (aFramebuffer)
         mLogicalDevice.DestroyFramebuffer(aFramebuffer);
@@ -706,9 +768,10 @@ void TexturedTriangle::PrepareFrame(vkpp::Framebuffer& aFramebuffer, const vkpp:
 
     aCommandBuffer.Begin(lCmdBufferBeginInfo);
 
-    const vkpp::ClearValue lClearValue
+    const vkpp::ClearValue lClearValue[]
     {
-        { 0.129411f, 0.156862f, 0.188235f, 1.0f }
+        { 0.129411f, 0.156862f, 0.188235f, 1.0f },
+        { 1.0f, 0.0f }
     };
 
     const vkpp::RenderPassBeginInfo lRenderPassBeginInfo
@@ -719,7 +782,7 @@ void TexturedTriangle::PrepareFrame(vkpp::Framebuffer& aFramebuffer, const vkpp:
             {0, 0},
             mSwapchain.mExtent
         },
-        1, &lClearValue
+        2, lClearValue
     };
 
     aCommandBuffer.BeginRenderPass(lRenderPassBeginInfo, vkpp::SubpassContents::eInline);
@@ -753,7 +816,7 @@ void TexturedTriangle::PrepareFrame(vkpp::Framebuffer& aFramebuffer, const vkpp:
 }
 
 
-vkpp::CommandBuffer TexturedTriangle::BeginOneTimeCommandBuffer(void) const
+vkpp::CommandBuffer DepthTriangle::BeginOneTimeCommandBuffer(void) const
 {
     const vkpp::CommandBufferAllocateInfo lCommandBufferAllocateInfo
     {
@@ -773,7 +836,7 @@ vkpp::CommandBuffer TexturedTriangle::BeginOneTimeCommandBuffer(void) const
 }
 
 
-void TexturedTriangle::EndOneTimeCommandBuffer(const vkpp::CommandBuffer& aCommandBuffer) const
+void DepthTriangle::EndOneTimeCommandBuffer(const vkpp::CommandBuffer& aCommandBuffer) const
 {
     aCommandBuffer.End();
 
@@ -796,7 +859,7 @@ void TexturedTriangle::EndOneTimeCommandBuffer(const vkpp::CommandBuffer& aComma
 
 
 template <vkpp::ImageLayout OldLayout, vkpp::ImageLayout NewLayout>
-void TexturedTriangle::TransitionImageLayout(const vkpp::Image& aImage, const vkpp::AccessFlags& aSrcAccessMask, const vkpp::AccessFlags& aDstAccessMask) const
+void DepthTriangle::TransitionImageLayout(const vkpp::Image& aImage, const vkpp::AccessFlags& aSrcAccessMask, const vkpp::AccessFlags& aDstAccessMask) const
 {
     const auto& lCommandBuffer = BeginOneTimeCommandBuffer();
 
@@ -826,7 +889,7 @@ void TexturedTriangle::TransitionImageLayout(const vkpp::Image& aImage, const vk
 }
 
 
-void TexturedTriangle::UpdateUniformBuffer(void)
+void DepthTriangle::UpdateUniformBuffer(void)
 {
     static auto lStartTime = std::chrono::high_resolution_clock::now();
 
@@ -850,7 +913,7 @@ void TexturedTriangle::UpdateUniformBuffer(void)
 }
 
 
-void TexturedTriangle::DrawFrame(void)
+void DepthTriangle::DrawFrame(void)
 {
     UpdateUniformBuffer();
 

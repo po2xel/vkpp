@@ -342,11 +342,11 @@ uint32_t Application::GetSwapchainImageCount(const vkpp::khr::SurfaceCapabilitie
 vkpp::khr::SurfaceFormat Application::GetSwapchainFormat(const std::vector<vkpp::khr::SurfaceFormat>& aSurfaceFormats)
 {
     if (aSurfaceFormats.size() == 1 && aSurfaceFormats[0].format == vkpp::Format::eUndefined)
-        return { vkpp::Format::eRGBA8Unorm, vkpp::khr::ColorSpace::esRGBNonLinear };
+        return { vkpp::Format::eRGBA8uNorm, vkpp::khr::ColorSpace::esRGBNonLinear };
 
     for (auto& lSurfaceFormat : aSurfaceFormats)
     {
-        if (lSurfaceFormat.format == vkpp::Format::eRGBA8Unorm)
+        if (lSurfaceFormat.format == vkpp::Format::eRGBA8uNorm)
             return lSurfaceFormat;
     }
 

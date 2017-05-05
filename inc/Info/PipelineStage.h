@@ -676,6 +676,37 @@ struct StencilOpState : public internal::VkTrait<StencilOpState, VkStencilOpStat
     StencilOpState(StencilOp aFailOp, StencilOp aPassOp, StencilOp aDepthFailOp, CompareOp aCompareOp, uint32_t aCompareMask, uint32_t aWriteMask, uint32_t aReference)
         : failOp(aFailOp), passOp(aPassOp), depthFailOp(aDepthFailOp), compareOp(aCompareOp), compareMask(aCompareMask), writeMask(aWriteMask), reference(aReference)
     {}
+
+    StencilOpState& SetStencilOp(StencilOp aFailOp, StencilOp aPassOp, StencilOp aDepthFailOp)
+    {
+        failOp      = aFailOp;
+        passOp      = aPassOp;
+        depthFailOp = aDepthFailOp;
+
+        return *this;
+    }
+
+    StencilOpState& SetCompareOp(CompareOp aCompareOp)
+    {
+        compareOp   = aCompareOp;
+
+        return *this;
+    }
+
+    StencilOpState& SetMask(uint32_t aCompareMask, uint32_t aWriteMask)
+    {
+        compareMask = aCompareMask;
+        writeMask   = aWriteMask;
+
+        return *this;
+    }
+
+    StencilOpState& SetReference(uint32_t aReference)
+    {
+        reference   = aReference;
+
+        return *this;
+    }
 };
 
 ConsistencyCheck(StencilOpState, failOp, passOp, depthFailOp, compareOp, compareMask, writeMask, reference)
@@ -701,6 +732,66 @@ public:
     float                                   maxDepthBounds{ 0 };
 
     DEFINE_CLASS_MEMBER(PipelineDepthStencilStateCreateInfo)
+
+    PipelineDepthStencilStateCreateInfo(Bool32 aDepthTestEnable, Bool32 aDepthWriteEnable, CompareOp aDepthCompareOp, Bool32 aDepthBoundsTestEnable,
+        Bool32 aStencilTestEnable, const StencilOpState& aFront, const StencilOpState& aBack, float aMinDepthBounds = 0.0f, float aMaxDepthBounds = 1.0f,
+        const PipelineDepthStencilStateCreateFlags& aFlags = DefaultFlags)
+        : flags(aFlags), depthTestEnable(aDepthTestEnable), depthWriteEnable(aDepthWriteEnable), depthCompareOp(aDepthCompareOp), depthBoundsTestEnable(aDepthBoundsTestEnable),
+          stencilTestEnable(aStencilTestEnable), front(aFront), back(aBack), minDepthBounds(aMinDepthBounds), maxDepthBounds(aMaxDepthBounds)
+    {}
+
+    PipelineDepthStencilStateCreateInfo(Bool32 aDepthTestEnable, Bool32 aDepthWriteEnable, CompareOp aDepthCompareOp, const PipelineDepthStencilStateCreateFlags& aFlags = DefaultFlags)
+        : flags(aFlags), depthTestEnable(aDepthTestEnable), depthWriteEnable(aDepthWriteEnable), depthCompareOp(aDepthCompareOp)
+    {}
+
+    PipelineDepthStencilStateCreateInfo(Bool32 aStencilTestEnable, const StencilOpState& aFront, const StencilOpState& aBack, const PipelineDepthStencilStateCreateFlags& aFlags = DefaultFlags)
+        : flags(aFlags), stencilTestEnable(aStencilTestEnable), front(aFront), back(aBack)
+    {}
+
+    explicit PipelineDepthStencilStateCreateInfo(Bool32 aDepthBoundsTestEnable, float aMinDepthBounds = 0.0f, float aMaxDepthBounds = 1.0f, const PipelineDepthStencilStateCreateFlags& aFlags = DefaultFlags)
+        : flags(aFlags), depthBoundsTestEnable(aDepthBoundsTestEnable), minDepthBounds(aMinDepthBounds), maxDepthBounds(aMaxDepthBounds)
+    {}
+
+    PipelineDepthStencilStateCreateInfo& SetNext(const void* apNext)
+    {
+        pNext = apNext;
+
+        return *this;
+    }
+
+    PipelineDepthStencilStateCreateInfo& SetFlags(const PipelineDepthStencilStateCreateFlags& aFlags)
+    {
+        flags = aFlags;
+
+        return *this;
+    }
+
+    PipelineDepthStencilStateCreateInfo& SetDepthTest(Bool32 aDepthTestEnable, Bool32 aDepthWriteEnable, CompareOp aDepthCompareOp)
+    {
+        depthTestEnable     = aDepthTestEnable;
+        depthWriteEnable    = aDepthWriteEnable;
+        depthCompareOp      = aDepthCompareOp;
+
+        return *this;
+    }
+
+    PipelineDepthStencilStateCreateInfo& SetStencilTest(Bool32 aStencilTestEnable, const StencilOpState& aFront, const StencilOpState& aBack)
+    {
+        stencilTestEnable   = aStencilTestEnable;
+        front               = aFront;
+        back                = aBack;
+
+        return *this;
+    }
+
+    PipelineDepthStencilStateCreateInfo& SetDepthBounds(Bool32 aDepthBoundsTestEnable, float aMinDepthBounds, float aMaxDepthBounds)
+    {
+        depthBoundsTestEnable   = aDepthBoundsTestEnable;
+        minDepthBounds          = aMinDepthBounds;
+        maxDepthBounds          = aMaxDepthBounds;
+
+        return *this;
+    }
 };
 
 ConsistencyCheck(PipelineDepthStencilStateCreateInfo, pNext, flags, depthTestEnable, depthWriteEnable, depthCompareOp, depthBoundsTestEnable, stencilTestEnable,
