@@ -59,14 +59,12 @@ public:
         :flags(aFlags), queueFamilyIndex(aQueueFamilyIndex), queueCount(aQueueCount), pQueuePriorities(apQueuePriorities)
     {}
 
-    QueueCreateInfo(uint32_t aQueueFamilyIndex, const std::vector<float>& aQueuePriorities, const DeviceQueueCreateFlags& aFlags = DefaultFlags)
+    template <typename P, typename = EnableIfValueType<P, float>>
+    QueueCreateInfo(uint32_t aQueueFamilyIndex,P&& aQueuePriorities, const DeviceQueueCreateFlags& aFlags = DefaultFlags)
         : QueueCreateInfo(aQueueFamilyIndex, static_cast<uint32_t>(aQueuePriorities.size()), aQueuePriorities.data(), aFlags)
-    {}
-
-    template <std::size_t P>
-    QueueCreateInfo(uint32_t aQueueFamilyIndex, const std::array<float, P>& aQueuePriorities, const DeviceQueueCreateFlags& aFlags = DefaultFlags)
-        : QueueCreateInfo(aQueueFamilyIndex, static_cast<uint32_t>(aQueuePriorities.size()), aQueuePriorities.data(), aFlags)
-    {}
+    {
+        StaticLValueRefAssert(P, aQueuePriorities);
+    }
 
     QueueCreateInfo& SetNext(const void* apNext)
     {
@@ -97,14 +95,11 @@ public:
         return *this;
     }
 
-    QueueCreateInfo& SetQueuePriorities(const std::vector<float>& aQueuePriorities)
+    template <typename P, typename = EnableIfValueType<P, float>>
+    QueueCreateInfo& SetQueuePriorities(P&& aQueuePriorities)
     {
-        return SetQueuePriorities(static_cast<uint32_t>(aQueuePriorities.size()), aQueuePriorities.data());
-    }
+        StaticLValueRefAssert(P, aQueuePriorities);
 
-    template <std::size_t P>
-    QueueCreateInfo& SetQueuePriorities(const std::array<float, P>& aQueuePriorities)
-    {
         return SetQueuePriorities(static_cast<uint32_t>(aQueuePriorities.size()), aQueuePriorities.data());
     }
 };
@@ -148,28 +143,14 @@ public:
           enabledExtensionCount(aEnalbedExtensionCount), ppEnabledExtensionNames(appEnabledExtensionNames), pEnabledFeatures(apEnabledFeatures)
     {}
 
-    LogicalDeviceCreateInfo(const std::vector<QueueCreateInfo>& aQueueCreateInfos, const std::vector<const char*>& aEnabledExtensions,
-        const PhysicalDeviceFeatures& aEnabledFeatures, const DeviceCreateFlags& aFlags = DefaultFlags)
+    template <typename Q, typename E, typename = EnableIfValueTypes<Q, QueueCreateInfo, E, const char*>>
+    LogicalDeviceCreateInfo(Q&& aQueueCreateInfos, E&& aEnabledExtensions, const PhysicalDeviceFeatures* apEnabledFeatures = nullptr, const DeviceCreateFlags& aFlags = DefaultFlags)
         : LogicalDeviceCreateInfo(static_cast<uint32_t>(aQueueCreateInfos.size()), aQueueCreateInfos.data(),
-          static_cast<uint32_t>(aEnabledExtensions.size()), aEnabledExtensions.data(),
-          &aEnabledFeatures, aFlags)
-    {}
-
-    template <std::size_t Q, std::size_t E>
-    LogicalDeviceCreateInfo(const std::array<QueueCreateInfo, Q>& aQueueCreateInfos, const std::array<const char*, E>& aEnabledExtensions,
-        const PhysicalDeviceFeatures& aEnabledFeatures, const DeviceCreateFlags& aFlags = DefaultFlags)
-        : LogicalDeviceCreateInfo(static_cast<uint32_t>(aQueueCreateInfos.size()), aQueueCreateInfos.data(),
-          static_cast<uint32_t>(aEnabledExtensions.size()), aEnabledExtensions.data(),
-          &aEnabledFeatures, aFlags)
-    {}
-
-    template <std::size_t E>
-    LogicalDeviceCreateInfo(const std::vector<QueueCreateInfo>& aQueueCreateInfos, const std::array<const char*, E>& aEnabledExtensions,
-        const PhysicalDeviceFeatures* aEnabledFeatures = nullptr, const DeviceCreateFlags& aFlags = DefaultFlags)
-        : LogicalDeviceCreateInfo(static_cast<uint32_t>(aQueueCreateInfos.size()), aQueueCreateInfos.data(),
-          static_cast<uint32_t>(aEnabledExtensions.size()), aEnabledExtensions.data(),
-          aEnabledFeatures, aFlags)
-    {}
+          static_cast<uint32_t>(aEnabledExtensions.size()), aEnabledExtensions.data(), apEnabledFeatures, aFlags)
+    {
+        StaticLValueRefAssert(Q, aQueueCreateInfos);
+        StaticLValueRefAssert(E, aEnabledExtensions);
+    }
 
     LogicalDeviceCreateInfo& SetNext(const void* apNext)
     {
@@ -185,11 +166,20 @@ public:
         return *this;
     }
 
-    LogicalDeviceCreateInfo& SetQueueCreateInfo(const QueueCreateInfo& aQueueCreateInfo)
+    LogicalDeviceCreateInfo& SetQueueCreateInfo(uint32_t aQueueCreateInfoCountconst, const QueueCreateInfo* apQueueCreateInfos)
     {
-        pQueueCreateInfos = aQueueCreateInfo.AddressOf();
+        queueCreateInfoCount    = aQueueCreateInfoCountconst;
+        pQueueCreateInfos       = apQueueCreateInfos;
 
         return *this;
+    }
+
+    template <typename Q, typename = EnableIfValueType<Q, QueueCreateInfo>>
+    LogicalDeviceCreateInfo& SetQueueCreateInfo(Q&& aQueueCreateInfos)
+    {
+        StaticLValueRefAssert(Q, aQueueCreateInfos);
+
+        return SetQueueCreateInfo(static_cast<uint32_t>(aQueueCreateInfos.size()), aQueueCreateInfos.data());
     }
 
     LogicalDeviceCreateInfo& SetEnabledExtensions(uint32_t aEnabledExtensionCount, const char* const* appEnabledExtensionNames)
@@ -200,14 +190,11 @@ public:
         return *this;
     }
 
-    LogicalDeviceCreateInfo& SetEnabledExtensions(const std::vector<const char*>& aEnabledExtensionNames)
+    template <typename E, typename = EnableIfValueType<E, const char*>>
+    LogicalDeviceCreateInfo& SetEnabledExtensions(E&& aEnabledExtensionNames)
     {
-        return SetEnabledExtensions(static_cast<uint32_t>(aEnabledExtensionNames.size()), aEnabledExtensionNames.data());
-    }
+        StaticLValueRefAssert(E, aEnabledExtensionNames);
 
-    template <std::size_t E>
-    LogicalDeviceCreateInfo& SetEnabledExtensions(const std::array<const char*, E>& aEnabledExtensionNames)
-    {
         return SetEnabledExtensions(static_cast<uint32_t>(aEnabledExtensionNames.size()), aEnabledExtensionNames.data());
     }
 };

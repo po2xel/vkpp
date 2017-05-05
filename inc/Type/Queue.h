@@ -47,8 +47,11 @@ public:
     explicit SubmitInfo(const CommandBuffer& aCommandBuffer) : commandBufferCount(1), pCommandBuffers(aCommandBuffer.AddressOf())
     {}
 
-    explicit SubmitInfo(const std::vector<CommandBuffer>& aCommandBuffers) : commandBufferCount(static_cast<uint32_t>(aCommandBuffers.size())), pCommandBuffers(aCommandBuffers.data())
-    {}
+    template <typename C, typename = EnableIfValueType<C, CommandBuffer>>
+    explicit SubmitInfo(C&& aCommandBuffers) : commandBufferCount(static_cast<uint32_t>(aCommandBuffers.size())), pCommandBuffers(aCommandBuffers.data())
+    {
+        StaticLValueRefAssert(C, aCommandBuffers);
+    }
 
     SubmitInfo& SetNext(const void* apNext)
     {
@@ -74,14 +77,11 @@ public:
         return *this;
     }
 
-    SubmitInfo& SetCommandBuffers(const std::vector<CommandBuffer>& aCommandBuffers)
+    template <typename C, typename = EnableIfValueType<C, CommandBuffer>>
+    SubmitInfo& SetCommandBuffers(C&& aCommandBuffers)
     {
-        return SetCommandBuffers(static_cast<uint32_t>(aCommandBuffers.size()), aCommandBuffers.data());
-    }
+        StaticLValueRefAssert(C, aCommandBuffers);
 
-    template <std::size_t C>
-    SubmitInfo& SetCommandBuffers(const std::array<CommandBuffer, C>& aCommandBuffers)
-    {
         return SetCommandBuffers(static_cast<uint32_t>(aCommandBuffers.size()), aCommandBuffers.data());
     }
 
@@ -93,14 +93,11 @@ public:
         return *this;
     }
 
-    SubmitInfo& SetSignalSemaphores(const std::vector<Semaphore>& aSignalSemaphores)
+    template <typename S, typename = EnableIfValueType<S, Semaphore>>
+    SubmitInfo& SetSignalSemaphores(S&& aSignalSemaphores)
     {
-        return SetSignalSemaphores(static_cast<uint32_t>(aSignalSemaphores.size()), aSignalSemaphores.data());
-    }
+        StaticLValueRefAssert(S, aSignalSemaphores);
 
-    template <std::size_t S>
-    SubmitInfo& SetSignalSemaphores(const std::array<Semaphore, S>& aSignalSemaphores)
-    {
         return SetSignalSemaphores(static_cast<uint32_t>(aSignalSemaphores.size()), aSignalSemaphores.data());
     }
 };

@@ -235,10 +235,10 @@ void Application::CreateLogicalDevice(void)
     };
 
     const vkpp::LogicalDeviceCreateInfo lLogicalDeviceInfo
-    {
+    (
         lQueueCreateInfos,
-        lDevcieExts,
-    };
+        lDevcieExts
+    );
 
     mLogicalDevice.Reset(mPhysicalDevice, lLogicalDeviceInfo);
 }

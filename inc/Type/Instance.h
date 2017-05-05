@@ -95,14 +95,13 @@ public:
         enabledExtensionCount(aEnabledExtensionCount), ppEnabledExtensionNames(appEnabledExtensionNames)
     {}
 
-    InstanceInfo(const ApplicationInfo& aAppInfo, const std::vector<const char*>& aEnabledLayers, const std::vector<const char*>& aEnabledExtensions)
+    template <typename L, typename E, typename = EnableIfValueTypes<L, const char*, E, const char*>>
+    InstanceInfo(const ApplicationInfo& aAppInfo, L&& aEnabledLayers, E&& aEnabledExtensions)
         : InstanceInfo(aAppInfo, static_cast<uint32_t>(aEnabledLayers.size()), aEnabledLayers.data(), static_cast<uint32_t>(aEnabledExtensions.size()), aEnabledExtensions.data())
-    {}
-
-    template <std::size_t L, std::size_t E>
-    InstanceInfo(const ApplicationInfo& aAppInfo, const std::array<const char*, L>& aEnabledLayers, const std::array<const char*, E>& aEnabledExtensions)
-        : InstanceInfo(aAppInfo, static_cast<uint32_t>(aEnabledLayers.size()), aEnabledLayers.data(), static_cast<uint32_t>(aEnabledExtensions.size()), aEnabledExtensions.data())
-    {}
+    {
+        StaticLValueRefAssert(L, aEnabledLayers);
+        StaticLValueRefAssert(E, aEnabledExtensions);
+    }
 
     InstanceInfo& SetNext(const void* apNext)
     {
@@ -126,14 +125,11 @@ public:
         return *this;
     }
 
-    InstanceInfo& SetEnabledLayers(const std::vector<const char*>& aEnabledLayers)
+    template <typename L, typename = EnableIfValueType<L, const char*>>
+    InstanceInfo& SetEnabledLayers(L&& aEnabledLayers)
     {
-        return SetEnabledLayers(static_cast<uint32_t>(aEnabledLayers.size()), aEnabledLayers.data());
-    }
+        StaticLValueRefAssert(L, aEnabledLayers);
 
-    template <std::size_t L>
-    InstanceInfo& SetEnabledLayers(const std::array<const char*, L>& aEnabledLayers)
-    {
         return SetEnabledLayers(static_cast<uint32_t>(L), aEnabledLayers.data());
     }
 
@@ -145,14 +141,11 @@ public:
         return *this;
     }
 
-    InstanceInfo& SetEnalbedExtension(const std::vector<const char*>& aEnabledExtensions)
+    template <typename E, typename = EnableIfValueType<E, const char*>>
+    InstanceInfo& SetEnabledExtensions(E&& aEnabledExtensions)
     {
-        return SetEnabledExtensions(static_cast<uint32_t>(aEnabledExtensions.size()), aEnabledExtensions.data());
-    }
+        StaticLValueRefAssert(E, aEnabledExtensions);
 
-    template <std::size_t E>
-    InstanceInfo& SetEnabledExtensions(const std::array<const char*, E>& aEnabledExtensions)
-    {
         return SetEnabledExtensions(static_cast<uint32_t>(E), aEnabledExtensions.data());
     }
 };

@@ -34,16 +34,12 @@ public:
         : renderPass(aRenderPass), framebuffer(aFramebuffer), renderArea(aRenderArea), clearValueCount(aClearValueCount), pClearValues(apClearValues)
     {}
 
-    RenderPassBeginInfo(const RenderPass& aRenderPass, const Framebuffer& aFramebuffer, const Rect2D& aRenderArea,
-        const std::vector<ClearValue>& aClearValues)
+    template <typename C, typename = EnableIfValueType<C, ClearValue>>
+    RenderPassBeginInfo(const RenderPass& aRenderPass, const Framebuffer& aFramebuffer, const Rect2D& aRenderArea, C&& aClearValues)
         : RenderPassBeginInfo(aRenderPass, aFramebuffer, aRenderArea, static_cast<uint32_t>(aClearValues.size()), aClearValues.data())
-    {}
-
-    template <std::size_t C>
-    RenderPassBeginInfo(const RenderPass& aRenderPass, const Framebuffer& aFramebuffer, const Rect2D& aRenderArea,
-        const std::array<ClearValue, C>& aClearValues)
-        : RenderPassBeginInfo(aRenderPass, aFramebuffer, aRenderArea, static_cast<uint32_t>(aClearValues.size()), aClearValues.data())
-    {}
+    {
+        StaticLValueRefAssert(C, aClearValues);
+    }
 
     RenderPassBeginInfo& SetNext(const void* apNext)
     {
@@ -81,14 +77,11 @@ public:
         return *this;
     }
 
-    RenderPassBeginInfo& SetClearValue(const std::vector<ClearValue>& aClearValues)
+    template <typename C, typename = EnableIfValueType<C, ClearValue>>
+    RenderPassBeginInfo& SetClearValue(C&& aClearValues)
     {
-        return SetClearValue(static_cast<uint32_t>(aClearValues.size()), aClearValues.data());
-    }
+        StaticLValueRefAssert(C, aClearValues);
 
-    template <std::size_t C>
-    RenderPassBeginInfo& SetClearValue(const std::array<ClearValue, C>& aClearValues)
-    {
         return SetClearValue(static_cast<uint32_t>(aClearValues.size()), aClearValues.data());
     }
 };

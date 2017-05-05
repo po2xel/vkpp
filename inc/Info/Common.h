@@ -5,6 +5,7 @@
 
 #include <vector>
 #include <cassert>
+#include <type_traits>
 
 #include <Type/Structure.h>
 #include <Type/VkTrait.h>
@@ -32,6 +33,8 @@ Class& operator=(const Class::VkType& aRhs) \
 }
 
 
+#define StaticLValueRefAssert(T, ArgName) static_assert(std::is_lvalue_reference_v<T&&>, "Argument \"" #ArgName "\" shouldn't be rvalue reference.");
+
 
 namespace vkpp
 {
@@ -47,6 +50,16 @@ using ClearValue        = VkClearValue;
 
 template <typename T>
 using Array = std::vector<T>;
+
+
+
+template <typename L, typename R>
+using EnableIfValueType = std::enable_if_t<std::is_same_v<typename std::decay_t<L>::value_type, R>>;
+
+
+
+template <typename L1, typename R1, typename L2, typename R2>
+using EnableIfValueTypes = std::enable_if_t<std::is_same_v<typename std::decay_t<L1>::value_type, R1> && std::is_same_v<typename std::decay_t<L2>::value_type, R2>>;
 
 
 

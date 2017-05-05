@@ -176,6 +176,8 @@ struct SubpassDescription : public internal::VkTrait<SubpassDescription, VkSubpa
     uint32_t                    preserveAttachmentCount{ 0 };
     const uint32_t*             pPreserveAttachments{ nullptr };
 
+    DEFINE_CLASS_MEMBER(SubpassDescription)
+
     SubpassDescription(PipelineBindPoint aPipelineBindPoint, uint32_t aInputAttachmentCount, const AttachmentReference* apInputAttachments,
         uint32_t aColorAttachmentCount, const AttachmentReference* apColorAttachments, const AttachmentReference* apResolveAttachments = nullptr,
         const AttachmentReference* apDepthStencilAttachment = nullptr,
@@ -185,8 +187,6 @@ struct SubpassDescription : public internal::VkTrait<SubpassDescription, VkSubpa
           pDepthStencilAttachment(apDepthStencilAttachment),
           preserveAttachmentCount(apReserveAttachmentCount), pPreserveAttachments(apPreserveAttachments)
     {}
-
-    DEFINE_CLASS_MEMBER(SubpassDescription)
 
     SubpassDescription& SetFlags(const SubpassDescriptionFlags& aFlags)
     {
@@ -215,9 +215,11 @@ struct SubpassDescription : public internal::VkTrait<SubpassDescription, VkSubpa
         return SetInputAttachments(static_cast<uint32_t>(aInputAttachments.size()), aInputAttachments.data());
     }
 
-    template <std::size_t I>
-    SubpassDescription& SetInputAttachments(const std::array<AttachmentReference, I>& aInputAttachments)
+    template <typename I, typename = EnableIfValueType<I, AttachmentReference>>
+    SubpassDescription& SetInputAttachments(I&& aInputAttachments)
     {
+        StaticLValueRefAssert(I, aInputAttachments);
+
         return SetInputAttachments(static_cast<uint32_t>(aInputAttachments.size()), aInputAttachments.data());
     }
 
@@ -230,16 +232,14 @@ struct SubpassDescription : public internal::VkTrait<SubpassDescription, VkSubpa
         return *this;
     }
 
-    SubpassDescription& SetColorAttachments(const std::vector<AttachmentReference>& aColorAttachments, const std::vector<AttachmentReference>& aResolveAttachments)
+    template <typename C, typename = EnableIfValueType<C, AttachmentReference>>
+    SubpassDescription& SetColorAttachments(C&& aColorAttachments, C&& aResolveAttachments)
     {
+        StaticLValueRefAssert(C, aColorAttachments);
+        StaticLValueRefAssert(C, aResolveAttachments);
+
         assert(aColorAttachments.size() == aResolveAttachments.size());
 
-        return SetColorAttachments(static_cast<uint32_t>(aColorAttachments.size()), aColorAttachments.data(), aResolveAttachments.data());
-    }
-
-    template <std::size_t C>
-    SubpassDescription& SetColorAttachments(const std::array<AttachmentReference, C>& aColorAttachments, const std::array<AttachmentReference, C>& aResolveAttachments)
-    {
         return SetColorAttachments(static_cast<uint32_t>(aColorAttachments.size()), aColorAttachments.data(), aResolveAttachments.data());
     }
 
@@ -262,15 +262,12 @@ struct SubpassDescription : public internal::VkTrait<SubpassDescription, VkSubpa
 
         return *this;
     }
-
-    SubpassDescription& SetPreserveAttachments(const std::vector<uint32_t>& aPreserveAttachments)
+    
+    template <typename P, typename = EnableIfValueType<P, uint32_t>>
+    SubpassDescription& SetPreserveAttachments(P&& aPreserveAttachments)
     {
-        return SetPreserveAttachments(static_cast<uint32_t>(aPreserveAttachments.size()), aPreserveAttachments.data());
-    }
+        StaticLValueRefAssert(P, aPreserveAttachments);
 
-    template <std::size_t P>
-    SubpassDescription& SetPreserveAttachments(const std::array<uint32_t, P>& aPreserveAttachments)
-    {
         return SetPreserveAttachments(static_cast<uint32_t>(aPreserveAttachments.size()), aPreserveAttachments.data());
     }
 };
@@ -409,14 +406,11 @@ public:
         return *this;
     }
 
-    RenderPassCreateInfo& SetAttachments(const std::vector<AttachementDescription>& aAttachments)
+    template <typename A, typename = EnableIfValueType<A, AttachementDescription>>
+    RenderPassCreateInfo& SetAttachments(A&& aAttachments)
     {
-        return SetAttachments(static_cast<uint32_t>(aAttachments.size()), aAttachments.data());
-    }
+        StaticLValueRefAssert(A, aAttachments);
 
-    template <std::size_t A>
-    RenderPassCreateInfo& SetAttachments(const std::array<AttachementDescription, A>& aAttachments)
-    {
         return SetAttachments(static_cast<uint32_t>(aAttachments.size()), aAttachments.data());
     }
 
@@ -428,14 +422,12 @@ public:
         return *this;
     }
 
-    RenderPassCreateInfo& SetSubpasses(const std::vector<SubpassDescription>& aSubpasses)
-    {
-        return SetSubpasses(static_cast<uint32_t>(aSubpasses.size()), aSubpasses.data());
-    }
 
-    template <std::size_t S>
-    RenderPassCreateInfo& SetSubpasses(const std::array<SubpassDescription, S>& aSubpasses)
+    template <typename S, typename = EnableIfValueType<S, SubpassDescription>>
+    RenderPassCreateInfo& SetSubpasses(S&& aSubpasses)
     {
+        StaticLValueRefAssert(S, aSubpasses);
+
         return SetSubpasses(static_cast<uint32_t>(aSubpasses.size()), aSubpasses.data());
     }
 
@@ -447,14 +439,11 @@ public:
         return *this;
     }
 
-    RenderPassCreateInfo& SetDependencies(const std::vector<SubpassDependency>& aDependencies)
+    template <typename D, typename = EnableIfValueType<D, SubpassDependency>>
+    RenderPassCreateInfo& SetDependencies(D&& aDependencies)
     {
-        return SetDependencies(static_cast<uint32_t>(aDependencies.size()), aDependencies.data());
-    }
+        StaticLValueRefAssert(D, aDependencies);
 
-    template <std::size_t D>
-    RenderPassCreateInfo& SetDependencies(const std::array<SubpassDependency, D>& aDependencies)
-    {
         return SetDependencies(static_cast<uint32_t>(aDependencies.size()), aDependencies.data());
     }
 };

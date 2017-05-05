@@ -109,14 +109,12 @@ public:
         : flags(aFlags), bindingCount(aBindingCount), pBindings(apBindings)
     {}
 
-    DescriptorSetLayoutCreateInfo(const std::vector<DescriptorSetLayoutBinding>& aBindings, const DescriptorSetLayoutCreateFlags& aFlags = DefaultFlags)
+    template <typename B, typename = EnableIfValueType<B, DescriptorSetLayoutBinding>>
+    explicit DescriptorSetLayoutCreateInfo(B&& aBindings, const DescriptorSetLayoutCreateFlags& aFlags = DefaultFlags)
         : DescriptorSetLayoutCreateInfo(static_cast<uint32_t>(aBindings.size()), aBindings.data(), aFlags)
-    {}
-
-    template <std::size_t D>
-    DescriptorSetLayoutCreateInfo(const std::array<DescriptorSetLayoutBinding, D>& aBindings, const DescriptorSetLayoutCreateFlags& aFlags = DefaultFlags)
-        : DescriptorSetLayoutCreateInfo(static_cast<uint32_t>(aBindings.size()), aBindings.data(), aFlags)
-    {}
+    {
+        StaticLValueRefAssert(B, aBindings);
+    }
 
     DescriptorSetLayoutCreateInfo& SetNext(const void* apNext)
     {
@@ -140,14 +138,11 @@ public:
         return *this;
     }
 
-    DescriptorSetLayoutCreateInfo& SetBindings(const std::vector<DescriptorSetLayoutBinding>& aBindings)
+    template <typename B, typename = EnableIfValueType<B, DescriptorSetLayoutBinding>>
+    DescriptorSetLayoutCreateInfo& SetBindings(B&& aBindings)
     {
-        return SetBindings(static_cast<uint32_t>(aBindings.size()), aBindings.data());
-    }
+        StaticLValueRefAssert(B, aBindings);
 
-    template <std::size_t D>
-    DescriptorSetLayoutCreateInfo& SetBindings(const std::array<DescriptorSetLayoutBinding, D>& aBindings)
-    {
         return SetBindings(static_cast<uint32_t>(aBindings.size()), aBindings.data());
     }
 };

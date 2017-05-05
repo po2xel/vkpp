@@ -37,30 +37,18 @@ public:
 
     DEFINE_CLASS_MEMBER(FramebufferCreateInfo)
 
-    FramebufferCreateInfo(const RenderPass& aRenderPass, uint32_t aAttachmentCount, const ImageView* apAttachments,
-        uint32_t aWidth = 1 , uint32_t aHeight = 1, uint32_t aLayers = 1, const FramebufferCreateFlags& aFlags = DefaultFlags)
+        FramebufferCreateInfo(const RenderPass& aRenderPass, uint32_t aAttachmentCount, const ImageView* apAttachments,
+            uint32_t aWidth = 1, uint32_t aHeight = 1, uint32_t aLayers = 1, const FramebufferCreateFlags& aFlags = DefaultFlags)
         : flags(aFlags), renderPass(aRenderPass), attachmentCount(aAttachmentCount), pAttachments(apAttachments),
-          width(aWidth), height(aHeight), layers(aLayers)
+        width(aWidth), height(aHeight), layers(aLayers)
     {}
 
-    // TODO: aAttachments shouldn't be a temporary variable.
-    /*FramebufferCreateInfo(const RenderPass& aRenderPass, const std::vector<ImageView>& aAttachments,
-        uint32_t aWidth = 1, uint32_t aHeight = 1, uint32_t aLayers = 1, const FramebufferCreateFlags& aFlags = DefaultFlags)
-        : FramebufferCreateInfo(aRenderPass, static_cast<uint32_t>(aAttachments.size()), aAttachments.data(), aWidth, aHeight, aLayers, aFlags)
-    {}
-
-    template <std::size_t A>
-    FramebufferCreateInfo(const RenderPass& aRenderPass, const std::array<ImageView, A>& aAttachments,
-        uint32_t aWidth = 1, uint32_t aHeight = 1, uint32_t aLayers = 1, const FramebufferCreateFlags& aFlags = DefaultFlags)
-        : FramebufferCreateInfo(aRenderPass, static_cast<uint32_t>(aAttachments.size()), aAttachments.data(), aWidth, aHeight, aLayers, aFlags)
-    {}*/
-
-    template <typename T>
-    FramebufferCreateInfo(const RenderPass& aRenderPass, T&& aAttachments,
+    template <typename A, typename = EnableIfValueType<A, ImageView>>
+    FramebufferCreateInfo(const RenderPass& aRenderPass, A&& aAttachments,
         uint32_t aWidth = 1, uint32_t aHeight = 1, uint32_t aLayers = 1, const FramebufferCreateFlags& aFlags = DefaultFlags)
         : FramebufferCreateInfo(aRenderPass, static_cast<uint32_t>(aAttachments.size()), aAttachments.data(), aWidth, aHeight, aLayers, aFlags)
     {
-        static_assert(std::is_lvalue_reference_v<T&&>, "Argument \"aAttachments\" shouldn't be rvalue reference.");
+        StaticLValueRefAssert(A, aAttachments);
     }
 
     FramebufferCreateInfo& SetFlags(const FramebufferCreateFlags& aFlags)
@@ -85,14 +73,11 @@ public:
         return *this;
     }
 
-    FramebufferCreateInfo& SetAttachments(const std::vector<ImageView>& aAttachments)
+    template <typename A, typename = EnableIfValueType<A, ImageView>>
+    FramebufferCreateInfo& SetAttachments(A&& aAttachments)
     {
-        return SetAttachments(static_cast<uint32_t>(aAttachments.size()), aAttachments.data());
-    }
+        StaticLValueRefAssert(A, aAttachments);
 
-    template <std::size_t A>
-    FramebufferCreateInfo& SetAttachments(const std::array<ImageView, A>& aAttachments)
-    {
         return SetAttachments(static_cast<uint32_t>(aAttachments.size()), aAttachments.data());
     }
 

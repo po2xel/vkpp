@@ -111,20 +111,15 @@ public:
         assert(queueFamilyIndexCount != 0 && pQueueFamilyIndices != nullptr);
     }
 
+    template <typename Q, typename = EnableIfValueType<Q, uint32_t>>
     ImageCreateInfo(ImageType aImageType, Format aFormat, const Extent3D& aExtent, uint32_t aMipLevels, uint32_t aArrayLayers,
-        SampleCountFlagBits aSamples, ImageTiling aTiling, const ImageUsageFlags& aUsage, const std::vector<uint32_t>& aQueueFamilyIndices,
+        SampleCountFlagBits aSamples, ImageTiling aTiling, const ImageUsageFlags& aUsage, Q&& aQueueFamilyIndices,
         ImageLayout aInitialLayout, const ImageCreateFlags& aFlags = DefaultFlags)
         : ImageCreateInfo(aImageType, aFormat, aExtent, aMipLevels, aArrayLayers, aSamples, aTiling, aUsage,
           static_cast<uint32_t>(aQueueFamilyIndices.size()), aQueueFamilyIndices.data(), aInitialLayout, aFlags)
-    {}
-
-    template <std::size_t Q>
-    ImageCreateInfo(ImageType aImageType, Format aFormat, const Extent3D& aExtent, uint32_t aMipLevels, uint32_t aArrayLayers,
-        SampleCountFlagBits aSamples, ImageTiling aTiling, const ImageUsageFlags& aUsage, const std::array<uint32_t, Q>& aQueueFamilyIndices,
-        ImageLayout aInitialLayout, const ImageCreateFlags& aFlags = DefaultFlags)
-        : ImageCreateInfo(aImageType, aFormat, aExtent, aMipLevels, aArrayLayers, aSamples, aTiling, aUsage,
-          static_cast<uint32_t>(aQueueFamilyIndices.size()), aQueueFamilyIndices.data(), aInitialLayout, aFlags)
-    {}
+    {
+        StaticLValueRefAssert(Q, aQueueFamilyIndices);
+    }
 
     ImageCreateInfo& SetNext(const void* apNext)
     {
@@ -180,14 +175,11 @@ public:
         return *this;
     }
 
-    ImageCreateInfo& SetConcurrentMode(const std::vector<uint32_t>& aQueueFamilyIndices)
+    template <typename Q, typename = EnableIfValueType<Q, uint32_t>>
+    ImageCreateInfo& SetConcurrentMode(Q&& aQueueFamilyIndices)
     {
-        return SetConcurrentMode(static_cast<uint32_t>(aQueueFamilyIndices.size()), aQueueFamilyIndices.data());
-    }
+        StaticLValueRefAssert(Q, aQueueFamilyIndices);
 
-    template <std::size_t Q>
-    ImageCreateInfo& SetConcurrentMode(const std::array<uint32_t, Q>& aQueueFamilyIndices)
-    {
         return SetConcurrentMode(static_cast<uint32_t>(aQueueFamilyIndices.size()), aQueueFamilyIndices.data());
     }
 

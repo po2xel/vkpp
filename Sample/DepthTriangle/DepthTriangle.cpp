@@ -553,7 +553,8 @@ void DepthTriangle::CreateTextureImage(void)
         {static_cast<uint32_t>(lTexWidth), static_cast<uint32_t>(lTexHeight), 1},
         1, 1,
         vkpp::SampleCountFlagBits::e1, vkpp::ImageTiling::eOptimal,
-        vkpp::ImageUsageFlagBits::eTransferDst | vkpp::ImageUsageFlagBits::eSampled, vkpp::ImageLayout::eUndefined
+        vkpp::ImageUsageFlagBits::eTransferDst | vkpp::ImageUsageFlagBits::eSampled,
+        vkpp::ImageLayout::eUndefined
     };
 
     mTextureImage = mLogicalDevice.CreateImage(lImageCreateInfo);
@@ -745,7 +746,6 @@ vkpp::Framebuffer DepthTriangle::CreateFramebuffer(const vkpp::ImageView& aImage
     vkpp::FramebufferCreateInfo lFramebufferCreateInfo
     (
         mRenderPass,
-        // std::array<vkpp::ImageView, 2>{aImageView, mDepthImageView},
         lAttachments,
         mSwapchain.mExtent.width, mSwapchain.mExtent.height
     );

@@ -74,14 +74,12 @@ public:
         assert(aQueueFamilyIndexCount != 0 && apQueueFamilyIndices != nullptr);
     }
 
-    BufferCreateInfo(DeviceSize aSize, const BufferUsageFlags& aUsage, const std::vector<uint32_t>& aQueueFamilyIndices, const BufferCreateFlags& aFlags = DefaultFlags)
+    template <typename Q, typename = EnableIfValueType<Q, uint32_t>>
+    BufferCreateInfo(DeviceSize aSize, const BufferUsageFlags& aUsage, Q&& aQueueFamilyIndices, const BufferCreateFlags& aFlags = DefaultFlags)
         : BufferCreateInfo(aSize, aUsage, static_cast<uint32_t>(aQueueFamilyIndices.size()), aQueueFamilyIndices.data(), aFlags)
-    {}
-
-    template <std::size_t Q>
-    BufferCreateInfo(DeviceSize aSize, const BufferUsageFlags& aUsage,const std::array<uint32_t, Q>& aQueueFamilyIndices, const BufferCreateFlags& aFlags = DefaultFlags)
-        : BufferCreateInfo(aSize, aUsage, static_cast<uint32_t>(aQueueFamilyIndices.size()), aQueueFamilyIndices.data(), aFlags)
-    {}
+    {
+        StaticLValueRefAssert(Q, aQueueFamilyIndices);
+    }
 
     BufferCreateInfo& SetNext(const void* apNext)
     {
@@ -131,14 +129,11 @@ public:
         return *this;
     }
 
-    BufferCreateInfo& SetConcurrentMode(const std::vector<uint32_t>& aQueueFamilyIndices)
+    template <typename Q, typename = EnableIfValueType<Q, uint32_t>>
+    BufferCreateInfo& SetConcurrentMode(Q&& aQueueFamilyIndices)
     {
-        return SetConcurrentMode(static_cast<uint32_t>(aQueueFamilyIndices.size()), aQueueFamilyIndices.data());
-    }
+        StaticLValueRefAssert(Q, aQueueFamilyIndices);
 
-    template <std::size_t Q>
-    BufferCreateInfo& SetConcurrentMode(const std::array<uint32_t, Q>& aQueueFamilyIndices)
-    {
         return SetConcurrentMode(static_cast<uint32_t>(aQueueFamilyIndices.size()), aQueueFamilyIndices.data());
     }
 };

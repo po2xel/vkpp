@@ -139,23 +139,10 @@ public:
         presentMode(aPresentMode), clipped(aClipped), oldSwapchain(aOldSwapChain)
     {}
 
-    SwapchainCreateInfo(const Surface& aSurface, uint32_t aMinImageCount, const SurfaceFormat& aSurfaceFormat,
-        const Extent2D& aImageExtent, const ImageUsageFlags& aImageUsage,
-        const std::vector<uint32_t>& aQueueFamilyIndices, SurfaceTransformFlagBits aPreTransform, CompositeAlphaFlagBits aCompositeAlpha,
-        PresentMode aPresentMode, const Swapchain& aOldSwapChain,
-        uint32_t aImageArrayLayers = 1, Bool32 aClipped = VK_TRUE, const SwapchainCreateFlags& aFlags = DefaultFlags)
-        : SwapchainCreateInfo(aSurface,
-            aMinImageCount, aSurfaceFormat.format, aSurfaceFormat.colorSpace,
-            aImageExtent, aImageUsage,
-            static_cast<uint32_t>(aQueueFamilyIndices.size()), aQueueFamilyIndices.data(), aPreTransform, aCompositeAlpha,
-            aPresentMode, aOldSwapChain,
-            aImageArrayLayers, aClipped, aFlags)
-    {}
-
-    template <std::size_t Q>
+    template <typename Q, typename = EnableIfValueType<Q, uint32_t>>
     SwapchainCreateInfo(const Surface& aSurface, uint32_t aMinImageCount, const SurfaceFormat& aSurfaceFormat,
         const Extent2D& aImageExtent, const ImageUsageFlags& aImageUsage, SharingMode aSharingMode,
-        const std::array<uint32_t, Q>& aQueueFamilyIndices, SurfaceTransformFlagBits aPreTransform, CompositeAlphaFlagBits aCompositeAlpha,
+        Q&& aQueueFamilyIndices, SurfaceTransformFlagBits aPreTransform, CompositeAlphaFlagBits aCompositeAlpha,
         PresentMode aPresentMode, const Swapchain& aOldSwapChain,
         uint32_t aImageArrayLayers = 1, Bool32 aClipped = VK_TRUE, const SwapchainCreateFlags& aFlags = DefaultFlags)
         : SwapchainCreateInfo(aSurface,
@@ -164,7 +151,9 @@ public:
             static_cast<uint32_t>(aQueueFamilyIndices.size()), aQueueFamilyIndices.data(), aPreTransform, aCompositeAlpha,
             aPresentMode, aOldSwapChain,
             aImageArrayLayers, aClipped, aFlags)
-    {}
+    {
+        StaticLValueRefAssert(Q, aQueueFamilyIndices);
+    }
 
     SwapchainCreateInfo& SetNext(const void* apNext)
     {
@@ -224,14 +213,11 @@ public:
         return *this;
     }
 
-    SwapchainCreateInfo& SetConcurrentMode(const std::vector<uint32_t>& aQueueFamilyIndices)
+    template <typename Q, typename = EnableIfValueType<Q, uint32_t>>
+    SwapchainCreateInfo& SetConcurrentMode(Q&& aQueueFamilyIndices)
     {
-        return SetConcurrentMode(static_cast<uint32_t>(aQueueFamilyIndices.size()), aQueueFamilyIndices.data());
-    }
+        StaticLValueRefAssert(Q, aQueueFamilyIndices);
 
-    template <std::size_t Q>
-    SwapchainCreateInfo& SetConcurrentMode(const std::array<uint32_t, Q>& aQueueFamilyIndices)
-    {
         return SetConcurrentMode(static_cast<uint32_t>(aQueueFamilyIndices.size()), aQueueFamilyIndices.data());
     }
 

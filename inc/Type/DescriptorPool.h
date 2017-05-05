@@ -63,14 +63,12 @@ public:
         : flags(aFlags), maxSets(aMaxSets), poolSizeCount(aPoolSizeCount), pPoolSizes(apPoolSizes)
     {}
 
-    DescriptorPoolCreateInfo(const std::vector<DescriptorPoolSize>& aPoolSizes, uint32_t aMaxSets, const DescriptorPoolCreateFlags& aFlags = DefaultFlags)
+    template <typename D, typename = EnableIfValueType<D, DescriptorPoolSize>>
+    DescriptorPoolCreateInfo(D&& aPoolSizes, uint32_t aMaxSets, const DescriptorPoolCreateFlags& aFlags = DefaultFlags)
         : DescriptorPoolCreateInfo(static_cast<uint32_t>(aPoolSizes.size()), aPoolSizes.data(), aMaxSets, aFlags)
-    {}
-
-    template <std::size_t D>
-    DescriptorPoolCreateInfo(const std::array<DescriptorPoolSize, D>& aPoolSizes, uint32_t aMaxSets, const DescriptorPoolCreateFlags& aFlags = DefaultFlags)
-        : DescriptorPoolCreateInfo(static_cast<uint32_t>(aPoolSizes.size()), aPoolSizes.data(), aMaxSets, aFlags)
-    {}
+    {
+        StaticLValueRefAssert(D, aPoolSizes);
+    }
 
     DescriptorPoolCreateInfo& SetFlags(const DescriptorPoolCreateFlags& aFlags)
     {
@@ -94,14 +92,11 @@ public:
         return *this;
     }
 
-    DescriptorPoolCreateInfo& SetPoolSizes(std::vector<DescriptorPoolSize>& aPoolSizes)
+    template <typename D, typename = EnableIfValueType<D, DescriptorPoolSize>>
+    DescriptorPoolCreateInfo& SetPoolSizes(D&& aPoolSizes)
     {
-        return SetPoolSizes(static_cast<uint32_t>(aPoolSizes.size()), aPoolSizes.data());
-    }
+        StaticLValueRefAssert(D, aPoolSizes);
 
-    template <std::size_t D>
-    DescriptorPoolCreateInfo& SetPoolSizes(std::array<DescriptorPoolSize, D>& aPoolSizes)
-    {
         return SetPoolSizes(static_cast<uint32_t>(aPoolSizes.size()), aPoolSizes.data());
     }
 };
@@ -146,14 +141,12 @@ public:
         : descriptorPool(aDescriptorPool), descriptorSetCount(aDescriptorSetCount), pSetLayouts(apSetLayouts)
     {}
 
-    DescriptorSetAllocateInfo(const DescriptorPool& aDescriptorPool, const std::vector<DescriptorSetLayout>& aSetLayouts)
+    template <typename D, typename = EnableIfValueType<D, DescriptorSetLayout>>
+    DescriptorSetAllocateInfo(const DescriptorPool& aDescriptorPool, D&& aSetLayouts)
         : DescriptorSetAllocateInfo(aDescriptorPool, static_cast<uint32_t>(aSetLayouts.size()), aSetLayouts.data())
-    {}
-
-    template <std::size_t D>
-    DescriptorSetAllocateInfo(const DescriptorPool& aDescriptorPool, const std::array<DescriptorSetLayout, D>& aSetLayouts)
-        : DescriptorSetAllocateInfo(aDescriptorPool, static_cast<uint32_t>(aSetLayouts.size()), aSetLayouts.data())
-    {}
+    {
+        StaticLValueRefAssert(D, aSetLayouts);
+    }
 
     DescriptorSetAllocateInfo& SetNext(const void* apNext)
     {
@@ -177,14 +170,11 @@ public:
         return *this;
     }
 
-    DescriptorSetAllocateInfo& SetDescriptorSetLayouts(const std::vector<DescriptorSetLayout>& aSetLayouts)
+    template <typename D, typename = EnableIfValueType<D, DescriptorSetLayout>>
+    DescriptorSetAllocateInfo& SetDescriptorSetLayouts(D&& aSetLayouts)
     {
-        return SetDescriptorSetLayouts(static_cast<uint32_t>(aSetLayouts.size()), aSetLayouts.data());
-    }
+        StaticLValueRefAssert(D, aSetLayouts);
 
-    template <std::size_t D>
-    DescriptorSetAllocateInfo& SetDescriptorSetLayouts(const std::array<DescriptorSetLayout, D>& aSetLayouts)
-    {
         return SetDescriptorSetLayouts(static_cast<uint32_t>(aSetLayouts.size()), aSetLayouts.data());
     }
 };

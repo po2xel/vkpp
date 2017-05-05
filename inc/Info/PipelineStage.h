@@ -227,18 +227,14 @@ public:
           vertexAttributeDescriptionCount(aVertexAttributeDescriptionCount), pVertexAttributeDescriptions(apVertexAttributeDescriptions)
     {}
 
-    PipelineVertexInputStateCreateInfo(const std::vector<VertexInputBindingDescription>& aVertexBindingDescriptions,
-        const std::vector<VertexInputAttributeDescription>& aVertexAttributeDescriptions, const PipelineVertexInputStateCreateFlags& aFlags = DefaultFlags)
+    template <typename B, typename A, typename = EnableIfValueTypes<B, VertexInputBindingDescription, A, VertexInputAttributeDescription>>
+    PipelineVertexInputStateCreateInfo(B&& aVertexBindingDescriptions, A&& aVertexAttributeDescriptions, const PipelineVertexInputStateCreateFlags& aFlags = DefaultFlags)
         : PipelineVertexInputStateCreateInfo(static_cast<uint32_t>(aVertexBindingDescriptions.size()), aVertexBindingDescriptions.data(),
           static_cast<uint32_t>(aVertexAttributeDescriptions.size()), aVertexAttributeDescriptions.data(), aFlags)
-    {}
-
-    template <std::size_t B, std::size_t A>
-    PipelineVertexInputStateCreateInfo(const std::array<VertexInputBindingDescription, B>& aVertexBindingDescriptions,
-        const std::array<VertexInputAttributeDescription, A>& aVertexAttributeDescriptions, const PipelineVertexInputStateCreateFlags& aFlags = DefaultFlags)
-        : PipelineVertexInputStateCreateInfo(static_cast<uint32_t>(aVertexBindingDescriptions.size()), aVertexBindingDescriptions.data(),
-          static_cast<uint32_t>(aVertexAttributeDescriptions.size()), aVertexAttributeDescriptions.data(), aFlags)
-    {}
+    {
+        StaticLValueRefAssert(B, aVertexBindingDescriptions);
+        StaticLValueRefAssert(A, aVertexAttributeDescriptions);
+    }
 
     PipelineVertexInputStateCreateInfo& SetNext(const void* apNext)
     {
@@ -262,14 +258,11 @@ public:
         return *this;
     }
 
-    PipelineVertexInputStateCreateInfo& SetVertexBindingDescriptions(const std::vector<VertexInputBindingDescription>& aVertexBindingDescriptions)
+    template <typename B, typename = EnableIfValueType<B, VertexInputBindingDescription>>
+    PipelineVertexInputStateCreateInfo& SetVertexBindingDescriptions(B&& aVertexBindingDescriptions)
     {
-        return SetVertexBindingDescriptions(static_cast<uint32_t>(aVertexBindingDescriptions.size()), aVertexBindingDescriptions.data());
-    }
+        StaticLValueRefAssert(B, aVertexBindingDescriptions);
 
-    template <std::size_t B>
-    PipelineVertexInputStateCreateInfo& SetVertexBindingDescriptions(const std::array<VertexInputBindingDescription, B>& aVertexBindingDescriptions)
-    {
         return SetVertexBindingDescriptions(static_cast<uint32_t>(aVertexBindingDescriptions.size()), aVertexBindingDescriptions.data());
     }
 
@@ -281,14 +274,11 @@ public:
         return *this;
     }
 
-    PipelineVertexInputStateCreateInfo& SetVertexAttributeDescriptions(const std::vector<VertexInputAttributeDescription>& aVertexAttributeDescriptions)
+    template <typename A, typename = EnableIfValueType<A, VertexInputAttributeDescription>>
+    PipelineVertexInputStateCreateInfo& SetVertexAttributeDescriptions(A&& aVertexAttributeDescriptions)
     {
-        return SetVertexAttributeDescriptions(static_cast<uint32_t>(aVertexAttributeDescriptions.size()), aVertexAttributeDescriptions.data());
-    }
+        StaticLValueRefAssert(A, aVertexAttributeDescriptions);
 
-    template <std::size_t A>
-    PipelineVertexInputStateCreateInfo& SetVertexAttributeDescriptions(const std::array<VertexInputAttributeDescription, A>& aVertexAttributeDescriptions)
-    {
         return SetVertexAttributeDescriptions(static_cast<uint32_t>(aVertexAttributeDescriptions.size()), aVertexAttributeDescriptions.data());
     }
 };
@@ -434,14 +424,13 @@ public:
         : flags(aFlags), viewportCount(aViewportCount), pViewports(apViewports), scissorCount(aScissorCount), pScissors(apScissors)
     {}
 
-    PipelineViewportStateCreateInfo(const std::vector<Viewport>& aViewports, const std::vector<Rect2D>& aScissors, const PipelineViewportStateCreateFlags& aFlags = DefaultFlags)
+    template <typename V, typename S, typename = EnableIfValueTypes<V, Viewport, S, Rect2D>>
+    PipelineViewportStateCreateInfo(V&& aViewports, S&& aScissors, const PipelineViewportStateCreateFlags& aFlags = DefaultFlags)
         : PipelineViewportStateCreateInfo(static_cast<uint32_t>(aViewports.size()), aViewports.data(), static_cast<uint32_t>(aScissors.size()), aScissors.data(), aFlags)
-    {}
-
-    template <std::size_t V, std::size_t S>
-    PipelineViewportStateCreateInfo(const std::array<Viewport, V>& aViewports, const std::array<Rect2D, S>& aScissors, const PipelineViewportStateCreateFlags& aFlags = DefaultFlags)
-        : PipelineViewportStateCreateInfo(static_cast<uint32_t>(aViewports.size()), aViewports.data(), static_cast<uint32_t>(aScissors.size()), aScissors.data(), aFlags)
-    {}
+    {
+        StaticLValueRefAssert(V, aViewports);
+        StaticLValueRefAssert(S, aScissors);
+    }
 
     PipelineViewportStateCreateInfo& SetNext(const void* apNext)
     {
@@ -465,14 +454,11 @@ public:
         return *this;
     }
 
-    PipelineViewportStateCreateInfo& SetViewports(const std::vector<Viewport>& aViewports)
+    template <typename V, typename = EnableIfValueType<V, Viewport>>
+    PipelineViewportStateCreateInfo& SetViewports(V&& aViewports)
     {
-        return SetViewports(static_cast<uint32_t>(aViewports.size()), aViewports.data());
-    }
+        StaticLValueRefAssert(V, aViewports);
 
-    template <std::size_t V>
-    PipelineViewportStateCreateInfo& SetViewports(const std::array<Viewport, V>& aViewports)
-    {
         return SetViewports(static_cast<uint32_t>(aViewports.size()), aViewports.data());
     }
 
@@ -484,14 +470,11 @@ public:
         return *this;
     }
 
-    PipelineViewportStateCreateInfo& SetScissors(const std::vector<Rect2D>& aScissors)
+    template <typename S, typename = EnableIfValueType<S, Rect2D>>
+    PipelineViewportStateCreateInfo& SetScissors(S&& aScissors)
     {
-        return SetScissors(static_cast<uint32_t>(aScissors.size()), aScissors.data());
-    }
+        StaticLValueRefAssert(S, aScissors);
 
-    template <std::size_t S>
-    PipelineViewportStateCreateInfo& SetScissors(const std::array<Rect2D, S>& aScissors)
-    {
         return SetScissors(static_cast<uint32_t>(aScissors.size()), aScissors.data());
     }
 };
@@ -971,14 +954,12 @@ public:
         : flags(aFlags), dynamicStateCount(aDynamicStateCount), pDynamicStates(apDynamicStates)
     {}
 
-    explicit PipelineDynamicStateCreateInfo(const std::vector<DynamicState>& aDynamicStates, const PipelineDynamicStateCreateFlags& aFlags = DefaultFlags)
+    template <typename D, typename = EnableIfValueType<D, DynamicState>>
+    explicit PipelineDynamicStateCreateInfo(D&& aDynamicStates, const PipelineDynamicStateCreateFlags& aFlags = DefaultFlags)
         : PipelineDynamicStateCreateInfo(static_cast<uint32_t>(aDynamicStates.size()), aDynamicStates.data(), aFlags)
-    {}
-
-    template <std::size_t D>
-    explicit PipelineDynamicStateCreateInfo(const std::array<DynamicState, D>& aDynamicStates, const PipelineDynamicStateCreateFlags& aFlags = DefaultFlags)
-        : PipelineDynamicStateCreateInfo(static_cast<uint32_t>(aDynamicStates.size()), aDynamicStates.data(), aFlags)
-    {}
+    {
+        StaticLValueRefAssert(D, aDynamicStates);
+    }
 
     PipelineDynamicStateCreateInfo& SetNext(const void* apNext)
     {
@@ -1002,14 +983,11 @@ public:
         return *this;
     }
 
-    PipelineDynamicStateCreateInfo& SetDynamicStates(const std::vector<DynamicState>& aDynamicStates)
+    template <typename D, typename = EnableIfValueType<D, DynamicState>>
+    PipelineDynamicStateCreateInfo& SetDynamicStates(D&& aDynamicStates)
     {
-        return SetDynamicStates(static_cast<uint32_t>(aDynamicStates.size()), aDynamicStates.data());
-    }
+        StaticLValueRefAssert(D, aDynamicStates);
 
-    template <std::size_t D>
-    PipelineDynamicStateCreateInfo& SetDynamicStates(const std::array<DynamicState, D>& aDynamicStates)
-    {
         return SetDynamicStates(static_cast<uint32_t>(aDynamicStates.size()), aDynamicStates.data());
     }
 };
@@ -1076,14 +1054,8 @@ public:
         : flags(aFlags), setLayoutCount(aSetLayoutCount), pSetLayouts(apSetLayouts), pushConstantRangeCount(aPushConstantRangeCount), pPushConstantRanges(apPushConstantRanges)
     {}
 
-    PipelineLayoutCreateInfo(const std::vector<DescriptorSetLayout>& aSetLayouts, const std::vector<PushConstantRange>& aPushConstantRanges,
-        const PipelineLayoutCreateFlags& aFlags = DefaultFlags)
-      : PipelineLayoutCreateInfo(static_cast<uint32_t>(aSetLayouts.size()), aSetLayouts.data(), static_cast<uint32_t>(aPushConstantRanges.size()), aPushConstantRanges.data(), aFlags)
-    {}
-
-    template <std::size_t D, std::size_t P>
-    PipelineLayoutCreateInfo(const std::array<DescriptorSetLayout, D>& aSetLayouts, const std::array<PushConstantRange, P>& aPushConstantRanges,
-        const PipelineLayoutCreateFlags& aFlags = DefaultFlags)
+    template <typename D, typename P, typename = EnableIfValueTypes<D, DescriptorSetLayout, P, PushConstantRange>>
+    PipelineLayoutCreateInfo(D&& aSetLayouts, P&& aPushConstantRanges, const PipelineLayoutCreateFlags& aFlags = DefaultFlags)
         : PipelineLayoutCreateInfo(static_cast<uint32_t>(aSetLayouts.size()), aSetLayouts.data(), static_cast<uint32_t>(aPushConstantRanges.size()), aPushConstantRanges.data(), aFlags)
     {}
 
@@ -1109,14 +1081,11 @@ public:
         return *this;
     }
 
-    PipelineLayoutCreateInfo& SetLayouts(const std::vector<DescriptorSetLayout>& aSetLayouts)
+    template <typename D, typename = EnableIfValueType<D, DescriptorSetLayout>>
+    PipelineLayoutCreateInfo& SetLayouts(D&& aSetLayouts)
     {
-        return SetLayouts(static_cast<uint32_t>(aSetLayouts.size()), aSetLayouts.data());
-    }
+        StaticLValueRefAssert(D, aSetLayouts);
 
-    template <std::size_t D>
-    PipelineLayoutCreateInfo& SetLayouts(const std::array<DescriptorSetLayout, D>& aSetLayouts)
-    {
         return SetLayouts(static_cast<uint32_t>(aSetLayouts.size()), aSetLayouts.data());
     }
 
@@ -1128,14 +1097,11 @@ public:
         return *this;
     }
 
-    PipelineLayoutCreateInfo& SetPushConstantRanges(const std::vector<PushConstantRange>& aPushConstantRanges)
+    template <typename P, typename = EnableIfValueType<P, PushConstantRange>>
+    PipelineLayoutCreateInfo& SetPushConstantRanges(P&& aPushConstantRanges)
     {
-        return SetPushConstantRanges(static_cast<uint32_t>(aPushConstantRanges.size()), aPushConstantRanges.data());
-    }
+        StaticLValueRefAssert(P, aPushConstantRanges);
 
-    template <std::size_t P>
-    PipelineLayoutCreateInfo& SetPushConstantRanges(const std::array<PushConstantRange, P>& aPushConstantRanges)
-    {
         return SetPushConstantRanges(static_cast<uint32_t>(aPushConstantRanges.size()), aPushConstantRanges.data());
     }
 };
