@@ -495,7 +495,7 @@ void UniformTriangle::CopyBuffer(vkpp::Buffer& aDstBuffer, const vkpp::Buffer& a
 
     lCommandBuffer.End();
 
-    const vkpp::SubmitInfo lSubmitInfo{ lCommandBuffer };
+    const vkpp::SubmitInfo lSubmitInfo(lCommandBuffer);
 
     const vkpp::FenceCreateInfo lFenceCreateInfo;
 

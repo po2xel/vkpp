@@ -168,7 +168,7 @@ namespace vkpp
 
 
 
-constexpr auto DefaultFlags = internal::DefaultFlags();
+static constexpr internal::DefaultFlags DefaultFlags;
 
 
 

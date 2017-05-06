@@ -63,7 +63,7 @@ public:
         : flags(aFlags), maxSets(aMaxSets), poolSizeCount(aPoolSizeCount), pPoolSizes(apPoolSizes)
     {}
 
-    template <typename D, typename = EnableIfValueType<D, DescriptorPoolSize>>
+    template <typename D, typename = EnableIfValueType<ValueType<D>, DescriptorPoolSize>>
     DescriptorPoolCreateInfo(D&& aPoolSizes, uint32_t aMaxSets, const DescriptorPoolCreateFlags& aFlags = DefaultFlags)
         : DescriptorPoolCreateInfo(static_cast<uint32_t>(aPoolSizes.size()), aPoolSizes.data(), aMaxSets, aFlags)
     {
@@ -92,7 +92,7 @@ public:
         return *this;
     }
 
-    template <typename D, typename = EnableIfValueType<D, DescriptorPoolSize>>
+    template <typename D, typename = EnableIfValueType<ValueType<D>, DescriptorPoolSize>>
     DescriptorPoolCreateInfo& SetPoolSizes(D&& aPoolSizes)
     {
         StaticLValueRefAssert(D, aPoolSizes);
@@ -141,7 +141,7 @@ public:
         : descriptorPool(aDescriptorPool), descriptorSetCount(aDescriptorSetCount), pSetLayouts(apSetLayouts)
     {}
 
-    template <typename D, typename = EnableIfValueType<D, DescriptorSetLayout>>
+    template <typename D, typename = EnableIfValueType<ValueType<D>, DescriptorSetLayout>>
     DescriptorSetAllocateInfo(const DescriptorPool& aDescriptorPool, D&& aSetLayouts)
         : DescriptorSetAllocateInfo(aDescriptorPool, static_cast<uint32_t>(aSetLayouts.size()), aSetLayouts.data())
     {
@@ -170,7 +170,7 @@ public:
         return *this;
     }
 
-    template <typename D, typename = EnableIfValueType<D, DescriptorSetLayout>>
+    template <typename D, typename = EnableIfValueType<ValueType<D>, DescriptorSetLayout>>
     DescriptorSetAllocateInfo& SetDescriptorSetLayouts(D&& aSetLayouts)
     {
         StaticLValueRefAssert(D, aSetLayouts);

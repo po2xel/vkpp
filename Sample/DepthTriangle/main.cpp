@@ -4,7 +4,6 @@
 
 
 
-
 using namespace vkpp;
 
 

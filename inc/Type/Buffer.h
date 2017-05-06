@@ -74,7 +74,7 @@ public:
         assert(aQueueFamilyIndexCount != 0 && apQueueFamilyIndices != nullptr);
     }
 
-    template <typename Q, typename = EnableIfValueType<Q, uint32_t>>
+    template <typename Q, typename = EnableIfValueType<ValueType<Q>, uint32_t>>
     BufferCreateInfo(DeviceSize aSize, const BufferUsageFlags& aUsage, Q&& aQueueFamilyIndices, const BufferCreateFlags& aFlags = DefaultFlags)
         : BufferCreateInfo(aSize, aUsage, static_cast<uint32_t>(aQueueFamilyIndices.size()), aQueueFamilyIndices.data(), aFlags)
     {
@@ -129,7 +129,7 @@ public:
         return *this;
     }
 
-    template <typename Q, typename = EnableIfValueType<Q, uint32_t>>
+    template <typename Q, typename = EnableIfValueType<ValueType<Q>, uint32_t>>
     BufferCreateInfo& SetConcurrentMode(Q&& aQueueFamilyIndices)
     {
         StaticLValueRefAssert(Q, aQueueFamilyIndices);

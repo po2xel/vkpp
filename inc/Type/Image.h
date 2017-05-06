@@ -111,7 +111,7 @@ public:
         assert(queueFamilyIndexCount != 0 && pQueueFamilyIndices != nullptr);
     }
 
-    template <typename Q, typename = EnableIfValueType<Q, uint32_t>>
+    template <typename Q, typename = EnableIfValueType<ValueType<Q>, uint32_t>>
     ImageCreateInfo(ImageType aImageType, Format aFormat, const Extent3D& aExtent, uint32_t aMipLevels, uint32_t aArrayLayers,
         SampleCountFlagBits aSamples, ImageTiling aTiling, const ImageUsageFlags& aUsage, Q&& aQueueFamilyIndices,
         ImageLayout aInitialLayout, const ImageCreateFlags& aFlags = DefaultFlags)
@@ -175,7 +175,7 @@ public:
         return *this;
     }
 
-    template <typename Q, typename = EnableIfValueType<Q, uint32_t>>
+    template <typename Q, typename = EnableIfValueType<ValueType<Q>, uint32_t>>
     ImageCreateInfo& SetConcurrentMode(Q&& aQueueFamilyIndices)
     {
         StaticLValueRefAssert(Q, aQueueFamilyIndices);
@@ -468,8 +468,8 @@ struct ImageBlit : public internal::VkTrait<ImageBlit, VkImageBlit>
 
     ImageBlit& SetOffsets(const std::array<Offset3D, 2>& aSrcOffsets, const std::array<Offset3D, 2>& aDstOffsets)
     {
-        std::memcpy(srcOffsets, aSrcOffsets.data(), aSrcOffsets.size());
-        std::memcpy(dstOffsets, aDstOffsets.data(), aDstOffsets.size());
+        std::copy(aSrcOffsets.cbegin(), aSrcOffsets.cend(), std::begin(srcOffsets));
+        std::copy(aDstOffsets.cbegin(), aDstOffsets.cend(), std::begin(dstOffsets));
 
         return *this;
     }

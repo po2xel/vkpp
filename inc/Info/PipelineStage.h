@@ -227,7 +227,7 @@ public:
           vertexAttributeDescriptionCount(aVertexAttributeDescriptionCount), pVertexAttributeDescriptions(apVertexAttributeDescriptions)
     {}
 
-    template <typename B, typename A, typename = EnableIfValueTypes<B, VertexInputBindingDescription, A, VertexInputAttributeDescription>>
+    template <typename B, typename A, typename = EnableIfValueType<ValueType<B>, VertexInputBindingDescription, ValueType<A>, VertexInputAttributeDescription>>
     PipelineVertexInputStateCreateInfo(B&& aVertexBindingDescriptions, A&& aVertexAttributeDescriptions, const PipelineVertexInputStateCreateFlags& aFlags = DefaultFlags)
         : PipelineVertexInputStateCreateInfo(static_cast<uint32_t>(aVertexBindingDescriptions.size()), aVertexBindingDescriptions.data(),
           static_cast<uint32_t>(aVertexAttributeDescriptions.size()), aVertexAttributeDescriptions.data(), aFlags)
@@ -258,7 +258,7 @@ public:
         return *this;
     }
 
-    template <typename B, typename = EnableIfValueType<B, VertexInputBindingDescription>>
+    template <typename B, typename = EnableIfValueType<ValueType<B>, VertexInputBindingDescription>>
     PipelineVertexInputStateCreateInfo& SetVertexBindingDescriptions(B&& aVertexBindingDescriptions)
     {
         StaticLValueRefAssert(B, aVertexBindingDescriptions);
@@ -274,7 +274,7 @@ public:
         return *this;
     }
 
-    template <typename A, typename = EnableIfValueType<A, VertexInputAttributeDescription>>
+    template <typename A, typename = EnableIfValueType<ValueType<A>, VertexInputAttributeDescription>>
     PipelineVertexInputStateCreateInfo& SetVertexAttributeDescriptions(A&& aVertexAttributeDescriptions)
     {
         StaticLValueRefAssert(A, aVertexAttributeDescriptions);
@@ -424,7 +424,7 @@ public:
         : flags(aFlags), viewportCount(aViewportCount), pViewports(apViewports), scissorCount(aScissorCount), pScissors(apScissors)
     {}
 
-    template <typename V, typename S, typename = EnableIfValueTypes<V, Viewport, S, Rect2D>>
+    template <typename V, typename S, typename = EnableIfValueType<ValueType<V>, Viewport, ValueType<S>, Rect2D>>
     PipelineViewportStateCreateInfo(V&& aViewports, S&& aScissors, const PipelineViewportStateCreateFlags& aFlags = DefaultFlags)
         : PipelineViewportStateCreateInfo(static_cast<uint32_t>(aViewports.size()), aViewports.data(), static_cast<uint32_t>(aScissors.size()), aScissors.data(), aFlags)
     {
@@ -454,7 +454,7 @@ public:
         return *this;
     }
 
-    template <typename V, typename = EnableIfValueType<V, Viewport>>
+    template <typename V, typename = EnableIfValueType<ValueType<V>, Viewport>>
     PipelineViewportStateCreateInfo& SetViewports(V&& aViewports)
     {
         StaticLValueRefAssert(V, aViewports);
@@ -470,7 +470,7 @@ public:
         return *this;
     }
 
-    template <typename S, typename = EnableIfValueType<S, Rect2D>>
+    template <typename S, typename = EnableIfValueType<ValueType<S>, Rect2D>>
     PipelineViewportStateCreateInfo& SetScissors(S&& aScissors)
     {
         StaticLValueRefAssert(S, aScissors);
@@ -893,7 +893,7 @@ public:
     const void*                                 pNext{ nullptr };
     PipelineColorBlendStateCreateFlags          flags;
     Bool32                                      logicOpEnable{ VK_FALSE };
-    LogicalOp                                   logicOp;
+    LogicalOp                                   logicOp{ LogicalOp::eClear };
     uint32_t                                    attachmentCount{ 0 };
     const PipelineColorBlendAttachmentState*    pAttachments{ nullptr };
     float                                       blendConstants[4]{};
@@ -906,7 +906,58 @@ public:
           pAttachments(apAttachments), blendConstants{aBlendConstants[0], aBlendConstants[1], aBlendConstants[2], aBlendConstants[3]}
     {}
 
-    // TODO
+    template <typename A, typename = EnableIfValueType<ValueType<A>, PipelineColorBlendAttachmentState>>
+    PipelineColorBlendStateCreateInfo(Bool32 aLogicOpEnable, LogicalOp aLogicOp, A&& aAttachments,
+        const std::array<float, 4>& aBlendConstants, const PipelineColorBlendStateCreateFlags& aFlags = DefaultFlags)
+        : PipelineColorBlendStateCreateInfo(aLogicOpEnable, aLogicOp, static_cast<uint32_t>(aAttachments.size()), aAttachments.data(), aBlendConstants, aFlags)
+    {
+        StaticLValueRefAssert(A, aAttachments);
+    }
+
+    PipelineColorBlendStateCreateInfo& SetNext(const void* apNext)
+    {
+        pNext = apNext;
+
+        return *this;
+    }
+
+    PipelineColorBlendStateCreateInfo& SetFlags(const PipelineColorBlendStateCreateFlags& aFlags)
+    {
+        flags = aFlags;
+
+        return *this;
+    }
+
+    PipelineColorBlendStateCreateInfo& SetLogicalOp(Bool32 aLogicalOpEnable, LogicalOp aLogicOp)
+    {
+        logicOpEnable   = aLogicalOpEnable;
+        logicOp         = aLogicOp;
+
+        return *this;
+    }
+
+    PipelineColorBlendStateCreateInfo& SetAttachments(uint32_t aAttachmentCount, const PipelineColorBlendAttachmentState* apAttachments)
+    {
+        attachmentCount = aAttachmentCount;
+        pAttachments    = apAttachments;
+
+        return *this;
+    }
+
+    template <typename A, typename = EnableIfValueType<ValueType<A>, PipelineColorBlendAttachmentState>>
+    PipelineColorBlendStateCreateInfo& SetAttachments(A&& aAttachments)
+    {
+        StaticLValueRefAssert(A, aAttachments);
+
+        return SetAttachments(static_cast<uint32_t>(aAttachments.size()), aAttachments.data());
+    }
+
+    PipelineColorBlendStateCreateInfo& SetBlendConstants(const std::array<float, 4>& aBlendConstants)
+    {
+        std::copy(aBlendConstants.cbegin(), aBlendConstants.cend(), std::begin(blendConstants));
+
+        return *this;
+    }
 };
 
 ConsistencyCheck(PipelineColorBlendStateCreateInfo, pNext, flags, logicOpEnable, logicOp, attachmentCount, pAttachments, blendConstants)
@@ -954,7 +1005,7 @@ public:
         : flags(aFlags), dynamicStateCount(aDynamicStateCount), pDynamicStates(apDynamicStates)
     {}
 
-    template <typename D, typename = EnableIfValueType<D, DynamicState>>
+    template <typename D, typename = EnableIfValueType<ValueType<D>, DynamicState>>
     explicit PipelineDynamicStateCreateInfo(D&& aDynamicStates, const PipelineDynamicStateCreateFlags& aFlags = DefaultFlags)
         : PipelineDynamicStateCreateInfo(static_cast<uint32_t>(aDynamicStates.size()), aDynamicStates.data(), aFlags)
     {
@@ -983,7 +1034,7 @@ public:
         return *this;
     }
 
-    template <typename D, typename = EnableIfValueType<D, DynamicState>>
+    template <typename D, typename = EnableIfValueType<ValueType<D>, DynamicState>>
     PipelineDynamicStateCreateInfo& SetDynamicStates(D&& aDynamicStates)
     {
         StaticLValueRefAssert(D, aDynamicStates);
@@ -1054,7 +1105,7 @@ public:
         : flags(aFlags), setLayoutCount(aSetLayoutCount), pSetLayouts(apSetLayouts), pushConstantRangeCount(aPushConstantRangeCount), pPushConstantRanges(apPushConstantRanges)
     {}
 
-    template <typename D, typename P, typename = EnableIfValueTypes<D, DescriptorSetLayout, P, PushConstantRange>>
+    template <typename D, typename P, typename = EnableIfValueType<ValueType<D>, DescriptorSetLayout, ValueType<P>, PushConstantRange>>
     PipelineLayoutCreateInfo(D&& aSetLayouts, P&& aPushConstantRanges, const PipelineLayoutCreateFlags& aFlags = DefaultFlags)
         : PipelineLayoutCreateInfo(static_cast<uint32_t>(aSetLayouts.size()), aSetLayouts.data(), static_cast<uint32_t>(aPushConstantRanges.size()), aPushConstantRanges.data(), aFlags)
     {}
@@ -1081,7 +1132,7 @@ public:
         return *this;
     }
 
-    template <typename D, typename = EnableIfValueType<D, DescriptorSetLayout>>
+    template <typename D, typename = EnableIfValueType<ValueType<D>, DescriptorSetLayout>>
     PipelineLayoutCreateInfo& SetLayouts(D&& aSetLayouts)
     {
         StaticLValueRefAssert(D, aSetLayouts);
@@ -1097,7 +1148,7 @@ public:
         return *this;
     }
 
-    template <typename P, typename = EnableIfValueType<P, PushConstantRange>>
+    template <typename P, typename = EnableIfValueType<ValueType<P>, PushConstantRange>>
     PipelineLayoutCreateInfo& SetPushConstantRanges(P&& aPushConstantRanges)
     {
         StaticLValueRefAssert(P, aPushConstantRanges);

@@ -210,12 +210,7 @@ struct SubpassDescription : public internal::VkTrait<SubpassDescription, VkSubpa
         return *this;
     }
 
-    SubpassDescription& SetInputAttachments(const std::vector<AttachmentReference>& aInputAttachments)
-    {
-        return SetInputAttachments(static_cast<uint32_t>(aInputAttachments.size()), aInputAttachments.data());
-    }
-
-    template <typename I, typename = EnableIfValueType<I, AttachmentReference>>
+    template <typename I, typename = EnableIfValueType<ValueType<I>, AttachmentReference>>
     SubpassDescription& SetInputAttachments(I&& aInputAttachments)
     {
         StaticLValueRefAssert(I, aInputAttachments);
@@ -232,7 +227,7 @@ struct SubpassDescription : public internal::VkTrait<SubpassDescription, VkSubpa
         return *this;
     }
 
-    template <typename C, typename = EnableIfValueType<C, AttachmentReference>>
+    template <typename C, typename = EnableIfValueType<ValueType<C>, AttachmentReference>>
     SubpassDescription& SetColorAttachments(C&& aColorAttachments, C&& aResolveAttachments)
     {
         StaticLValueRefAssert(C, aColorAttachments);
@@ -263,7 +258,7 @@ struct SubpassDescription : public internal::VkTrait<SubpassDescription, VkSubpa
         return *this;
     }
     
-    template <typename P, typename = EnableIfValueType<P, uint32_t>>
+    template <typename P, typename = EnableIfValueType<ValueType<P>, uint32_t>>
     SubpassDescription& SetPreserveAttachments(P&& aPreserveAttachments)
     {
         StaticLValueRefAssert(P, aPreserveAttachments);
@@ -368,28 +363,23 @@ public:
           dependencyCount(aDependencyCount), pDependencies(apDependencies)
     {}
 
-    RenderPassCreateInfo(const std::vector<AttachementDescription>& aAttachments, const std::vector<SubpassDescription>& aSubpasses, const RenderPassCreateFlags& aFlags = DefaultFlags)
+    template <typename A, typename S, typename = EnableIfValueType<ValueType<A>, AttachementDescription, ValueType<S>, SubpassDescription>>
+    RenderPassCreateInfo(A&& aAttachments, S&& aSubpasses, const RenderPassCreateFlags& aFlags = DefaultFlags)
         : RenderPassCreateInfo(static_cast<uint32_t>(aAttachments.size()), aAttachments.data(), static_cast<uint32_t>(aSubpasses.size()), aSubpasses.data(), 0, nullptr, aFlags)
-    {}
+    {
+        StaticLValueRefAssert(A, aAttachments);
+        StaticLValueRefAssert(S, aSubpasses);
+    }
 
-    RenderPassCreateInfo(const std::vector<AttachementDescription>& aAttachments, const std::vector<SubpassDescription>& aSubpasses, const std::vector<SubpassDependency>& aDependencies,
-        const RenderPassCreateFlags& aFlags = DefaultFlags)
+    template <typename A, typename S, typename D, typename = EnableIfValueType<ValueType<A>, AttachementDescription, ValueType<S>, SubpassDescription, ValueType<D>, SubpassDependency>>
+    RenderPassCreateInfo(A&& aAttachments, S&& aSubpasses, D&& aDependencies, const RenderPassCreateFlags& aFlags = DefaultFlags)
         : RenderPassCreateInfo(static_cast<uint32_t>(aAttachments.size()), aAttachments.data(), static_cast<uint32_t>(aSubpasses.size()), aSubpasses.data(),
           static_cast<uint32_t>(aDependencies.size()), aDependencies.data(), aFlags)
-    {}
-
-    template <std::size_t A, std::size_t S, std::size_t D>
-    RenderPassCreateInfo(const std::array<AttachementDescription, A>& aAttachments, const std::array<SubpassDescription, S>& aSubpasses, const RenderPassCreateFlags& aFlags = DefaultFlags)
-        : RenderPassCreateInfo(static_cast<uint32_t>(aAttachments.size()), aAttachments.data(), static_cast<uint32_t>(aSubpasses.size()), aSubpasses.data(),
-          0, nullptr, aFlags)
-    {}
-
-    template <std::size_t A, std::size_t S, std::size_t D>
-    RenderPassCreateInfo(const std::array<AttachementDescription, A>& aAttachments, const std::array<SubpassDescription, S>& aSubpasses,
-        const std::array<SubpassDependency, D>& aDependencies, const RenderPassCreateFlags& aFlags = DefaultFlags)
-        : RenderPassCreateInfo(static_cast<uint32_t>(aAttachments.size()), aAttachments.data(), static_cast<uint32_t>(aSubpasses.size()), aSubpasses.data(),
-          static_cast<uint32_t>(aDependencies.size()), aDependencies.data(), aFlags)
-    {}
+    {
+        StaticLValueRefAssert(A, aAttachments);
+        StaticLValueRefAssert(S, aSubpasses);
+        StaticLValueRefAssert(D, aDependencies);
+    }
 
     RenderPassCreateInfo& SetNext(const void* apNext)
     {
@@ -406,7 +396,7 @@ public:
         return *this;
     }
 
-    template <typename A, typename = EnableIfValueType<A, AttachementDescription>>
+    template <typename A, typename = EnableIfValueType<ValueType<A>, AttachementDescription>>
     RenderPassCreateInfo& SetAttachments(A&& aAttachments)
     {
         StaticLValueRefAssert(A, aAttachments);
@@ -422,8 +412,7 @@ public:
         return *this;
     }
 
-
-    template <typename S, typename = EnableIfValueType<S, SubpassDescription>>
+    template <typename S, typename = EnableIfValueType<ValueType<S>, SubpassDescription>>
     RenderPassCreateInfo& SetSubpasses(S&& aSubpasses)
     {
         StaticLValueRefAssert(S, aSubpasses);
@@ -439,7 +428,7 @@ public:
         return *this;
     }
 
-    template <typename D, typename = EnableIfValueType<D, SubpassDependency>>
+    template <typename D, typename = EnableIfValueType<ValueType<D>, SubpassDependency>>
     RenderPassCreateInfo& SetDependencies(D&& aDependencies)
     {
         StaticLValueRefAssert(D, aDependencies);

@@ -34,7 +34,7 @@ public:
         : renderPass(aRenderPass), framebuffer(aFramebuffer), renderArea(aRenderArea), clearValueCount(aClearValueCount), pClearValues(apClearValues)
     {}
 
-    template <typename C, typename = EnableIfValueType<C, ClearValue>>
+    template <typename C, typename = EnableIfValueType<ValueType<C>, ClearValue>>
     RenderPassBeginInfo(const RenderPass& aRenderPass, const Framebuffer& aFramebuffer, const Rect2D& aRenderArea, C&& aClearValues)
         : RenderPassBeginInfo(aRenderPass, aFramebuffer, aRenderArea, static_cast<uint32_t>(aClearValues.size()), aClearValues.data())
     {
@@ -77,7 +77,7 @@ public:
         return *this;
     }
 
-    template <typename C, typename = EnableIfValueType<C, ClearValue>>
+    template <typename C, typename = EnableIfValueType<ValueType<C>, ClearValue>>
     RenderPassBeginInfo& SetClearValue(C&& aClearValues)
     {
         StaticLValueRefAssert(C, aClearValues);

@@ -37,13 +37,13 @@ public:
 
     DEFINE_CLASS_MEMBER(FramebufferCreateInfo)
 
-        FramebufferCreateInfo(const RenderPass& aRenderPass, uint32_t aAttachmentCount, const ImageView* apAttachments,
-            uint32_t aWidth = 1, uint32_t aHeight = 1, uint32_t aLayers = 1, const FramebufferCreateFlags& aFlags = DefaultFlags)
+    FramebufferCreateInfo(const RenderPass& aRenderPass, uint32_t aAttachmentCount, const ImageView* apAttachments,
+        uint32_t aWidth = 1, uint32_t aHeight = 1, uint32_t aLayers = 1, const FramebufferCreateFlags& aFlags = DefaultFlags)
         : flags(aFlags), renderPass(aRenderPass), attachmentCount(aAttachmentCount), pAttachments(apAttachments),
         width(aWidth), height(aHeight), layers(aLayers)
     {}
 
-    template <typename A, typename = EnableIfValueType<A, ImageView>>
+    template <typename A, typename = EnableIfValueType<ValueType<A>, ImageView>>
     FramebufferCreateInfo(const RenderPass& aRenderPass, A&& aAttachments,
         uint32_t aWidth = 1, uint32_t aHeight = 1, uint32_t aLayers = 1, const FramebufferCreateFlags& aFlags = DefaultFlags)
         : FramebufferCreateInfo(aRenderPass, static_cast<uint32_t>(aAttachments.size()), aAttachments.data(), aWidth, aHeight, aLayers, aFlags)
@@ -73,7 +73,7 @@ public:
         return *this;
     }
 
-    template <typename A, typename = EnableIfValueType<A, ImageView>>
+    template <typename A, typename = EnableIfValueType<ValueType<A>, ImageView>>
     FramebufferCreateInfo& SetAttachments(A&& aAttachments)
     {
         StaticLValueRefAssert(A, aAttachments);

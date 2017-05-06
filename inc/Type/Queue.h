@@ -44,14 +44,14 @@ public:
         commandBufferCount(aCommandBufferCount), pCommandBuffers(apCommandBuffers), signalSemaphoreCount(aSignalSemaphoreCount), pSignalSemaphores(apSignalSemaphores)
     {}
 
-    explicit SubmitInfo(const CommandBuffer& aCommandBuffer) : commandBufferCount(1), pCommandBuffers(aCommandBuffer.AddressOf())
-    {}
-
-    template <typename C, typename = EnableIfValueType<C, CommandBuffer>>
+    template <typename C, typename = EnableIfValueType<ValueType<C>, CommandBuffer>>
     explicit SubmitInfo(C&& aCommandBuffers) : commandBufferCount(static_cast<uint32_t>(aCommandBuffers.size())), pCommandBuffers(aCommandBuffers.data())
     {
         StaticLValueRefAssert(C, aCommandBuffers);
     }
+
+    explicit SubmitInfo(const CommandBuffer& aCommandBuffer) : commandBufferCount(1), pCommandBuffers(aCommandBuffer.AddressOf())
+    {}
 
     SubmitInfo& SetNext(const void* apNext)
     {
@@ -77,7 +77,7 @@ public:
         return *this;
     }
 
-    template <typename C, typename = EnableIfValueType<C, CommandBuffer>>
+    template <typename C, typename = EnableIfValueType<ValueType<C>, CommandBuffer>>
     SubmitInfo& SetCommandBuffers(C&& aCommandBuffers)
     {
         StaticLValueRefAssert(C, aCommandBuffers);
@@ -93,7 +93,7 @@ public:
         return *this;
     }
 
-    template <typename S, typename = EnableIfValueType<S, Semaphore>>
+    template <typename S, typename = EnableIfValueType<ValueType<S>, Semaphore>>
     SubmitInfo& SetSignalSemaphores(S&& aSignalSemaphores)
     {
         StaticLValueRefAssert(S, aSignalSemaphores);
@@ -148,14 +148,11 @@ public:
         return *this;
     }
 
-    PresentInfo& SetWaitSemaphores(const std::vector<Semaphore>& aWaitSemaphores)
+    template <typename S, typename = EnableIfValueType<ValueType<S>, Semaphore>>
+    PresentInfo& SetWaitSemaphores(S&& aWaitSemaphores)
     {
-        return SetWaitSemaphores(static_cast<uint32_t>(aWaitSemaphores.size()), aWaitSemaphores.data());
-    }
+        StaticLValueRefAssert(S, aWaitSemaphores);
 
-    template <std::size_t S>
-    PresentInfo& SetWaitSemaphores(const std::array<Semaphore, S>& aWaitSemaphores)
-    {
         return SetWaitSemaphores(static_cast<uint32_t>(aWaitSemaphores.size()), aWaitSemaphores.data());
     }
 
@@ -168,6 +165,8 @@ public:
 
         return *this;
     }
+
+    // TODO
 };
 
 

@@ -12,6 +12,18 @@ namespace vkpp
 
 
 
+struct DefaultAllocationCallbacks
+{
+    constexpr const VkAllocationCallbacks* operator&(void) const noexcept
+    {
+        return nullptr;
+    }
+};
+
+static constexpr DefaultAllocationCallbacks DefaultAllocator;
+
+
+
 class AllocationCallbacks : public internal::VkTrait<AllocationCallbacks, VkAllocationCallbacks>
 {
 public:
@@ -24,8 +36,8 @@ public:
 
     DEFINE_CLASS_MEMBER(AllocationCallbacks)
 
-    explicit AllocationCallbacks(void* apUserData = nullptr, PFN_vkAllocationFunction apfnAllocation = nullptr, PFN_vkReallocationFunction apfnReallocation = nullptr,
-        PFN_vkFreeFunction apfnFree = nullptr, PFN_vkInternalAllocationNotification apfnInternalAllocation = nullptr, PFN_vkInternalFreeNotification apfnInternalFree = nullptr)
+    AllocationCallbacks(void* apUserData, PFN_vkAllocationFunction apfnAllocation, PFN_vkReallocationFunction apfnReallocation, PFN_vkFreeFunction apfnFree,
+        PFN_vkInternalAllocationNotification apfnInternalAllocation = nullptr, PFN_vkInternalFreeNotification apfnInternalFree = nullptr)
         : pUserData(apUserData), pfnAllocation(apfnAllocation), pfnReallocation(apfnReallocation), pfnFree(apfnFree),
           pfnInternalAllocation(apfnInternalAllocation), pfnInternalFree(apfnInternalFree)
     {}

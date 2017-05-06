@@ -95,7 +95,7 @@ public:
         enabledExtensionCount(aEnabledExtensionCount), ppEnabledExtensionNames(appEnabledExtensionNames)
     {}
 
-    template <typename L, typename E, typename = EnableIfValueTypes<L, const char*, E, const char*>>
+    template <typename L, typename E, typename = EnableIfValueType<ValueType<L>, const char*, ValueType<E>, const char*>>
     InstanceInfo(const ApplicationInfo& aAppInfo, L&& aEnabledLayers, E&& aEnabledExtensions)
         : InstanceInfo(aAppInfo, static_cast<uint32_t>(aEnabledLayers.size()), aEnabledLayers.data(), static_cast<uint32_t>(aEnabledExtensions.size()), aEnabledExtensions.data())
     {
@@ -125,12 +125,12 @@ public:
         return *this;
     }
 
-    template <typename L, typename = EnableIfValueType<L, const char*>>
+    template <typename L, typename = EnableIfValueType<ValueType<L>, const char*>>
     InstanceInfo& SetEnabledLayers(L&& aEnabledLayers)
     {
         StaticLValueRefAssert(L, aEnabledLayers);
 
-        return SetEnabledLayers(static_cast<uint32_t>(L), aEnabledLayers.data());
+        return SetEnabledLayers(static_cast<uint32_t>(aEnabledLayers.size()), aEnabledLayers.data());
     }
 
     InstanceInfo& SetEnabledExtensions(uint32_t aEnabledExtensionCount, const char* const* appEnalbedExtensionNames)
@@ -141,12 +141,12 @@ public:
         return *this;
     }
 
-    template <typename E, typename = EnableIfValueType<E, const char*>>
+    template <typename E, typename = EnableIfValueType<ValueType<E>, const char*>>
     InstanceInfo& SetEnabledExtensions(E&& aEnabledExtensions)
     {
         StaticLValueRefAssert(E, aEnabledExtensions);
 
-        return SetEnabledExtensions(static_cast<uint32_t>(E), aEnabledExtensions.data());
+        return SetEnabledExtensions(static_cast<uint32_t>(aEnabledExtensions.size()), aEnabledExtensions.data());
     }
 };
 
@@ -165,12 +165,8 @@ public:
     Instance(std::nullptr_t)
     {}
 
-    explicit Instance(const InstanceInfo& aInstanceInfo)
-    {
-        ThrowIfFailed(vkCreateInstance(&aInstanceInfo, nullptr, &mInstance));
-    }
-
-    Instance(const InstanceInfo& aInstanceInfo, const AllocationCallbacks& aAllocator)
+    template <typename T = DefaultAllocationCallbacks>
+    explicit Instance(const InstanceInfo& aInstanceInfo, const T& aAllocator = DefaultAllocator)
     {
         ThrowIfFailed(vkCreateInstance(&aInstanceInfo, &aAllocator, &mInstance));
     }
@@ -180,12 +176,8 @@ public:
         vkDestroyInstance(mInstance, nullptr);          // TODO: Support allocator.
     }
 
-    void Reset(const InstanceInfo& aInstanceInfo)
-    {
-        ThrowIfFailed(vkCreateInstance(&aInstanceInfo, nullptr, &mInstance));
-    }
-
-    void Reset(const InstanceInfo& aInstanceInfo, const AllocationCallbacks& aAllocator)
+    template <typename T = DefaultAllocationCallbacks>
+    void Reset(const InstanceInfo& aInstanceInfo, const T& aAllocator = DefaultAllocator)
     {
         ThrowIfFailed(vkCreateInstance(&aInstanceInfo, &aAllocator, &mInstance));
     }
@@ -247,15 +239,8 @@ public:
         return lExtensions;
     }
 
-    khr::Surface CreateSurface(const khr::SurfaceCreateInfo& aCreateInfo) const
-    {
-        khr::Surface lSurface;
-        ThrowIfFailed(vkCreateSurfaceKHR(mInstance, &aCreateInfo, nullptr, &lSurface));
-
-        return lSurface;
-    }
-
-    khr::Surface CreateSurface(const khr::SurfaceCreateInfo& aCreateInfo, const AllocationCallbacks& aAllocator) const
+    template <typename T = DefaultAllocationCallbacks>
+    khr::Surface CreateSurface(const khr::SurfaceCreateInfo& aCreateInfo, const T& aAllocator = DefaultAllocator) const
     {
         khr::Surface lSurface;
         ThrowIfFailed(vkCreateSurfaceKHR(mInstance, &aCreateInfo, &aAllocator, &lSurface));
@@ -263,12 +248,8 @@ public:
         return lSurface;
     }
 
-    void DestroySurface(khr::Surface aSurface) const
-    {
-        vkDestroySurfaceKHR(mInstance, aSurface, nullptr);
-    }
-
-    void DestroySurface(khr::Surface aSurface, const AllocationCallbacks& aAllocator) const
+    template <typename T = DefaultAllocationCallbacks>
+    void DestroySurface(khr::Surface aSurface, const T& aAllocator = DefaultAllocator) const
     {
         vkDestroySurfaceKHR(mInstance, aSurface, &aAllocator);
     }

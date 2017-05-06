@@ -109,7 +109,7 @@ public:
         : flags(aFlags), bindingCount(aBindingCount), pBindings(apBindings)
     {}
 
-    template <typename B, typename = EnableIfValueType<B, DescriptorSetLayoutBinding>>
+    template <typename B, typename = EnableIfValueType<ValueType<B>, DescriptorSetLayoutBinding>>
     explicit DescriptorSetLayoutCreateInfo(B&& aBindings, const DescriptorSetLayoutCreateFlags& aFlags = DefaultFlags)
         : DescriptorSetLayoutCreateInfo(static_cast<uint32_t>(aBindings.size()), aBindings.data(), aFlags)
     {
@@ -138,7 +138,7 @@ public:
         return *this;
     }
 
-    template <typename B, typename = EnableIfValueType<B, DescriptorSetLayoutBinding>>
+    template <typename B, typename = EnableIfValueType<ValueType<B>, DescriptorSetLayoutBinding>>
     DescriptorSetLayoutCreateInfo& SetBindings(B&& aBindings)
     {
         StaticLValueRefAssert(B, aBindings);

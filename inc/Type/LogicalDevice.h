@@ -59,7 +59,7 @@ public:
         :flags(aFlags), queueFamilyIndex(aQueueFamilyIndex), queueCount(aQueueCount), pQueuePriorities(apQueuePriorities)
     {}
 
-    template <typename P, typename = EnableIfValueType<P, float>>
+    template <typename P, typename = EnableIfValueType<ValueType<P>, float>>
     QueueCreateInfo(uint32_t aQueueFamilyIndex,P&& aQueuePriorities, const DeviceQueueCreateFlags& aFlags = DefaultFlags)
         : QueueCreateInfo(aQueueFamilyIndex, static_cast<uint32_t>(aQueuePriorities.size()), aQueuePriorities.data(), aFlags)
     {
@@ -95,7 +95,7 @@ public:
         return *this;
     }
 
-    template <typename P, typename = EnableIfValueType<P, float>>
+    template <typename P, typename = EnableIfValueType<ValueType<P>, float>>
     QueueCreateInfo& SetQueuePriorities(P&& aQueuePriorities)
     {
         StaticLValueRefAssert(P, aQueuePriorities);
@@ -143,7 +143,7 @@ public:
           enabledExtensionCount(aEnalbedExtensionCount), ppEnabledExtensionNames(appEnabledExtensionNames), pEnabledFeatures(apEnabledFeatures)
     {}
 
-    template <typename Q, typename E, typename = EnableIfValueTypes<Q, QueueCreateInfo, E, const char*>>
+    template <typename Q, typename E, typename = EnableIfValueType<ValueType<Q>, QueueCreateInfo, ValueType<E>, const char*>>
     LogicalDeviceCreateInfo(Q&& aQueueCreateInfos, E&& aEnabledExtensions, const PhysicalDeviceFeatures* apEnabledFeatures = nullptr, const DeviceCreateFlags& aFlags = DefaultFlags)
         : LogicalDeviceCreateInfo(static_cast<uint32_t>(aQueueCreateInfos.size()), aQueueCreateInfos.data(),
           static_cast<uint32_t>(aEnabledExtensions.size()), aEnabledExtensions.data(), apEnabledFeatures, aFlags)
@@ -174,7 +174,7 @@ public:
         return *this;
     }
 
-    template <typename Q, typename = EnableIfValueType<Q, QueueCreateInfo>>
+    template <typename Q, typename = EnableIfValueType<ValueType<Q>, QueueCreateInfo>>
     LogicalDeviceCreateInfo& SetQueueCreateInfo(Q&& aQueueCreateInfos)
     {
         StaticLValueRefAssert(Q, aQueueCreateInfos);
@@ -190,7 +190,7 @@ public:
         return *this;
     }
 
-    template <typename E, typename = EnableIfValueType<E, const char*>>
+    template <typename E, typename = EnableIfValueType<ValueType<E>, const char*>>
     LogicalDeviceCreateInfo& SetEnabledExtensions(E&& aEnabledExtensionNames)
     {
         StaticLValueRefAssert(E, aEnabledExtensionNames);
@@ -229,24 +229,15 @@ public:
         return *this;
     }
 
-    void Reset(void)
-    {
-        vkDestroyDevice(mDevice, nullptr);
-        mDevice = VK_NULL_HANDLE;
-    }
-
-    void Reset(const AllocationCallbacks& aAllocator)
+    template <typename T = DefaultAllocationCallbacks>
+    void Reset(const T& aAllocator = DefaultAllocator)
     {
         vkDestroyDevice(mDevice, &aAllocator);
         mDevice = VK_NULL_HANDLE;
     }
 
-    void Reset(const PhysicalDevice& aPhysicalDevice, const LogicalDeviceCreateInfo& aLogicalDeviceCreateInfo)
-    {
-        ThrowIfFailed(vkCreateDevice(aPhysicalDevice, &aLogicalDeviceCreateInfo, nullptr, &mDevice));
-    }
-
-    void Reset(const PhysicalDevice& aPhysicalDevice, const LogicalDeviceCreateInfo& aLogicalDeviceCreateInfo, const AllocationCallbacks& aAllocator)
+    template <typename T = DefaultAllocationCallbacks>
+    void Reset(const PhysicalDevice& aPhysicalDevice, const LogicalDeviceCreateInfo& aLogicalDeviceCreateInfo, const T& aAllocator = DefaultAllocator)
     {
         ThrowIfFailed(vkCreateDevice(aPhysicalDevice, &aLogicalDeviceCreateInfo, &aAllocator, &mDevice));
     }
@@ -275,15 +266,8 @@ public:
         return lMemoryRequirements;
     }
 
-    Semaphore CreateSemaphore(const SemaphoreCreateInfo& aSemaphoreCreateInfo) const
-    {
-        Semaphore lSemaphore;
-        ThrowIfFailed(vkCreateSemaphore(mDevice, &aSemaphoreCreateInfo, nullptr, &lSemaphore));
-
-        return lSemaphore;
-    }
-
-    Semaphore CreateSemaphore(const SemaphoreCreateInfo& aSemaphoreCreateInfo, const AllocationCallbacks& aAllocator) const
+    template <typename T = DefaultAllocationCallbacks>
+    Semaphore CreateSemaphore(const SemaphoreCreateInfo& aSemaphoreCreateInfo, const T& aAllocator = DefaultAllocator) const
     {
         Semaphore lSemaphore;
         ThrowIfFailed(vkCreateSemaphore(mDevice, &aSemaphoreCreateInfo, &aAllocator, &lSemaphore));
@@ -291,25 +275,14 @@ public:
         return lSemaphore;
     }
 
-    void DestroySemaphore(const Semaphore& aSemaphore) const
-    {
-        vkDestroySemaphore(mDevice, aSemaphore, nullptr);
-    }
-
-    void DestroySemaphore(const Semaphore& aSemaphore, const AllocationCallbacks& aAllocator) const
+    template <typename T = DefaultAllocationCallbacks>
+    void DestroySemaphore(const Semaphore& aSemaphore, const T& aAllocator = DefaultAllocator) const
     {
         vkDestroySemaphore(mDevice, aSemaphore, &aAllocator);
     }
 
-    Fence CreateFence(const FenceCreateInfo& aFenceCreateInfo) const
-    {
-        Fence lFence;
-        ThrowIfFailed(vkCreateFence(mDevice, &aFenceCreateInfo, nullptr, &lFence));
-
-        return lFence;
-    }
-
-    Fence CreateFence(const FenceCreateInfo& aFenceCreateInfo, const AllocationCallbacks& aAllocator) const
+    template <typename T = DefaultAllocationCallbacks>
+    Fence CreateFence(const FenceCreateInfo& aFenceCreateInfo, const T& aAllocator = DefaultAllocator) const
     {
         Fence lFence;
         ThrowIfFailed(vkCreateFence(mDevice, &aFenceCreateInfo, &aAllocator, &lFence));
@@ -317,12 +290,8 @@ public:
         return lFence;
     }
 
-    void DestroyFence(const Fence& aFence) const
-    {
-        vkDestroyFence(mDevice, aFence, nullptr);
-    }
-
-    void DestroyFence(const Fence& aFence, const AllocationCallbacks& aAllocator) const
+    template <typename T = DefaultAllocationCallbacks>
+    void DestroyFence(const Fence& aFence, const T& aAllocator = DefaultAllocator) const
     {
         vkDestroyFence(mDevice, aFence, &aAllocator);
     }
@@ -378,15 +347,8 @@ public:
         return WaitForFences(static_cast<uint32_t>(aFences.size()), aFences.data(), aWaitAll, aTimeout);
     }
 
-    khr::Swapchain CreateSwapchain(const khr::SwapchainCreateInfo& aSwapchainCreateInfo) const
-    {
-        khr::Swapchain lSwapchain;
-        ThrowIfFailed(vkCreateSwapchainKHR(mDevice, &aSwapchainCreateInfo, nullptr, &lSwapchain));
-
-        return lSwapchain;
-    }
-
-    khr::Swapchain CreateSwapchain(const khr::SwapchainCreateInfo& aSwapchainCreateInfo, const AllocationCallbacks& aAllocator) const
+    template <typename T = DefaultAllocationCallbacks>
+    khr::Swapchain CreateSwapchain(const khr::SwapchainCreateInfo& aSwapchainCreateInfo, const T& aAllocator = DefaultAllocator) const
     {
         khr::Swapchain lSwapchain;
         ThrowIfFailed(vkCreateSwapchainKHR(mDevice, &aSwapchainCreateInfo, &aAllocator, &lSwapchain));
@@ -394,12 +356,8 @@ public:
         return lSwapchain;
     }
 
-    void DestroySwapchain(const khr::Swapchain& aSwapchain) const
-    {
-        vkDestroySwapchainKHR(mDevice, aSwapchain, nullptr);
-    }
-
-    void DestroySwapchain(const khr::Swapchain& aSwapchain, const AllocationCallbacks& aAllocator) const
+    template <typename T = DefaultAllocationCallbacks>
+    void DestroySwapchain(const khr::Swapchain& aSwapchain, const T& aAllocator = DefaultAllocator) const
     {
         vkDestroySwapchainKHR(mDevice, aSwapchain, &aAllocator);
     }
@@ -424,15 +382,8 @@ public:
         return lImageIndex;
     }
 
-    CommandPool CreateCommandPool(const CommandPoolCreateInfo& aCommandPoolCreateInfo) const
-    {
-        CommandPool lCommandPool;
-        ThrowIfFailed(vkCreateCommandPool(mDevice, &aCommandPoolCreateInfo, nullptr, &lCommandPool));
-
-        return lCommandPool;
-    }
-
-    CommandPool CreateCommandPool(const CommandPoolCreateInfo& aCommandPoolCreateInfo, const AllocationCallbacks& aAllocator) const
+    template <typename T = DefaultAllocationCallbacks>
+    CommandPool CreateCommandPool(const CommandPoolCreateInfo& aCommandPoolCreateInfo, const T& aAllocator = DefaultAllocator) const
     {
         CommandPool lCommandPool;
         ThrowIfFailed(vkCreateCommandPool(mDevice, &aCommandPoolCreateInfo, &aAllocator, &lCommandPool));
@@ -440,12 +391,8 @@ public:
         return lCommandPool;
     }
 
-    void DestroyCommandPool(const CommandPool& aCommandPool) const
-    {
-        vkDestroyCommandPool(mDevice, aCommandPool, nullptr);
-    }
-
-    void DestroyCommandPool(const CommandPool& aCommandPool, const AllocationCallbacks& aAllocator) const
+    template <typename T = DefaultAllocationCallbacks>
+    void DestroyCommandPool(const CommandPool& aCommandPool, const T& aAllocator = DefaultAllocator) const
     {
         vkDestroyCommandPool(mDevice, aCommandPool, &aAllocator);
     }
@@ -490,15 +437,8 @@ public:
         return FreeCommandBuffers(aCommandPool, static_cast<uint32_t>(aCommandBuffers.size()), aCommandBuffers.data());
     }
 
-    DescriptorPool CreateDescriptorPool(const DescriptorPoolCreateInfo& aDescriptorPoolCreateInfo) const
-    {
-        DescriptorPool lDescriptorPool;
-        ThrowIfFailed(vkCreateDescriptorPool(mDevice, &aDescriptorPoolCreateInfo, nullptr, &lDescriptorPool));
-
-        return lDescriptorPool;
-    }
-
-    DescriptorPool CreateDescriptorPool(const DescriptorPoolCreateInfo& aDescriptorPoolCreateInfo, const AllocationCallbacks& aAllocator) const
+    template <typename T = DefaultAllocationCallbacks>
+    DescriptorPool CreateDescriptorPool(const DescriptorPoolCreateInfo& aDescriptorPoolCreateInfo, const T& aAllocator = DefaultAllocator) const
     {
         DescriptorPool lDescriptorPool;
         ThrowIfFailed(vkCreateDescriptorPool(mDevice, &aDescriptorPoolCreateInfo, &aAllocator, &lDescriptorPool));
@@ -506,12 +446,8 @@ public:
         return lDescriptorPool;
     }
 
-    void DestroyDescriptorPool(const DescriptorPool& aDescriptorPool) const
-    {
-        vkDestroyDescriptorPool(mDevice, aDescriptorPool, nullptr);
-    }
-
-    void DestroyDescriptorPool(const DescriptorPool& aDescriptorPool, const AllocationCallbacks& aAllocator) const
+    template <typename T = DefaultAllocationCallbacks>
+    void DestroyDescriptorPool(const DescriptorPool& aDescriptorPool, const T& aAllocator = DefaultAllocator) const
     {
         vkDestroyDescriptorPool(mDevice, aDescriptorPool, &aAllocator);
     }
@@ -585,15 +521,8 @@ public:
         UpdateDescriptorSets(static_cast<uint32_t>(aDescriptorWrites.size()), aDescriptorWrites.data(), static_cast<uint32_t>(aDescriptorCopies.size()), aDescriptorCopies.data());
     }
 
-    RenderPass CreateRenderPass(const RenderPassCreateInfo& aRenderPassCreateInfo) const
-    {
-        RenderPass lRenderPass;
-        ThrowIfFailed(vkCreateRenderPass(mDevice, &aRenderPassCreateInfo, nullptr, &lRenderPass));
-
-        return lRenderPass;
-    }
-
-    RenderPass CreateRenderPass(const RenderPassCreateInfo& aRenderPassCreateInfo, const AllocationCallbacks& aAllocator) const
+    template <typename T = DefaultAllocationCallbacks>
+    RenderPass CreateRenderPass(const RenderPassCreateInfo& aRenderPassCreateInfo, const T& aAllocator = DefaultAllocator) const
     {
         RenderPass lRenderPass;
         ThrowIfFailed(vkCreateRenderPass(mDevice, &aRenderPassCreateInfo, &aAllocator, &lRenderPass));
@@ -601,25 +530,14 @@ public:
         return lRenderPass;
     }
 
-    void DestroyRenderPass(const RenderPass& aRenderPass) const
-    {
-        vkDestroyRenderPass(mDevice, aRenderPass, nullptr);
-    }
-
-    void DestroyRenderPass(const RenderPass& aRenderPass, const AllocationCallbacks& aAllocator) const
+    template <typename T = DefaultAllocationCallbacks>
+    void DestroyRenderPass(const RenderPass& aRenderPass, const T& aAllocator = DefaultAllocator) const
     {
         vkDestroyRenderPass(mDevice, aRenderPass, &aAllocator);
     }
 
-    Buffer CreateBuffer(const BufferCreateInfo& aBufferCreateInfo) const
-    {
-        Buffer lBuffer;
-        ThrowIfFailed(vkCreateBuffer(mDevice, &aBufferCreateInfo, nullptr, &lBuffer));
-
-        return lBuffer;
-    }
-
-    Buffer CreateBuffer(const BufferCreateInfo& aBufferCreateInfo, const AllocationCallbacks& aAllocator) const
+    template <typename T = DefaultAllocationCallbacks>
+    Buffer CreateBuffer(const BufferCreateInfo& aBufferCreateInfo, const T& aAllocator = DefaultAllocator) const
     {
         Buffer lBuffer;
         ThrowIfFailed(vkCreateBuffer(mDevice, &aBufferCreateInfo, &aAllocator, &lBuffer));
@@ -627,25 +545,14 @@ public:
         return lBuffer;
     }
 
-    void DestroyBuffer(const Buffer& aBuffer) const
-    {
-        vkDestroyBuffer(mDevice, aBuffer, nullptr);
-    }
-
-    void DestroyBuffer(const Buffer& aBuffer, const AllocationCallbacks& aAllocator) const
+    template <typename T = DefaultAllocationCallbacks>
+    void DestroyBuffer(const Buffer& aBuffer, const T& aAllocator = DefaultAllocator) const
     {
         vkDestroyBuffer(mDevice, aBuffer, &aAllocator);
     }
 
-    BufferView CreateBufferView(const BufferViewCreateInfo& aBufferViewCreateInfo) const
-    {
-        BufferView lBufferView;
-        ThrowIfFailed(vkCreateBufferView(mDevice, &aBufferViewCreateInfo, nullptr, &lBufferView));
-
-        return lBufferView;
-    }
-
-    BufferView CreateBufferView(const BufferViewCreateInfo& aBufferViewCreateInfo, const AllocationCallbacks& aAllocator) const
+    template <typename T = DefaultAllocationCallbacks>
+    BufferView CreateBufferView(const BufferViewCreateInfo& aBufferViewCreateInfo, const T& aAllocator = DefaultAllocator) const
     {
         BufferView lBufferView;
         ThrowIfFailed(vkCreateBufferView(mDevice, &aBufferViewCreateInfo, &aAllocator, &lBufferView));
@@ -653,25 +560,14 @@ public:
         return lBufferView;
     }
 
-    void DestroyBufferView(const BufferView& aBufferView) const
-    {
-        vkDestroyBufferView(mDevice, aBufferView, nullptr);
-    }
-
-    void DestroyBufferView(const BufferView& aBufferView, const AllocationCallbacks& aAllocator) const
+    template <typename T = DefaultAllocationCallbacks>
+    void DestroyBufferView(const BufferView& aBufferView, const T& aAllocator = DefaultAllocator) const
     {
         vkDestroyBufferView(mDevice, aBufferView, &aAllocator);
     }
 
-    Image CreateImage(const ImageCreateInfo& aImageCreateInfo) const
-    {
-        Image lImage;
-        ThrowIfFailed(vkCreateImage(mDevice, &aImageCreateInfo, nullptr, &lImage));
-
-        return lImage;
-    }
-
-    Image CreateImage(const ImageCreateInfo& aImageCreateInfo, const AllocationCallbacks& aAllocator) const
+    template <typename T = DefaultAllocationCallbacks>
+    Image CreateImage(const ImageCreateInfo& aImageCreateInfo, const T& aAllocator = DefaultAllocator) const
     {
         Image lImage;
         ThrowIfFailed(vkCreateImage(mDevice, &aImageCreateInfo, &aAllocator, &lImage));
@@ -679,29 +575,16 @@ public:
         return lImage;
     }
 
-    void DestroyImage(const Image& aImage) const
-    {
-        assert(aImage);
-
-        vkDestroyImage(mDevice, aImage, nullptr);
-    }
-
-    void DestroyImage(const Image& aImage, const AllocationCallbacks& aAllocator) const
+    template <typename T = DefaultAllocationCallbacks>
+    void DestroyImage(const Image& aImage, const T& aAllocator = DefaultAllocator) const
     {
         assert(aImage);
 
         vkDestroyImage(mDevice, aImage, &aAllocator);
     }
 
-    ImageView CreateImageView(const ImageViewCreateInfo& aImageViewCreateInfo) const
-    {
-        ImageView lImageView;
-        ThrowIfFailed(vkCreateImageView(mDevice, &aImageViewCreateInfo, nullptr, &lImageView));
-
-        return lImageView;
-    }
-
-    ImageView CreateImageView(const ImageViewCreateInfo& aImageViewCreateInfo, const AllocationCallbacks& aAllocator) const
+    template <typename T = DefaultAllocationCallbacks>
+    ImageView CreateImageView(const ImageViewCreateInfo& aImageViewCreateInfo, const T& aAllocator = DefaultAllocator) const
     {
         ImageView lImageView;
         ThrowIfFailed(vkCreateImageView(mDevice, &aImageViewCreateInfo, &aAllocator, &lImageView));
@@ -709,12 +592,8 @@ public:
         return lImageView;
     }
 
-    void DestroyImageView(const ImageView& aImageView) const
-    {
-        vkDestroyImageView(mDevice, aImageView, nullptr);
-    }
-
-    void DestroyImageView(const ImageView& aImageView, const AllocationCallbacks& aAllocator) const
+    template <typename T = DefaultAllocationCallbacks>
+    void DestroyImageView(const ImageView& aImageView, const T& aAllocator = DefaultAllocator) const
     {
         vkDestroyImageView(mDevice, aImageView, &aAllocator);
     }
@@ -727,15 +606,8 @@ public:
         return lSubresourceLayout;
     }
 
-    Sampler CreateSampler(const SamplerCreateInfo& aSamplerCreateInfo) const
-    {
-        Sampler lSampler;
-        ThrowIfFailed(vkCreateSampler(mDevice, &aSamplerCreateInfo, nullptr, &lSampler));
-
-        return lSampler;
-    }
-
-    Sampler CreateSampler(const SamplerCreateInfo& aSamplerCreateInfo, const AllocationCallbacks& aAllocator) const
+    template <typename T = DefaultAllocationCallbacks>
+    Sampler CreateSampler(const SamplerCreateInfo& aSamplerCreateInfo, const T& aAllocator = DefaultAllocator) const
     {
         Sampler lSampler;
         ThrowIfFailed(vkCreateSampler(mDevice, &aSamplerCreateInfo, &aAllocator, &lSampler));
@@ -743,25 +615,14 @@ public:
         return lSampler;
     }
 
-    void DestroySampler(const Sampler& aSampler) const
-    {
-        vkDestroySampler(mDevice, aSampler, nullptr);
-    }
-
-    void DestroySampler(const Sampler& aSampler, const AllocationCallbacks& aAllocator) const
+    template <typename T = DefaultAllocationCallbacks>
+    void DestroySampler(const Sampler& aSampler, const T& aAllocator = DefaultAllocator) const
     {
         vkDestroySampler(mDevice, aSampler, &aAllocator);
     }
 
-    Framebuffer CreateFramebuffer(const FramebufferCreateInfo& aFramebufferCreateInfo) const
-    {
-        Framebuffer lFramebuffer;
-        ThrowIfFailed(vkCreateFramebuffer(mDevice, &aFramebufferCreateInfo, nullptr, &lFramebuffer));
-
-        return lFramebuffer;
-    }
-
-    Framebuffer CreateFramebuffer(const FramebufferCreateInfo& aFramebufferCreateInfo, const AllocationCallbacks& aAllocator) const
+    template <typename T = DefaultAllocationCallbacks>
+    Framebuffer CreateFramebuffer(const FramebufferCreateInfo& aFramebufferCreateInfo, const T& aAllocator = DefaultAllocator) const
     {
         Framebuffer lFramebuffer;
         ThrowIfFailed(vkCreateFramebuffer(mDevice, &aFramebufferCreateInfo, &aAllocator, &lFramebuffer));
@@ -769,25 +630,14 @@ public:
         return lFramebuffer;
     }
 
-    void DestroyFramebuffer(const Framebuffer& aFramebuffer) const
-    {
-        vkDestroyFramebuffer(mDevice, aFramebuffer, nullptr);
-    }
-
-    void DestroyFramebuffer(const Framebuffer& aFramebuffer, const AllocationCallbacks& aAllocator) const
+    template <typename T = DefaultAllocationCallbacks>
+    void DestroyFramebuffer(const Framebuffer& aFramebuffer, const T& aAllocator = DefaultAllocator) const
     {
         vkDestroyFramebuffer(mDevice, aFramebuffer, &aAllocator);
     }
 
-    ShaderModule CreateShaderModule(const ShaderModuleCreateInfo& aShaderModuleCreateInfo) const
-    {
-        ShaderModule lShaderModule;
-        ThrowIfFailed(vkCreateShaderModule(mDevice, &aShaderModuleCreateInfo, nullptr, &lShaderModule));
-
-        return lShaderModule;
-    }
-
-    ShaderModule CreateShaderModule(const ShaderModuleCreateInfo& aShaderModuleCreateInfo, const AllocationCallbacks& aAllocator) const
+    template <typename T = DefaultAllocationCallbacks>
+    ShaderModule CreateShaderModule(const ShaderModuleCreateInfo& aShaderModuleCreateInfo, const T& aAllocator = DefaultAllocator) const
     {
         ShaderModule lShaderModule;
         ThrowIfFailed(vkCreateShaderModule(mDevice, &aShaderModuleCreateInfo, &aAllocator, &lShaderModule));
@@ -795,25 +645,14 @@ public:
         return lShaderModule;
     }
 
-    void DestroyShaderModule(const ShaderModule& aShaderModule) const
-    {
-        vkDestroyShaderModule(mDevice, aShaderModule, nullptr);
-    }
-
-    void DestroyShaderModule(const ShaderModule& aShaderModule, const AllocationCallbacks& aAllocator) const
+    template <typename T = DefaultAllocationCallbacks>
+    void DestroyShaderModule(const ShaderModule& aShaderModule, const T& aAllocator = DefaultAllocator) const
     {
         vkDestroyShaderModule(mDevice, aShaderModule, &aAllocator);
     }
 
-    DescriptorSetLayout CreateDescriptorSetLayout(const DescriptorSetLayoutCreateInfo& aDescriptorSetLayoutCreateInfo) const
-    {
-        DescriptorSetLayout lDescriptorSetLayout;
-        ThrowIfFailed(vkCreateDescriptorSetLayout(mDevice, &aDescriptorSetLayoutCreateInfo, nullptr, &lDescriptorSetLayout));
-
-        return lDescriptorSetLayout;
-    }
-
-    DescriptorSetLayout CreateDescriptorSetLayout(const DescriptorSetLayoutCreateInfo& aDescriptorSetLayoutCreateInfo, const AllocationCallbacks& aAllocator) const
+    template <typename T = DefaultAllocationCallbacks>
+    DescriptorSetLayout CreateDescriptorSetLayout(const DescriptorSetLayoutCreateInfo& aDescriptorSetLayoutCreateInfo, const T& aAllocator = DefaultAllocator) const
     {
         DescriptorSetLayout lDescriptorSetLayout;
         ThrowIfFailed(vkCreateDescriptorSetLayout(mDevice, &aDescriptorSetLayoutCreateInfo, &aAllocator, &lDescriptorSetLayout));
@@ -821,25 +660,14 @@ public:
         return lDescriptorSetLayout;
     }
 
-    void DestroyDescriptorSetLayout(const DescriptorSetLayout& aDescriptorSetLayout) const
-    {
-        vkDestroyDescriptorSetLayout(mDevice, aDescriptorSetLayout, nullptr);
-    }
-
-    void DestroyDescriptorSetLayout(const DescriptorSetLayout& aDescriptorSetLayout, const AllocationCallbacks& aAllocator) const
+    template <typename T = DefaultAllocationCallbacks>
+    void DestroyDescriptorSetLayout(const DescriptorSetLayout& aDescriptorSetLayout, const T& aAllocator = DefaultAllocator) const
     {
         vkDestroyDescriptorSetLayout(mDevice, aDescriptorSetLayout, &aAllocator);
     }
 
-    PipelineLayout CreatePipelineLayout(const PipelineLayoutCreateInfo& aPipelineLayoutCreateInfo) const
-    {
-        PipelineLayout lPipelineLayout;
-        ThrowIfFailed(vkCreatePipelineLayout(mDevice, &aPipelineLayoutCreateInfo, nullptr, &lPipelineLayout));
-
-        return lPipelineLayout;
-    }
-
-    PipelineLayout CreatePipelineLayout(const PipelineLayoutCreateInfo& aPipelineLayoutCreateInfo, const AllocationCallbacks& aAllocator) const
+    template <typename T = DefaultAllocationCallbacks>
+    PipelineLayout CreatePipelineLayout(const PipelineLayoutCreateInfo& aPipelineLayoutCreateInfo, const T& aAllocator = DefaultAllocator) const
     {
         PipelineLayout lPipelineLayout;
         ThrowIfFailed(vkCreatePipelineLayout(mDevice, &aPipelineLayoutCreateInfo, &aAllocator, &lPipelineLayout));
@@ -847,12 +675,8 @@ public:
         return lPipelineLayout;
     }
 
-    void DestroyPipelineLayout(const PipelineLayout& aPipelineLayout) const
-    {
-        vkDestroyPipelineLayout(mDevice, aPipelineLayout, nullptr);
-    }
-
-    void DestroyPipelineLayout(const PipelineLayout& aPipelineLayout, const AllocationCallbacks& aAllocator) const
+    template <typename T = DefaultAllocationCallbacks>
+    void DestroyPipelineLayout(const PipelineLayout& aPipelineLayout, const T& aAllocator = DefaultAllocator) const
     {
         vkDestroyPipelineLayout(mDevice, aPipelineLayout, &aAllocator);
     }
@@ -862,18 +686,9 @@ public:
         return CreateGraphicsPipeline(VK_NULL_HANDLE, aCreateInfoCount, apGraphicsPipelineCraeteInfos);
     }
 
-    Pipeline CreateGraphicsPipeline(const PipelineCache& aPipelineCache, uint32_t aCreateInfoCount, const GraphicsPipelineCreateInfo* apGraphicsPipelineCraeteInfos) const
-    {
-        assert(aCreateInfoCount > 0 && apGraphicsPipelineCraeteInfos != nullptr);
-
-        Pipeline lPipeline;
-        ThrowIfFailed(vkCreateGraphicsPipelines(mDevice, aPipelineCache, aCreateInfoCount, &apGraphicsPipelineCraeteInfos[0], nullptr, &lPipeline));
-
-        return lPipeline;
-    }
-
+    template <typename T = DefaultAllocationCallbacks>
     Pipeline CreateGraphicsPipeline(const PipelineCache& aPipelineCache, uint32_t aCreateInfoCount,
-        const GraphicsPipelineCreateInfo* apGraphicsPipelineCraeteInfos, const AllocationCallbacks& aAllocator) const
+        const GraphicsPipelineCreateInfo* apGraphicsPipelineCraeteInfos, const T& aAllocator = DefaultAllocator) const
     {
         assert(aCreateInfoCount > 0 && apGraphicsPipelineCraeteInfos != nullptr);
 
@@ -883,25 +698,14 @@ public:
         return lPipeline;
     }
 
-    void DestroyPipeline(const Pipeline& aPipeline) const
-    {
-        vkDestroyPipeline(mDevice, aPipeline, nullptr);
-    }
-
-    void DestroyPipeline(const Pipeline& aPipeline, const AllocationCallbacks& aAllocator) const
+    template <typename T = DefaultAllocationCallbacks>
+    void DestroyPipeline(const Pipeline& aPipeline, const T& aAllocator = DefaultAllocator) const
     {
         vkDestroyPipeline(mDevice, aPipeline, &aAllocator);
     }
 
-    DeviceMemory AllocateMemory(const MemoryAllocateInfo& aMemoryAllocationInfo) const
-    {
-        DeviceMemory lDeviceMemory;
-        ThrowIfFailed(vkAllocateMemory(mDevice, &aMemoryAllocationInfo, nullptr, &lDeviceMemory));
-
-        return lDeviceMemory;
-    }
-
-    DeviceMemory AllocateMemory(const MemoryAllocateInfo& aMemoryAllocationInfo, const AllocationCallbacks& aAllocator) const
+    template <typename T = DefaultAllocationCallbacks>
+    DeviceMemory AllocateMemory(const MemoryAllocateInfo& aMemoryAllocationInfo, const T& aAllocator = DefaultAllocator) const
     {
         DeviceMemory lDeviceMemory;
         ThrowIfFailed(vkAllocateMemory(mDevice, &aMemoryAllocationInfo, &aAllocator, &lDeviceMemory));
@@ -909,12 +713,8 @@ public:
         return lDeviceMemory;
     }
 
-    void FreeMemory(const DeviceMemory& aDeviceMemory) const
-    {
-        vkFreeMemory(mDevice, aDeviceMemory, nullptr);
-    }
-
-    void FreeMemory(const DeviceMemory& aDeviceMemory, const AllocationCallbacks& aAllocator) const
+    template <typename T = DefaultAllocationCallbacks>
+    void FreeMemory(const DeviceMemory& aDeviceMemory, const T& aAllocator = DefaultAllocator) const
     {
         vkFreeMemory(mDevice, aDeviceMemory, &aAllocator);
     }
