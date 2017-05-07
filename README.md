@@ -6,32 +6,32 @@ runtime costs.
 
 ## Examples
 ### [ClearFrame](Sample/ClearFrame/)
-<img src="./Sample/ClearFrame/ClearFrame.PNG" height="96px">
+<img src="./Sample/ClearFrame/ClearFrame.png" height="108px">
 
 <hr>
 
 ### [StagingTriangle](Sample/StagingTriangle/)
-<img src="./Sample/StagingTriangle/StagingTriangle.PNG" height="96px">
+<img src="./Sample/StagingTriangle/StagingTriangle.png" height="108px">
 
 <hr>
 
 ### [IndexedTriangle](Sample/IndexedTriangle/)
-<img src="./Sample/IndexedTriangle/IndexedTriangle.PNG" height="96px">
+<img src="./Sample/IndexedTriangle/IndexedTriangle.png" height="108px">
 
 <hr>
 
 ### [UniformTriangle](Sample/UniformTriangle/)
-<img src="./Sample/UniformTriangle/UniformTriangle.PNG" height="96px">
+<img src="./Sample/UniformTriangle/UniformTriangle.png" height="108px">
 
 <hr>
 
 ### [TexturedTriangle](Sample/TexturedTriangle/)
-<img src="./Sample/TexturedTriangle/TexturedTriangle.PNG" height="96px">
+<img src="./Sample/TexturedTriangle/TexturedTriangle.png" height="108px">
 
 <hr>
 
 ### [DepthTriangle](Sample/DepthTriangle/)
-<img src="./Sample/DepthTriangle/DepthTriangle.PNG" height="96px">
+<img src="./Sample/DepthTriangle/DepthTriangle.png" height="108px">
 
 <hr>
 
