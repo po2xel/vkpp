@@ -6,32 +6,34 @@ runtime costs.
 
 ## Examples
 ### [ClearFrame](Sample/ClearFrame/)
-<img src="./Sample/ClearFrame/ClearFrame.PNG" height="96px" align="right">
+<img src="./Sample/ClearFrame/ClearFrame.PNG" height="96px">
 
 <hr>
 
 ### [StagingTriangle](Sample/StagingTriangle/)
-<img src="./Sample/StagingTriangle/StagingTriangle.PNG" height="96px" align="right">
+<img src="./Sample/StagingTriangle/StagingTriangle.PNG" height="96px">
 
 <hr>
 
 ### [IndexedTriangle](Sample/IndexedTriangle/)
-<img src="./Sample/IndexedTriangle/IndexedTriangle.PNG" height="96px" align="right">
+<img src="./Sample/IndexedTriangle/IndexedTriangle.PNG" height="96px">
 
 <hr>
 
 ### [UniformTriangle](Sample/UniformTriangle/)
-<img src="./Sample/UniformTriangle/UniformTriangle.PNG" height="96px" align="right">
+<img src="./Sample/UniformTriangle/UniformTriangle.PNG" height="96px">
 
 <hr>
 
 ### [TexturedTriangle](Sample/TexturedTriangle/)
-<img src="./Sample/TexturedTriangle/TexturedTriangle.PNG" height="96px" align="right">
+<img src="./Sample/TexturedTriangle/TexturedTriangle.PNG" height="96px">
 
 <hr>
 
 ### [DepthTriangle](Sample/DepthTriangle/)
-<img src="./Sample/DepthTriangle/DepthTriangle.PNG" height="96px" align="right">
+<img src="./Sample/DepthTriangle/DepthTriangle.PNG" height="96px">
+
+<hr>
 
 ## License
 vkpp is provided under MIT license that can be found in the ``LICENSE.txt``
