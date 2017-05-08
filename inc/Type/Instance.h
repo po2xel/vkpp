@@ -19,6 +19,12 @@ namespace vkpp
 
 
 
+/**
+ * \class ApplicationInfo
+ * \ingroup vkpp
+ *
+ * \brief Structure specifying a application info.
+ */
 class ApplicationInfo : public internal::VkTrait<ApplicationInfo, VkApplicationInfo>
 {
 private:

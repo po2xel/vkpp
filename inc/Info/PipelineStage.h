@@ -105,6 +105,8 @@ public:
     }
 };
 
+ConsistencyCheck(PipelineShaderStageCreateInfo, pNext, flags, stage, module, pName, pSpecializationInfo)
+
 
 
 enum class PipelineVertexInputStateCreateFlagBits

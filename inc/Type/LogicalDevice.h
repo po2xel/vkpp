@@ -60,7 +60,7 @@ public:
     {}
 
     template <typename P, typename = EnableIfValueType<ValueType<P>, float>>
-    QueueCreateInfo(uint32_t aQueueFamilyIndex,P&& aQueuePriorities, const DeviceQueueCreateFlags& aFlags = DefaultFlags)
+    QueueCreateInfo(uint32_t aQueueFamilyIndex, P&& aQueuePriorities, const DeviceQueueCreateFlags& aFlags = DefaultFlags)
         : QueueCreateInfo(aQueueFamilyIndex, static_cast<uint32_t>(aQueuePriorities.size()), aQueuePriorities.data(), aFlags)
     {
         StaticLValueRefAssert(P, aQueuePriorities);

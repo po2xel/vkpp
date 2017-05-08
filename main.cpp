@@ -36,8 +36,8 @@ int main(int /*argc*/, char* /*argv*/[])
 
     try
     {
-        // sample::Triangle lTriangle;
-        // lTriangle.Run();
+        sample::Triangle lTriangle;
+        lTriangle.Run();
         /*vkpp::Instance lInstance{ lInstanceInfo };
 
         auto lPhysicalDevices = lInstance.EnumeratePhysicalDevices();

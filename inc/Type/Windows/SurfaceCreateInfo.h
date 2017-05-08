@@ -37,7 +37,7 @@ public:
 
     DEFINE_CLASS_MEMBER(SurfaceCreateInfo)
 
-    SurfaceCreateInfo(HWND ahWnd, HINSTANCE ahInstance = nullptr, const SurfaceCreateFlags& aFlags = DefaultFlags) : flags(aFlags), hinstance(ahInstance), hwnd(ahWnd)
+    explicit SurfaceCreateInfo(HWND ahWnd, HINSTANCE ahInstance = nullptr, const SurfaceCreateFlags& aFlags = DefaultFlags) : flags(aFlags), hinstance(ahInstance), hwnd(ahWnd)
     {}
 
     SurfaceCreateInfo& SetNext(const void* apNext)

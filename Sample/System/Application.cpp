@@ -1,7 +1,7 @@
 #include <System/Application.h>
 #include <Window/WindowEvent.h>
 #include <Window/MouseEvent.h>
-#include <Window/TouchFingerEvent.h>
+// #include <Window/TouchFingerEvent.h>
 #include <Window/KeyboardEvent.h>
 #include <Window/RedrawEvent.h>
 
@@ -66,18 +66,18 @@ void CApplication::RegisterUpdateEvent(std::function<void(void)> aUpdateFunc)
 }
 
 
-void CApplication::RegisterTouchFingerEvent(const CTouchFingerEvent& aRegFinger)
-{
-    mTouchEventHandler.mFingerDownEventHandle = std::bind(&CTouchFingerEvent::OnFingerDownEvent, std::cref(aRegFinger), std::placeholders::_1);
-    mTouchEventHandler.mFingerUpEventHandle = std::bind(&CTouchFingerEvent::OnFingerUpEvent, std::cref(aRegFinger), std::placeholders::_1);
-    mTouchEventHandler.mFingerMotionEventHandle = std::bind(&CTouchFingerEvent::OnFingerMotionEvent, std::cref(aRegFinger), std::placeholders::_1);
-}
-
-
-void CApplication::RegisterMultiGestureEent(const CMultiGestureEvent& aMultiGesture)
-{
-    mTouchEventHandler.mMultiGestureEventHanle = std::bind(&CMultiGestureEvent::OnMultiGestureEvent, std::cref(aMultiGesture), std::placeholders::_1);
-}
+//void CApplication::RegisterTouchFingerEvent(const CTouchFingerEvent& aRegFinger)
+//{
+//    mTouchEventHandler.mFingerDownEventHandle = std::bind(&CTouchFingerEvent::OnFingerDownEvent, std::cref(aRegFinger), std::placeholders::_1);
+//    mTouchEventHandler.mFingerUpEventHandle = std::bind(&CTouchFingerEvent::OnFingerUpEvent, std::cref(aRegFinger), std::placeholders::_1);
+//    mTouchEventHandler.mFingerMotionEventHandle = std::bind(&CTouchFingerEvent::OnFingerMotionEvent, std::cref(aRegFinger), std::placeholders::_1);
+//}
+//
+//
+//void CApplication::RegisterMultiGestureEent(const CMultiGestureEvent& aMultiGesture)
+//{
+//    mTouchEventHandler.mMultiGestureEventHanle = std::bind(&CMultiGestureEvent::OnMultiGestureEvent, std::cref(aMultiGesture), std::placeholders::_1);
+//}
 
 
 void CApplication::Run(void) const

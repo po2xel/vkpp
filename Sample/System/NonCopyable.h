@@ -2,7 +2,8 @@
 #define __VKPP_SAMPLE_SYSTEM_NONCOPYABLE_H__
 
 
-namespace dm
+
+namespace vkpp::sample
 {
 
 

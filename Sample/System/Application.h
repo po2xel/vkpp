@@ -130,8 +130,8 @@ public:
 
     void RegisterUpdateEvent(std::function<void(void)> aUpdateFunc);
 
-    void RegisterTouchFingerEvent(const CTouchFingerEvent& aRegFinger);
-    void RegisterMultiGestureEent(const CMultiGestureEvent& aMultiGesture);
+    //void RegisterTouchFingerEvent(const CTouchFingerEvent& aRegFinger);
+    //void RegisterMultiGestureEent(const CMultiGestureEvent& aMultiGesture);
 
     virtual void Run(void) const;
 };

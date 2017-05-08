@@ -41,11 +41,22 @@ public:
 
     DebugReportCallbackCreateInfo(const DebugReportFlags& aFlags, PFN_vkDebugReportCallbackEXT apfnCallback, void* apUserData = nullptr)
         : flags(aFlags), pfnCallback(apfnCallback), pUserData(apUserData)
-    {}
+    {
+        assert(flags != DefaultFlags);              // flags must not be 0.
+    }
 
     DebugReportCallbackCreateInfo& SetNext(const void* apNext)
     {
         pNext = apNext;
+
+        return *this;
+    }
+
+    DebugReportCallbackCreateInfo& SetFlags(const DebugReportFlags& aFlags)
+    {
+        assert(flags != DefaultFlags);
+
+        flags = aFlags;
 
         return *this;
     }
