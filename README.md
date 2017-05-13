@@ -5,8 +5,8 @@ runtime costs.
 
 
 ## <img src="./Images/WindowsLogo.png" alt="" height=33px>
-A Visual Studio 2017 solution file for compiling all examples is included with the repository.
-Both the vkpp library and the examples adopted C++17 new features.
+A Visual Studio 2017 solution file for compiling all examples is included with the repository.<br/>
+Both the vkpp library and the examples use C++17 new features.
 
 ## <img src="./Images/LinuxLogo.png" alt="" height=33px>
 Coming soon.
@@ -14,12 +14,12 @@ Coming soon.
 ## <img src="./Images/AndroidLogo.png" alt="" height=33px>
 Coming soon.
 
+<hr>
+
 ## Examples
-The examples are used to verify and demonstrate the efficiency, effectiveness and correctness of vkpp.
-
-They are also used as baselines to prevent regressions.
-
-(Note: Some examples are broken due to recent API changes.)
+The examples are used to verify and demonstrate the efficiency, effectiveness and correctness of vkpp.<br/>
+They are also used as baselines to prevent regressions.<br/>
+`Note: Some examples are broken due to recent API changes.`
 
 ### [ClearFrame](Sample/ClearFrame/)
 <img src="./Sample/ClearFrame/ClearFrame.PNG" height="108px">
