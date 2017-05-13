@@ -230,6 +230,14 @@ public:
         return lFeatures;
     }
 
+    FormatProperties GetFormatProperties(Format aFormat) const
+    {
+        FormatProperties lFormatProperties;
+        vkGetPhysicalDeviceFormatProperties(mPhysicalDevice, static_cast<VkFormat>(aFormat), &lFormatProperties);
+
+        return lFormatProperties;
+    }
+
     PhysicalDeviceMemoryProperties GetMemoryProperties(void) const
     {
         PhysicalDeviceMemoryProperties lMemoryProperties;

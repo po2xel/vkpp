@@ -18,7 +18,11 @@ namespace vkpp::sample
 
 int main(int /*argc*/, char* /*argv*/[])
 {
-    ColorizedTriangle lColorizedTriangle("Colorized Triangle", 1);
+    static constexpr auto ApplicationName = "Colorized Triangle";
+
+    CWindow lWindow(ApplicationName, CWindow::CENTERED, CWindow::CENTERED, 1024, 768, CWindow::RESIZABLE);
+
+    ColorizedTriangle lColorizedTriangle(lWindow, ApplicationName, 1);
 
     theApp.Run();
 

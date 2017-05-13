@@ -64,18 +64,18 @@ public:
 
     DEFINE_CLASS_MEMBER(BufferCreateInfo)
 
-    BufferCreateInfo(DeviceSize aSize, const BufferUsageFlags& aUsage, const BufferCreateFlags& aFlags = DefaultFlags)
+    constexpr BufferCreateInfo(DeviceSize aSize, const BufferUsageFlags& aUsage, const BufferCreateFlags& aFlags = DefaultFlags) noexcept
         : flags(aFlags), size(aSize), usage(aUsage)
     {}
 
-    BufferCreateInfo(DeviceSize aSize, const BufferUsageFlags& aUsage, uint32_t aQueueFamilyIndexCount, const uint32_t* apQueueFamilyIndices, const BufferCreateFlags& aFlags = DefaultFlags)
+    BufferCreateInfo(DeviceSize aSize, const BufferUsageFlags& aUsage, uint32_t aQueueFamilyIndexCount, const uint32_t* apQueueFamilyIndices, const BufferCreateFlags& aFlags = DefaultFlags) noexcept
         : flags(aFlags), size(aSize), usage(aUsage), sharingMode(SharingMode::eConcurrent), queueFamilyIndexCount(aQueueFamilyIndexCount), pQueueFamilyIndices(apQueueFamilyIndices)
     {
         assert(aQueueFamilyIndexCount != 0 && apQueueFamilyIndices != nullptr);
     }
 
     template <typename Q, typename = EnableIfValueType<ValueType<Q>, uint32_t>>
-    BufferCreateInfo(DeviceSize aSize, const BufferUsageFlags& aUsage, Q&& aQueueFamilyIndices, const BufferCreateFlags& aFlags = DefaultFlags)
+    BufferCreateInfo(DeviceSize aSize, const BufferUsageFlags& aUsage, Q&& aQueueFamilyIndices, const BufferCreateFlags& aFlags = DefaultFlags) noexcept
         : BufferCreateInfo(aSize, aUsage, static_cast<uint32_t>(aQueueFamilyIndices.size()), aQueueFamilyIndices.data(), aFlags)
     {
         StaticLValueRefAssert(Q, aQueueFamilyIndices);
@@ -150,7 +150,7 @@ struct BufferCopy : public internal::VkTrait<BufferCopy, VkBufferCopy>
 
     DEFINE_CLASS_MEMBER(BufferCopy)
 
-    BufferCopy(DeviceSize aSrcOffset, DeviceSize aDstOffset, DeviceSize aSize) : srcOffset(aSrcOffset), dstOffset(aDstOffset), size(aSize)
+    constexpr BufferCopy(DeviceSize aSrcOffset, DeviceSize aDstOffset, DeviceSize aSize) noexcept : srcOffset(aSrcOffset), dstOffset(aDstOffset), size(aSize)
     {}
 
     BufferCopy& SetOffset(DeviceSize aSrcOffset, DeviceSize aDstOffset)

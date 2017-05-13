@@ -96,15 +96,16 @@ public:
 
     DEFINE_CLASS_MEMBER(ImageCreateInfo)
 
-    ImageCreateInfo(ImageType aImageType, Format aFormat, const Extent3D& aExtent, uint32_t aMipLevels, uint32_t aArrayLayers,
-        SampleCountFlagBits aSamples, ImageTiling aTiling, const ImageUsageFlags& aUsage, ImageLayout aInitialLayout, const ImageCreateFlags& aFlags = DefaultFlags)
+    constexpr ImageCreateInfo(ImageType aImageType, Format aFormat, const Extent3D& aExtent, const ImageUsageFlags& aUsage,
+        ImageLayout aInitialLayout = ImageLayout::eUndefined, ImageTiling aTiling = ImageTiling::eOptimal, SampleCountFlagBits aSamples = SampleCountFlagBits::e1,
+        uint32_t aMipLevels = 1, uint32_t aArrayLayers = 1,  const ImageCreateFlags& aFlags = DefaultFlags) noexcept
         : flags(aFlags), imageType(aImageType), format(aFormat), extent(aExtent), mipLevels(aMipLevels), arrayLayers(aArrayLayers), samples(aSamples), tiling(aTiling),
           usage(aUsage), initialLayout(aInitialLayout)
     {}
 
-    ImageCreateInfo(ImageType aImageType, Format aFormat, const Extent3D& aExtent, uint32_t aMipLevels, uint32_t aArrayLayers,
-        SampleCountFlagBits aSamples, ImageTiling aTiling, const ImageUsageFlags& aUsage, uint32_t aQueueFamilyIndexCount, const uint32_t* apQueueFamilyIndices,
-        ImageLayout aInitialLayout, const ImageCreateFlags& aFlags = DefaultFlags)
+    constexpr ImageCreateInfo(uint32_t aQueueFamilyIndexCount, const uint32_t* apQueueFamilyIndices, ImageType aImageType, Format aFormat, const Extent3D& aExtent, const ImageUsageFlags& aUsage,
+        ImageLayout aInitialLayout = ImageLayout::eUndefined, ImageTiling aTiling = ImageTiling::eOptimal, SampleCountFlagBits aSamples = SampleCountFlagBits::e1,
+        uint32_t aMipLevels = 1, uint32_t aArrayLayers = 1, const ImageCreateFlags& aFlags = DefaultFlags) noexcept
         : flags(aFlags), imageType(aImageType), format(aFormat), extent(aExtent), mipLevels(aMipLevels), arrayLayers(aArrayLayers), samples(aSamples), tiling(aTiling),
           usage(aUsage), sharingMode(SharingMode::eConcurrent), queueFamilyIndexCount(aQueueFamilyIndexCount), pQueueFamilyIndices(apQueueFamilyIndices), initialLayout(aInitialLayout)
     {
@@ -112,9 +113,9 @@ public:
     }
 
     template <typename Q, typename = EnableIfValueType<ValueType<Q>, uint32_t>>
-    ImageCreateInfo(ImageType aImageType, Format aFormat, const Extent3D& aExtent, uint32_t aMipLevels, uint32_t aArrayLayers,
-        SampleCountFlagBits aSamples, ImageTiling aTiling, const ImageUsageFlags& aUsage, Q&& aQueueFamilyIndices,
-        ImageLayout aInitialLayout, const ImageCreateFlags& aFlags = DefaultFlags)
+    ImageCreateInfo(Q&& aQueueFamilyIndices, ImageType aImageType, Format aFormat, const Extent3D& aExtent, const ImageUsageFlags& aUsage,
+        ImageLayout aInitialLayout = ImageLayout::eUndefined, ImageTiling aTiling = ImageTiling::eOptimal, SampleCountFlagBits aSamples = SampleCountFlagBits::e1,
+        uint32_t aMipLevels = 1, uint32_t aArrayLayers = 1, const ImageCreateFlags& aFlags = DefaultFlags)
         : ImageCreateInfo(aImageType, aFormat, aExtent, aMipLevels, aArrayLayers, aSamples, aTiling, aUsage,
           static_cast<uint32_t>(aQueueFamilyIndices.size()), aQueueFamilyIndices.data(), aInitialLayout, aFlags)
     {
@@ -269,11 +270,11 @@ struct ComponentMapping : public internal::VkTrait<ComponentMapping, VkComponent
 
     DEFINE_CLASS_MEMBER(ComponentMapping)
 
-    ComponentMapping(ComponentSwizzle aR, ComponentSwizzle aG, ComponentSwizzle aB, ComponentSwizzle aA)
+    constexpr ComponentMapping(ComponentSwizzle aR, ComponentSwizzle aG, ComponentSwizzle aB, ComponentSwizzle aA) noexcept
         : r(aR), g(aG), b(aB), a(aA)
     {}
 
-    ComponentMapping& SetSwizzles(ComponentSwizzle aR = ComponentSwizzle::eIdentity, ComponentSwizzle aG = ComponentSwizzle::eIdentity,
+    constexpr ComponentMapping& SetSwizzles(ComponentSwizzle aR = ComponentSwizzle::eIdentity, ComponentSwizzle aG = ComponentSwizzle::eIdentity,
         ComponentSwizzle aB = ComponentSwizzle::eIdentity, ComponentSwizzle aA = ComponentSwizzle::eIdentity)
     {
         r = aR;
@@ -286,6 +287,8 @@ struct ComponentMapping : public internal::VkTrait<ComponentMapping, VkComponent
 };
 
 ConsistencyCheck(ComponentMapping, r, g, b, a)
+
+static constexpr ComponentMapping IdentityComponentMapping;
 
 
 
@@ -531,7 +534,7 @@ struct ImageSubresourceRange : public internal::VkTrait<ImageSubresourceRange, V
 
     DEFINE_CLASS_MEMBER(ImageSubresourceRange)
 
-    ImageSubresourceRange(ImageAspectFlags aAspectMask, uint32_t aBaseMipLevel, uint32_t aLevelCount, uint32_t aBaseArrayLayer, uint32_t aLayerCount)
+    constexpr ImageSubresourceRange(ImageAspectFlags aAspectMask, uint32_t aBaseMipLevel, uint32_t aLevelCount, uint32_t aBaseArrayLayer, uint32_t aLayerCount) noexcept
     : aspectMask(aAspectMask), baseMipLevel(aBaseMipLevel), levelCount(aLevelCount), baseArrayLayer(aBaseArrayLayer), layerCount(aLayerCount)
     {}
 
@@ -579,14 +582,26 @@ public:
 
     DEFINE_CLASS_MEMBER(ImageViewCreateInfo)
 
-    ImageViewCreateInfo(const Image& aImage, ImageViewType aImageViewType, Format aFormat, const ComponentMapping& aComponents,
-        const ImageSubresourceRange& aSubresourceRange, const ImageViewCreateFlags& aFlags = DefaultFlags)
+    ImageViewCreateInfo(ImageViewType aImageViewType, Format aFormat, const ImageSubresourceRange& aSubresourceRange,
+        const ComponentMapping& aComponents = IdentityComponentMapping, const ImageViewCreateFlags& aFlags = DefaultFlags)
+        : flags(aFlags), viewType(aImageViewType), format(aFormat), components(aComponents), subresourceRange(aSubresourceRange)
+    {}
+
+    ImageViewCreateInfo(const Image& aImage, ImageViewType aImageViewType, Format aFormat, const ImageSubresourceRange& aSubresourceRange,
+        const ComponentMapping& aComponents = IdentityComponentMapping, const ImageViewCreateFlags& aFlags = DefaultFlags)
         : flags(aFlags), image(aImage), viewType(aImageViewType), format(aFormat), components(aComponents), subresourceRange(aSubresourceRange)
     {}
 
     ImageViewCreateInfo& SetFlags(const ImageViewCreateFlags& aFlags)
     {
         flags = aFlags;
+
+        return *this;
+    }
+
+    ImageViewCreateInfo& SetImage(const Image& aImage)
+    {
+        image = aImage;
 
         return *this;
     }

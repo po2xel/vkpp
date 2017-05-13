@@ -14,24 +14,24 @@ struct VkTrait
     using Type = T;
     using VkType = VT;
 
-    VkTrait(void) noexcept = default;
+    constexpr VkTrait(void) noexcept = default;
 
-    const Type* AddressOf(void) const
+    constexpr const Type* AddressOf(void) const
     {
         return static_cast<const Type*>(this);
     }
 
-    const VkType* operator&(void) const
+    constexpr const VkType* operator&(void) const
     {
         return reinterpret_cast<const VkType*>(this);
     }
 
-    VkType* operator&(void)
+    constexpr VkType* operator&(void)
     {
         return reinterpret_cast<VkType*>(this);
     }
 
-    operator const VkType&(void) const
+    constexpr operator const VkType&(void) const
     {
         return *reinterpret_cast<const VkType*>(this);
     }

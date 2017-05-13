@@ -10,6 +10,7 @@
 #include <glm//glm.hpp>
 
 #include "Base/ExampleBase.h"
+#include "Window/WindowEvent.h"
 
 
 
@@ -23,9 +24,9 @@ struct VertexData
     glm::vec3 inPosition;
     glm::vec3 inColor;
 
-    static const vkpp::VertexInputBindingDescription& GetBindingDescription(void)
+    constexpr static vkpp::VertexInputBindingDescription GetBindingDescription(void)
     {
-        static const vkpp::VertexInputBindingDescription lInputBindingDescription
+        constexpr vkpp::VertexInputBindingDescription lInputBindingDescription
         {
             0,                                  // binding
             sizeof(VertexData),                 // stride
@@ -35,9 +36,9 @@ struct VertexData
         return lInputBindingDescription;
     }
 
-    static decltype(auto) GetAttributeDescriptions(void)
+    constexpr static decltype(auto) GetAttributeDescriptions(void)
     {
-        static const std::array<vkpp::VertexInputAttributeDescription, 2> lInputAttributeDescriptions
+        constexpr std::array<vkpp::VertexInputAttributeDescription, 2> lInputAttributeDescriptions
         { {
             {
                 0,                                  // location
@@ -55,14 +56,87 @@ struct VertexData
 
         return lInputAttributeDescriptions;
     }
+
+    constexpr static vkpp::PipelineVertexInputStateCreateInfo GetInputStateCreateInfo(void)
+    {
+        decltype(auto) lInputBindingDescription = GetBindingDescription();
+        decltype(auto) lAttributeDescription = GetAttributeDescriptions();
+
+        return { 1, lInputBindingDescription.AddressOf(), 2, lAttributeDescription.data() };
+    }
 };
 
 
 
-class ColorizedTriangle : ExampleBase
+struct UniformBufferObject
 {
+    glm::mat4 model;
+    glm::mat4 view;
+    glm::mat4 proj;
+};
+
+
+
+class ColorizedTriangle : public ExampleBase, private CWindowEvent
+{
+private:
+    vkpp::CommandPool mCommandPool;
+    std::vector<vkpp::CommandBuffer> mDrawCmdBuffers;
+    ImageResource mDepthResources;
+    vkpp::Semaphore mPresentCompleteSemaphore;
+    vkpp::Semaphore mRenderCompleteSemaphore;
+    std::vector<vkpp::Fence> mWaitFences;
+    vkpp::RenderPass mRenderPass;
+    vkpp::PipelineCache mPipelineCache;
+    std::vector<vkpp::Framebuffer> mFramebuffers;
+    vkpp::DescriptorSetLayout mSetLayout;
+    vkpp::PipelineLayout mPipelineLayout;
+    vkpp::Pipeline mGraphicsPipeline;
+
+    BufferResource mVertexBufferResource;
+    BufferResource mIndexBufferResource;
+    BufferResource mUniformBufferResource;
+
+    vkpp::DescriptorPool mDescriptorPool;
+    vkpp::DescriptorSet mDescriptorSet;
+
+    UniformBufferObject mMVPMatrix;
+
+    void CreateCommandPool(void);
+    void AllocateDrawCmdBuffers(void);
+    void CreateDepthResources(void);
+
+    void CreateSemaphores(void);
+    void CreateFences(void);
+    void CreateRenderPass(void);
+    void CreatePipelineCache(void);
+    void CreateFramebuffers(void);
+    void CreateDescriptorSetLayout(void);
+    void CreatePipelineLayout(void);
+
+    void CreateGraphicsPipeline(void);
+    void CreateShaderResources(void);
+
+    void CreateDescriptorPool(void);
+    void AllocateDescriptorSet(void);
+    void UpdateDescriptorSet(void) const;
+
+    void BuildCommandBuffers(void);
+
+    void CreateVertexBuffer(void);
+    void CreateIndexBuffer(void);
+    void CreateUniformBuffers(void);
+    void CopyBuffer(DeviceSize aSize, const vkpp::Buffer& aSrcBuffer, vkpp::Buffer& aDstBuffer) const;
+
+    void UpdateUniformBuffer(void) const;
+    vkpp::CommandBuffer BeginOneTimeCommandBuffer(void) const;
+    void EndOneTimeCommandBuffer(const vkpp::CommandBuffer& aCmdBuffer) const;
+
+    void Update(void);
+
 public:
-    ColorizedTriangle(const char* apApplicationName, uint32_t aApplicationVersion, const char* apEngineName = nullptr, uint32_t aEngineVersion = 0);
+    ColorizedTriangle(CWindow& aWindow, const char* apApplicationName, uint32_t aApplicationVersion, const char* apEngineName = nullptr, uint32_t aEngineVersion = 0);
+    virtual ~ColorizedTriangle(void);
 };
 
 

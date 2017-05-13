@@ -3,7 +3,7 @@
 
 
 
-#include <vulkan/vulkan.h>
+#include <Info/Common.h>
 
 
 
@@ -260,6 +260,42 @@ enum class Format
     ePVRTC2_2BPPsRGBBlockIMG        = VK_FORMAT_PVRTC2_2BPP_SRGB_BLOCK_IMG,
     ePVRTC2_4BPPsRGBBlockIMG        = VK_FORMAT_PVRTC2_4BPP_SRGB_BLOCK_IMG
 };
+
+
+
+enum class FormatFeatureFlagBits
+{
+    eSampledImage                   = VK_FORMAT_FEATURE_SAMPLED_IMAGE_BIT,
+    eStorageImage                   = VK_FORMAT_FEATURE_STORAGE_IMAGE_BIT,
+    eStorageImageAtomic             = VK_FORMAT_FEATURE_STORAGE_IMAGE_ATOMIC_BIT,
+    eUniformTexelBuffer             = VK_FORMAT_FEATURE_UNIFORM_TEXEL_BUFFER_BIT,
+    eStorageTexelBuffer             = VK_FORMAT_FEATURE_STORAGE_TEXEL_BUFFER_BIT,
+    eStorageTexelBufferAtomic       = VK_FORMAT_FEATURE_STORAGE_TEXEL_BUFFER_ATOMIC_BIT,
+    eVertexBuffer                   = VK_FORMAT_FEATURE_VERTEX_BUFFER_BIT,
+    eColorAttachment                = VK_FORMAT_FEATURE_COLOR_ATTACHMENT_BIT,
+    eColorAttachmentBlend           = VK_FORMAT_FEATURE_COLOR_ATTACHMENT_BLEND_BIT,
+    eDepthStencilAttachment         = VK_FORMAT_FEATURE_DEPTH_STENCIL_ATTACHMENT_BIT,
+    eBlitSrc                        = VK_FORMAT_FEATURE_BLIT_SRC_BIT,
+    eBlitDst                        = VK_FORMAT_FEATURE_BLIT_DST_BIT,
+    eSampledImageFilterLinear       = VK_FORMAT_FEATURE_SAMPLED_IMAGE_FILTER_LINEAR_BIT,
+    eSampledImageFilterCubicIMG     = VK_FORMAT_FEATURE_SAMPLED_IMAGE_FILTER_CUBIC_BIT_IMG,
+    eTransferSrcKHR                 = VK_FORMAT_FEATURE_TRANSFER_SRC_BIT_KHR,
+    eTransferDstKHR                 = VK_FORMAT_FEATURE_TRANSFER_DST_BIT_KHR
+};
+
+
+VKPP_ENUM_BIT_MASK_FLAGS(FormatFeature)
+
+
+
+struct FormatProperties : public internal::VkTrait<FormatProperties, VkFormatProperties>
+{
+    FormatFeatureFlags   linearTilingFeatures;
+    FormatFeatureFlags   optimalTilingFeatures;
+    FormatFeatureFlags   bufferFeatures;
+};
+
+ConsistencyCheck(FormatProperties, linearTilingFeatures, optimalTilingFeatures, bufferFeatures)
 
 
 

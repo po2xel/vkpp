@@ -13,20 +13,20 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
+    <Filter Include="Header Files\Base">
+      <UniqueIdentifier>{09e07d9d-dd0e-4557-896a-3a07fc84308f}</UniqueIdentifier>
+    </Filter>
     <Filter Include="Header Files\Window">
-      <UniqueIdentifier>{c473c8ec-fbf3-4981-82d6-028ac907a636}</UniqueIdentifier>
+      <UniqueIdentifier>{67ec2424-0712-47d6-8e21-58a186313351}</UniqueIdentifier>
     </Filter>
     <Filter Include="Header Files\System">
-      <UniqueIdentifier>{c70468ec-33a6-4e49-8822-8a48560be7dc}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source Files\System">
-      <UniqueIdentifier>{4ee03c12-aa08-4dda-b20f-04c9589b30a2}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Header Files\Base">
-      <UniqueIdentifier>{fad1a7bf-48b7-4ce0-973f-a0ec9d31d418}</UniqueIdentifier>
+      <UniqueIdentifier>{4b2b50b3-877f-4a66-a5f4-ee2aea935af0}</UniqueIdentifier>
     </Filter>
     <Filter Include="Source Files\Base">
-      <UniqueIdentifier>{f274375e-fe5a-4e8a-8934-aa6622b4a947}</UniqueIdentifier>
+      <UniqueIdentifier>{7db0f107-c52c-447b-b37b-79af4c9c4e6e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\System">
+      <UniqueIdentifier>{b092362f-a9f6-4882-a01d-233bc833d0d4}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -42,6 +42,18 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\System\Application.h">
+      <Filter>Header Files\System</Filter>
+    </ClInclude>
+    <ClInclude Include="..\System\Exception.h">
+      <Filter>Header Files\System</Filter>
+    </ClInclude>
+    <ClInclude Include="..\System\NonCopyable.h">
+      <Filter>Header Files\System</Filter>
+    </ClInclude>
+    <ClInclude Include="..\System\Singleton.h">
+      <Filter>Header Files\System</Filter>
+    </ClInclude>
     <ClInclude Include="..\Window\Event.h">
       <Filter>Header Files\Window</Filter>
     </ClInclude>
@@ -60,23 +72,11 @@
     <ClInclude Include="..\Window\WindowEvent.h">
       <Filter>Header Files\Window</Filter>
     </ClInclude>
-    <ClInclude Include="..\System\Application.h">
-      <Filter>Header Files\System</Filter>
-    </ClInclude>
-    <ClInclude Include="..\System\Exception.h">
-      <Filter>Header Files\System</Filter>
-    </ClInclude>
-    <ClInclude Include="..\System\NonCopyable.h">
-      <Filter>Header Files\System</Filter>
-    </ClInclude>
-    <ClInclude Include="..\System\Singleton.h">
-      <Filter>Header Files\System</Filter>
+    <ClInclude Include="..\Base\ExampleBase.h">
+      <Filter>Header Files\Base</Filter>
     </ClInclude>
     <ClInclude Include="ColorizedTriangle.h">
       <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\Base\ExampleBase.h">
-      <Filter>Header Files\Base</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

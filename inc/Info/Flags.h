@@ -28,18 +28,18 @@ private:
     VkType mMask{ 0 };
 
 public:
-    constexpr Flags(void) = default;
+    constexpr Flags(void) noexcept = default;
 
-    constexpr Flags(const DefaultFlags&)
+    constexpr Flags(const DefaultFlags&) noexcept
     {}
 
-    constexpr Flags(BitType aBit) : mMask(static_cast<VkType>(aBit))
+    constexpr Flags(BitType aBit) noexcept : mMask(static_cast<VkType>(aBit))
     {}
 
-    constexpr Flags(const Flags& aRhs) : mMask(aRhs.mMask)
+    constexpr Flags(const Flags& aRhs) noexcept : mMask(aRhs.mMask)
     {}
 
-    Flags& operator=(const Flags& aRhs)
+    Flags& operator=(const Flags& aRhs) noexcept
     {
         mMask = aRhs.mMask;
 
@@ -144,7 +144,7 @@ public:
 
 
 #define VKPP_ENUM_BIT_MASK_FLAGS_INTERNAL(FlagsType, BitsType, VkType) using FlagsType = internal::Flags<BitsType, VkType>; \
-inline auto operator|(BitsType aLhs, BitsType aRhs) \
+inline constexpr auto operator|(BitsType aLhs, BitsType aRhs) \
 {\
     using Underlying = std::underlying_type_t<BitsType>; \
     return static_cast<BitsType>(static_cast<Underlying>(aLhs) | static_cast<Underlying>(aRhs)); \

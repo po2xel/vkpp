@@ -766,7 +766,7 @@ void Triangle::CreatePipeline(void)
         nullptr, lColorBlendStateCreateInfo.AddressOf(), lDynamicStateCreateInfo.AddressOf(), lPipelineLayout, mRenderPass, 0
     };
 
-    mGraphicsPipeline = mLogicalDevice.CreateGraphicsPipeline(nullptr, 1, lPipelineCreateInfo.AddressOf());
+    mGraphicsPipeline = mLogicalDevice.CreateGraphicsPipelines(nullptr, 1, lPipelineCreateInfo.AddressOf());
 
     mLogicalDevice.DestroyPipelineLayout(lPipelineLayout);
     mLogicalDevice.DestroyShaderModule(lFragmentShaderModule);

@@ -72,7 +72,7 @@ public:
     DEFINE_CLASS_MEMBER(PipelineShaderStageCreateInfo)
 
     PipelineShaderStageCreateInfo(ShaderStageFlagBits aStage, const ShaderModule& aModule, const char* apName = DefaultShaderEntryName,
-        const SpecializationInfo* apSpecializationInfo = nullptr, const PipelineShaderStageCreateFlags& aFlags = DefaultFlags)
+        const SpecializationInfo* apSpecializationInfo = nullptr, const PipelineShaderStageCreateFlags& aFlags = DefaultFlags) noexcept
         : flags(aFlags), stage(aStage), module(aModule), pName(apName), pSpecializationInfo(apSpecializationInfo)
     {}
 
@@ -132,7 +132,7 @@ struct VertexInputBindingDescription : public internal::VkTrait<VertexInputBindi
 
     DEFINE_CLASS_MEMBER(VertexInputBindingDescription)
 
-    VertexInputBindingDescription(uint32_t aBinding, uint32_t aStride, VertexInputRate aInputRate)
+    constexpr VertexInputBindingDescription(uint32_t aBinding, uint32_t aStride, VertexInputRate aInputRate) noexcept
         : binding(aBinding), stride(aStride), inputRate(aInputRate)
     {}
 
@@ -171,7 +171,7 @@ struct VertexInputAttributeDescription : public internal::VkTrait<VertexInputAtt
 
     DEFINE_CLASS_MEMBER(VertexInputAttributeDescription)
 
-    VertexInputAttributeDescription(uint32_t aLocation, uint32_t aBinding, Format aFormat, uint32_t aOffset)
+    constexpr VertexInputAttributeDescription(uint32_t aLocation, uint32_t aBinding, Format aFormat, uint32_t aOffset) noexcept
         : location(aLocation), binding(aBinding), format(aFormat), offset(aOffset)
     {}
 
@@ -223,14 +223,14 @@ public:
 
     DEFINE_CLASS_MEMBER(PipelineVertexInputStateCreateInfo)
 
-    PipelineVertexInputStateCreateInfo(uint32_t aVertexBindingDescriptionCount, const VertexInputBindingDescription* apVertexBindingDescriptions,
-        uint32_t aVertexAttributeDescriptionCount, const VertexInputAttributeDescription* apVertexAttributeDescriptions, const PipelineVertexInputStateCreateFlags& aFlags = DefaultFlags)
+    constexpr PipelineVertexInputStateCreateInfo(uint32_t aVertexBindingDescriptionCount, const VertexInputBindingDescription* apVertexBindingDescriptions,
+        uint32_t aVertexAttributeDescriptionCount, const VertexInputAttributeDescription* apVertexAttributeDescriptions, const PipelineVertexInputStateCreateFlags& aFlags = DefaultFlags) noexcept
         : flags(aFlags), vertexBindingDescriptionCount(aVertexBindingDescriptionCount), pVertexBindingDescriptions(apVertexBindingDescriptions),
           vertexAttributeDescriptionCount(aVertexAttributeDescriptionCount), pVertexAttributeDescriptions(apVertexAttributeDescriptions)
     {}
 
     template <typename B, typename A, typename = EnableIfValueType<ValueType<B>, VertexInputBindingDescription, ValueType<A>, VertexInputAttributeDescription>>
-    PipelineVertexInputStateCreateInfo(B&& aVertexBindingDescriptions, A&& aVertexAttributeDescriptions, const PipelineVertexInputStateCreateFlags& aFlags = DefaultFlags)
+    PipelineVertexInputStateCreateInfo(B&& aVertexBindingDescriptions, A&& aVertexAttributeDescriptions, const PipelineVertexInputStateCreateFlags& aFlags = DefaultFlags) noexcept
         : PipelineVertexInputStateCreateInfo(static_cast<uint32_t>(aVertexBindingDescriptions.size()), aVertexBindingDescriptions.data(),
           static_cast<uint32_t>(aVertexAttributeDescriptions.size()), aVertexAttributeDescriptions.data(), aFlags)
     {
@@ -326,7 +326,7 @@ public:
 
     DEFINE_CLASS_MEMBER(PipelineInputAssemblyStateCreateInfo)
 
-    explicit PipelineInputAssemblyStateCreateInfo(PrimitiveTopology aTopology, Bool32 aPrimitiveRestartEnable = VK_FALSE, const PipelineInputAssemblyStateCreateFlags& aFlags = DefaultFlags)
+    explicit constexpr PipelineInputAssemblyStateCreateInfo(PrimitiveTopology aTopology, Bool32 aPrimitiveRestartEnable = VK_FALSE, const PipelineInputAssemblyStateCreateFlags& aFlags = DefaultFlags) noexcept
         : flags(aFlags), topology(aTopology), primitiveRestartEnable(aPrimitiveRestartEnable)
     {}
 
@@ -421,13 +421,17 @@ public:
 
     DEFINE_CLASS_MEMBER(PipelineViewportStateCreateInfo)
 
+    constexpr PipelineViewportStateCreateInfo(uint32_t aViewportCount, uint32_t aScissorCount, const PipelineViewportStateCreateFlags& aFlags = DefaultFlags) noexcept
+        : flags(aFlags), viewportCount(aViewportCount), scissorCount(aScissorCount)
+    {}
+
     PipelineViewportStateCreateInfo(uint32_t aViewportCount, const Viewport* apViewports, uint32_t aScissorCount = 0, const Rect2D* apScissors = nullptr,
-        const PipelineViewportStateCreateFlags& aFlags = DefaultFlags)
+        const PipelineViewportStateCreateFlags& aFlags = DefaultFlags) noexcept
         : flags(aFlags), viewportCount(aViewportCount), pViewports(apViewports), scissorCount(aScissorCount), pScissors(apScissors)
     {}
 
     template <typename V, typename S, typename = EnableIfValueType<ValueType<V>, Viewport, ValueType<S>, Rect2D>>
-    PipelineViewportStateCreateInfo(V&& aViewports, S&& aScissors, const PipelineViewportStateCreateFlags& aFlags = DefaultFlags)
+    PipelineViewportStateCreateInfo(V&& aViewports, S&& aScissors, const PipelineViewportStateCreateFlags& aFlags = DefaultFlags) noexcept
         : PipelineViewportStateCreateInfo(static_cast<uint32_t>(aViewports.size()), aViewports.data(), static_cast<uint32_t>(aScissors.size()), aScissors.data(), aFlags)
     {
         StaticLValueRefAssert(V, aViewports);
@@ -542,8 +546,8 @@ public:
 
     DEFINE_CLASS_MEMBER(PipelineRasterizationStateCreateInfo)
 
-    PipelineRasterizationStateCreateInfo(Bool32 aDepthClampEnable, Bool32 aRasterizerDiscardEnable, PolygonMode aPolygonMode, const CullModeFlags& aCullMode, FrontFace aFrontFace,
-        Bool32 aDepthBiasEnable, float aDepthBiasConstantFactor, float aDepthBiasClamp, float aDepthBiasSlopeFactor, float aLineWidth, const PipelineRasterizationStateCreateFlags& aFlags = DefaultFlags)
+    constexpr PipelineRasterizationStateCreateInfo(Bool32 aDepthClampEnable, Bool32 aRasterizerDiscardEnable, PolygonMode aPolygonMode, const CullModeFlags& aCullMode, FrontFace aFrontFace,
+        Bool32 aDepthBiasEnable, float aDepthBiasConstantFactor, float aDepthBiasClamp, float aDepthBiasSlopeFactor, float aLineWidth, const PipelineRasterizationStateCreateFlags& aFlags = DefaultFlags) noexcept
         : flags(aFlags), depthClampEnable(aDepthClampEnable), rasterizerDiscardEnable(aRasterizerDiscardEnable), polygonMode(aPolygonMode), cullMode(aCullMode), frontFace(aFrontFace),
         depthBiasEnable(aDepthBiasEnable), depthBiasConstantFactor(aDepthBiasConstantFactor), depthBiasClamp(aDepthBiasClamp), depthBiasSlopeFactor(aDepthBiasSlopeFactor), lineWidth(aLineWidth)
     {}
@@ -591,15 +595,15 @@ public:
     PipelineMultisampleStateCreateFlags flags;
     SampleCountFlagBits                 rasterizationSamples{ SampleCountFlagBits::e1 };
     Bool32                              sampleShadingEnable{ VK_FALSE };
-    float                               minSampleShading{ 0 };
+    float                               minSampleShading{ 1.0f };
     const SampleMask*                   pSampleMask{ nullptr };
     Bool32                              alphaToCoverageEnable{ VK_FALSE };
     Bool32                              alphaToOneEnable{ VK_FALSE };
 
     DEFINE_CLASS_MEMBER(PipelineMultisampleStateCreateInfo)
 
-    PipelineMultisampleStateCreateInfo(SampleCountFlagBits aRasterizationSamples, Bool32 aSampleShadingEnable, float aMinSampleShading, const SampleMask* apSampleMask,
-        Bool32 aAlphaToCoverageEnable, Bool32 aAlphaToOneEnable, const PipelineMultisampleStateCreateFlags& aFlags = DefaultFlags)
+    constexpr PipelineMultisampleStateCreateInfo(SampleCountFlagBits aRasterizationSamples, Bool32 aSampleShadingEnable, float aMinSampleShading, const SampleMask* apSampleMask,
+        Bool32 aAlphaToCoverageEnable, Bool32 aAlphaToOneEnable, const PipelineMultisampleStateCreateFlags& aFlags = DefaultFlags) noexcept
         : flags(aFlags), rasterizationSamples(aRasterizationSamples), sampleShadingEnable(aSampleShadingEnable), minSampleShading(aMinSampleShading), pSampleMask(apSampleMask),
           alphaToCoverageEnable(aAlphaToCoverageEnable), alphaToOneEnable(aAlphaToOneEnable)
     {}
@@ -658,7 +662,7 @@ struct StencilOpState : public internal::VkTrait<StencilOpState, VkStencilOpStat
 
     DEFINE_CLASS_MEMBER(StencilOpState)
 
-    StencilOpState(StencilOp aFailOp, StencilOp aPassOp, StencilOp aDepthFailOp, CompareOp aCompareOp, uint32_t aCompareMask, uint32_t aWriteMask, uint32_t aReference)
+    constexpr StencilOpState(StencilOp aFailOp, StencilOp aPassOp, StencilOp aDepthFailOp, CompareOp aCompareOp, uint32_t aCompareMask, uint32_t aWriteMask, uint32_t aReference) noexcept
         : failOp(aFailOp), passOp(aPassOp), depthFailOp(aDepthFailOp), compareOp(aCompareOp), compareMask(aCompareMask), writeMask(aWriteMask), reference(aReference)
     {}
 
@@ -718,22 +722,25 @@ public:
 
     DEFINE_CLASS_MEMBER(PipelineDepthStencilStateCreateInfo)
 
-    PipelineDepthStencilStateCreateInfo(Bool32 aDepthTestEnable, Bool32 aDepthWriteEnable, CompareOp aDepthCompareOp, Bool32 aDepthBoundsTestEnable,
+    constexpr PipelineDepthStencilStateCreateInfo(Bool32 aDepthTestEnable, Bool32 aDepthWriteEnable, CompareOp aDepthCompareOp, Bool32 aDepthBoundsTestEnable,
         Bool32 aStencilTestEnable, const StencilOpState& aFront, const StencilOpState& aBack, float aMinDepthBounds = 0.0f, float aMaxDepthBounds = 1.0f,
-        const PipelineDepthStencilStateCreateFlags& aFlags = DefaultFlags)
+        const PipelineDepthStencilStateCreateFlags& aFlags = DefaultFlags) noexcept
         : flags(aFlags), depthTestEnable(aDepthTestEnable), depthWriteEnable(aDepthWriteEnable), depthCompareOp(aDepthCompareOp), depthBoundsTestEnable(aDepthBoundsTestEnable),
           stencilTestEnable(aStencilTestEnable), front(aFront), back(aBack), minDepthBounds(aMinDepthBounds), maxDepthBounds(aMaxDepthBounds)
     {}
 
-    PipelineDepthStencilStateCreateInfo(Bool32 aDepthTestEnable, Bool32 aDepthWriteEnable, CompareOp aDepthCompareOp, const PipelineDepthStencilStateCreateFlags& aFlags = DefaultFlags)
+    constexpr PipelineDepthStencilStateCreateInfo(Bool32 aDepthTestEnable, Bool32 aDepthWriteEnable, CompareOp aDepthCompareOp,
+        const PipelineDepthStencilStateCreateFlags& aFlags = DefaultFlags) noexcept
         : flags(aFlags), depthTestEnable(aDepthTestEnable), depthWriteEnable(aDepthWriteEnable), depthCompareOp(aDepthCompareOp)
     {}
 
-    PipelineDepthStencilStateCreateInfo(Bool32 aStencilTestEnable, const StencilOpState& aFront, const StencilOpState& aBack, const PipelineDepthStencilStateCreateFlags& aFlags = DefaultFlags)
+    constexpr PipelineDepthStencilStateCreateInfo(Bool32 aStencilTestEnable, const StencilOpState& aFront, const StencilOpState& aBack,
+        const PipelineDepthStencilStateCreateFlags& aFlags = DefaultFlags) noexcept
         : flags(aFlags), stencilTestEnable(aStencilTestEnable), front(aFront), back(aBack)
     {}
 
-    explicit PipelineDepthStencilStateCreateInfo(Bool32 aDepthBoundsTestEnable, float aMinDepthBounds = 0.0f, float aMaxDepthBounds = 1.0f, const PipelineDepthStencilStateCreateFlags& aFlags = DefaultFlags)
+    explicit constexpr PipelineDepthStencilStateCreateInfo(Bool32 aDepthBoundsTestEnable, float aMinDepthBounds = 0.0f, float aMaxDepthBounds = 1.0f,
+        const PipelineDepthStencilStateCreateFlags& aFlags = DefaultFlags) noexcept
         : flags(aFlags), depthBoundsTestEnable(aDepthBoundsTestEnable), minDepthBounds(aMinDepthBounds), maxDepthBounds(aMaxDepthBounds)
     {}
 
@@ -830,26 +837,67 @@ enum class ColorComponentFlagBits
 
 VKPP_ENUM_BIT_MASK_FLAGS(ColorComponent)
 
+constexpr ColorComponentFlags IdentityColorComponents{ ColorComponentFlagBits::eR | ColorComponentFlagBits::eG | ColorComponentFlagBits::eB | ColorComponentFlagBits::eA };
+
 
 
 struct PipelineColorBlendAttachmentState : public internal::VkTrait<PipelineColorBlendAttachmentState, VkPipelineColorBlendAttachmentState>
 {
     Bool32              blendEnable{ VK_FALSE };
-    BlendFactor         srcColorBlendFactor;
-    BlendFactor         dstColorBlendFactor;
-    BlendOp             colorBlendOp;
-    BlendFactor         srcAlphaBlendFactor;
-    BlendFactor         dstAlphaBlendFactor;
-    BlendOp             alphaBlendOp;
-    ColorComponentFlags colorWriteMask;
+    BlendFactor         srcColorBlendFactor{ BlendFactor::eZero };
+    BlendFactor         dstColorBlendFactor{ BlendFactor::eZero };
+    BlendOp             colorBlendOp{ BlendOp::eAdd };
+    BlendFactor         srcAlphaBlendFactor{ BlendFactor::eZero };
+    BlendFactor         dstAlphaBlendFactor{ BlendFactor::eZero };
+    BlendOp             alphaBlendOp{ BlendOp::eAdd };;
+    ColorComponentFlags colorWriteMask{ IdentityColorComponents };
 
     DEFINE_CLASS_MEMBER(PipelineColorBlendAttachmentState)
 
-    PipelineColorBlendAttachmentState(Bool32 aBlendEnable, BlendFactor aSrcColorBlendFactor, BlendFactor aDstColorBlendFactor, BlendOp aColorBlendOp,
-        BlendFactor aSrcAlphaBlendFactor, BlendFactor aDstAlphaBlendFactor, BlendOp aAlphaBlendOp, const ColorComponentFlags& aColorWriteMask)
+    constexpr PipelineColorBlendAttachmentState(Bool32 aBlendEnable, BlendFactor aSrcColorBlendFactor, BlendFactor aDstColorBlendFactor, BlendOp aColorBlendOp,
+        BlendFactor aSrcAlphaBlendFactor, BlendFactor aDstAlphaBlendFactor, BlendOp aAlphaBlendOp, const ColorComponentFlags& aColorWriteMask) noexcept
         : blendEnable(aBlendEnable), srcColorBlendFactor(aSrcColorBlendFactor), dstColorBlendFactor(aDstColorBlendFactor), colorBlendOp(aColorBlendOp),
           srcAlphaBlendFactor(aSrcAlphaBlendFactor), dstAlphaBlendFactor(aDstAlphaBlendFactor), alphaBlendOp(aAlphaBlendOp), colorWriteMask(aColorWriteMask)
     {}
+
+    PipelineColorBlendAttachmentState& DisableBlendOp(void)
+    {
+        blendEnable = VK_FALSE;
+
+        return *this;
+    }
+
+    PipelineColorBlendAttachmentState& EnableBlendOp(void)
+    {
+        blendEnable = VK_TRUE;
+
+        return *this;
+    }
+
+    PipelineColorBlendAttachmentState& SetColorBlend(BlendFactor aSrcColorBlendFactor, BlendFactor aDstColorBlendFactor, BlendOp aColorBlendOp = BlendOp::eAdd)
+    {
+        srcColorBlendFactor = aSrcColorBlendFactor;
+        dstColorBlendFactor = aDstColorBlendFactor;
+        colorBlendOp        = aColorBlendOp;
+
+        return *this;
+    }
+
+    PipelineColorBlendAttachmentState& SetAlphaBlend(BlendFactor aSrcAlphaBlendFactor, BlendFactor aDstAlphaBlendFactor, BlendOp aAlphaBlendOp = BlendOp::eAdd)
+    {
+        srcAlphaBlendFactor = aSrcAlphaBlendFactor;
+        dstAlphaBlendFactor = aDstAlphaBlendFactor;
+        alphaBlendOp        = aAlphaBlendOp;
+
+        return *this;
+    }
+
+    PipelineColorBlendAttachmentState& SetColorWriteMask(const ColorComponentFlags& aColorWriteMask = IdentityColorComponents)
+    {
+        colorWriteMask = aColorWriteMask;
+
+        return *this;
+    }
 };
 
 ConsistencyCheck(PipelineColorBlendAttachmentState, blendEnable, srcColorBlendFactor, dstColorBlendFactor, colorBlendOp,
@@ -902,15 +950,16 @@ public:
 
     DEFINE_CLASS_MEMBER(PipelineColorBlendStateCreateInfo)
 
-    PipelineColorBlendStateCreateInfo(Bool32 aLogicOpEnable, LogicalOp aLogicOp, uint32_t aAttachmentCount, const PipelineColorBlendAttachmentState* apAttachments,
-        const std::array<float, 4>& aBlendConstants, const PipelineColorBlendStateCreateFlags& aFlags = DefaultFlags)
+    PipelineColorBlendStateCreateInfo(uint32_t aAttachmentCount, const PipelineColorBlendAttachmentState* apAttachments,
+        Bool32 aLogicOpEnable = VK_FALSE, LogicalOp aLogicOp = LogicalOp::eClear, const std::array<float, 4>& aBlendConstants = {},
+        const PipelineColorBlendStateCreateFlags& aFlags = DefaultFlags) noexcept
         : flags(aFlags), logicOpEnable(aLogicOpEnable), logicOp(aLogicOp), attachmentCount(aAttachmentCount),
           pAttachments(apAttachments), blendConstants{aBlendConstants[0], aBlendConstants[1], aBlendConstants[2], aBlendConstants[3]}
     {}
 
     template <typename A, typename = EnableIfValueType<ValueType<A>, PipelineColorBlendAttachmentState>>
-    PipelineColorBlendStateCreateInfo(Bool32 aLogicOpEnable, LogicalOp aLogicOp, A&& aAttachments,
-        const std::array<float, 4>& aBlendConstants, const PipelineColorBlendStateCreateFlags& aFlags = DefaultFlags)
+    PipelineColorBlendStateCreateInfo(A&& aAttachments, Bool32 aLogicOpEnable, LogicalOp aLogicOp,
+        const std::array<float, 4>& aBlendConstants, const PipelineColorBlendStateCreateFlags& aFlags = DefaultFlags) noexcept
         : PipelineColorBlendStateCreateInfo(aLogicOpEnable, aLogicOp, static_cast<uint32_t>(aAttachments.size()), aAttachments.data(), aBlendConstants, aFlags)
     {
         StaticLValueRefAssert(A, aAttachments);
@@ -1003,12 +1052,12 @@ public:
 
     DEFINE_CLASS_MEMBER(PipelineDynamicStateCreateInfo)
 
-    PipelineDynamicStateCreateInfo(uint32_t aDynamicStateCount, const DynamicState* apDynamicStates, const PipelineDynamicStateCreateFlags& aFlags = DefaultFlags)
+    constexpr PipelineDynamicStateCreateInfo(uint32_t aDynamicStateCount, const DynamicState* apDynamicStates, const PipelineDynamicStateCreateFlags& aFlags = DefaultFlags) noexcept
         : flags(aFlags), dynamicStateCount(aDynamicStateCount), pDynamicStates(apDynamicStates)
     {}
 
     template <typename D, typename = EnableIfValueType<ValueType<D>, DynamicState>>
-    explicit PipelineDynamicStateCreateInfo(D&& aDynamicStates, const PipelineDynamicStateCreateFlags& aFlags = DefaultFlags)
+    explicit PipelineDynamicStateCreateInfo(D&& aDynamicStates, const PipelineDynamicStateCreateFlags& aFlags = DefaultFlags) noexcept
         : PipelineDynamicStateCreateInfo(static_cast<uint32_t>(aDynamicStates.size()), aDynamicStates.data(), aFlags)
     {
         StaticLValueRefAssert(D, aDynamicStates);
@@ -1102,13 +1151,13 @@ public:
 
     DEFINE_CLASS_MEMBER(PipelineLayoutCreateInfo)
 
-    PipelineLayoutCreateInfo(uint32_t aSetLayoutCount, const DescriptorSetLayout* apSetLayouts, uint32_t aPushConstantRangeCount, const PushConstantRange* apPushConstantRanges,
-        const PipelineLayoutCreateFlags& aFlags = DefaultFlags)
+    constexpr PipelineLayoutCreateInfo(uint32_t aSetLayoutCount, const DescriptorSetLayout* apSetLayouts, uint32_t aPushConstantRangeCount = 0, const PushConstantRange* apPushConstantRanges = nullptr,
+        const PipelineLayoutCreateFlags& aFlags = DefaultFlags) noexcept
         : flags(aFlags), setLayoutCount(aSetLayoutCount), pSetLayouts(apSetLayouts), pushConstantRangeCount(aPushConstantRangeCount), pPushConstantRanges(apPushConstantRanges)
     {}
 
     template <typename D, typename P, typename = EnableIfValueType<ValueType<D>, DescriptorSetLayout, ValueType<P>, PushConstantRange>>
-    PipelineLayoutCreateInfo(D&& aSetLayouts, P&& aPushConstantRanges, const PipelineLayoutCreateFlags& aFlags = DefaultFlags)
+    PipelineLayoutCreateInfo(D&& aSetLayouts, P&& aPushConstantRanges, const PipelineLayoutCreateFlags& aFlags = DefaultFlags) noexcept
         : PipelineLayoutCreateInfo(static_cast<uint32_t>(aSetLayouts.size()), aSetLayouts.data(), static_cast<uint32_t>(aPushConstantRanges.size()), aPushConstantRanges.data(), aFlags)
     {}
 

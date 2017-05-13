@@ -19,7 +19,7 @@
 
 
 #define DEFINE_CLASS_MEMBER(Class) \
-Class(void) = default; \
+constexpr Class(void) noexcept = default; \
 \
 explicit Class(const Class::VkType& aRhs) \
 { \
@@ -165,7 +165,7 @@ struct SpecializationMapEntry : public internal::VkTrait<SpecializationMapEntry,
 
     DEFINE_CLASS_MEMBER(SpecializationMapEntry)
 
-    SpecializationMapEntry(uint32_t aConstantID, uint32_t aOffset, std::size_t aSize)
+    constexpr SpecializationMapEntry(uint32_t aConstantID, uint32_t aOffset, std::size_t aSize) noexcept
         : constantID(aConstantID), offset(aOffset), size(aSize)
     {}
 
@@ -198,7 +198,7 @@ struct SpecializationInfo : public internal::VkTrait<SpecializationInfo, VkSpeci
 
     DEFINE_CLASS_MEMBER(SpecializationInfo)
 
-    SpecializationInfo(uint32_t aMapEntryCount, const SpecializationMapEntry* apMapEntries, std::size_t aDataSize, const void* apData)
+    SpecializationInfo(uint32_t aMapEntryCount, const SpecializationMapEntry* apMapEntries, std::size_t aDataSize, const void* apData) noexcept
         : mapEntryCount(aMapEntryCount), pMapEntries(apMapEntries), dataSize(aDataSize), pData(apData)
     {}
 
@@ -232,7 +232,7 @@ struct Viewport : public internal::VkTrait<Viewport, VkViewport>
     float   minDepth{ 0 };
     float   maxDepth{ 0 };
 
-    Viewport(float aOriginX, float aOriginY, float aWidth, float aHeight, float aMinDepth, float aMaxDepth)
+    constexpr Viewport(float aOriginX, float aOriginY, float aWidth, float aHeight, float aMinDepth = 0.0f, float aMaxDepth = 1.0f) noexcept
         : x(aOriginX), y(aOriginY), width(aWidth), height(aHeight), minDepth(aMinDepth), maxDepth(aMaxDepth)
     {}
 
@@ -272,10 +272,10 @@ struct Offset2D : public internal::VkTrait<Offset2D, VkOffset2D>
 
     DEFINE_CLASS_MEMBER(Offset2D)
 
-    Offset2D(int32_t aX, int32_t aY) : x(aX), y(aY)
+    constexpr Offset2D(int32_t aX, int32_t aY) noexcept : x(aX), y(aY)
     {}
 
-    Offset2D& SetOffset(int32_t aX, int32_t aY)
+    constexpr Offset2D& SetOffset(int32_t aX, int32_t aY)
     {
         x = aX;
         y = aY;
@@ -296,10 +296,10 @@ struct Offset3D : public internal::VkTrait<Offset3D, VkOffset3D>
 
     DEFINE_CLASS_MEMBER(Offset3D)
 
-    Offset3D(int32_t aX, int32_t aY, int32_t aZ) : x(aX), y(aY), z(aZ)
+    constexpr Offset3D(int32_t aX, int32_t aY, int32_t aZ) noexcept : x(aX), y(aY), z(aZ)
     {}
 
-    Offset3D& SetOffset(int32_t aX, int32_t aY, int32_t aZ)
+    constexpr Offset3D& SetOffset(int32_t aX, int32_t aY, int32_t aZ)
     {
         x = aX;
         y = aY;
@@ -320,30 +320,29 @@ struct Extent2D : public internal::VkTrait<Extent2D, VkExtent2D>
 
     DEFINE_CLASS_MEMBER(Extent2D)
 
-    Extent2D(uint32_t aWidth, uint32_t aHeight) : width(aWidth), height(aHeight)
+    constexpr Extent2D(uint32_t aWidth, uint32_t aHeight) noexcept : width(aWidth), height(aHeight)
     {}
 
-    Extent2D& SetWidth(uint32_t aWidth)
+    constexpr Extent2D& SetWidth(uint32_t aWidth)
     {
         width = aWidth;
 
         return *this;
     }
 
-    Extent2D& SetHeight(uint32_t aHeight)
+    constexpr Extent2D& SetHeight(uint32_t aHeight)
     {
         height = aHeight;
 
         return *this;
     }
 
-    bool operator==(const Extent2D& aRhs) const
+    constexpr bool operator==(const Extent2D& aRhs) const
     {
-        return width == aRhs.width &&
-            height == aRhs.height;
+        return width == aRhs.width && height == aRhs.height;
     }
 
-    bool operator!=(const Extent2D& aRhs) const
+    constexpr bool operator!=(const Extent2D& aRhs) const
     {
         return !(*this == aRhs);
     }
@@ -361,40 +360,48 @@ struct Extent3D : public internal::VkTrait<Extent3D, VkExtent3D>
 
     DEFINE_CLASS_MEMBER(Extent3D)
 
-    Extent3D(uint32_t aWidth, uint32_t aHeight, uint32_t aDepth) : width(aWidth), height(aHeight), depth(aDepth)
+    constexpr Extent3D(uint32_t aWidth, uint32_t aHeight, uint32_t aDepth) noexcept : width(aWidth), height(aHeight), depth(aDepth)
     {}
 
-    Extent3D& SetWidth(uint32_t aWidth)
+    constexpr Extent3D(const Extent2D& aExtent2D) noexcept : width(aExtent2D.width), height(aExtent2D.height), depth(1)
+    {}
+
+    constexpr Extent3D& SetWidth(uint32_t aWidth)
     {
         width = aWidth;
 
         return *this;
     }
 
-    Extent3D& SetHeight(uint32_t aHeight)
+    constexpr Extent3D& SetHeight(uint32_t aHeight)
     {
         height = aHeight;
 
         return *this;
     }
 
-    Extent3D& SetDepth(uint32_t aDepth)
+    constexpr Extent3D& SetDepth(uint32_t aDepth)
     {
         depth = aDepth;
 
         return *this;
     }
 
-    bool operator==(const Extent3D& aRhs) const
+    constexpr bool operator==(const Extent3D& aRhs) const
     {
         return width == aRhs.width &&
                height == aRhs.height &&
                depth == aRhs.depth;
     }
 
-    bool operator!=(const Extent3D& aRhs) const
+    constexpr bool operator!=(const Extent3D& aRhs) const
     {
         return !(*this == aRhs);
+    }
+
+    constexpr operator Extent2D(void) const
+    {
+        return Extent2D{ width, height };
     }
 };
 
@@ -409,17 +416,17 @@ struct Rect2D : public internal::VkTrait<Rect2D, VkRect2D>
 
     DEFINE_CLASS_MEMBER(Rect2D)
 
-    Rect2D(const Offset2D& aOffset, const Extent2D& aExtent) : offset(aOffset), extent(aExtent)
+    constexpr Rect2D(const Offset2D& aOffset, const Extent2D& aExtent) noexcept : offset(aOffset), extent(aExtent)
     {}
 
-    Rect2D& SetOffset(const Offset2D& aOffset)
+    constexpr Rect2D& SetOffset(const Offset2D& aOffset)
     {
         offset = aOffset;
 
         return *this;
     }
 
-    Rect2D& SetExtent(const Extent2D& aExtent)
+    constexpr Rect2D& SetExtent(const Extent2D& aExtent)
     {
         extent = aExtent;
 

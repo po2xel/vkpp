@@ -141,13 +141,13 @@ public:
 
     template <typename Q, typename = EnableIfValueType<ValueType<Q>, uint32_t>>
     SwapchainCreateInfo(const Surface& aSurface, uint32_t aMinImageCount, const SurfaceFormat& aSurfaceFormat,
-        const Extent2D& aImageExtent, const ImageUsageFlags& aImageUsage, SharingMode aSharingMode,
+        const Extent2D& aImageExtent, const ImageUsageFlags& aImageUsage,
         Q&& aQueueFamilyIndices, SurfaceTransformFlagBits aPreTransform, CompositeAlphaFlagBits aCompositeAlpha,
         PresentMode aPresentMode, const Swapchain& aOldSwapChain,
         uint32_t aImageArrayLayers = 1, Bool32 aClipped = VK_TRUE, const SwapchainCreateFlags& aFlags = DefaultFlags)
         : SwapchainCreateInfo(aSurface,
         aMinImageCount, aSurfaceFormat.format, aSurfaceFormat.colorSpace,
-        aImageExtent, aImageUsage, aSharingMode,
+        aImageExtent, aImageUsage,
         static_cast<uint32_t>(aQueueFamilyIndices.size()), aQueueFamilyIndices.data(), aPreTransform, aCompositeAlpha,
         aPresentMode, aOldSwapChain,
         aImageArrayLayers, aClipped, aFlags)

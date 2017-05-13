@@ -154,7 +154,10 @@ public:
         mLogicalDevice.FreeMemory(mVertexBufferMemory);
 
         mInstance.DestroySurface(mSurface);
+
+#ifdef _DEBUG
         mInstance.DestroyDebugReportCallback(mDebugReportCallback);
+#endif              // End of _DEBUG
 
         glfwDestroyWindow(mpWindow);
     }

@@ -4,7 +4,6 @@
 
 
 #include <Info/Common.h>
-#include <Info/Flags.h>
 #include <Type/CommandPool.h>
 
 
@@ -34,7 +33,7 @@ public:
 
     DEFINE_CLASS_MEMBER(CommandBufferAllocateInfo)
 
-    CommandBufferAllocateInfo(const CommandPool& aCommandPool, uint32_t aCommandBufferCount, CommandBufferLevel aLevel = CommandBufferLevel::ePrimary)
+    constexpr CommandBufferAllocateInfo(const CommandPool& aCommandPool, uint32_t aCommandBufferCount, CommandBufferLevel aLevel = CommandBufferLevel::ePrimary) noexcept
         : commandPool(aCommandPool), level(aLevel), commandBufferCount(aCommandBufferCount)
     {}
 

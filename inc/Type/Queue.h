@@ -39,18 +39,18 @@ public:
     DEFINE_CLASS_MEMBER(SubmitInfo)
 
     SubmitInfo(uint32_t aWaitSemaphoreCount, const Semaphore* apWaitSemaphores, const PipelineStageFlags* apWaitDstStageMask,
-        uint32_t aCommandBufferCount, const CommandBuffer* apCommandBuffers, uint32_t aSignalSemaphoreCount = 0, const Semaphore* apSignalSemaphores = nullptr)
+        uint32_t aCommandBufferCount, const CommandBuffer* apCommandBuffers, uint32_t aSignalSemaphoreCount = 0, const Semaphore* apSignalSemaphores = nullptr) noexcept 
         : waitSemaphoreCount(aWaitSemaphoreCount), pWaitSemaphores(apWaitSemaphores), pWaitDstStageMask(apWaitDstStageMask),
         commandBufferCount(aCommandBufferCount), pCommandBuffers(apCommandBuffers), signalSemaphoreCount(aSignalSemaphoreCount), pSignalSemaphores(apSignalSemaphores)
     {}
 
     template <typename C, typename = EnableIfValueType<ValueType<C>, CommandBuffer>>
-    explicit SubmitInfo(C&& aCommandBuffers) : commandBufferCount(static_cast<uint32_t>(aCommandBuffers.size())), pCommandBuffers(aCommandBuffers.data())
+    explicit SubmitInfo(C&& aCommandBuffers) noexcept  : commandBufferCount(static_cast<uint32_t>(aCommandBuffers.size())), pCommandBuffers(aCommandBuffers.data())
     {
         StaticLValueRefAssert(C, aCommandBuffers);
     }
 
-    explicit SubmitInfo(const CommandBuffer& aCommandBuffer) : commandBufferCount(1), pCommandBuffers(aCommandBuffer.AddressOf())
+    explicit SubmitInfo(const CommandBuffer& aCommandBuffer) noexcept : commandBufferCount(1), pCommandBuffers(aCommandBuffer.AddressOf())
     {}
 
     SubmitInfo& SetNext(const void* apNext)
@@ -128,7 +128,7 @@ public:
     DEFINE_CLASS_MEMBER(PresentInfo)
 
     PresentInfo(uint32_t aWaitSemaphoreCount, const Semaphore* apWaitSemaphores,
-        uint32_t aSwapchainCount, const Swapchain* apSwapchains, const uint32_t* apImageIndices, Result* apResults = nullptr)
+        uint32_t aSwapchainCount, const Swapchain* apSwapchains, const uint32_t* apImageIndices, Result* apResults = nullptr) noexcept
     : waitSemaphoreCount(aWaitSemaphoreCount), pWaitSemaphores(apWaitSemaphores),
       swapchainCount(aSwapchainCount), pSwapchains(apSwapchains), pImageIndices(apImageIndices), pResults(apResults)
     {}
@@ -166,9 +166,8 @@ public:
         return *this;
     }
 
-    // TODO
+    // TODO: Container overload.
 };
-
 
 ConsistencyCheck(PresentInfo, pNext, waitSemaphoreCount, pWaitSemaphores, swapchainCount, pSwapchains, pImageIndices, pResults)
 

@@ -141,11 +141,11 @@ public:
 
     DEFINE_CLASS_MEMBER(CommandBufferBeginInfo)
 
-    explicit CommandBufferBeginInfo(const CommandBufferUsageFlags& aFlags)
+    explicit constexpr CommandBufferBeginInfo(const CommandBufferUsageFlags& aFlags) noexcept
     : flags(aFlags)
     {}
 
-    CommandBufferBeginInfo(const CommandBufferUsageFlags& aFlags, const CommandBufferInheritanceInfo& aInheritanceInfo)
+    constexpr CommandBufferBeginInfo(const CommandBufferUsageFlags& aFlags, const CommandBufferInheritanceInfo& aInheritanceInfo) noexcept
         : flags(aFlags), pInheritanceInfo(aInheritanceInfo.AddressOf())
     {}
 
@@ -334,7 +334,7 @@ public:
         vkCmdExecuteCommands(mCommandBuffer, static_cast<uint32_t>(aCommandBuffers.size()), &aCommandBuffers[0]);
     }
 
-    void BeginRenderPass(const RenderPassBeginInfo& aRenderPassBeginInfo, SubpassContents aSubpassContents) const
+    void BeginRenderPass(const RenderPassBeginInfo& aRenderPassBeginInfo, SubpassContents aSubpassContents = SubpassContents::eInline) const
     {
         vkCmdBeginRenderPass(mCommandBuffer, &aRenderPassBeginInfo, static_cast<VkSubpassContents>(aSubpassContents));
     }

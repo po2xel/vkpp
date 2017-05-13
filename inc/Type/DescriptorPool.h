@@ -28,7 +28,7 @@ struct DescriptorPoolSize : public internal::VkTrait<DescriptorPoolSize, VkDescr
 
     DEFINE_CLASS_MEMBER(DescriptorPoolSize)
 
-    DescriptorPoolSize(DescriptorType aType, uint32_t aDescriptorCount) : type(aType), descriptorCount(aDescriptorCount)
+    constexpr DescriptorPoolSize(DescriptorType aType, uint32_t aDescriptorCount) noexcept : type(aType), descriptorCount(aDescriptorCount)
     {}
 };
 
@@ -59,12 +59,12 @@ public:
 
     DEFINE_CLASS_MEMBER(DescriptorPoolCreateInfo)
 
-    DescriptorPoolCreateInfo(uint32_t aPoolSizeCount, const DescriptorPoolSize* apPoolSizes, uint32_t aMaxSets, const DescriptorPoolCreateFlags& aFlags = DefaultFlags)
+    constexpr DescriptorPoolCreateInfo(uint32_t aPoolSizeCount, const DescriptorPoolSize* apPoolSizes, uint32_t aMaxSets, const DescriptorPoolCreateFlags& aFlags = DefaultFlags) noexcept
         : flags(aFlags), maxSets(aMaxSets), poolSizeCount(aPoolSizeCount), pPoolSizes(apPoolSizes)
     {}
 
     template <typename D, typename = EnableIfValueType<ValueType<D>, DescriptorPoolSize>>
-    DescriptorPoolCreateInfo(D&& aPoolSizes, uint32_t aMaxSets, const DescriptorPoolCreateFlags& aFlags = DefaultFlags)
+    DescriptorPoolCreateInfo(D&& aPoolSizes, uint32_t aMaxSets, const DescriptorPoolCreateFlags& aFlags = DefaultFlags) noexcept
         : DescriptorPoolCreateInfo(static_cast<uint32_t>(aPoolSizes.size()), aPoolSizes.data(), aMaxSets, aFlags)
     {
         StaticLValueRefAssert(D, aPoolSizes);
@@ -137,12 +137,12 @@ public:
 
     DEFINE_CLASS_MEMBER(DescriptorSetAllocateInfo)
 
-    DescriptorSetAllocateInfo(const DescriptorPool& aDescriptorPool, uint32_t aDescriptorSetCount, const DescriptorSetLayout* apSetLayouts)
+    constexpr DescriptorSetAllocateInfo(const DescriptorPool& aDescriptorPool, uint32_t aDescriptorSetCount, const DescriptorSetLayout* apSetLayouts) noexcept
         : descriptorPool(aDescriptorPool), descriptorSetCount(aDescriptorSetCount), pSetLayouts(apSetLayouts)
     {}
 
     template <typename D, typename = EnableIfValueType<ValueType<D>, DescriptorSetLayout>>
-    DescriptorSetAllocateInfo(const DescriptorPool& aDescriptorPool, D&& aSetLayouts)
+    constexpr DescriptorSetAllocateInfo(const DescriptorPool& aDescriptorPool, D&& aSetLayouts) noexcept
         : DescriptorSetAllocateInfo(aDescriptorPool, static_cast<uint32_t>(aSetLayouts.size()), aSetLayouts.data())
     {
         StaticLValueRefAssert(D, aSetLayouts);

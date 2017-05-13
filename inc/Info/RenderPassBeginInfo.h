@@ -30,12 +30,12 @@ public:
     DEFINE_CLASS_MEMBER(RenderPassBeginInfo)
 
     RenderPassBeginInfo(const RenderPass& aRenderPass, const Framebuffer& aFramebuffer, const Rect2D& aRenderArea,
-        uint32_t aClearValueCount, const ClearValue* apClearValues)
+        uint32_t aClearValueCount, const ClearValue* apClearValues) noexcept
         : renderPass(aRenderPass), framebuffer(aFramebuffer), renderArea(aRenderArea), clearValueCount(aClearValueCount), pClearValues(apClearValues)
     {}
 
     template <typename C, typename = EnableIfValueType<ValueType<C>, ClearValue>>
-    RenderPassBeginInfo(const RenderPass& aRenderPass, const Framebuffer& aFramebuffer, const Rect2D& aRenderArea, C&& aClearValues)
+    RenderPassBeginInfo(const RenderPass& aRenderPass, const Framebuffer& aFramebuffer, const Rect2D& aRenderArea, C&& aClearValues) noexcept
         : RenderPassBeginInfo(aRenderPass, aFramebuffer, aRenderArea, static_cast<uint32_t>(aClearValues.size()), aClearValues.data())
     {
         StaticLValueRefAssert(C, aClearValues);

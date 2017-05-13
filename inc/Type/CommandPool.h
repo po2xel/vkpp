@@ -42,7 +42,7 @@ public:
 
     DEFINE_CLASS_MEMBER(CommandPoolCreateInfo)
 
-    CommandPoolCreateInfo(uint32_t aQueueFamilyIndex, const CommandPoolCreateFlags& aFlags = DefaultFlags)
+    explicit constexpr CommandPoolCreateInfo(uint32_t aQueueFamilyIndex, const CommandPoolCreateFlags& aFlags = DefaultFlags)
     : flags(aFlags), queueFamilyIndex(aQueueFamilyIndex)
     {}
 
@@ -73,10 +73,10 @@ private:
 public:
     CommandPool(void) = default;
 
-    CommandPool(std::nullptr_t)
+    constexpr CommandPool(std::nullptr_t)
     {}
 
-    explicit CommandPool(VkCommandPool aCommandPool) : mCommandPool(aCommandPool)
+    explicit constexpr CommandPool(VkCommandPool aCommandPool) noexcept : mCommandPool(aCommandPool)
     {}
 };
 

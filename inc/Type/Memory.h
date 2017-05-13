@@ -25,7 +25,8 @@ public:
 
     DEFINE_CLASS_MEMBER(MemoryAllocateInfo)
 
-    MemoryAllocateInfo(DeviceSize aAllocationSize, uint32_t aMemoryTypeIndex) : allocationSize(aAllocationSize), memoryTypeIndex(aMemoryTypeIndex)
+    constexpr MemoryAllocateInfo(DeviceSize aAllocationSize, uint32_t aMemoryTypeIndex) noexcept
+        : allocationSize(aAllocationSize), memoryTypeIndex(aMemoryTypeIndex)
     {}
 
     MemoryAllocateInfo& SetNext(const void* apNext)
@@ -44,7 +45,7 @@ public:
     }
 };
 
-StaticSizeCheck(MemoryAllocateInfo)
+ConsistencyCheck(MemoryAllocateInfo, pNext, allocationSize, memoryTypeIndex)
 
 
 

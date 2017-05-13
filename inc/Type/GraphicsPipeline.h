@@ -14,6 +14,57 @@ namespace vkpp
 
 
 
+enum class PipelineCacheCreateFlagBits
+{};
+
+VKPP_ENUM_BIT_MASK_FLAGS(PipelineCacheCreate)
+
+
+
+class PipelineCacheCreateInfo : public internal::VkTrait<PipelineCacheCreateInfo, VkPipelineCacheCreateInfo>
+{
+private:
+    const internal::Structure sType = internal::Structure::ePipelineCache;
+
+public:
+    const void*                 pNext{ nullptr };
+    PipelineCacheCreateFlags    flags;
+    size_t                      initialDataSize{ 0 };
+    const void*                 pInitialData{ nullptr };
+
+    DEFINE_CLASS_MEMBER(PipelineCacheCreateInfo)
+
+    PipelineCacheCreateInfo(const PipelineCacheCreateFlags& aFlags, size_t aInitialDataSize, const void* apInitialData) noexcept
+        : flags(aFlags), initialDataSize(aInitialDataSize), pInitialData(apInitialData)
+    {}
+
+    PipelineCacheCreateInfo& SetNext(const void* apNext)
+    {
+        pNext = apNext;
+
+        return *this;
+    }
+
+    PipelineCacheCreateInfo& SetFlags(const PipelineCacheCreateFlags& aFlags)
+    {
+        flags = aFlags;
+
+        return *this;
+    }
+
+    PipelineCacheCreateInfo& SetInitialData(size_t aInitialDataSize, const void* apInitialData)
+    {
+        initialDataSize = aInitialDataSize;
+        pInitialData    = apInitialData;
+
+        return *this;
+    }
+};
+
+ConsistencyCheck(PipelineCacheCreateInfo, pNext, flags, initialDataSize, pInitialData)
+
+
+
 class Pipeline : public internal::VkTrait<Pipeline, VkPipeline>
 {
 private:

@@ -33,7 +33,7 @@ public:
 
     DEFINE_CLASS_MEMBER(FenceCreateInfo)
 
-    explicit FenceCreateInfo(const FenceCreateFlags& aFlags) noexcept : flags(aFlags)
+    explicit constexpr FenceCreateInfo(const FenceCreateFlags& aFlags) noexcept : flags(aFlags)
     {}
 
     FenceCreateInfo& SetNext(const void* apNext)

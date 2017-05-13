@@ -2,6 +2,9 @@
 
 #include <cassert>
 #include <iostream>
+#include <fstream>
+
+#include <Window/Window.h>
 
 
 
@@ -36,6 +39,90 @@ const char* PhysicalDeviceTypeString(vkpp::PhysicalDeviceType aType)
 }
 
 
+vkpp::khr::PresentMode GetSwapchainPresentMode(const std::vector<vkpp::khr::PresentMode>& aPresentModes)
+{
+    for (auto& lPresentMode : aPresentModes)
+    {
+        if (lPresentMode == vkpp::khr::PresentMode::eMailBox)
+            return lPresentMode;
+    }
+
+    for (auto& lPresentMode : aPresentModes)
+    {
+        if (lPresentMode == vkpp::khr::PresentMode::eFIFO)
+            return lPresentMode;
+    }
+
+    assert(false);
+    return static_cast<vkpp::khr::PresentMode>(-1);
+}
+
+
+vkpp::khr::SurfaceFormat GetSwapchainFormat(const std::vector<vkpp::khr::SurfaceFormat>& aSurfaceFormats)
+{
+    if (aSurfaceFormats.size() == 1 && aSurfaceFormats[0].format == vkpp::Format::eUndefined)
+        return { vkpp::Format::eRGBA8uNorm, vkpp::khr::ColorSpace::esRGBNonLinear };
+
+    for (auto& lSurfaceFormat : aSurfaceFormats)
+    {
+        if (lSurfaceFormat.format == vkpp::Format::eRGBA8uNorm)
+            return lSurfaceFormat;
+    }
+
+    // In case Format::eRGBA8uNorm is not available, select the first available color format.
+    return aSurfaceFormats[0];
+}
+
+
+uint32_t GetSwapchainImageCount(const vkpp::khr::SurfaceCapabilities& aSurfaceCapabilities)
+{
+    auto lImageCount = aSurfaceCapabilities.minImageCount + 1;
+
+    if (aSurfaceCapabilities.maxImageCount > 0 && aSurfaceCapabilities.maxImageCount < lImageCount)
+        lImageCount = aSurfaceCapabilities.maxImageCount;
+
+    return lImageCount;
+}
+
+
+// TODO
+vkpp::Extent2D GetSwapchainExtent(const vkpp::khr::SurfaceCapabilities& aSurfaceCapabilities)
+{
+    return aSurfaceCapabilities.currentExtent;
+}
+
+
+// TODO
+vkpp::ImageUsageFlags GetSwapchainUsageFlags(const vkpp::khr::SurfaceCapabilities& aSurfaceCapabilities, const vkpp::FormatProperties& aFormatProperties)
+{
+    vkpp::ImageUsageFlags lImageUsageFlags;
+
+    if (aSurfaceCapabilities.supportedUsageFlags & vkpp::ImageUsageFlagBits::eColorAttachment)
+        lImageUsageFlags = vkpp::ImageUsageFlagBits::eColorAttachment; // | vkpp::ImageUsageFlagBits::eTransferDst;
+
+    // Set additional usage flag for blitting from swapchain images if supported.
+    if (aFormatProperties.optimalTilingFeatures & vkpp::FormatFeatureFlagBits::eBlitDst)
+        lImageUsageFlags |= vkpp::ImageUsageFlagBits::eTransferSrc;
+
+    return lImageUsageFlags;
+}
+
+
+vkpp::khr::SurfaceTransformFlagBits GetSwapchainTransform(const vkpp::khr::SurfaceCapabilities& aSurfaceCapabilities)
+{
+    if (aSurfaceCapabilities.supportedTransforms & vkpp::khr::SurfaceTransformFlagBits::eIdentity)
+        return vkpp::khr::SurfaceTransformFlagBits::eIdentity;
+
+    return aSurfaceCapabilities.currentTransform;
+}
+
+
+// TODO
+vkpp::khr::CompositeAlphaFlagBits GetSwapchainCompositeAlphaFlags(const vkpp::khr::SurfaceCapabilities& /*aSurfaceCapabilities*/)
+{
+    return vkpp::khr::CompositeAlphaFlagBits::eOpaque;
+}
+
 
 }
 
@@ -47,8 +134,8 @@ namespace vkpp::sample
 
 
 
-ExampleBase::ExampleBase(const char* apApplicationName, uint32_t aApplicationVersion, const char* apEngineName, uint32_t aEngineVersion)
-    : mWindow(apApplicationName, CWindow::CENTERED, CWindow::CENTERED, 1024, 768, CWindow::RESIZABLE)
+ExampleBase::ExampleBase(CWindow& aWindow, const char* apApplicationName, uint32_t aApplicationVersion, const char* apEngineName, uint32_t aEngineVersion)
+    : mWindow(aWindow)
 {
     assert(apApplicationName != nullptr);
 
@@ -61,11 +148,16 @@ ExampleBase::ExampleBase(const char* apApplicationName, uint32_t aApplicationVer
     CreateSurface();
     PickPhysicalDevice();
     CreateLogicalDevice();
+    GetDeviceQueues();
+
+    CreateSwapchain();
 }
 
 
 ExampleBase::~ExampleBase(void)
 {
+    mSwapchain.Release();
+
     mLogicalDevice.Reset();
     mInstance.DestroySurface(mSurface);
 
@@ -195,6 +287,8 @@ bool ExampleBase::CheckPhysicalDeviceProperties(const vkpp::PhysicalDevice& aPhy
     const auto& lQueueFamilyProperties = aPhysicalDevice.GetQueueFamilyProperties();
     for(uint32_t lIndex = 0; lIndex < lQueueFamilyProperties.size(); ++lIndex)
     {
+        // Search for a graphics and a present queue in the array of queue families.
+        // Try to find one that supports both.
         if ((lQueueFamilyProperties[lIndex].queueFlags & vkpp::QueueFlagBits::eGraphics) &&
             aPhysicalDevice.IsSurfaceSupported(lIndex, mSurface))
         {
@@ -205,6 +299,7 @@ bool ExampleBase::CheckPhysicalDeviceProperties(const vkpp::PhysicalDevice& aPhy
         }
     }
 
+    // TODO: Add support for seperate graphics and present queue.
     return false;
 }
 
@@ -230,6 +325,88 @@ void ExampleBase::CreateLogicalDevice(void)
     mLogicalDevice.Reset(mPhysicalDevice, lLogicalDeviceCreateInfo);
 }
 
+
+void ExampleBase::GetDeviceQueues(void)
+{
+    mGraphicsQueue.handle = mLogicalDevice.GetQueue(mGraphicsQueue.familyIndex, 0);
+    mPresentQueue.handle = mLogicalDevice.GetQueue(mPresentQueue.familyIndex, 0);
+}
+
+
+void ExampleBase::CreateSwapchain(const Swapchain& aOldSwapchain)
+{
+    const auto& lSurfacePresentModes = mPhysicalDevice.GetSurfacePresentModes(mSurface);
+    auto lDesiredPresentMode = GetSwapchainPresentMode(lSurfacePresentModes);
+
+    const auto& lSurfaceFormats = mPhysicalDevice.GetSurfaceFormats(mSurface);
+    auto lDesiredSurfaceFormat = GetSwapchainFormat(lSurfaceFormats);
+
+    const auto& lSurfaceCapabilities = mPhysicalDevice.GetSurfaceCapabilities(mSurface);
+    auto lDesiredImageCount = GetSwapchainImageCount(lSurfaceCapabilities);
+    auto lDesiredExtent = GetSwapchainExtent(lSurfaceCapabilities);
+    auto lDesiredTransform = GetSwapchainTransform(lSurfaceCapabilities);
+    auto lDesiredCompositeAlpha = GetSwapchainCompositeAlphaFlags(lSurfaceCapabilities);
+
+    const auto& lFormatProperties = mPhysicalDevice.GetFormatProperties(lDesiredSurfaceFormat.format);
+    auto lDesiredUsage = GetSwapchainUsageFlags(lSurfaceCapabilities, lFormatProperties);
+
+    const vkpp::khr::SwapchainCreateInfo lSwapchainCreateInfo
+    {
+        mSurface,
+        lDesiredImageCount, lDesiredSurfaceFormat.format, lDesiredSurfaceFormat.colorSpace,
+        lDesiredExtent, lDesiredUsage,
+        lDesiredTransform,
+        lDesiredCompositeAlpha,
+        lDesiredPresentMode,
+        aOldSwapchain.handle
+    };
+
+    auto lSwapchain = mLogicalDevice.CreateSwapchain(lSwapchainCreateInfo);
+
+    // If an existing swapchain is re-created, destroy the old swapchain.
+    // This also cleans up all the presentable images.
+    aOldSwapchain.Release();
+
+    mSwapchain.handle = lSwapchain;
+    mSwapchain.device = mLogicalDevice;
+    mSwapchain.surfaceFormat = lDesiredSurfaceFormat;
+    mSwapchain.extent = lDesiredExtent;
+
+    const auto& lImages = mLogicalDevice.GetSwapchainImages(mSwapchain.handle);
+    CreateSwapchainImageViews(lImages);
+}
+
+
+void ExampleBase::CreateSwapchainImageViews(const std::vector<vkpp::Image>& aImages)
+{
+    for(auto& lImage : aImages)
+    {
+        vkpp::ImageViewCreateInfo lImageViewCreateInfo
+        {
+            lImage, vkpp::ImageViewType::e2D,
+            mSwapchain.surfaceFormat.format,
+            {
+                vkpp::ImageAspectFlagBits::eColor,
+                0, 1,
+                0, 1
+            }
+        };
+
+        mSwapchain.buffers.emplace_back(lImage, mLogicalDevice.CreateImageView(lImageViewCreateInfo));
+    }
+}
+
+
+vkpp::ShaderModule ExampleBase::CreateShaderModule(const std::string& aFilename) const
+{
+    std::ifstream lFin(aFilename, std::ios::binary);
+    assert(lFin);
+
+    std::vector<char> lShaderContent((std::istreambuf_iterator<char>(lFin)), std::istreambuf_iterator<char>());
+    assert(!lShaderContent.empty());
+
+    return mLogicalDevice.CreateShaderModule(lShaderContent);
+}
 
 
 }               // End of namespace vkpp::sample.

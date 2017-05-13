@@ -32,7 +32,7 @@ public:
 
     DEFINE_CLASS_MEMBER(SemaphoreCreateInfo)
 
-    explicit SemaphoreCreateInfo(const SemaphoreCreateFlags& aFlags) noexcept : flags(aFlags)
+    explicit constexpr SemaphoreCreateInfo(const SemaphoreCreateFlags& aFlags) noexcept : flags(aFlags)
     {}
 
     SemaphoreCreateInfo& SetNext(const void* apNext)

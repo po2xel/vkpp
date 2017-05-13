@@ -57,11 +57,16 @@ struct AttachementDescription : public internal::VkTrait<AttachementDescription,
 
     DEFINE_CLASS_MEMBER(AttachementDescription)
 
-    AttachementDescription(Format aFormat, SampleCountFlagBits aSamples, AttachmentLoadOp aLoadOp, AttachmentStoreOp aStoreOp,
+    constexpr AttachementDescription(Format aFormat, SampleCountFlagBits aSamples, AttachmentLoadOp aLoadOp, AttachmentStoreOp aStoreOp,
         AttachmentLoadOp aStencilLoadOp, AttachmentStoreOp aStencilStoreOp, ImageLayout aInitialLayOut, ImageLayout aFinalLayout,
-        const AttachmentDescriptionFlags& aFlags = DefaultFlags)
+        const AttachmentDescriptionFlags& aFlags = DefaultFlags) noexcept
         : flags(aFlags), format(aFormat), samples(aSamples), loadOp(aLoadOp), storeOp(aStoreOp), stencilLoadOp(aStencilLoadOp), stencilStoreOp(aStencilStoreOp),
         initialLayout(aInitialLayOut), finalLayout(aFinalLayout)
+    {}
+
+    constexpr AttachementDescription(Format aFormat, SampleCountFlagBits aSamples, AttachmentLoadOp aLoadOp, AttachmentStoreOp aStoreOp,
+        ImageLayout aInitialLayOut, ImageLayout aFinalLayout, const AttachmentDescriptionFlags& aFlags = DefaultFlags) noexcept
+        : AttachementDescription(aFormat, aSamples, aLoadOp, aStoreOp, AttachmentLoadOp::eDontCare, AttachmentStoreOp::eDontCare, aInitialLayOut, aFinalLayout, aFlags)
     {}
 
     AttachementDescription& SetFlags(const AttachmentDescriptionFlags& aFlags)
@@ -114,14 +119,30 @@ ConsistencyCheck(AttachementDescription, flags, format, samples, loadOp, storeOp
 
 
 
+/**
+ * \class AttachmentReference
+ * \ingroup vkpp
+ * 
+ * \brief Structure specifying an attachment reference.
+ */
 struct AttachmentReference : public internal::VkTrait<AttachmentReference, VkAttachmentReference>
 {
+    /**
+     * \var attachment
+     * \brief attachment is the index of the attachment of the render pass, and corresponds to the index of the corresponding element
+     *        in the pAttachments array of the RenderPassCreateInfo structure.
+     */
     uint32_t    attachment{ UINT32_MAX };
+
+    /**
+     * \var layout
+     * \brief layout is a ImageLayout value specifying the layout the attachment uses during the subpass.
+     */
     ImageLayout layout;
 
     DEFINE_CLASS_MEMBER(AttachmentReference)
 
-    AttachmentReference(uint32_t aAttachment, ImageLayout aLayout) : attachment(aAttachment), layout(aLayout)
+    constexpr AttachmentReference(uint32_t aAttachment, ImageLayout aLayout) noexcept : attachment(aAttachment), layout(aLayout)
     {}
 
     AttachmentReference& SetAttachment(uint32_t aAttachment, ImageLayout aLayout)
@@ -181,7 +202,7 @@ struct SubpassDescription : public internal::VkTrait<SubpassDescription, VkSubpa
     SubpassDescription(PipelineBindPoint aPipelineBindPoint, uint32_t aInputAttachmentCount, const AttachmentReference* apInputAttachments,
         uint32_t aColorAttachmentCount, const AttachmentReference* apColorAttachments, const AttachmentReference* apResolveAttachments = nullptr,
         const AttachmentReference* apDepthStencilAttachment = nullptr,
-        uint32_t apReserveAttachmentCount = 0, const uint32_t* apPreserveAttachments = nullptr, const SubpassDescriptionFlags& aFlags = DefaultFlags)
+        uint32_t apReserveAttachmentCount = 0, const uint32_t* apPreserveAttachments = nullptr, const SubpassDescriptionFlags& aFlags = DefaultFlags) noexcept
         : flags(aFlags), pipelineBindPoint(aPipelineBindPoint), inputAttachmentCount(aInputAttachmentCount), pInputAttachments(apInputAttachments),
           colorAttachmentCount(aColorAttachmentCount), pColorAttachments(apColorAttachments), pResolveAttachments(apResolveAttachments),
           pDepthStencilAttachment(apDepthStencilAttachment),
@@ -298,8 +319,8 @@ struct SubpassDependency : public internal::VkTrait<SubpassDependency, VkSubpass
 
     DEFINE_CLASS_MEMBER(SubpassDependency)
 
-    SubpassDependency(uint32_t aSrcSubpass, uint32_t aDstSubpass, const PipelineStageFlags& aSrcStageMask = DefaultFlags, const PipelineStageFlags& aDstStageMask = DefaultFlags,
-        const AccessFlags& aSrcAccessMask = DefaultFlags, const AccessFlags& aDstAccessMask = DefaultFlags, const DependencyFlags& aDependencyFlags = DefaultFlags)
+    constexpr SubpassDependency(uint32_t aSrcSubpass, uint32_t aDstSubpass, const PipelineStageFlags& aSrcStageMask = DefaultFlags, const PipelineStageFlags& aDstStageMask = DefaultFlags,
+        const AccessFlags& aSrcAccessMask = DefaultFlags, const AccessFlags& aDstAccessMask = DefaultFlags, const DependencyFlags& aDependencyFlags = DefaultFlags) noexcept
         : srcSubpass(aSrcSubpass), dstSubpass(aDstSubpass), srcStageMask(aSrcStageMask), dstStageMask(aDstStageMask),
         srcAccessMask(aSrcAccessMask), dstAccessMask(aDstAccessMask), dependencyFlags(aDependencyFlags)
     {}
@@ -358,13 +379,13 @@ public:
     DEFINE_CLASS_MEMBER(RenderPassCreateInfo)
 
     RenderPassCreateInfo(uint32_t aAttachmentCount, const AttachementDescription* apAttachments, uint32_t aSubpassCount, const SubpassDescription* apSubpasses,
-        uint32_t aDependencyCount = 0, const SubpassDependency* apDependencies = nullptr, const RenderPassCreateFlags& aFlags = DefaultFlags)
+        uint32_t aDependencyCount = 0, const SubpassDependency* apDependencies = nullptr, const RenderPassCreateFlags& aFlags = DefaultFlags) noexcept
         : flags(aFlags), attachmentCount(aAttachmentCount), pAttachments(apAttachments), subpassCount(aSubpassCount), pSubpasses(apSubpasses),
           dependencyCount(aDependencyCount), pDependencies(apDependencies)
     {}
 
     template <typename A, typename S, typename = EnableIfValueType<ValueType<A>, AttachementDescription, ValueType<S>, SubpassDescription>>
-    RenderPassCreateInfo(A&& aAttachments, S&& aSubpasses, const RenderPassCreateFlags& aFlags = DefaultFlags)
+    RenderPassCreateInfo(A&& aAttachments, S&& aSubpasses, const RenderPassCreateFlags& aFlags = DefaultFlags) noexcept
         : RenderPassCreateInfo(static_cast<uint32_t>(aAttachments.size()), aAttachments.data(), static_cast<uint32_t>(aSubpasses.size()), aSubpasses.data(), 0, nullptr, aFlags)
     {
         StaticLValueRefAssert(A, aAttachments);
@@ -372,7 +393,7 @@ public:
     }
 
     template <typename A, typename S, typename D, typename = EnableIfValueType<ValueType<A>, AttachementDescription, ValueType<S>, SubpassDescription, ValueType<D>, SubpassDependency>>
-    RenderPassCreateInfo(A&& aAttachments, S&& aSubpasses, D&& aDependencies, const RenderPassCreateFlags& aFlags = DefaultFlags)
+    RenderPassCreateInfo(A&& aAttachments, S&& aSubpasses, D&& aDependencies, const RenderPassCreateFlags& aFlags = DefaultFlags) noexcept
         : RenderPassCreateInfo(static_cast<uint32_t>(aAttachments.size()), aAttachments.data(), static_cast<uint32_t>(aSubpasses.size()), aSubpasses.data(),
           static_cast<uint32_t>(aDependencies.size()), aDependencies.data(), aFlags)
     {

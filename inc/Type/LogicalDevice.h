@@ -34,6 +34,11 @@ namespace vkpp
 
 
 
+constexpr uint64_t DefaultFenceTimeOut = UINT64_MAX;
+constexpr uint64_t DefaultSwapchainAcquireTimeOut = UINT64_MAX;
+
+
+
 enum class DeviceQueueCreateFlagBits
 {};
 
@@ -214,17 +219,30 @@ public:
     LogicalDevice(std::nullptr_t) noexcept
     {}
 
-    LogicalDevice(LogicalDevice&& aLogicalDevice) noexcept : mDevice(std::move(aLogicalDevice.mDevice))
+    LogicalDevice(const LogicalDevice& aLogicalDevice) noexcept : mDevice(aLogicalDevice.mDevice)
     {}
+
+    LogicalDevice(LogicalDevice&& aLogicalDevice) noexcept : mDevice(aLogicalDevice.mDevice)
+    {
+        aLogicalDevice.mDevice = VK_NULL_HANDLE;
+    }
 
     LogicalDevice(const PhysicalDevice& aPhysicalDevice, const LogicalDeviceCreateInfo& aLogicalDeviceCreateInfo)
     {
         Reset(aPhysicalDevice, aLogicalDeviceCreateInfo);
     }
 
+    LogicalDevice& operator=(const LogicalDevice& aLogicalDevice) noexcept
+    {
+        mDevice = aLogicalDevice.mDevice;
+
+        return *this;
+    }
+
     LogicalDevice& operator=(LogicalDevice&& aLogicalDevice) noexcept
     {
-        mDevice = std::move(aLogicalDevice.mDevice);
+        mDevice = aLogicalDevice.mDevice;
+        aLogicalDevice.mDevice = VK_NULL_HANDLE;
 
         return *this;
     }
@@ -301,6 +319,7 @@ public:
         return vkGetFenceStatus(mDevice, aFence);
     }
 
+    // Set the state of fence(s) to unsignaled from the host.
     void ResetFence(const Fence& apFences) const
     {
         ThrowIfFailed(vkResetFences(mDevice, 1, &apFences));
@@ -324,25 +343,25 @@ public:
         return ResetFences(static_cast<uint32_t>(aFences.size()), aFences.data());
     }
 
-    void WaitForFence(const Fence& aFence, bool aWaitAll = false, uint64_t aTimeout = UINT64_MAX) const
+    void WaitForFence(const Fence& aFence, bool aWaitAll = false, uint64_t aTimeout = DefaultFenceTimeOut) const
     {
         ThrowIfFailed(vkWaitForFences(mDevice, 1, &aFence, aWaitAll, aTimeout));
     }
 
-    void WaitForFences(uint32_t aFenceCount, const Fence* apFences, bool aWaitAll = false, uint64_t aTimeout = UINT64_MAX) const
+    void WaitForFences(uint32_t aFenceCount, const Fence* apFences, bool aWaitAll = false, uint64_t aTimeout = DefaultFenceTimeOut) const
     {
         assert(aFenceCount != 0 && apFences != nullptr);
 
         ThrowIfFailed(vkWaitForFences(mDevice, aFenceCount, &apFences[0], aWaitAll, aTimeout));
     }
 
-    void WaitForFences(const std::vector<Fence>& aFences, bool aWaitAll = false, uint64_t aTimeout = UINT64_MAX) const
+    void WaitForFences(const std::vector<Fence>& aFences, bool aWaitAll = false, uint64_t aTimeout = DefaultFenceTimeOut) const
     {
         return WaitForFences(static_cast<uint32_t>(aFences.size()), aFences.data(), aWaitAll, aTimeout);
     }
 
     template <std::size_t F>
-    void WaitForFences(const std::array<Fence, F>& aFences, bool aWaitAll = false, uint64_t aTimeout = UINT64_MAX) const
+    void WaitForFences(const std::array<Fence, F>& aFences, bool aWaitAll = false, uint64_t aTimeout = DefaultFenceTimeOut) const
     {
         return WaitForFences(static_cast<uint32_t>(aFences.size()), aFences.data(), aWaitAll, aTimeout);
     }
@@ -373,7 +392,7 @@ public:
         return lSwapchainImages;
     }
 
-    uint32_t AcquireNextImage(const khr::Swapchain& aSwapchain, uint64_t aTimeout, const Semaphore& aSemaphore, const Fence& aFence) const
+    uint32_t AcquireNextImage(const khr::Swapchain& aSwapchain, const Semaphore& aSemaphore = nullptr, const Fence& aFence = nullptr, uint64_t aTimeout = DefaultSwapchainAcquireTimeOut) const
     {
         uint32_t lImageIndex;
         // TODO: Error handling.
@@ -397,7 +416,7 @@ public:
         vkDestroyCommandPool(mDevice, aCommandPool, &aAllocator);
     }
 
-    void ResetCommandPool(const CommandPool& aCommandPool, const CommandPoolResetFlags& aFlags) const
+    void ResetCommandPool(const CommandPool& aCommandPool, const CommandPoolResetFlags& aFlags = DefaultFlags) const
     {
         ThrowIfFailed(vkResetCommandPool(mDevice, aCommandPool, static_cast<VkCommandPoolResetFlags>(aFlags)));
     }
@@ -414,6 +433,8 @@ public:
 
     std::vector<CommandBuffer> AllocateCommandBuffers(const CommandBufferAllocateInfo& aCommandBufferAllocateInfo) const
     {
+        assert(aCommandBufferAllocateInfo.commandBufferCount > 0U);
+
         std::vector<CommandBuffer> lCommandBuffers(aCommandBufferAllocateInfo.commandBufferCount);
         ThrowIfFailed(vkAllocateCommandBuffers(mDevice, &aCommandBufferAllocateInfo, &lCommandBuffers[0]));
 
@@ -554,6 +575,8 @@ public:
     template <typename T = DefaultAllocationCallbacks>
     BufferView CreateBufferView(const BufferViewCreateInfo& aBufferViewCreateInfo, const T& aAllocator = DefaultAllocator) const
     {
+        assert(aBufferViewCreateInfo.buffer);
+
         BufferView lBufferView;
         ThrowIfFailed(vkCreateBufferView(mDevice, &aBufferViewCreateInfo, &aAllocator, &lBufferView));
 
@@ -586,6 +609,8 @@ public:
     template <typename T = DefaultAllocationCallbacks>
     ImageView CreateImageView(const ImageViewCreateInfo& aImageViewCreateInfo, const T& aAllocator = DefaultAllocator) const
     {
+        assert(aImageViewCreateInfo.image);
+
         ImageView lImageView;
         ThrowIfFailed(vkCreateImageView(mDevice, &aImageViewCreateInfo, &aAllocator, &lImageView));
 
@@ -681,27 +706,82 @@ public:
         vkDestroyPipelineLayout(mDevice, aPipelineLayout, &aAllocator);
     }
 
-    Pipeline CreateGraphicsPipeline(uint32_t aCreateInfoCount, const GraphicsPipelineCreateInfo* apGraphicsPipelineCraeteInfos) const
+    template <typename T = DefaultAllocationCallbacks>
+    Pipeline CreateGraphicsPipeline(const GraphicsPipelineCreateInfo& aGraphicsPipelineCreateInfo, const PipelineCache& aPipelineCache = nullptr, const T& aAllocator = DefaultAllocator) const
     {
-        return CreateGraphicsPipeline(VK_NULL_HANDLE, aCreateInfoCount, apGraphicsPipelineCraeteInfos);
+        Pipeline lPipeline;
+        ThrowIfFailed(vkCreateGraphicsPipelines(mDevice, aPipelineCache, 1, &aGraphicsPipelineCreateInfo, &aAllocator, &lPipeline));
+
+        return lPipeline;
     }
 
     template <typename T = DefaultAllocationCallbacks>
-    Pipeline CreateGraphicsPipeline(const PipelineCache& aPipelineCache, uint32_t aCreateInfoCount,
-        const GraphicsPipelineCreateInfo* apGraphicsPipelineCraeteInfos, const T& aAllocator = DefaultAllocator) const
+    std::vector<Pipeline> CreateGraphicsPipelines(uint32_t aCreateInfoCount, const GraphicsPipelineCreateInfo* apGraphicsPipelineCraeteInfos,
+        const PipelineCache& aPipelineCache = nullptr, const T& aAllocator = DefaultAllocator) const
     {
         assert(aCreateInfoCount > 0 && apGraphicsPipelineCraeteInfos != nullptr);
 
-        Pipeline lPipeline;
-        ThrowIfFailed(vkCreateGraphicsPipelines(mDevice, aPipelineCache, aCreateInfoCount, &apGraphicsPipelineCraeteInfos[0], &aAllocator, &lPipeline));
+        std::vector<Pipeline> lPipelines(aCreateInfoCount);
+        ThrowIfFailed(vkCreateGraphicsPipelines(mDevice, aPipelineCache, aCreateInfoCount, &apGraphicsPipelineCraeteInfos[0], &aAllocator, &lPipelines[0]));
 
-        return lPipeline;
+        return lPipelines;
     }
 
     template <typename T = DefaultAllocationCallbacks>
     void DestroyPipeline(const Pipeline& aPipeline, const T& aAllocator = DefaultAllocator) const
     {
         vkDestroyPipeline(mDevice, aPipeline, &aAllocator);
+    }
+
+    template <typename T = DefaultAllocationCallbacks>
+    PipelineCache CreatePipelineCache(const PipelineCacheCreateInfo& aPipelineCacheCreateInfo, const T& aAllocator = DefaultAllocator) const
+    {
+        PipelineCache lPipelineCache;
+        ThrowIfFailed(vkCreatePipelineCache(mDevice, &aPipelineCacheCreateInfo, &aAllocator, &lPipelineCache));
+
+        return lPipelineCache;
+    }
+
+    template <typename T = DefaultAllocationCallbacks>
+    void DestroyPipelineCache(const PipelineCache& aPipelineCache, const T& aAllocator = DefaultAllocator) const
+    {
+        vkDestroyPipelineCache(mDevice, aPipelineCache, &aAllocator);
+    }
+
+    const PipelineCache& MergePipelineCaches(const PipelineCache& aDstCache, uint32_t aSrcCacheCount, const PipelineCache* apSrcCaches) const
+    {
+        assert(aDstCache);
+        assert(aSrcCacheCount > 0 && apSrcCaches != nullptr);
+
+        ThrowIfFailed(vkMergePipelineCaches(mDevice, aDstCache, aSrcCacheCount, &apSrcCaches[0]));
+
+        return aDstCache;
+    }
+
+    const PipelineCache& MergePipelineCaches(const PipelineCache& aDstCache, const std::vector<PipelineCache>& aSrcCaches) const
+    {
+        assert(aDstCache);
+        assert(!aSrcCaches.empty());
+
+        ThrowIfFailed(vkMergePipelineCaches(mDevice, aDstCache, static_cast<uint32_t>(aSrcCaches.size()), &aSrcCaches[0]));
+
+        return aDstCache;
+    }
+
+    template <std::size_t P>
+    const PipelineCache& MergePipelineCaches(const PipelineCache& aDstCache, const std::array<PipelineCache, P>& aSrcCaches) const
+    {
+        assert(aDstCache);
+        static_assert(!aSrcCaches.empty());
+
+        ThrowIfFailed(vkMergePipelineCaches(mDevice, aDstCache, static_cast<uint32_t>(aSrcCaches.size()), &aSrcCaches[0]));
+
+        return aDstCache;
+    }
+
+    void GetPipelineCacheData(const PipelineCache& aPipelineCache, size_t& aDataSize, void*& apData) const
+    {
+        ThrowIfFailed(vkGetPipelineCacheData(mDevice, aPipelineCache, &aDataSize, apData));
     }
 
     template <typename T = DefaultAllocationCallbacks>
