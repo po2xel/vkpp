@@ -71,6 +71,11 @@ public:
 
     DEFINE_CLASS_MEMBER(PipelineShaderStageCreateInfo)
 
+    PipelineShaderStageCreateInfo(ShaderStageFlagBits aStage, const char* apName = DefaultShaderEntryName,
+        const SpecializationInfo* apSpecializationInfo = nullptr, const PipelineShaderStageCreateFlags& aFlags = DefaultFlags) noexcept
+        : flags(aFlags), stage(aStage), pName(apName), pSpecializationInfo(apSpecializationInfo)
+    {}
+
     PipelineShaderStageCreateInfo(ShaderStageFlagBits aStage, const ShaderModule& aModule, const char* apName = DefaultShaderEntryName,
         const SpecializationInfo* apSpecializationInfo = nullptr, const PipelineShaderStageCreateFlags& aFlags = DefaultFlags) noexcept
         : flags(aFlags), stage(aStage), module(aModule), pName(apName), pSpecializationInfo(apSpecializationInfo)

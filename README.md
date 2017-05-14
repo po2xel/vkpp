@@ -3,7 +3,6 @@ vkpp is a header only C++ bindings for the Vulkan C API aiming to improve
 the developers' experience and efficiency without introducing extra
 runtime costs.
 
-
 ## <img src="./Images/WindowsLogo.png" alt="" height=33px>
 A Visual Studio 2017 solution file for compiling all examples is included with the repository.<br/>
 Both the vkpp library and the examples use C++17 new features.

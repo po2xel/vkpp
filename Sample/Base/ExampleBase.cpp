@@ -147,6 +147,7 @@ ExampleBase::ExampleBase(CWindow& aWindow, const char* apApplicationName, uint32
 
     CreateSurface();
     PickPhysicalDevice();
+
     CreateLogicalDevice();
     GetDeviceQueues();
 
@@ -257,10 +258,6 @@ void ExampleBase::PickPhysicalDevice(void)
 }
 
 
-void ExampleBase::SetEnabledFeatures(void)
-{}
-
-
 bool ExampleBase::CheckPhysicalDeviceProperties(const vkpp::PhysicalDevice& aPhysicalDevice)
 {
     const auto& lProperties = aPhysicalDevice.GetProperties();
@@ -319,7 +316,8 @@ void ExampleBase::CreateLogicalDevice(void)
     const vkpp::LogicalDeviceCreateInfo lLogicalDeviceCreateInfo
     {
         lQueueCreateInfos,
-        lDeviceExts
+        lDeviceExts,
+        &mEnabledFeatures
     };
 
     mLogicalDevice.Reset(mPhysicalDevice, lLogicalDeviceCreateInfo);

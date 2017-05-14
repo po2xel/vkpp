@@ -11,7 +11,7 @@ using namespace vkpp::sample;
 
 namespace vkpp::sample
 {
-    CApplication& theApp = TheApp::Instance(CApplication::VIDEO);
+    CApplication& theApp = TheApp::Instance(CApplication::eVideo);
 }
 
 
@@ -20,7 +20,7 @@ int main(int /*argc*/, char* /*argv*/[])
 {
     static constexpr auto ApplicationName = "Colorized Triangle";
 
-    CWindow lWindow(ApplicationName, CWindow::CENTERED, CWindow::CENTERED, 1024, 768, CWindow::RESIZABLE);
+    CWindow lWindow(ApplicationName, CWindow::eCentered, CWindow::eCentered, 1024, 768, CWindow::eResizable);
 
     ColorizedTriangle lColorizedTriangle(lWindow, ApplicationName, 1);
 

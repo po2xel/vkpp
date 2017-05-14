@@ -1,11 +1,10 @@
 #include "ColorizedTriangle/ColorizedTriangle.h"
 
-#include <iostream>
-
 
 
 namespace vkpp::sample
 {
+
 
 
 
@@ -706,5 +705,5 @@ void ColorizedTriangle::Update(void)
 }
 
 
-}                   // End of namespace vkpp::sample.
 
+}                   // End of namespace vkpp::sample.

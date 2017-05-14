@@ -39,9 +39,16 @@ public:
     constexpr Flags(const Flags& aRhs) noexcept : mMask(aRhs.mMask)
     {}
 
-    Flags& operator=(const Flags& aRhs) noexcept
+    constexpr Flags& operator=(const Flags& aRhs) noexcept
     {
         mMask = aRhs.mMask;
+
+        return *this;
+    }
+
+    constexpr Flags& operator=(BitType aBit) noexcept
+    {
+        mMask = static_cast<VkType>(aBit);
 
         return *this;
     }

@@ -21,18 +21,18 @@ namespace vkpp::sample
 
 enum class SystemCursorType
 {
-    ARROW       = SDL_SYSTEM_CURSOR_ARROW,
-    IBEAM       = SDL_SYSTEM_CURSOR_IBEAM,
-    WAIT        = SDL_SYSTEM_CURSOR_WAIT,
-    CROSSHAIR   = SDL_SYSTEM_CURSOR_CROSSHAIR,
-    WAIT_ARROW  = SDL_SYSTEM_CURSOR_WAITARROW,
-    SIZE_NWSE   = SDL_SYSTEM_CURSOR_SIZENWSE,
-    SIZE_NESW   = SDL_SYSTEM_CURSOR_SIZENESW,
-    SZIE_WE     = SDL_SYSTEM_CURSOR_SIZEWE,
-    SIZE_NS     = SDL_SYSTEM_CURSOR_SIZENS,
-    SIZE_ALL    = SDL_SYSTEM_CURSOR_SIZEALL,
-    NO          = SDL_SYSTEM_CURSOR_NO,
-    HAND        = SDL_SYSTEM_CURSOR_HAND
+    eArrow          = SDL_SYSTEM_CURSOR_ARROW,
+    eIBeam          = SDL_SYSTEM_CURSOR_IBEAM,
+    eWait           = SDL_SYSTEM_CURSOR_WAIT,
+    eCrossHair      = SDL_SYSTEM_CURSOR_CROSSHAIR,
+    eWaitArrow      = SDL_SYSTEM_CURSOR_WAITARROW,
+    eSizeNWSE       = SDL_SYSTEM_CURSOR_SIZENWSE,
+    eSizeNESW       = SDL_SYSTEM_CURSOR_SIZENESW,
+    eSizeWE         = SDL_SYSTEM_CURSOR_SIZEWE,
+    eSizeNS         = SDL_SYSTEM_CURSOR_SIZENS,
+    eSizeALL        = SDL_SYSTEM_CURSOR_SIZEALL,
+    eNo             = SDL_SYSTEM_CURSOR_NO,
+    eHand           = SDL_SYSTEM_CURSOR_HAND
 };
 
 
@@ -81,27 +81,27 @@ protected:
 public:
     enum WindowFlags
     {
-        FULLSCREEN = SDL_WINDOW_FULLSCREEN,             // Fullscreen window
-        FULLSCREEN_DESKTOP = SDL_WINDOW_FULLSCREEN_DESKTOP, // Fullscreen window at the current desktop resolution
-        OPENGL = SDL_WINDOW_OPENGL,                     // Window usable with OpenGL context
-        SHOWN = SDL_WINDOW_SHOWN,                       // Window is visible
-        HIDDEN = SDL_WINDOWEVENT_HIDDEN,                // Window is not visible
-        BORDERLESS = SDL_WINDOW_BORDERLESS,             // No window decoration
-        RESIZABLE = SDL_WINDOW_RESIZABLE,               // Window can be resized
-        MINIMIZED = SDL_WINDOW_MINIMIZED,               // Window is minimized
-        MAXIMIZED = SDL_WINDOW_MAXIMIZED,               // Window is maximized
-        INPUT_GRABBED = SDL_WINDOW_INPUT_GRABBED,       // Window has grabbed input focus
-        INPUT_FOCUS = SDL_WINDOW_INPUT_FOCUS,           // Window has input focus
-        MOUSE_FOCUS = SDL_WINDOW_MOUSE_FOCUS,           // Window has mouse focus
-        FOREIGN = SDL_WINDOW_FOREIGN,                   // Window not created by SDL
-        ALLOW_HIGHDPI = SDL_WINDOW_ALLOW_HIGHDPI,       // Window should be created in high-DPI mode if supported
-        // MOUSE_CAPTURE       = SDL_WINDOW_MOUSE_CAPTURE    // Window has mouse captured
+        eFullScreen         = SDL_WINDOW_FULLSCREEN,                    // Fullscreen window
+        eFullScreenDesktop  = SDL_WINDOW_FULLSCREEN_DESKTOP,            // Fullscreen window at the current desktop resolution
+        eOpenGL             = SDL_WINDOW_OPENGL,                        // Window usable with OpenGL context
+        eShown              = SDL_WINDOW_SHOWN,                         // Window is visible
+        eHiden              = SDL_WINDOWEVENT_HIDDEN,                   // Window is not visible
+        eBorderLess         = SDL_WINDOW_BORDERLESS,                    // No window decoration
+        eResizable          = SDL_WINDOW_RESIZABLE,                     // Window can be resized
+        eMinimized          = SDL_WINDOW_MINIMIZED,                     // Window is minimized
+        eMaximized          = SDL_WINDOW_MAXIMIZED,                     // Window is maximized
+        eInputGrabbed       = SDL_WINDOW_INPUT_GRABBED,                 // Window has grabbed input focus
+        eInputFocus         = SDL_WINDOW_INPUT_FOCUS,                   // Window has input focus
+        eMouseFocus         = SDL_WINDOW_MOUSE_FOCUS,                   // Window has mouse focus
+        eForeign            = SDL_WINDOW_FOREIGN,                       // Window not created by SDL
+        eAllowHighDPI       = SDL_WINDOW_ALLOW_HIGHDPI,                 // Window should be created in high-DPI mode if supported
+        eMouseCapture       = SDL_WINDOW_MOUSE_CAPTURE                  // Window has mouse captured
     };
 
     enum WindowPos
     {
-        CENTERED = SDL_WINDOWPOS_CENTERED,
-        UNDEFINED = SDL_WINDOWPOS_UNDEFINED
+        eCentered       = SDL_WINDOWPOS_CENTERED,
+        eUndefined      = SDL_WINDOWPOS_UNDEFINED
     };
 
     // Create a window with the specified position, dimensions and flags

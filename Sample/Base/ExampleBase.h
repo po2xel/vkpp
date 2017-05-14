@@ -225,6 +225,7 @@ class ExampleBase
 protected:
     CWindow& mWindow;
     vkpp::Instance mInstance;
+    vkpp::PhysicalDeviceFeatures mEnabledFeatures{};
 
 #ifdef _DEBUG
     vkpp::ext::DebugReportCallback mDebugReportCallback;
@@ -253,13 +254,11 @@ protected:
 
     vkpp::ShaderModule CreateShaderModule(const std::string& aFilename) const;
 
-protected:
-    virtual void SetEnabledFeatures(void);
-
 public:
     ExampleBase(CWindow& aWindow, const char* apApplicationName, uint32_t aApplicationVersion, const char* apEngineName, uint32_t aEngineVersion);
     virtual ~ExampleBase(void);
 };
+
 
 
 }                   // End of namespace vkpp::sample.

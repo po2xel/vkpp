@@ -81,14 +81,14 @@ protected:
 public:
     enum SubSystem
     {
-        TIMER = SDL_INIT_TIMER,
-        AUDIO = SDL_INIT_AUDIO,
-        VIDEO = SDL_INIT_VIDEO,
-        JOYSTICK = SDL_INIT_JOYSTICK,
-        HAPTIC = SDL_INIT_HAPTIC,
-        GAMECONTROLLER = SDL_INIT_GAMECONTROLLER,
-        EVENTS = SDL_INIT_EVENTS,
-        EVERYTHING = SDL_INIT_EVERYTHING
+        eTimer              = SDL_INIT_TIMER,
+        eAudio              = SDL_INIT_AUDIO,
+        eVideo              = SDL_INIT_VIDEO,
+        eJoyStick           = SDL_INIT_JOYSTICK,
+        eHaptic             = SDL_INIT_HAPTIC,
+        eGameController     = SDL_INIT_GAMECONTROLLER,
+        eEvents             = SDL_INIT_EVENTS,
+        eEverything         = SDL_INIT_EVERYTHING
     };
 
     explicit CApplication(SubSystem aFlags)

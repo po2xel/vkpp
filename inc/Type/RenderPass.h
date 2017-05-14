@@ -199,7 +199,7 @@ struct SubpassDescription : public internal::VkTrait<SubpassDescription, VkSubpa
 
     DEFINE_CLASS_MEMBER(SubpassDescription)
 
-    SubpassDescription(PipelineBindPoint aPipelineBindPoint, uint32_t aInputAttachmentCount, const AttachmentReference* apInputAttachments,
+    constexpr SubpassDescription(PipelineBindPoint aPipelineBindPoint, uint32_t aInputAttachmentCount, const AttachmentReference* apInputAttachments,
         uint32_t aColorAttachmentCount, const AttachmentReference* apColorAttachments, const AttachmentReference* apResolveAttachments = nullptr,
         const AttachmentReference* apDepthStencilAttachment = nullptr,
         uint32_t apReserveAttachmentCount = 0, const uint32_t* apPreserveAttachments = nullptr, const SubpassDescriptionFlags& aFlags = DefaultFlags) noexcept
