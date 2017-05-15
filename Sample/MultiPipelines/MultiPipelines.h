@@ -3,6 +3,10 @@
 
 
 
+#include <assimp/Importer.hpp>
+#include <assimp/scene.h>
+#include <assimp/postprocess.h>
+
 #define GLM_FORCE_RADIANS
 #define GLM_FORCE_DEPTH_ZERO_TO_ONE
 #include <glm/glm.hpp>
@@ -69,6 +73,90 @@ struct VertexData
         } };
 
         return lInputAttributeDescriptions;
+    }
+};
+
+
+
+struct Model
+{
+    constexpr static auto DefaultImporterFlags = aiProcess_FlipWindingOrder | aiProcess_Triangulate | aiProcess_PreTransformVertices | aiProcess_CalcTangentSpace | aiProcess_GenSmoothNormals;
+
+    /*BufferResource vertices;
+    BufferResource indices;*/
+
+    // Stores vertex and index bases and counts for each part of a model.
+    struct ModelPart
+    {
+        uint32_t vertexBase{ 0 };
+        uint32_t vertexCount{ 0 };
+        uint32_t indexBase{ 0 };
+        uint32_t indexCount{ 0 };
+
+        ModelPart(uint32_t aVertexBase, uint32_t aVertexCount, uint32_t aIndexBase, uint32_t aIndexCount)
+            : vertexBase(aVertexBase), vertexCount(aVertexCount), indexBase(aIndexBase), indexCount(aIndexCount)
+        {}
+    };
+
+    std::vector<ModelPart> modelParts;
+
+    explicit Model(const std::string& aFilename, unsigned int aImporterFlags = DefaultImporterFlags)
+    {
+        Assimp::Importer lImporter;
+
+        const auto lpAIScene = lImporter.ReadFile(aFilename, aImporterFlags);
+        assert(lpAIScene);
+
+        // modelParts.resize(lpAIScene->mNumMeshes);
+
+        glm::vec3 lScale{ 1.0f }, /*lUVScale{ 1.0f },*/ lCenter{ 0.0f };
+
+        std::vector<float> lVertexBuffer;
+        std::vector<uint32_t> lIndexBuffer;
+
+        uint32_t lVertexCount{ 0 }, lIndexCount{ 0 };
+
+        for (unsigned int lIndex = 0; lIndex < lpAIScene->mNumMeshes; ++lIndex)
+        {
+            const auto lpAIMesh = lpAIScene->mMeshes[lIndex];
+
+            modelParts.emplace_back(lVertexCount, lpAIMesh->mNumVertices, lIndexCount, lpAIMesh->mNumFaces * 3);
+            lVertexCount += lpAIScene->mMeshes[lIndex]->mNumVertices;
+            lIndexCount += lpAIScene->mMeshes[lIndex]->mNumFaces * 3;
+
+            aiColor3D lColor;
+            lpAIScene->mMaterials[lpAIMesh->mMaterialIndex]->Get(AI_MATKEY_COLOR_DIFFUSE, lColor);
+
+            // const aiVector3D lZero3D;
+
+            for (unsigned int lVerIndex = 0; lVerIndex < lpAIMesh->mNumVertices; ++lVerIndex)
+            {
+                // Vertex positions.
+                const auto lPos = lpAIMesh->mVertices[lVerIndex];
+                lVertexBuffer.emplace_back(lPos.x * lScale.x + lCenter.x);
+                lVertexBuffer.emplace_back(-lPos.y * lScale.y + lCenter.y);
+                lVertexBuffer.emplace_back(lPos.z * lScale.z + lCenter.z);
+
+                // Vertex normals.
+                const auto lNormal = lpAIMesh->mNormals[lVerIndex];
+                lVertexBuffer.emplace_back(lNormal.x);
+                lVertexBuffer.emplace_back(-lNormal.y);
+                lVertexBuffer.emplace_back(lNormal.z);
+            }
+
+            uint32_t lIndexBase{ 0 };
+            for (unsigned int lIdxIndex = 0; lIdxIndex < lpAIMesh->mNumFaces; ++lIdxIndex)
+            {
+                const auto& lFace = lpAIMesh->mFaces[lIdxIndex];
+
+                if (lFace.mNumIndices != 3)
+                    continue;
+
+                lIndexBuffer.emplace_back(lIndexBase + lFace.mIndices[0]);
+                lIndexBuffer.emplace_back(lIndexBase + lFace.mIndices[1]);
+                lIndexBuffer.emplace_back(lIndexBase + lFace.mIndices[2]);
+            }
+        }
     }
 };
 

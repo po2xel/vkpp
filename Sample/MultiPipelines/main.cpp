@@ -18,6 +18,9 @@ namespace vkpp::sample
 
 int main(int /*argc*/, char* /*argv*/[])
 {
+    Model lModel("../model/treasure_smooth.dae");
+    lModel;
+
     constexpr static auto lApplicationName = "Multiple Pipelines";
     CWindow lWindow{ lApplicationName, CWindow::eCentered, CWindow::eCentered, 1024, 768, CWindow::eResizable };
 
