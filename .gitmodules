@@ -5,3 +5,7 @@
 [submodule "Sample/stb"]
 	path = Sample/stb
 	url = https://github.com/nothings/stb.git
+
+[submodule "Sample/tinyobjloader"]
+	path = Sample/tinyobjloader
+	url = https://github.com/syoyo/tinyobjloader.git
