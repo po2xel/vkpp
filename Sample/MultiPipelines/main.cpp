@@ -1,8 +1,9 @@
+#include <iostream>
+
 #include <System/Application.h>
 #include <Window/Window.h>
 
 #include "MultiPipelines.h"
-
 
 
 using namespace vkpp::sample;
@@ -18,7 +19,7 @@ namespace vkpp::sample
 
 int main(int /*argc*/, char* /*argv*/[])
 {
-    Model lModel("../model/treasure_smooth.dae");
+    ObjModel lModel("model/deer.obj");
     lModel;
 
     constexpr static auto lApplicationName = "Multiple Pipelines";

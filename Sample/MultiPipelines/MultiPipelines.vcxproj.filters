@@ -28,6 +28,12 @@
     <Filter Include="Source Files\System">
       <UniqueIdentifier>{f2ef4f8e-1adf-4bcd-a604-bfa999356561}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files\ObjLoader">
+      <UniqueIdentifier>{c2648d66-cee6-4923-a3d5-da628d40d9b9}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\ObjLoader">
+      <UniqueIdentifier>{de14815a-8baf-46fe-ae0b-3defe9e9426d}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp" />
@@ -39,6 +45,9 @@
     </ClCompile>
     <ClCompile Include="MultiPipelines.cpp">
       <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\tinyobjloader\tiny_obj_loader.cc">
+      <Filter>Source Files\ObjLoader</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -77,6 +86,9 @@
     </ClInclude>
     <ClInclude Include="MultiPipelines.h">
       <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\tinyobjloader\tiny_obj_loader.h">
+      <Filter>Header Files\ObjLoader</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

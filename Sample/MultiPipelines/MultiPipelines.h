@@ -11,6 +11,8 @@
 #define GLM_FORCE_DEPTH_ZERO_TO_ONE
 #include <glm/glm.hpp>
 
+#include <tinyobjloader/tiny_obj_loader.h>
+
 #include <Base/ExampleBase.h>
 #include <Window/Window.h>
 #include <Window/WindowEvent.h>
@@ -157,6 +159,24 @@ struct Model
                 lIndexBuffer.emplace_back(lIndexBase + lFace.mIndices[2]);
             }
         }
+    }
+};
+
+
+
+class ObjModel
+{
+private:
+    tinyobj::attrib_t mAttrib;
+    std::vector<tinyobj::shape_t> mShapes;
+    std::vector<tinyobj::material_t> mMaterials;
+
+public:
+    explicit ObjModel(const char* aFilename)
+    {
+        std::string lErrMsg;
+        auto lRet = tinyobj::LoadObj(&mAttrib, &mShapes, &mMaterials, &lErrMsg, aFilename);
+        assert(lRet && lErrMsg.empty());
     }
 };
 
