@@ -13,8 +13,6 @@ Coming soon.
 ## <img src="./Images/AndroidLogo.png" alt="" height=33px>
 Coming soon.
 
-<hr>
-
 ## Examples
 The examples are used to verify and demonstrate the efficiency, effectiveness and correctness of vkpp.<br/>
 They are also used as baselines to prevent regressions.<br/>
@@ -22,16 +20,14 @@ They are also used as baselines to prevent regressions.<br/>
 ### [Colorized Triangle](Sample/ColorizedTriangle/)
 <img src="./Sample/ColorizedTriangle/ColorizedTriangle.png" height="108px" align="right">
 
-Draw a simple gradient triangle using staging buffer.<br/>
+Draw a simple gradient triangle using staging buffers.
+
 Vertex and index data are mapped to host visible memory (staging buffers) before they are transferred to device local memory.
 
 ### [Multi-Pipelines](Sample/MultiPipelines/)
 <img src="./Sample/MultiPipelines/MultiPipelines.png" height="108px" align="right">
 
 Three different pipeline state objects are used here for rendering the same scene with different visual effects.
-
-<hr>
-
 
 ## Credits
 Thanks to the authors of these libraries:
