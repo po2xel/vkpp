@@ -164,7 +164,6 @@
   <ItemGroup>
     <ClCompile Include="..\Base\ExampleBase.cpp" />
     <ClCompile Include="..\System\Application.cpp" />
-    <ClCompile Include="..\tinyobjloader\tiny_obj_loader.cc" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="MultiPipelines.cpp" />
   </ItemGroup>
@@ -174,7 +173,6 @@
     <ClInclude Include="..\System\Exception.h" />
     <ClInclude Include="..\System\NonCopyable.h" />
     <ClInclude Include="..\System\Singleton.h" />
-    <ClInclude Include="..\tinyobjloader\tiny_obj_loader.h" />
     <ClInclude Include="..\Window\Event.h" />
     <ClInclude Include="..\Window\KeyboardEvent.h" />
     <ClInclude Include="..\Window\MouseEvent.h" />

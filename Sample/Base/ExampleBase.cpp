@@ -313,6 +313,11 @@ void ExampleBase::CreateLogicalDevice(void)
         KHR_SWAPCHAIN_EXT_NAME
     };
 
+    mEnabledFeatures.fillModeNonSolid = mPhysicalDeviceFeatures.fillModeNonSolid;
+
+    // Wide lines must be present for line width > 1.0f.
+    mPhysicalDeviceFeatures.wideLines = mPhysicalDeviceFeatures.wideLines;
+
     const vkpp::LogicalDeviceCreateInfo lLogicalDeviceCreateInfo
     {
         lQueueCreateInfos,

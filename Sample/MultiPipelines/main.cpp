@@ -19,9 +19,6 @@ namespace vkpp::sample
 
 int main(int /*argc*/, char* /*argv*/[])
 {
-    ObjModel lModel("model/deer.obj");
-    lModel;
-
     constexpr static auto lApplicationName = "Multiple Pipelines";
     CWindow lWindow{ lApplicationName, CWindow::eCentered, CWindow::eCentered, 1024, 768, CWindow::eResizable };
 

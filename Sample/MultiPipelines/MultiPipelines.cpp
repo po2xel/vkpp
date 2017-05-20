@@ -31,7 +31,9 @@ decltype(auto) SetEnabledFeatures(const vkpp::PhysicalDeviceFeatures& aPhysicalD
 MultiPipelines::MultiPipelines(CWindow& aWindow, const char* apApplicationName, uint32_t aApplicationVersion, const char* apEngineName, uint32_t aEngineVersion)
     : ExampleBase(aWindow, apApplicationName, aApplicationVersion, apEngineName, aEngineVersion),
       CWindowEvent(aWindow),
-      mDepthResource(mLogicalDevice, mPhysicalDeviceMemoryProperties)
+      mModel(*this, mLogicalDevice, mPhysicalDeviceMemoryProperties),
+      mDepthResource(mLogicalDevice, mPhysicalDeviceMemoryProperties),
+      mUniformBufferResource(mLogicalDevice, mPhysicalDeviceMemoryProperties)
 {
     mResizedFunc = [this](Sint32 aWidth, Sint32 aHeight)
     {
@@ -45,14 +47,29 @@ MultiPipelines::MultiPipelines(CWindow& aWindow, const char* apApplicationName, 
 
     CreateRenderPass();
     CreateDepthResource();
+    CreateSemaphores();
+    CreateFences();
+
     CreateFramebuffer();
+
+    mModel.LoadMode("model/treasure_smooth.dae");
 
     CreateSetLayout();
     CreatePipelineLayout();
 
     CreateGraphicsPipelines();
+    CreateUniformBuffer();
+    UpdateUniformBuffer();
     CreateDescriptorPool();
     AllocateDescriptorSet();
+    UpdateDescriptorSet();
+
+    BuildCommandBuffers();
+
+    theApp.RegisterUpdateEvent([this](void)
+    {
+        Update();
+    });
 }
 
 
@@ -76,6 +93,12 @@ MultiPipelines::~MultiPipelines(void)
     mLogicalDevice.DestroyRenderPass(mRenderPass);
 
     // mDepthResource.Reset();
+
+    for (auto& lFence : mWaitFences)
+        mLogicalDevice.DestroyFence(lFence);
+
+    mLogicalDevice.DestroySemaphore(mRenderCompleteSemaphore);
+    mLogicalDevice.DestroySemaphore(mPresentCompleteSemaphore);
 
     mLogicalDevice.FreeCommandBuffers(mCmdPool, mCmdDrawBuffers);
     mLogicalDevice.DestroyCommandPool(mCmdPool);
@@ -228,7 +251,39 @@ void MultiPipelines::CreateFramebuffer(void)
 
 void MultiPipelines::CreateUniformBuffer(void)
 {
+    // Prepare and initialize an uniform buffer block containing shader uniforms.
+    vkpp::BufferCreateInfo lBufferCreateInfo
+    {
+        sizeof(UniformBufferObject),
+        vkpp::BufferUsageFlagBits::eUniformBuffer
+    };
 
+    mUniformBufferResource.Reset(lBufferCreateInfo, vkpp::MemoryPropertyFlagBits::eHostVisible | vkpp::MemoryPropertyFlagBits::eHostCoherent);
+}
+
+
+void MultiPipelines::UpdateUniformBuffer(void)
+{
+    const auto lWidth = mSwapchain.extent.width;
+    const auto lHeight = mSwapchain.extent.height;
+    const glm::vec3 lCameraPos;
+    const glm::vec3 lRotation{ -25.0f, 15.0f, 0.0f };
+    const auto lZoom = -15.5f;
+
+    mMVPMatrix.projection = glm::perspective(glm::radians(60.0f), static_cast<float>(lWidth / 3.0f) / static_cast<float>(lHeight), 0.1f, 256.0f);
+
+    const auto& viewMatrix = glm::translate(glm::mat4(), glm::vec3(0.0f, 0.0f, lZoom));
+
+    mMVPMatrix.modelView = viewMatrix * glm::translate(glm::mat4(), lCameraPos);
+    mMVPMatrix.modelView = glm::rotate(mMVPMatrix.modelView, glm::radians(lRotation.x), glm::vec3(1.0f, 0.0f, 0.0f));
+    mMVPMatrix.modelView = glm::rotate(mMVPMatrix.modelView, glm::radians(lRotation.y), glm::vec3(0.0f, 1.0f, 0.0f));
+    mMVPMatrix.modelView = glm::rotate(mMVPMatrix.modelView, glm::radians(lRotation.z), glm::vec3(0.0f, 0.0f, 1.0f));
+
+    auto lMappedMemory = mLogicalDevice.MapMemory(mUniformBufferResource.memory, 0, sizeof(UniformBufferObject));
+    std::memcpy(lMappedMemory, &mMVPMatrix, sizeof(UniformBufferObject));
+
+    // Note: Since we requested a host coherent memory for the uniform buffer, the write is instantly visible to the GPU.
+    mLogicalDevice.UnmapMemory(mUniformBufferResource.memory);
 }
 
 
@@ -419,6 +474,349 @@ void MultiPipelines::AllocateDescriptorSet(void)
 
     mDescriptorSet = mLogicalDevice.AllocateDescriptorSet(lSetAllocateInfo);
 }
+
+
+void MultiPipelines::UpdateDescriptorSet(void) const
+{
+    const vkpp::DescriptorBufferInfo lDescriptorBufferInfo
+    {
+        mUniformBufferResource.buffer,
+        0,
+        sizeof(UniformBufferObject)
+    };
+
+    const vkpp::WriteDescriptorSetInfo lWriteDescriptorSetInfo
+    {
+        mDescriptorSet,
+        0,
+        0,
+        vkpp::DescriptorType::eUniformBuffer,
+        lDescriptorBufferInfo
+    };
+
+    mLogicalDevice.UpdateDescriptorSet(lWriteDescriptorSetInfo);
+}
+
+
+vkpp::CommandBuffer MultiPipelines::BeginOneTimeCommandBuffer(void) const
+{
+    const vkpp::CommandBufferAllocateInfo lCmdBufferAllocateInfo
+    {
+        mCmdPool,
+        1               // Command buffer count.
+    };
+
+    auto lCmdBuffer = mLogicalDevice.AllocateCommandBuffer(lCmdBufferAllocateInfo);
+
+    constexpr vkpp::CommandBufferBeginInfo lCmdBufferBeginInfo{ vkpp::CommandBufferUsageFlagBits::eOneTimeSubmit };
+
+    lCmdBuffer.Begin(lCmdBufferBeginInfo);
+
+    return lCmdBuffer;
+}
+
+
+void MultiPipelines::EndOneTimeCommandBuffer(const vkpp::CommandBuffer& aCmdBuffer) const
+{
+    aCmdBuffer.End();
+
+    const vkpp::SubmitInfo lSubmitInfo{ aCmdBuffer };
+
+    // Create fence to ensure that the command buffer has finished executing.
+    constexpr vkpp::FenceCreateInfo lFenceCreateInfo;
+    const auto& lFence = mLogicalDevice.CreateFence(lFenceCreateInfo);
+
+    // Submit to the queue.
+    mGraphicsQueue.handle.Submit(lSubmitInfo, lFence);
+
+    // Wait for the fence to signal that command buffer has finished executing.
+    mLogicalDevice.WaitForFence(lFence);
+
+    mLogicalDevice.DestroyFence(lFence);
+    mLogicalDevice.FreeCommandBuffer(mCmdPool, aCmdBuffer);
+}
+
+
+void MultiPipelines::CopyBuffer(vkpp::Buffer& aDstBuffer, const Buffer& aSrcBuffer, DeviceSize aSize) const
+{
+    const auto& lCmdBuffer = BeginOneTimeCommandBuffer();
+
+    const vkpp::BufferCopy lBufferCopy
+    {
+        0, 0,
+        aSize 
+    };
+
+    lCmdBuffer.Copy(aDstBuffer, aSrcBuffer, lBufferCopy);
+
+    EndOneTimeCommandBuffer(lCmdBuffer);
+}
+
+
+void MultiPipelines::BuildCommandBuffers(void)
+{
+    constexpr vkpp::CommandBufferBeginInfo lCmdBufferBeginInfo;
+
+    constexpr std::array<vkpp::ClearValue, 2> lClearValues
+    { {
+        { 0.129411f, 0.156862f, 0.188235f, 1.0f },
+        { 1.0f, 0.0f }
+    } };
+
+    for (std::size_t lIndex = 0; lIndex < mCmdDrawBuffers.size(); ++lIndex)
+    {
+        vkpp::RenderPassBeginInfo lRenderPassBeginInfo
+        {
+            mRenderPass,
+            mFramebuffers[lIndex],
+            {
+                {0, 0},
+                mSwapchain.extent
+            },
+
+            lClearValues
+        };
+
+        const auto& lDrawCmdBuffer = mCmdDrawBuffers[lIndex];
+
+        lDrawCmdBuffer.Begin(lCmdBufferBeginInfo);
+
+        lDrawCmdBuffer.BeginRenderPass(lRenderPassBeginInfo);
+        lDrawCmdBuffer.BindVertexBuffer(mModel.vertices.buffer, 0);
+        lDrawCmdBuffer.BindIndexBuffer(mModel.indices.buffer, 0, vkpp::IndexType::eUInt32);
+
+        vkpp::Viewport lViewport
+        {
+            0.0f, 0.0f,
+            static_cast<float>(mSwapchain.extent.width), static_cast<float>(mSwapchain.extent.height)
+        };
+
+        lDrawCmdBuffer.SetViewport(lViewport);
+
+        vkpp::Rect2D lScissor
+        {
+            {0, 0},
+            mSwapchain.extent
+        };
+
+        lDrawCmdBuffer.SetScissor(lScissor);
+
+        lDrawCmdBuffer.BindGraphicsDescriptorSet(mPipelineLayout, 0, mDescriptorSet);
+
+        // Left: Solid colored.
+        lViewport.width /= 3.0f;
+        lDrawCmdBuffer.SetViewport(lViewport);
+        lDrawCmdBuffer.BindGraphicsPipeline(mPipelines.phong);
+        lDrawCmdBuffer.DrawIndexed(mModel.indexCount);
+
+        // Center: Toon.
+        lViewport.x = lViewport.width;
+        lDrawCmdBuffer.SetViewport(lViewport);
+        lDrawCmdBuffer.BindGraphicsPipeline(mPipelines.toon);
+
+        // Line Width > 1.0f only if wide lines feature is supported.
+        if (mEnabledFeatures.wideLines)
+            lDrawCmdBuffer.SetLineWidth(2.0f);
+
+        lDrawCmdBuffer.DrawIndexed(mModel.indexCount);
+
+        // Right: Wireframe.
+        if (mEnabledFeatures.fillModeNonSolid)
+        {
+            lViewport.x = lViewport.width * 2;
+            lDrawCmdBuffer.SetViewport(lViewport);
+            lDrawCmdBuffer.BindGraphicsPipeline(mPipelines.wireframe);
+            lDrawCmdBuffer.DrawIndexed(mModel.indexCount);
+        }
+
+        lDrawCmdBuffer.EndRenderPass();
+
+        lDrawCmdBuffer.End();
+    }
+}
+
+
+void MultiPipelines::Update()
+{
+    auto lIndex = mLogicalDevice.AcquireNextImage(mSwapchain.handle, mPresentCompleteSemaphore);
+
+    mLogicalDevice.WaitForFence(mWaitFences[lIndex]);
+    mLogicalDevice.ResetFence(mWaitFences[lIndex]);
+
+    const vkpp::PipelineStageFlags lWaitDstStageMask{ vkpp::PipelineStageFlagBits::eColorAttachmentOutput };
+
+    const vkpp::SubmitInfo lSubmitInfo
+    {
+        1, mPresentCompleteSemaphore.AddressOf(),       // Wait Semaphores.
+        &lWaitDstStageMask,
+        1, mCmdDrawBuffers[lIndex].AddressOf(),
+        1, mRenderCompleteSemaphore.AddressOf()         // Signal Semaphores
+    };
+
+    mPresentQueue.handle.Submit(lSubmitInfo, mWaitFences[lIndex]);
+
+    const vkpp::khr::PresentInfo lPresentInfo
+    {
+        1, mRenderCompleteSemaphore.AddressOf(),
+        1, mSwapchain.handle.AddressOf(), &lIndex
+    };
+
+    mPresentQueue.handle.Present(lPresentInfo);
+}
+
+
+void MultiPipelines::CreateSemaphores(void)
+{
+    constexpr vkpp::SemaphoreCreateInfo lSemaphoreCreateInfo;
+
+    // Semaphore used to ensure that image presentation is complete before starting to submit again.
+    mPresentCompleteSemaphore = mLogicalDevice.CreateSemaphore(lSemaphoreCreateInfo);
+
+    // Semaphore used to ensure that all commands submitted have been finished before submitting the image to the presentation queue.
+    mRenderCompleteSemaphore = mLogicalDevice.CreateSemaphore(lSemaphoreCreateInfo);
+}
+
+
+void MultiPipelines::CreateFences(void)
+{
+    // Create in signaled state so we don't wait on the first render of each command buffer.
+    constexpr vkpp::FenceCreateInfo lFenceCreateInfo{ vkpp::FenceCreateFlagBits::eSignaled };
+
+    for (int lIndex = 0; lIndex < mCmdDrawBuffers.size(); ++lIndex)
+        mWaitFences.emplace_back(mLogicalDevice.CreateFence(lFenceCreateInfo));
+}
+
+
+Model::Model(const MultiPipelines& aMultiPipelineSample, const vkpp::LogicalDevice& aDevice, const vkpp::PhysicalDeviceMemoryProperties& aPhysicalDeviceMemProperties)
+    : multiPipelineSample(aMultiPipelineSample), device(aDevice), memProperties(aPhysicalDeviceMemProperties), vertices(aDevice, aPhysicalDeviceMemProperties), indices(aDevice, aPhysicalDeviceMemProperties)
+{}
+
+
+void Model::LoadMode(const std::string& aFilename, unsigned int aImporterFlags)
+{
+    Assimp::Importer lImporter;
+
+    const auto lpAIScene = lImporter.ReadFile(aFilename, aImporterFlags);
+    assert(lpAIScene);
+
+    std::vector<float> lVertexBuffer;
+    std::vector<uint32_t> lIndexBuffer;
+
+    for (unsigned int lIndex = 0; lIndex < lpAIScene->mNumMeshes; ++lIndex)
+    {
+        const auto lpAIMesh = lpAIScene->mMeshes[lIndex];
+
+        modelParts.emplace_back(vertexCount, lpAIMesh->mNumVertices, indexCount, lpAIMesh->mNumFaces * 3);
+        vertexCount += lpAIScene->mMeshes[lIndex]->mNumVertices;
+        indexCount += lpAIScene->mMeshes[lIndex]->mNumFaces * 3;
+
+        aiColor3D lColor;
+        lpAIScene->mMaterials[lpAIMesh->mMaterialIndex]->Get(AI_MATKEY_COLOR_DIFFUSE, lColor);
+
+        const aiVector3D lZero3D;
+
+        for (unsigned int lVtxIndex = 0; lVtxIndex < lpAIMesh->mNumVertices; ++lVtxIndex)
+        {
+            // Vertex positions.
+            const auto lPos = lpAIMesh->mVertices[lVtxIndex];
+            lVertexBuffer.emplace_back(lPos.x);
+            lVertexBuffer.emplace_back(-lPos.y);
+            lVertexBuffer.emplace_back(lPos.z);
+
+            // Vertex normals.
+            const auto lNormal = lpAIMesh->mNormals[lVtxIndex];
+            lVertexBuffer.emplace_back(lNormal.x);
+            lVertexBuffer.emplace_back(-lNormal.y);
+            lVertexBuffer.emplace_back(lNormal.z);
+
+            // Vertex texture coordinates.
+            const auto lTexCoord = lpAIMesh->HasTextureCoords(0) ? lpAIMesh->mTextureCoords[0][lVtxIndex] : lZero3D;
+            lVertexBuffer.emplace_back(lTexCoord.x);
+            lVertexBuffer.emplace_back(lTexCoord.y);
+
+            // Vertex color.
+            lVertexBuffer.emplace_back(lColor.r);
+            lVertexBuffer.emplace_back(lColor.g);
+            lVertexBuffer.emplace_back(lColor.b);
+
+            dim.max.x = std::max(lPos.x, dim.max.x);
+            dim.max.y = std::max(lPos.x, dim.max.y);
+            dim.max.z = std::max(lPos.x, dim.max.z);
+
+            dim.min.x = std::min(lPos.x, dim.min.x);
+            dim.min.y = std::min(lPos.x, dim.min.y);
+            dim.min.z = std::min(lPos.x, dim.min.z);
+        }
+
+        dim.size = dim.max - dim.min;
+
+        auto lIndexBase = static_cast<uint32_t>(lIndexBuffer.size());
+        for (unsigned int lIdxIndex = 0; lIdxIndex < lpAIMesh->mNumFaces; ++lIdxIndex)
+        {
+            const auto& lFace = lpAIMesh->mFaces[lIdxIndex];
+
+            if (lFace.mNumIndices != 3)
+                continue;
+
+            lIndexBuffer.emplace_back(lIndexBase + lFace.mIndices[0]);
+            lIndexBuffer.emplace_back(lIndexBase + lFace.mIndices[1]);
+            lIndexBuffer.emplace_back(lIndexBase + lFace.mIndices[2]);
+        }
+    }
+
+    // Use Staging buffers to move vertex and index buffer to device local memory.
+    // Vertex Buffer.
+    auto lVtxBufferSize = static_cast<uint32_t>(lVertexBuffer.size()) * sizeof(float);
+    const vkpp::BufferCreateInfo lVtxStagingCreateInfo
+    {
+        lVtxBufferSize,
+        vkpp::BufferUsageFlagBits::eTransferSrc
+    };
+
+    BufferResource lStagingVtxBufferRes{ device, memProperties };
+    lStagingVtxBufferRes.Reset(lVtxStagingCreateInfo, vkpp::MemoryPropertyFlagBits::eHostVisible);
+
+    auto lMappedMem = device.MapMemory(lStagingVtxBufferRes.memory, 0, lVtxBufferSize);
+    std::memcpy(lMappedMem, lVertexBuffer.data(), lVtxBufferSize);
+    device.UnmapMemory(lStagingVtxBufferRes.memory);
+
+    // Index Buffer.
+    auto lIdxBufferSize = static_cast<uint32_t>(lIndexBuffer.size()) * sizeof(uint32_t);
+    const vkpp::BufferCreateInfo lIdxStagingCreateInfo
+    {
+        lIdxBufferSize,
+        vkpp::BufferUsageFlagBits::eTransferSrc
+    };
+
+    BufferResource lStagingIdxBufferRes{ device, memProperties };
+    lStagingIdxBufferRes.Reset(lIdxStagingCreateInfo, vkpp::MemoryPropertyFlagBits::eHostVisible);
+    lMappedMem = device.MapMemory(lStagingIdxBufferRes.memory, 0, lIdxBufferSize);
+    std::memcpy(lMappedMem, lIndexBuffer.data(), lIdxBufferSize);
+    device.UnmapMemory(lStagingIdxBufferRes.memory);
+
+    // Create device local target buffers.
+    // Vertex Buffer.
+    const vkpp::BufferCreateInfo lVtxCreateInfo
+    {
+        lVtxBufferSize,
+        vkpp::BufferUsageFlagBits::eVertexBuffer | vkpp::BufferUsageFlagBits::eTransferDst
+    };
+
+    vertices.Reset(lVtxCreateInfo, vkpp::MemoryPropertyFlagBits::eDeviceLocal);
+
+    // Index Buffer.
+    const vkpp::BufferCreateInfo lIdxCreateInfo
+    {
+        lIdxBufferSize,
+        vkpp::BufferUsageFlagBits::eIndexBuffer | vkpp::BufferUsageFlagBits::eTransferDst
+    };
+
+    indices.Reset(lIdxCreateInfo, vkpp::MemoryPropertyFlagBits::eDeviceLocal);
+
+    multiPipelineSample.CopyBuffer(vertices.buffer, lStagingVtxBufferRes.buffer, lVtxBufferSize);
+    multiPipelineSample.CopyBuffer(indices.buffer, lStagingIdxBufferRes.buffer, lIdxBufferSize);
+}
+
 
 
 }                   // End of namespace vkpp::sample.

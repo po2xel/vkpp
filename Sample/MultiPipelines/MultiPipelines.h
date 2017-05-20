@@ -10,8 +10,7 @@
 #define GLM_FORCE_RADIANS
 #define GLM_FORCE_DEPTH_ZERO_TO_ONE
 #include <glm/glm.hpp>
-
-#include <tinyobjloader/tiny_obj_loader.h>
+#include <glm/gtc/matrix_transform.hpp>
 
 #include <Base/ExampleBase.h>
 #include <Window/Window.h>
@@ -27,9 +26,9 @@ namespace vkpp::sample
 struct VertexData
 {
     glm::vec3 inPosition;
+    glm::vec3 inNormal;
+    glm::vec2 inTexCoord;
     glm::vec3 inColor;
-    glm::vec2 texCoord;
-    glm::vec3 normal;
 
     constexpr static vkpp::VertexInputBindingDescription GetBindingDescription(void)
     {
@@ -48,29 +47,29 @@ struct VertexData
             {
                 0,                                  // location
                 0,                                  // binding
-                vkpp::Format::eRGBA32sFloat,        // format
+                vkpp::Format::eRGB32sFloat,         // format
                 offsetof(VertexData, inPosition)    // offset
             },
-            // Location 1: Color
+            // Location 1: Normal
             {
                 1,                                  // location
                 0,                                  // binding
-                vkpp::Format::eRGBA32sFloat,        // format
-                offsetof(VertexData, inColor)       // offset
+                vkpp::Format::eRGB32sFloat,         // format
+                offsetof(VertexData, inNormal)        // offset
             },
             // Location 2: Texture Coordinates
             {
                 2,                                  // location
                 0,                                  // binding
                 vkpp::Format::eRG32sFloat,          // format
-                offsetof(VertexData, texCoord)      // offset
+                offsetof(VertexData, inTexCoord)      // offset
             },
-            // Location 3: Normal
+            // Location 3: Color
             {
                 3,                                  // location
                 0,                                  // binding
                 vkpp::Format::eRGB32sFloat,         // format
-                offsetof(VertexData, normal)        // offset
+                offsetof(VertexData, inColor)       // offset
             }
         } };
 
@@ -80,12 +79,28 @@ struct VertexData
 
 
 
+struct UniformBufferObject
+{
+    glm::mat4 projection;
+    glm::mat4 modelView;
+    glm::vec4 lightPos{ 0.0f, 2.0f, 1.0f, 0.0f };
+};
+
+
+
+class MultiPipelines;
+
+
 struct Model
 {
     constexpr static auto DefaultImporterFlags = aiProcess_FlipWindingOrder | aiProcess_Triangulate | aiProcess_PreTransformVertices | aiProcess_CalcTangentSpace | aiProcess_GenSmoothNormals;
 
-    /*BufferResource vertices;
-    BufferResource indices;*/
+    const MultiPipelines& multiPipelineSample;
+    const vkpp::LogicalDevice& device;
+    const vkpp::PhysicalDeviceMemoryProperties& memProperties;
+
+    BufferResource vertices;
+    BufferResource indices;
 
     // Stores vertex and index bases and counts for each part of a model.
     struct ModelPart
@@ -100,84 +115,19 @@ struct Model
         {}
     };
 
+    struct Dimension
+    {
+        glm::vec3 min{ FLT_MAX };
+        glm::vec3 max{ FLT_MAX };
+        glm::vec3 size;
+    } dim;
+
     std::vector<ModelPart> modelParts;
+    uint32_t vertexCount{ 0 }, indexCount{ 0 };
 
-    explicit Model(const std::string& aFilename, unsigned int aImporterFlags = DefaultImporterFlags)
-    {
-        Assimp::Importer lImporter;
+    Model(const MultiPipelines& aMultiPipelineSample, const vkpp::LogicalDevice& aDevice, const vkpp::PhysicalDeviceMemoryProperties& aPhysicalDeviceMemProperties);
 
-        const auto lpAIScene = lImporter.ReadFile(aFilename, aImporterFlags);
-        assert(lpAIScene);
-
-        // modelParts.resize(lpAIScene->mNumMeshes);
-
-        glm::vec3 lScale{ 1.0f }, /*lUVScale{ 1.0f },*/ lCenter{ 0.0f };
-
-        std::vector<float> lVertexBuffer;
-        std::vector<uint32_t> lIndexBuffer;
-
-        uint32_t lVertexCount{ 0 }, lIndexCount{ 0 };
-
-        for (unsigned int lIndex = 0; lIndex < lpAIScene->mNumMeshes; ++lIndex)
-        {
-            const auto lpAIMesh = lpAIScene->mMeshes[lIndex];
-
-            modelParts.emplace_back(lVertexCount, lpAIMesh->mNumVertices, lIndexCount, lpAIMesh->mNumFaces * 3);
-            lVertexCount += lpAIScene->mMeshes[lIndex]->mNumVertices;
-            lIndexCount += lpAIScene->mMeshes[lIndex]->mNumFaces * 3;
-
-            aiColor3D lColor;
-            lpAIScene->mMaterials[lpAIMesh->mMaterialIndex]->Get(AI_MATKEY_COLOR_DIFFUSE, lColor);
-
-            // const aiVector3D lZero3D;
-
-            for (unsigned int lVerIndex = 0; lVerIndex < lpAIMesh->mNumVertices; ++lVerIndex)
-            {
-                // Vertex positions.
-                const auto lPos = lpAIMesh->mVertices[lVerIndex];
-                lVertexBuffer.emplace_back(lPos.x * lScale.x + lCenter.x);
-                lVertexBuffer.emplace_back(-lPos.y * lScale.y + lCenter.y);
-                lVertexBuffer.emplace_back(lPos.z * lScale.z + lCenter.z);
-
-                // Vertex normals.
-                const auto lNormal = lpAIMesh->mNormals[lVerIndex];
-                lVertexBuffer.emplace_back(lNormal.x);
-                lVertexBuffer.emplace_back(-lNormal.y);
-                lVertexBuffer.emplace_back(lNormal.z);
-            }
-
-            uint32_t lIndexBase{ 0 };
-            for (unsigned int lIdxIndex = 0; lIdxIndex < lpAIMesh->mNumFaces; ++lIdxIndex)
-            {
-                const auto& lFace = lpAIMesh->mFaces[lIdxIndex];
-
-                if (lFace.mNumIndices != 3)
-                    continue;
-
-                lIndexBuffer.emplace_back(lIndexBase + lFace.mIndices[0]);
-                lIndexBuffer.emplace_back(lIndexBase + lFace.mIndices[1]);
-                lIndexBuffer.emplace_back(lIndexBase + lFace.mIndices[2]);
-            }
-        }
-    }
-};
-
-
-
-class ObjModel
-{
-private:
-    tinyobj::attrib_t mAttrib;
-    std::vector<tinyobj::shape_t> mShapes;
-    std::vector<tinyobj::material_t> mMaterials;
-
-public:
-    explicit ObjModel(const char* aFilename)
-    {
-        std::string lErrMsg;
-        auto lRet = tinyobj::LoadObj(&mAttrib, &mShapes, &mMaterials, &lErrMsg, aFilename);
-        assert(lRet && lErrMsg.empty());
-    }
+    void LoadMode(const std::string& aFilename, unsigned int aImporterFlags = DefaultImporterFlags);
 };
 
 
@@ -185,8 +135,13 @@ public:
 class MultiPipelines : public ExampleBase, public CWindowEvent
 {
 private:
+    Model mModel;
     vkpp::CommandPool mCmdPool;
     std::vector<vkpp::CommandBuffer> mCmdDrawBuffers;
+
+    vkpp::Semaphore mPresentCompleteSemaphore;
+    vkpp::Semaphore mRenderCompleteSemaphore;
+    std::vector<vkpp::Fence> mWaitFences;
 
     vkpp::RenderPass mRenderPass;
     ImageResource mDepthResource;
@@ -203,14 +158,19 @@ private:
 
     vkpp::DescriptorPool mDescriptorPool;
     vkpp::DescriptorSet mDescriptorSet;
+    UniformBufferObject mMVPMatrix;
+    BufferResource mUniformBufferResource;
 
     void CreateCommandPool(void);
     void AllocateDrawCmdBuffers(void);
 
+    void CreateSemaphores(void);
+    void CreateFences(void);
     void CreateRenderPass(void);
     void CreateDepthResource(void);
     void CreateFramebuffer(void);
     void CreateUniformBuffer(void);
+    void UpdateUniformBuffer(void);
     void CreateSetLayout(void);
     void CreatePipelineLayout(void);
 
@@ -218,10 +178,20 @@ private:
 
     void CreateDescriptorPool(void);
     void AllocateDescriptorSet(void);
+    void UpdateDescriptorSet(void) const;
+
+    void BuildCommandBuffers(void);
+
+    vkpp::CommandBuffer BeginOneTimeCommandBuffer(void) const;
+    void EndOneTimeCommandBuffer(const vkpp::CommandBuffer& aCmdBuffer) const;
+
+    void Update();
 
 public:
     MultiPipelines(CWindow& aWindow, const char* apApplicationName, uint32_t aApplicationVersion, const char* apEngineName = nullptr, uint32_t aEngineVersion = 0);
     virtual ~MultiPipelines(void);
+
+    void CopyBuffer(vkpp::Buffer& aDstBuffer, const Buffer& aSrcBuffer, DeviceSize aSize) const;
 };
 
 

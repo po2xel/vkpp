@@ -58,7 +58,7 @@ public:
         return !!mMask;
     }
 
-    operator VkType(void) const
+    constexpr operator VkType(void) const
     {
         return mMask;
     }

@@ -59,6 +59,17 @@ VKPP_ENUM_BIT_MASK_FLAGS(QueryPipelineStatistic)
 
 
 
+enum class StencilFaceFlagBits
+{
+    eFront              = VK_STENCIL_FACE_FRONT_BIT,
+    eBack               = VK_STENCIL_FACE_BACK_BIT,
+    eFrontAndBack       = VK_STENCIL_FRONT_AND_BACK
+};
+
+VKPP_ENUM_BIT_MASK_FLAGS(StencilFace)
+
+
+
 class CommandBufferInheritanceInfo : public internal::VkTrait<CommandBufferInheritanceInfo, VkCommandBufferInheritanceInfo>
 {
 private:
@@ -142,7 +153,7 @@ public:
     DEFINE_CLASS_MEMBER(CommandBufferBeginInfo)
 
     explicit constexpr CommandBufferBeginInfo(const CommandBufferUsageFlags& aFlags) noexcept
-    : flags(aFlags)
+        : flags(aFlags)
     {}
 
     constexpr CommandBufferBeginInfo(const CommandBufferUsageFlags& aFlags, const CommandBufferInheritanceInfo& aInheritanceInfo) noexcept
@@ -450,6 +461,26 @@ public:
         return SetViewports(aFirstViewport, static_cast<uint32_t>(aViewports.size()), aViewports.data());
     }
 
+    void SetLineWidth(float aLineWidth) const
+    {
+        vkCmdSetLineWidth(mCommandBuffer, aLineWidth);
+    }
+
+    void SetDepthBias(float aDepthBiasConstantFactor, float aDepthBiasClamp, float aDepthBiasSlopeFactor) const
+    {
+        vkCmdSetDepthBias(mCommandBuffer, aDepthBiasConstantFactor, aDepthBiasClamp, aDepthBiasSlopeFactor);
+    }
+
+    void SetBlendConstants(const std::array<float, 4>& aBlendConstants) const
+    {
+        vkCmdSetBlendConstants(mCommandBuffer, aBlendConstants.data());
+    }
+
+    void SetBlendConstants(const float aBlendConstants[4]) const
+    {
+        vkCmdSetBlendConstants(mCommandBuffer, aBlendConstants);
+    }
+
     void SetScissor(const Rect2D& aScissor, uint32_t aFirstScissor = 0) const
     {
         vkCmdSetScissor(mCommandBuffer, aFirstScissor, 1, &aScissor);
@@ -473,6 +504,26 @@ public:
         static_assert(!aScissors.empty());
 
         return SetScissors(aFirstScissor, static_cast<uint32_t>(aScissors.size()), aScissors.data());
+    }
+
+    void SetDepthBounds(float aMinDepthBounds, float aMaxDepthBounds) const
+    {
+       vkCmdSetDepthBounds(mCommandBuffer, aMinDepthBounds, aMaxDepthBounds);
+    }
+
+    void SetStencilCompareMask(const StencilFaceFlags& aFaceMask, uint32_t aCompareMask) const
+    {
+        vkCmdSetStencilCompareMask(mCommandBuffer, aFaceMask, aCompareMask);
+    }
+
+    void SetStencilWriteMask(const StencilFaceFlags& aFaceMask, uint32_t aWriteMask) const
+    {
+        vkCmdSetStencilWriteMask(mCommandBuffer, aFaceMask, aWriteMask);
+    }
+
+    void SetStencilReference(const StencilFaceFlags& aFaceMask, uint32_t aReference) const
+    {
+        vkCmdSetStencilReference(mCommandBuffer, aFaceMask, aReference);
     }
 
     void BindVertexBuffer(const Buffer& aBuffer, const DeviceSize& aOffset) const

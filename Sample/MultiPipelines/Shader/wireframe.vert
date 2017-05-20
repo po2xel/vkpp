@@ -21,8 +21,6 @@ out gl_PerVertex
 
 void main() 
 {
-	{
-		outColor = inColor;
-	}
+	outColor = inColor;
 	gl_Position = ubo.projection * ubo.model * inPos;
 }
