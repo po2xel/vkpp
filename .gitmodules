@@ -9,3 +9,7 @@
 [submodule "Sample/tinyobjloader"]
 	path = Sample/tinyobjloader
 	url = https://github.com/syoyo/tinyobjloader.git
+	
+	[submodule "Sample/gli"]
+	path = Sample/gli
+	url = https://github.com/g-truc/gli
