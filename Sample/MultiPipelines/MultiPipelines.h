@@ -55,7 +55,7 @@ struct VertexData
                 1,                                  // location
                 0,                                  // binding
                 vkpp::Format::eRGB32sFloat,         // format
-                offsetof(VertexData, inNormal)        // offset
+                offsetof(VertexData, inNormal)      // offset
             },
             // Location 2: Texture Coordinates
             {

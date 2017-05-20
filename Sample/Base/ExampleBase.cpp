@@ -316,7 +316,9 @@ void ExampleBase::CreateLogicalDevice(void)
     mEnabledFeatures.fillModeNonSolid = mPhysicalDeviceFeatures.fillModeNonSolid;
 
     // Wide lines must be present for line width > 1.0f.
-    mPhysicalDeviceFeatures.wideLines = mPhysicalDeviceFeatures.wideLines;
+    mEnabledFeatures.wideLines = mPhysicalDeviceFeatures.wideLines;
+
+    mEnabledFeatures.textureCompressionBC = mPhysicalDeviceFeatures.textureCompressionBC;
 
     const vkpp::LogicalDeviceCreateInfo lLogicalDeviceCreateInfo
     {
@@ -380,7 +382,7 @@ void ExampleBase::CreateSwapchain(const Swapchain& aOldSwapchain)
 }
 
 
-void ExampleBase::CreateSwapchainImageViews(const std::vector<vkpp::Image>& aImages)
+void ExampleBase::CreateSwapchainImageViews(const std::vector<vkpp::Image>& aImages) const
 {
     for(auto& lImage : aImages)
     {

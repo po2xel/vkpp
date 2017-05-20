@@ -300,7 +300,7 @@ struct ImageSubresource : public internal::VkTrait<ImageSubresource, VkImageSubr
 
     DEFINE_CLASS_MEMBER(ImageSubresource)
 
-    ImageSubresource(const ImageAspectFlags& aAspectMask, uint32_t aMipLevel, uint32_t aArrayLayer)
+    constexpr ImageSubresource(const ImageAspectFlags& aAspectMask, uint32_t aMipLevel, uint32_t aArrayLayer) noexcept
         : aspectMask(aAspectMask), mipLevel(aMipLevel), arrayLayer(aArrayLayer)
     {}
 
@@ -334,7 +334,7 @@ struct SubresourceLayout : public internal::VkTrait<SubresourceLayout, VkSubreso
 
     DEFINE_CLASS_MEMBER(SubresourceLayout)
 
-    SubresourceLayout(DeviceSize aOffset, DeviceSize aSize, DeviceSize aRowPitch, DeviceSize aArrayPitch, DeviceSize aDepthPitch)
+    constexpr SubresourceLayout(DeviceSize aOffset, DeviceSize aSize, DeviceSize aRowPitch, DeviceSize aArrayPitch, DeviceSize aDepthPitch) noexcept
         : offset(aOffset), size(aSize), rowPitch(aRowPitch), arrayPitch(aArrayPitch), depthPitch(aDepthPitch)
     {}
 
@@ -375,7 +375,7 @@ struct ImageSubresourceLayers : public internal::VkTrait<ImageSubresourceLayers,
 
     DEFINE_CLASS_MEMBER(ImageSubresourceLayers)
 
-    ImageSubresourceLayers(const ImageAspectFlags& aAspectMask, uint32_t aMipLevel, uint32_t aBaseArrayLayer, uint32_t aLayerCount)
+    constexpr ImageSubresourceLayers(const ImageAspectFlags& aAspectMask, uint32_t aMipLevel, uint32_t aBaseArrayLayer = 0, uint32_t aLayerCount = 1) noexcept
         : aspectMask(aAspectMask), mipLevel(aMipLevel), baseArrayLayer(aBaseArrayLayer), layerCount(aLayerCount)
     {}
 
@@ -416,7 +416,8 @@ struct ImageCopy : public internal::VkTrait<ImageCopy, VkImageCopy>
 
     DEFINE_CLASS_MEMBER(ImageCopy)
 
-    ImageCopy(const ImageSubresourceLayers& aSrcSubresource, const Offset3D& aSrcOffset, const ImageSubresourceLayers& aDstSubresource, const Offset3D& aDstOffset, const Extent3D& aExtent)
+    constexpr ImageCopy(const ImageSubresourceLayers& aSrcSubresource, const Offset3D& aSrcOffset,
+        const ImageSubresourceLayers& aDstSubresource, const Offset3D& aDstOffset, const Extent3D& aExtent) noexcept
         : srcSubresource(aSrcSubresource), srcOffset(aSrcOffset), dstSubresource(aDstSubresource), dstOffset(aDstOffset), extent(aExtent)
     {}
 
@@ -457,7 +458,8 @@ struct ImageBlit : public internal::VkTrait<ImageBlit, VkImageBlit>
     
     DEFINE_CLASS_MEMBER(ImageBlit)
 
-    ImageBlit(const ImageSubresourceLayers& aSrcSubresoure, const std::array<Offset3D, 2>& aSrcOffsets, const ImageSubresourceLayers& aDstSubresource, const std::array<Offset3D, 2>& aDstOffsets)
+    constexpr ImageBlit(const ImageSubresourceLayers& aSrcSubresoure, const std::array<Offset3D, 2>& aSrcOffsets,
+        const ImageSubresourceLayers& aDstSubresource, const std::array<Offset3D, 2>& aDstOffsets) noexcept
         : srcSubresource(aSrcSubresoure), srcOffsets{aSrcOffsets[0], aSrcOffsets[1]}, dstSubresource(aDstSubresource), dstOffsets{aDstOffsets[0], aDstOffsets[1]}
     {}
 
@@ -492,7 +494,8 @@ struct ImageResolve : public internal::VkTrait<ImageResolve, VkImageResolve>
 
     DEFINE_CLASS_MEMBER(ImageResolve)
 
-    ImageResolve(const ImageSubresourceLayers& aSrcSubresource, const Offset3D& aSrcOffset, const ImageSubresourceLayers& aDstSubresource, const Offset3D& aDstOffset, const Extent3D& aExtent)
+    constexpr ImageResolve(const ImageSubresourceLayers& aSrcSubresource, const Offset3D& aSrcOffset,
+        const ImageSubresourceLayers& aDstSubresource, const Offset3D& aDstOffset, const Extent3D& aExtent) noexcept
         : srcSubresource(aSrcSubresource), srcOffset(aSrcOffset), dstSubresource(aDstSubresource), dstOffset(aDstOffset), extent(aExtent)
     {}
 
@@ -535,7 +538,12 @@ struct ImageSubresourceRange : public internal::VkTrait<ImageSubresourceRange, V
     DEFINE_CLASS_MEMBER(ImageSubresourceRange)
 
     constexpr ImageSubresourceRange(ImageAspectFlags aAspectMask, uint32_t aBaseMipLevel, uint32_t aLevelCount, uint32_t aBaseArrayLayer, uint32_t aLayerCount) noexcept
-    : aspectMask(aAspectMask), baseMipLevel(aBaseMipLevel), levelCount(aLevelCount), baseArrayLayer(aBaseArrayLayer), layerCount(aLayerCount)
+        : aspectMask(aAspectMask), baseMipLevel(aBaseMipLevel), levelCount(aLevelCount), baseArrayLayer(aBaseArrayLayer), layerCount(aLayerCount)
+    {}
+
+    constexpr ImageSubresourceRange(const ImageSubresourceRange& aImageSubRange)
+        : aspectMask(aImageSubRange.aspectMask), baseMipLevel(aImageSubRange.baseMipLevel), levelCount(aImageSubRange.levelCount),
+          baseArrayLayer(aImageSubRange.baseArrayLayer), layerCount(aImageSubRange.layerCount)
     {}
 
     ImageSubresourceRange& SetAspectMask(const ImageAspectFlags& aAspectMask)
@@ -583,12 +591,12 @@ public:
     DEFINE_CLASS_MEMBER(ImageViewCreateInfo)
 
     ImageViewCreateInfo(ImageViewType aImageViewType, Format aFormat, const ImageSubresourceRange& aSubresourceRange,
-        const ComponentMapping& aComponents = IdentityComponentMapping, const ImageViewCreateFlags& aFlags = DefaultFlags)
+        const ComponentMapping& aComponents = IdentityComponentMapping, const ImageViewCreateFlags& aFlags = DefaultFlags) noexcept
         : flags(aFlags), viewType(aImageViewType), format(aFormat), components(aComponents), subresourceRange(aSubresourceRange)
     {}
 
     ImageViewCreateInfo(const Image& aImage, ImageViewType aImageViewType, Format aFormat, const ImageSubresourceRange& aSubresourceRange,
-        const ComponentMapping& aComponents = IdentityComponentMapping, const ImageViewCreateFlags& aFlags = DefaultFlags)
+        const ComponentMapping& aComponents = IdentityComponentMapping, const ImageViewCreateFlags& aFlags = DefaultFlags) noexcept
         : flags(aFlags), image(aImage), viewType(aImageViewType), format(aFormat), components(aComponents), subresourceRange(aSubresourceRange)
     {}
 
@@ -642,7 +650,7 @@ private:
 public:
     ImageView(void) noexcept = default;
 
-    ImageView(std::nullptr_t)
+    constexpr ImageView(std::nullptr_t)
     {}
 
     explicit ImageView(VkImageView aImageView) : mImageView(aImageView)

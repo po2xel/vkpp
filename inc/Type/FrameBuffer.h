@@ -51,6 +51,13 @@ public:
         StaticLValueRefAssert(A, aAttachments);
     }
 
+    template <typename A, typename = EnableIfValueType<ValueType<A>, ImageView>>
+    FramebufferCreateInfo(const RenderPass& aRenderPass, A&& aAttachments, const Extent2D& aExtent, uint32_t aLayers = 1, const FramebufferCreateFlags& aFlags = DefaultFlags)
+        : FramebufferCreateInfo(aRenderPass, static_cast<uint32_t>(aAttachments.size()), aAttachments.data(), aExtent.width, aExtent.height, aLayers, aFlags)
+    {
+        StaticLValueRefAssert(A, aAttachments);
+    }
+
     FramebufferCreateInfo& SetFlags(const FramebufferCreateFlags& aFlags)
     {
         flags = aFlags;

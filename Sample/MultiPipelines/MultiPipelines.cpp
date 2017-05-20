@@ -35,11 +35,28 @@ MultiPipelines::MultiPipelines(CWindow& aWindow, const char* apApplicationName, 
       mDepthResource(mLogicalDevice, mPhysicalDeviceMemoryProperties),
       mUniformBufferResource(mLogicalDevice, mPhysicalDeviceMemoryProperties)
 {
-    mResizedFunc = [this](Sint32 aWidth, Sint32 aHeight)
+    mResizedFunc = [this](Sint32 /*aWidth*/, Sint32 /*aHeight*/)
     {
-        std::cout << "Resized to " << aWidth << "x" << aHeight << std::endl;
+        // Ensure all operations on the device have been finished before destroying resources.
+        mLogicalDevice.Wait();
 
+        // Re-create swapchain.
         CreateSwapchain(mSwapchain);
+
+        mDepthResource.Reset();
+        CreateDepthResource();
+
+        // Re-create framebuffers.
+        for (auto& lFramebuffer : mFramebuffers)
+            mLogicalDevice.DestroyFramebuffer(lFramebuffer);
+
+        mFramebuffers.clear();
+        CreateFramebuffer();
+
+        // Command buffers need to be recreated as they reference to the destroyed framebuffer.
+        mLogicalDevice.FreeCommandBuffers(mCmdPool, mCmdDrawBuffers);
+        AllocateDrawCmdBuffers();
+        BuildCommandBuffers();
     };
 
     CreateCommandPool();
@@ -774,7 +791,7 @@ void Model::LoadMode(const std::string& aFilename, unsigned int aImporterFlags)
     };
 
     BufferResource lStagingVtxBufferRes{ device, memProperties };
-    lStagingVtxBufferRes.Reset(lVtxStagingCreateInfo, vkpp::MemoryPropertyFlagBits::eHostVisible);
+    lStagingVtxBufferRes.Reset(lVtxStagingCreateInfo, vkpp::MemoryPropertyFlagBits::eHostVisible | vkpp::MemoryPropertyFlagBits::eHostCoherent);
 
     auto lMappedMem = device.MapMemory(lStagingVtxBufferRes.memory, 0, lVtxBufferSize);
     std::memcpy(lMappedMem, lVertexBuffer.data(), lVtxBufferSize);
@@ -789,7 +806,7 @@ void Model::LoadMode(const std::string& aFilename, unsigned int aImporterFlags)
     };
 
     BufferResource lStagingIdxBufferRes{ device, memProperties };
-    lStagingIdxBufferRes.Reset(lIdxStagingCreateInfo, vkpp::MemoryPropertyFlagBits::eHostVisible);
+    lStagingIdxBufferRes.Reset(lIdxStagingCreateInfo, vkpp::MemoryPropertyFlagBits::eHostVisible | vkpp::MemoryPropertyFlagBits::eHostCoherent);
     lMappedMem = device.MapMemory(lStagingIdxBufferRes.memory, 0, lIdxBufferSize);
     std::memcpy(lMappedMem, lIndexBuffer.data(), lIdxBufferSize);
     device.UnmapMemory(lStagingIdxBufferRes.memory);

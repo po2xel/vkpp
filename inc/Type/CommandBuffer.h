@@ -274,8 +274,14 @@ struct BufferImageCopy : public internal::VkTrait<BufferImageCopy, VkBufferImage
 
     DEFINE_CLASS_MEMBER(BufferImageCopy)
 
-    BufferImageCopy(DeviceSize aBufferOffset, uint32_t aBufferRowLength, uint32_t aBufferImageHeight, const ImageSubresourceLayers& aImageSubresource, const Offset3D& aImageOffset, const Extent3D& aImageExtent)
+    constexpr BufferImageCopy(DeviceSize aBufferOffset, uint32_t aBufferRowLength, uint32_t aBufferImageHeight, const ImageSubresourceLayers& aImageSubresource,
+        const Offset3D& aImageOffset, const Extent3D& aImageExtent) noexcept
         : bufferOffset(aBufferOffset), bufferRowLength(aBufferRowLength), bufferImageHeight(aBufferImageHeight), imageSubresource(aImageSubresource), imageOffset(aImageOffset), imageExtent(aImageExtent)
+    {}
+
+    // If either of bufferRowLength or bufferImageHeight is zero, the aspect of the buffer memory is considered to be tightly packed according to the imageExtent.
+    constexpr BufferImageCopy(DeviceSize aBufferOffset, const ImageSubresourceLayers& aImageSubresource, const Offset3D& aImageOffset, const Extent3D& aImageExtent) noexcept
+        : BufferImageCopy(aBufferOffset, 0, 0, aImageSubresource, aImageOffset, aImageExtent)
     {}
 
     BufferImageCopy& SetBufferExtent(DeviceSize aBufferOffset, uint32_t aBufferRowLength, uint32_t aBufferImageHeight)

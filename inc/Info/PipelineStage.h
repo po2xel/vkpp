@@ -131,9 +131,9 @@ enum class VertexInputRate
 
 struct VertexInputBindingDescription : public internal::VkTrait<VertexInputBindingDescription, VkVertexInputBindingDescription>
 {
-    uint32_t            binding{ 0 };
-    uint32_t            stride{ 0 };
-    VertexInputRate     inputRate{ VertexInputRate::eVertex };
+    uint32_t            binding{ 0 };                               // binding is the binding number that this structure describes.
+    uint32_t            stride{ 0 };                                // stride is the distance in bytes between two consecutive elements within the buffer.
+    VertexInputRate     inputRate{ VertexInputRate::eVertex };      // inputRate specifies whether vertex attribute addressing is a function of the vertex index or of the instance index.
 
     DEFINE_CLASS_MEMBER(VertexInputBindingDescription)
 
@@ -169,10 +169,10 @@ ConsistencyCheck(VertexInputBindingDescription, binding, stride, inputRate)
 
 struct VertexInputAttributeDescription : public internal::VkTrait<VertexInputAttributeDescription, VkVertexInputAttributeDescription>
 {
-    uint32_t        location{ 0 };
-    uint32_t        binding{ 0 };
-    Format          format{ Format::eUndefined };
-    uint32_t        offset{ 0 };
+    uint32_t        location{ 0 };                      // location is the shader binding location number for this attribute.
+    uint32_t        binding{ 0 };                       // binding is the binding number which this attribute takes its data from.
+    Format          format{ Format::eUndefined };       // format is the size and type of the vertex attribute data.
+    uint32_t        offset{ 0 };                        // offset is a byte offset of this attribute relative to the start of an element in the vertex input binding.
 
     DEFINE_CLASS_MEMBER(VertexInputAttributeDescription)
 

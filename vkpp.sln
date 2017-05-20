@@ -9,6 +9,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ColorizedTriangle", "Sample
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "MultiPipelines", "Sample\MultiPipelines\MultiPipelines.vcxproj", "{CD697DBF-904A-453B-BA95-E406F89ABF16}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "TexturedPlate", "Sample\TexturedPlate\TexturedPlate.vcxproj", "{9A5CAC08-5BC1-444C-84E4-C21D596575F9}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x64 = Debug|x64
@@ -39,6 +41,14 @@ Global
 		{CD697DBF-904A-453B-BA95-E406F89ABF16}.Release|x64.Build.0 = Release|x64
 		{CD697DBF-904A-453B-BA95-E406F89ABF16}.Release|x86.ActiveCfg = Release|Win32
 		{CD697DBF-904A-453B-BA95-E406F89ABF16}.Release|x86.Build.0 = Release|Win32
+		{9A5CAC08-5BC1-444C-84E4-C21D596575F9}.Debug|x64.ActiveCfg = Debug|x64
+		{9A5CAC08-5BC1-444C-84E4-C21D596575F9}.Debug|x64.Build.0 = Debug|x64
+		{9A5CAC08-5BC1-444C-84E4-C21D596575F9}.Debug|x86.ActiveCfg = Debug|Win32
+		{9A5CAC08-5BC1-444C-84E4-C21D596575F9}.Debug|x86.Build.0 = Debug|Win32
+		{9A5CAC08-5BC1-444C-84E4-C21D596575F9}.Release|x64.ActiveCfg = Release|x64
+		{9A5CAC08-5BC1-444C-84E4-C21D596575F9}.Release|x64.Build.0 = Release|x64
+		{9A5CAC08-5BC1-444C-84E4-C21D596575F9}.Release|x86.ActiveCfg = Release|Win32
+		{9A5CAC08-5BC1-444C-84E4-C21D596575F9}.Release|x86.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

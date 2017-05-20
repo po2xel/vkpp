@@ -250,7 +250,7 @@ protected:
     void CreateLogicalDevice(void);
     void GetDeviceQueues(void);
     void CreateSwapchain(const Swapchain& aOldSwapchain = nullptr);
-    void CreateSwapchainImageViews(const std::vector<vkpp::Image>& aImages);
+    void CreateSwapchainImageViews(const std::vector<vkpp::Image>& aImages) const;
 
     vkpp::ShaderModule CreateShaderModule(const std::string& aFilename) const;
 
