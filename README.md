@@ -20,12 +20,15 @@ The examples are used to verify and demonstrate the efficiency, effectiveness an
 They are also used as baselines to prevent regressions.<br/>
 
 ### [Colorized Triangle](Sample/ColorizedTriangle/)
-<img src="./Sample/ColorizedTriangle/ColorizedTriangle.png" height="108px">
+<img src="./Sample/ColorizedTriangle/ColorizedTriangle.png" height="108px" align="right">
 
-<hr>
+Draw a simple gradient triangle using staging buffer.<br/>
+Vertex and index data are mapped to host visible memory (staging buffers) before they are transferred to device local memory.
 
 ### [Multi-Pipelines](Sample/MultiPipelines/)
-<img src="./Sample/MultiPipelines/MultiPipelines.png" height="108px">
+<img src="./Sample/MultiPipelines/MultiPipelines.png" height="108px" align="right">
+
+Three different pipeline state objects are used here for rendering the same scene with different visual effects.
 
 <hr>
 
