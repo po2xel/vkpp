@@ -18,44 +18,24 @@ Coming soon.
 ## Examples
 The examples are used to verify and demonstrate the efficiency, effectiveness and correctness of vkpp.<br/>
 They are also used as baselines to prevent regressions.<br/>
-`Note: Some examples are broken due to recent API changes.`
 
-### [ClearFrame](Sample/ClearFrame/)
-<img src="./Sample/ClearFrame/ClearFrame.PNG" height="108px">
-
-<hr>
-
-### [StagingTriangle](Sample/StagingTriangle/)
-<img src="./Sample/StagingTriangle/StagingTriangle.PNG" height="108px">
+### [Colorized Triangle](Sample/ColorizedTriangle/)
+<img src="./Sample/ColorizedTriangle/ColorizedTriangle.png" height="108px">
 
 <hr>
 
-### [IndexedTriangle](Sample/IndexedTriangle/)
-<img src="./Sample/IndexedTriangle/IndexedTriangle.PNG" height="108px">
-
-<hr>
-
-### [UniformTriangle](Sample/UniformTriangle/)
-<img src="./Sample/UniformTriangle/UniformTriangle.PNG" height="108px">
-
-<hr>
-
-### [TexturedTriangle](Sample/TexturedTriangle/)
-<img src="./Sample/TexturedTriangle/TexturedTriangle.PNG" height="108px">
-
-<hr>
-
-### [DepthTriangle](Sample/DepthTriangle/)
-<img src="./Sample/DepthTriangle/DepthTriangle.PNG" height="108px">
+### [Multi-Pipelines](Sample/MultiPipelines/)
+<img src="./Sample/MultiPipelines/MultiPipelines.png" height="108px">
 
 <hr>
 
 
 ## Credits
 Thanks to the authors of these libraries:
+ - [Examples and demos for the new Vulkan API](https://github.com/SaschaWillems/Vulkan)
  - [OpenGL Mathematics (GLM)](https://github.com/g-truc/glm)
  - [stb single-file public domain libraries for C/C++](https://github.com/nothings/stb)
- - [Examples and demos for the new Vulkan API](https://github.com/SaschaWillems/Vulkan)
+ - [Open Asset Import Library](https://github.com/assimp/assimp)
 
 ## License
 vkpp is provided under MIT license that can be found in the ``LICENSE.txt``
