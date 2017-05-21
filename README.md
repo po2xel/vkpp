@@ -17,7 +17,7 @@ Coming soon.
 The examples are used to verify and demonstrate the correctness efficiency and effectiveness of vkpp.<br/>
 They are also used as baselines to prevent regressions.<br/>
 
-***Note: The examples below are originally created by [SaschaWillems](https://github.com/SaschaWillems/Vulkan). I rewrite some of the examples in order to verify vkpp's correctness efficiency and effectiveness.***
+***Note: The examples below are originally created by [SaschaWillems](https://github.com/SaschaWillems/Vulkan). I rewrite some of the examples in order to verify vkpp's correctness, efficiency and effectiveness.***
 
 ### [Colorized Triangle](Sample/ColorizedTriangle/)
 <img src="./Sample/ColorizedTriangle/ColorizedTriangle.png" height="108px" align="right">
