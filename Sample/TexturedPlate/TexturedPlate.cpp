@@ -40,6 +40,30 @@ TexturedPlate::TexturedPlate(CWindow& aWindow, const char* apApplicationName, ui
         }
     };
 
+    mResizedFunc = [this](Sint32 /*aWidth*/, Sint32 /*aHeight*/)
+    {
+        // Ensure all operations on the device have been finished before destroying resources.
+        mLogicalDevice.Wait();
+
+        // Re-create swapchain.
+        CreateSwapchain(mSwapchain);
+
+        mDepthResource.Reset();
+        CreateDepthResource();
+
+        // Re-create framebuffers.
+        for (auto& lFramebuffer : mFramebuffers)
+            mLogicalDevice.DestroyFramebuffer(lFramebuffer);
+
+        mFramebuffers.clear();
+        CreateFramebuffer();
+
+        // Command buffers need to be recreated as they reference to the destroyed framebuffer.
+        mLogicalDevice.FreeCommandBuffers(mCmdPool, mDrawCmdBuffers);
+        AllocateCmdBuffers();
+        BuildCommandBuffers();
+    };
+
     CreateCmdPool();
     AllocateCmdBuffers();
 
