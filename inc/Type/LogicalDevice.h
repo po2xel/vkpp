@@ -392,6 +392,7 @@ public:
         return lSwapchainImages;
     }
 
+    // \param[in] aSemaphore is null or a semaphore to signal.
     uint32_t AcquireNextImage(const khr::Swapchain& aSwapchain, const Semaphore& aSemaphore = nullptr, const Fence& aFence = nullptr, uint64_t aTimeout = DefaultSwapchainAcquireTimeOut) const
     {
         uint32_t lImageIndex;
@@ -540,6 +541,28 @@ public:
     void UpdateDescriptorSets(const std::array<WriteDescriptorSetInfo, W>& aDescriptorWrites, const std::array<CopyDescriptorSetInfo, C>& aDescriptorCopies)
     {
         UpdateDescriptorSets(static_cast<uint32_t>(aDescriptorWrites.size()), aDescriptorWrites.data(), static_cast<uint32_t>(aDescriptorCopies.size()), aDescriptorCopies.data());
+    }
+
+    void UpdateDescriptorSets(const std::vector<WriteDescriptorSetInfo>& aDescriptorWrites) const
+    {
+        UpdateDescriptorSets(static_cast<uint32_t>(aDescriptorWrites.size()), aDescriptorWrites.data(), 0, nullptr);
+    }
+
+    template <std::size_t W>
+    void UpdateDescriptorSets(const std::array<WriteDescriptorSetInfo, W>& aDescriptorWrites)
+    {
+        UpdateDescriptorSets(static_cast<uint32_t>(aDescriptorWrites.size()), aDescriptorWrites.data(), 0, nullptr);
+    }
+
+    void UpdateDescriptorSets(const std::vector<CopyDescriptorSetInfo>& aDescriptorCopies) const
+    {
+        UpdateDescriptorSets(0, nullptr, static_cast<uint32_t>(aDescriptorCopies.size()), aDescriptorCopies.data());
+    }
+
+    template <std::size_t C>
+    void UpdateDescriptorSets(const std::array<CopyDescriptorSetInfo, C>& aDescriptorCopies)
+    {
+        UpdateDescriptorSets(0, nullptr, static_cast<uint32_t>(aDescriptorCopies.size()), aDescriptorCopies.data());
     }
 
     template <typename T = DefaultAllocationCallbacks>

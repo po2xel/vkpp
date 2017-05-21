@@ -78,10 +78,10 @@ public:
 
     DEFINE_CLASS_MEMBER(SamplerCreateInfo)
 
-    SamplerCreateInfo(Filter aMagFilter, Filter aMinFilter, SamplerMipmapMode aMipmapMode,
+    constexpr SamplerCreateInfo(Filter aMagFilter, Filter aMinFilter, SamplerMipmapMode aMipmapMode,
         SamplerAddressMode aAddressModeU, SamplerAddressMode aAddressModeV, SamplerAddressMode aAddressModeW,
         float aMipLodBias, Bool32 aAnisotropyEnble, float aMaxAnisotropy, Bool32 aCompareEnable, CompareOp aCompareOp,
-        float aMinLod, float aMaxLod, BorderColor aBorderColor, Bool32 aUnnormalizedCoordinates = VK_FALSE, const SamplerCreateFlags& aFlags = DefaultFlags)
+        float aMinLod, float aMaxLod, BorderColor aBorderColor, Bool32 aUnnormalizedCoordinates = VK_FALSE, const SamplerCreateFlags& aFlags = DefaultFlags) noexcept
         : flags(aFlags), magFilter(aMagFilter), minFilter(aMinFilter), mipmapMode(aMipmapMode), addressModeU(aAddressModeU), addressModeV(aAddressModeV), addressModeW(aAddressModeW),
           mipLodBias(aMipLodBias), anisotropyEnable(aAnisotropyEnble), maxAnisotropy(aMaxAnisotropy), compareEnable(aCompareEnable), compareOp(aCompareOp),
           minLod(aMinLod), maxLod(aMaxLod), borderColor(aBorderColor), unnormalizedCoordinates(aUnnormalizedCoordinates)

@@ -610,7 +610,7 @@ void MultiPipelines::BuildCommandBuffers(void)
 
         lDrawCmdBuffer.SetViewport(lViewport);
 
-        vkpp::Rect2D lScissor
+        const vkpp::Rect2D lScissor
         {
             {0, 0},
             mSwapchain.extent
@@ -660,7 +660,7 @@ void MultiPipelines::Update()
     mLogicalDevice.WaitForFence(mWaitFences[lIndex]);
     mLogicalDevice.ResetFence(mWaitFences[lIndex]);
 
-    const vkpp::PipelineStageFlags lWaitDstStageMask{ vkpp::PipelineStageFlagBits::eColorAttachmentOutput };
+    constexpr vkpp::PipelineStageFlags lWaitDstStageMask{ vkpp::PipelineStageFlagBits::eColorAttachmentOutput };
 
     const vkpp::SubmitInfo lSubmitInfo
     {
@@ -699,7 +699,7 @@ void MultiPipelines::CreateFences(void)
     // Create in signaled state so we don't wait on the first render of each command buffer.
     constexpr vkpp::FenceCreateInfo lFenceCreateInfo{ vkpp::FenceCreateFlagBits::eSignaled };
 
-    for (int lIndex = 0; lIndex < mCmdDrawBuffers.size(); ++lIndex)
+    for (std::size_t lIndex = 0; lIndex < mCmdDrawBuffers.size(); ++lIndex)
         mWaitFences.emplace_back(mLogicalDevice.CreateFence(lFenceCreateInfo));
 }
 

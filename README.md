@@ -14,8 +14,10 @@ Coming soon.
 Coming soon.
 
 ## Examples
-The examples are used to verify and demonstrate the efficiency, effectiveness and correctness of vkpp.<br/>
+The examples are used to verify and demonstrate the correctness efficiency and effectiveness of vkpp.<br/>
 They are also used as baselines to prevent regressions.<br/>
+
+***Note: The examples below are originally created by [SaschaWillems](https://github.com/SaschaWillems/Vulkan). I rewrite some of the examples in order to verify vkpp's correctness efficiency and effectiveness.***
 
 ### [Colorized Triangle](Sample/ColorizedTriangle/)
 <img src="./Sample/ColorizedTriangle/ColorizedTriangle.png" height="108px" align="right">
@@ -28,6 +30,11 @@ Vertex and index data are mapped to host visible memory (staging buffers) before
 <img src="./Sample/MultiPipelines/MultiPipelines.png" height="108px" align="right">
 
 Three different pipeline state objects are used here for rendering the same scene with different visual effects.
+
+### [Textured Plate](Sample/TexturedPlate/)
+<img src="./Sample/TexturedPlate/TexturedPlate.png" height="108px" align="right">
+
+Texture data, including all mip-levels, is mapped to host visible memory (staing buffer) before it is transferred to device local image memory.
 
 ## Credits
 Thanks to the authors of these libraries:

@@ -197,7 +197,7 @@ struct DescriptorImageInfo : public internal::VkTrait<DescriptorImageInfo, VkDes
 
     DEFINE_CLASS_MEMBER(DescriptorImageInfo)
 
-    DescriptorImageInfo(const Sampler& aSampler, const ImageView& aImageView, const ImageLayout& aImageLayout)
+    DescriptorImageInfo(const Sampler& aSampler, const ImageView& aImageView, const ImageLayout& aImageLayout) noexcept
         : sampler(aSampler), imageView(aImageView), imageLayout(aImageLayout)
     {}
 
@@ -268,8 +268,8 @@ public:
     const void*                 pNext{ nullptr };
     DescriptorSet               dstSet;
     uint32_t                    dstBinding{ 0 };
-    uint32_t                    dstArrayElement{ 0 };
-    uint32_t                    descriptorCount{ 0 };
+    uint32_t                    dstArrayElement{ 0 };       // dstArrayElement is the starting element in the descriptor array.
+    uint32_t                    descriptorCount{ 0 };       // descriptorCount is the number of descriptors to update (the number of elements in pImageInfo, pBufferInfo, pTexelBufferView).
     DescriptorType              descriptorType;
     const DescriptorImageInfo*  pImageInfo{ nullptr };
     const DescriptorBufferInfo* pBufferInfo{ nullptr };
@@ -277,23 +277,23 @@ public:
 
     DEFINE_CLASS_MEMBER(WriteDescriptorSetInfo)
 
-    constexpr WriteDescriptorSetInfo(const DescriptorSet& aDstSet, uint32_t aDstBinding, uint32_t aDstArrayElement, uint32_t aDescriptorCount, DescriptorType aDescriptorType,
+    WriteDescriptorSetInfo(const DescriptorSet& aDstSet, uint32_t aDstBinding, uint32_t aDstArrayElement, uint32_t aDescriptorCount, DescriptorType aDescriptorType,
         const DescriptorImageInfo* apImageInfo = nullptr, const DescriptorBufferInfo* apBufferInfo = nullptr, const BufferView* apTexelBufferView = nullptr) noexcept
         : dstSet(aDstSet), dstBinding(aDstBinding), dstArrayElement(aDstArrayElement), descriptorCount(aDescriptorCount), descriptorType(aDescriptorType),
           pImageInfo(apImageInfo), pBufferInfo(apBufferInfo), pTexelBufferView(apTexelBufferView)
     {}
 
-    constexpr WriteDescriptorSetInfo(const DescriptorSet& aDstSet, uint32_t aDstBinding, uint32_t aDstArrayElement, DescriptorType aDescriptorType,
+    WriteDescriptorSetInfo(const DescriptorSet& aDstSet, uint32_t aDstBinding, uint32_t aDstArrayElement, DescriptorType aDescriptorType,
         const DescriptorImageInfo& aImageInfo) noexcept
         : WriteDescriptorSetInfo(aDstSet, aDstBinding, aDstArrayElement, 1, aDescriptorType, aImageInfo.AddressOf())
     {}
 
-    constexpr WriteDescriptorSetInfo(const DescriptorSet& aDstSet, uint32_t aDstBinding, uint32_t aDstArrayElement, DescriptorType aDescriptorType,
+    WriteDescriptorSetInfo(const DescriptorSet& aDstSet, uint32_t aDstBinding, uint32_t aDstArrayElement, DescriptorType aDescriptorType,
         const DescriptorBufferInfo& aBufferInfo) noexcept
         : WriteDescriptorSetInfo(aDstSet, aDstBinding, aDstArrayElement, 1, aDescriptorType, nullptr, aBufferInfo.AddressOf())
     {}
 
-    constexpr WriteDescriptorSetInfo(const DescriptorSet& aDstSet, uint32_t aDstBinding, uint32_t aDstArrayElement, DescriptorType aDescriptorType,
+    WriteDescriptorSetInfo(const DescriptorSet& aDstSet, uint32_t aDstBinding, uint32_t aDstArrayElement, DescriptorType aDescriptorType,
         const BufferView& aTexelBufferView) noexcept
         : WriteDescriptorSetInfo(aDstSet, aDstBinding, aDstArrayElement, 1, aDescriptorType, nullptr, nullptr, aTexelBufferView.AddressOf())
     {}

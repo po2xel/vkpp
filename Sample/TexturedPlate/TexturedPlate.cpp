@@ -10,14 +10,43 @@ namespace vkpp::sample
 TexturedPlate::TexturedPlate(CWindow& aWindow, const char* apApplicationName, uint32_t aApplicationVersion, const char* apEngineName, uint32_t aEngineVersion)
     : ExampleBase(aWindow, apApplicationName, aApplicationVersion, apEngineName, aEngineVersion),
       CWindowEvent(aWindow),
+      CMouseWheelEvent(aWindow),
+      CMouseMotionEvent(aWindow),
       mDepthResource(mLogicalDevice, mPhysicalDeviceMemoryProperties),
-      mTextureResource(mLogicalDevice, mPhysicalDeviceMemoryProperties)
+      mTextureResource(mLogicalDevice, mPhysicalDeviceMemoryProperties),
+      mVertexBufferRes(mLogicalDevice, mPhysicalDeviceMemoryProperties),
+      mIndexBufferRes(mLogicalDevice, mPhysicalDeviceMemoryProperties),
+      mUniformBufferRes(mLogicalDevice, mPhysicalDeviceMemoryProperties)
 {
+    theApp.RegisterUpdateEvent([this](void)
+    {
+        Update();
+    });
+
+    mMouseWheelFunc = [this](Sint32 /*aPosX*/, Sint32 aPosY)
+    {
+        mCurrentZoomLevel *= (1.0f + aPosY * MINIMUM_ZOOM_LEVEL);
+        UpdateUniformBuffer();
+    };
+
+    mMouseMotionFunc = [this](Uint32 aMouseState, Sint32 /*aPosX*/, Sint32 /*aPosY*/, Sint32 aRelativeX, Sint32 aRelativeY)
+    {
+        if (aMouseState & CMouseEvent::ButtonMask::eLMask)
+        {
+            mCurrentRotation.x += aRelativeY;
+            mCurrentRotation.y += aRelativeX;
+
+            UpdateUniformBuffer();
+        }
+    };
+
     CreateCmdPool();
     AllocateCmdBuffers();
 
     CreateRenderPass();
     CreateDepthResource();
+
+    CreateFramebuffer();
 
     CreateSetLayout();
     CreatePipelineLayout();
@@ -26,15 +55,43 @@ TexturedPlate::TexturedPlate(CWindow& aWindow, const char* apApplicationName, ui
 
     CreateDescriptorPool();
     AllocateDescriptorSet();
-    UpdateImageDescriptorSet();
 
+    // TODO: Vulkan core support three different compressed texture formats.
+    // As the support differs among implementations, it is needed to check device features and select a proper format and file.
     LoadTexture("Texture/metalplate01_bc2_unorm.ktx", vkpp::Format::eBC2_uNormBlock);
+    CreateSampler();
+
+    CreateUniformBuffer();
+    UpdateUniformBuffer();
+
+    UpdateDescriptorSet();
+
+    CreateVertexBuffer();
+    CreateIndexBuffer();
+
+    BuildCommandBuffers();
+
+    CreateSemaphores();
+    CreateFences();
 }
 
 
 TexturedPlate::~TexturedPlate(void)
 {
     mLogicalDevice.Wait();
+
+    for (auto& lFence : mWaitFences)
+        mLogicalDevice.DestroyFence(lFence);
+
+    mLogicalDevice.DestroySemaphore(mPresentCompleteSemaphore);
+    mLogicalDevice.DestroySemaphore(mRenderCompleteSemaphore);
+
+    mIndexBufferRes.Reset();
+    mVertexBufferRes.Reset();
+
+    mUniformBufferRes.Reset();
+
+    mLogicalDevice.DestroySampler(mTextureSampler);
 
     mLogicalDevice.DestroyDescriptorPool(mDescriptorPool);
 
@@ -43,7 +100,10 @@ TexturedPlate::~TexturedPlate(void)
     mLogicalDevice.DestroyPipelineLayout(mPipelineLayout);
     mLogicalDevice.DestroyDescriptorSetLayout(mSetLayout);
 
-    // mDepthResource.Reset();
+    for (auto& lFramebuffer : mFramebuffers)
+        mLogicalDevice.DestroyFramebuffer(lFramebuffer);
+
+    mDepthResource.Reset();
 
     mLogicalDevice.DestroyRenderPass(mRenderPass);
 
@@ -341,14 +401,6 @@ void TexturedPlate::AllocateDescriptorSet(void)
 }
 
 
-void TexturedPlate::UpdateImageDescriptorSet(void)
-{
-    const vkpp::DescriptorImageInfo lTextureDescriptor
-    {
-    };
-}
-
-
 void TexturedPlate::LoadTexture(const std::string& aFilename, vkpp::Format mTexFormat)
 {
     const gli::texture2d lTex2D{ gli::load(aFilename) };
@@ -433,11 +485,200 @@ void TexturedPlate::LoadTexture(const std::string& aFilename, vkpp::Format mTexF
 
     const auto& lCopyCmd = BeginOneTimeCmdBuffer();
 
+    // Image barrier for optimal image.
+
+    // The sub-resource range describes the regions of the image which will be transitioned.
+    const vkpp::ImageSubresourceRange lImageSubRange
+    {
+        vkpp::ImageAspectFlagBits::eColor,              // aspectMask: Only contains color data.
+        0,                                              // baseMipLevel: Start at first mip-level.
+        mTexture.mipLevels,                             // levelCount: Transition on all mip-levels.
+        0,                                              // baseArrayLayer: Start at first element in the array. (only one element in this example.)
+        1                                               // layerCount: The 2D texture only has one layer.
+    };
+
+    // Optimal image will be used as the destination for the copy, so it must be transfered from the initial undefined image layout to the transfer destination layout.
+    TransitionImageLayout<vkpp::ImageLayout::eUndefined, vkpp::ImageLayout::eTransferDstOptimal>
+    (
+        lCopyCmd, mTextureResource.image,
+        lImageSubRange,
+        vkpp::DefaultFlags,                         // srcAccessMask = 0: Only valid as initial layout, memory contents are not preserved.
+                                                    //                    Can be accessed directly, no source dependency required.
+        vkpp::AccessFlagBits::eTransferWrite        // dstAccessMask: Transfer destination (copy, blit).
+                                                    //                Make sure any write operation to the image has been finished.
+    );
+
+    // Copy all mip-levels from staging buffer.
+    lCopyCmd.Copy(mTextureResource.image, vkpp::ImageLayout::eTransferDstOptimal, lStagingBufferRes.buffer, lBufferCopyRegions);
+
+    // Transfer texture image layout to shader read after all mip-levels have been copied.
+    TransitionImageLayout<vkpp::ImageLayout::eTransferDstOptimal, vkpp::ImageLayout::eShaderReadOnlyOptimal>
+    (
+        lCopyCmd, mTextureResource.image,
+        lImageSubRange,
+        vkpp::AccessFlagBits::eTransferWrite,       // srcAccessMask: Old layout is transfer destination.
+                                                    //                Make sure any write operation to the destination image has been finished.
+        vkpp::AccessFlagBits::eShaderRead           // dstAccessMask: Shader read, like sampler, input attachment.
+    );
+
     EndOneTimeCmdBuffer(lCopyCmd);
 
-    // Vulkan core support three different compressed texture formats.
-    // As the support differs among implementations, it is needed to check device features and select a proper format and file.
+    lStagingBufferRes.Reset();
+}
 
+
+// In Vulkan, textures are accessed by samplers. This separates all the sampling information from the texture data.
+// This means it is possible to have multiple sampler objects for the same texture with different settings.
+void TexturedPlate::CreateSampler(void)
+{
+    const vkpp::SamplerCreateInfo lSamplerCreateInfo
+    {
+        vkpp::Filter::eLinear,                                      // magFilter
+        vkpp::Filter::eLinear,                                      // minFilter
+        vkpp::SamplerMipmapMode::eLinear,                           // mipmapMode
+        vkpp::SamplerAddressMode::eRepeat,                          // addressModeU
+        vkpp::SamplerAddressMode::eRepeat,                          // addressModeV
+        vkpp::SamplerAddressMode::eRepeat,                          // addressModeW
+        0.0f,                                                       // mipLodBias
+        VK_TRUE,                                                    // anisotropyEnable
+        mPhysicalDeviceProperties.limits.maxSamplerAnisotropy,      // maxAnisotropy
+        VK_FALSE,                                                   // compareEnable,
+        vkpp::CompareOp::eNever,                                    // compareOp
+        0.0f,                                                       // minLoad
+        static_cast<float>(mTexture.mipLevels),                     // maxLoad: Set max level-of-detail to mip-level count of the texture.
+        vkpp::BorderColor::eFloatOpaqueWhite                        // borderColor
+    };
+
+    mTextureSampler = mLogicalDevice.CreateSampler(lSamplerCreateInfo);
+}
+
+
+void TexturedPlate::UpdateDescriptorSet(void)
+{
+    // Setup a descriptor image info for the current texture to be used as a combined image sampler.
+    const vkpp::DescriptorImageInfo lTextureDescriptor
+    {
+        mTextureSampler,                    // Tells the pipeline how to sample the texture, including repeat, border, etc.
+        mTextureResource.view,              // Images are never directly accessed by the shader, but rather through views defining the sub-resources.
+        mTexture.layout                     // The current layout of the image. Note: It should always fit the actual use, e.g. shader read.
+    };
+
+    const vkpp::DescriptorBufferInfo lDescriptorBufferInfo
+    {
+        mUniformBufferRes.buffer,
+        0,
+        sizeof(UniformBufferObject)
+    };
+
+    const std::array<vkpp::WriteDescriptorSetInfo, 2> lWriteDescriptorSets
+    { {
+        // Binding 0: Vertex shader uniform buffer.
+        {
+            mDescriptorSet,
+            0,                                      // dstBindig
+            0,                                      // dstArrayElement
+            vkpp::DescriptorType::eUniformBuffer,
+            lDescriptorBufferInfo
+        },
+        // Binding 1: Fragment shader texture sampler.
+        //            Fragment shader: layout(binding = 1) uniform sampler2D samplerColor;
+        {
+            mDescriptorSet,
+            1,                                              // binding
+            0,                                              // dstArrayElement
+            vkpp::DescriptorType::eCombinedImageSampler,    // The descriptor set will use a combined image sampler (sampler and image could be split).
+            lTextureDescriptor
+        }
+    } };
+
+    mLogicalDevice.UpdateDescriptorSets(lWriteDescriptorSets);
+}
+
+
+void TexturedPlate::CreateVertexBuffer(void)
+{
+    // Setup vertices for a single uv-mapped quad made from two triangles.
+    std::array<VertexData, 4> lVertices
+    { {
+        {{1.0f, 1.0f, 0.0f}, {1.0f, 1.0f}, {0.0f, 0.0f, 1.0f}},
+        {{-1.0f, 1.0f, 0.0f}, {0.0f, 1.0f}, {0.0f, 0.0f, 1.0f}},
+        {{-1.0f, -1.0f, 0.0f}, {0.0f, 0.0f}, {0.0f, 0.0f, 1.0f}},
+        {{1.0f, -1.0f, 0.0f}, {1.0f, 0.0f}, {0.0f, 0.0f, 1.0f}}
+    } };
+
+    const auto lVertexDataSize = sizeof(lVertices);
+
+    const vkpp::BufferCreateInfo lBufferCreateInfo
+    {
+        lVertexDataSize,
+        vkpp::BufferUsageFlagBits::eVertexBuffer
+    };
+
+    mVertexBufferRes.Reset(lBufferCreateInfo, vkpp::MemoryPropertyFlagBits::eHostVisible | vkpp::MemoryPropertyFlagBits::eHostCoherent);
+
+    auto lMappedMem = mLogicalDevice.MapMemory(mVertexBufferRes.memory, 0, lVertexDataSize);
+    std::memcpy(lMappedMem, lVertices.data(), lVertexDataSize);
+    mLogicalDevice.UnmapMemory(mVertexBufferRes.memory);
+}
+
+
+void TexturedPlate::CreateIndexBuffer(void)
+{
+    // Setup indices.
+    constexpr std::array<uint32_t, 6> lIndices
+    {
+        0, 1, 2,
+        0, 2, 3
+    };
+
+    constexpr auto lIndexDataSize = sizeof(lIndices);
+
+    const vkpp::BufferCreateInfo lIndexCreateInfo
+    {
+        lIndexDataSize,
+        vkpp::BufferUsageFlagBits::eIndexBuffer
+    };
+
+    mIndexBufferRes.Reset(lIndexCreateInfo, vkpp::MemoryPropertyFlagBits::eHostVisible | vkpp::MemoryPropertyFlagBits::eHostCoherent);
+
+    auto lMappedMem = mLogicalDevice.MapMemory(mIndexBufferRes.memory, 0, lIndexDataSize);
+    std::memcpy(lMappedMem, lIndices.data(), lIndexDataSize);
+    mLogicalDevice.UnmapMemory(mIndexBufferRes.memory);
+}
+
+
+void TexturedPlate::CreateUniformBuffer(void)
+{
+    constexpr vkpp::BufferCreateInfo lBufferCreateInfo
+    {
+        sizeof(UniformBufferObject),
+        vkpp::BufferUsageFlagBits::eUniformBuffer
+    };
+
+    mUniformBufferRes.Reset(lBufferCreateInfo, vkpp::MemoryPropertyFlagBits::eHostVisible | vkpp::MemoryPropertyFlagBits::eHostCoherent);
+}
+
+
+void TexturedPlate::UpdateUniformBuffer(void)
+{
+    const auto lWidth = static_cast<float>(mSwapchain.extent.width);
+    const auto lHeight = static_cast<float>(mSwapchain.extent.height);
+
+    const glm::vec3 lCameraPos;
+
+    mMVPMatrix.projection = glm::perspective(glm::radians(60.f), lWidth / lHeight, 0.001f, 256.0f);
+
+    const auto& lViewMatrix = glm::translate(glm::mat4(), glm::vec3(0.0f, 0.0f, mCurrentZoomLevel));
+    mMVPMatrix.model = lViewMatrix * glm::translate(glm::mat4(), lCameraPos);
+    mMVPMatrix.model = glm::rotate(mMVPMatrix.model, glm::radians(mCurrentRotation.x), glm::vec3(1.0f, 0.0f, 0.0f));
+    mMVPMatrix.model = glm::rotate(mMVPMatrix.model, glm::radians(mCurrentRotation.y), glm::vec3(0.0f, 1.0f, 0.0f));
+    mMVPMatrix.model = glm::rotate(mMVPMatrix.model, glm::radians(mCurrentRotation.z), glm::vec3(0.0f, 0.0f, 1.0f));
+
+    mMVPMatrix.viewPos = glm::vec4(0.0f, 0.0f, -mCurrentZoomLevel, 0.0f);
+
+    auto lMappedMem = mLogicalDevice.MapMemory(mUniformBufferRes.memory, 0, sizeof(UniformBufferObject));
+    std::memcpy(lMappedMem, &mMVPMatrix, sizeof(UniformBufferObject));
+    mLogicalDevice.UnmapMemory(mUniformBufferRes.memory);
 }
 
 
@@ -473,6 +714,134 @@ void TexturedPlate::EndOneTimeCmdBuffer(const vkpp::CommandBuffer& aCmdBuffer) c
     mLogicalDevice.DestroyFence(lFence);
     mLogicalDevice.FreeCommandBuffer(mCmdPool, aCmdBuffer);
 }
+
+
+// Create an image barrier for changing the layout of an image and put it into an active command buffer.
+template <vkpp::ImageLayout OldLayout, vkpp::ImageLayout NewLayout>
+void TexturedPlate::TransitionImageLayout(const vkpp::CommandBuffer& aCmdBuffer, const vkpp::Image& aImage, const vkpp::ImageSubresourceRange& aImageSubRange,
+    const vkpp::AccessFlags& aSrcAccessMask, const vkpp::AccessFlags& aDstAccessMask)
+{
+    // Create an image barrier object.
+    const vkpp::ImageMemoryBarrier lImageBarrier
+    {
+        aSrcAccessMask, aDstAccessMask,
+        OldLayout, NewLayout,
+        aImage,
+        aImageSubRange
+    };
+
+    // Put barrier inside setup command buffer.
+    // Put barrier on top of pipeline.
+    aCmdBuffer.PipelineBarrier(vkpp::PipelineStageFlagBits::eTopOfPipe, vkpp::PipelineStageFlagBits::eTopOfPipe, vkpp::DependencyFlagBits::eByRegion, { lImageBarrier });
+}
+
+
+void TexturedPlate::CreateSemaphores(void)
+{
+    constexpr vkpp::SemaphoreCreateInfo lSemaphoreCreateInfo;
+
+    mPresentCompleteSemaphore = mLogicalDevice.CreateSemaphore(lSemaphoreCreateInfo);
+    mRenderCompleteSemaphore = mLogicalDevice.CreateSemaphore(lSemaphoreCreateInfo);
+}
+
+
+void TexturedPlate::CreateFences(void)
+{
+    constexpr vkpp::FenceCreateInfo lFenceCreateInfo{ vkpp::FenceCreateFlagBits::eSignaled };
+
+    for (std::size_t lIndex = 0; lIndex < mDrawCmdBuffers.size(); ++lIndex)
+        mWaitFences.emplace_back(mLogicalDevice.CreateFence(lFenceCreateInfo));
+}
+
+
+void TexturedPlate::BuildCommandBuffers(void)
+{
+    constexpr vkpp::CommandBufferBeginInfo lCmdBufferBeginInfo;
+
+    constexpr std::array<vkpp::ClearValue, 2> lClearValues
+    { {
+        { 0.129411f, 0.156862f, 0.188235f, 1.0f },
+        { 1.0f, 0.0f }
+    } };
+
+    for (std::size_t lIndex = 0; lIndex < mDrawCmdBuffers.size(); ++lIndex)
+    {
+        const vkpp::RenderPassBeginInfo lRenderPassBeginInfo
+        {
+            mRenderPass,
+            mFramebuffers[lIndex],
+            {
+                {0, 0},
+                mSwapchain.extent
+            },
+            lClearValues
+        };
+
+        const auto& lDrawCmdBuffer = mDrawCmdBuffers[lIndex];
+
+        lDrawCmdBuffer.Begin(lCmdBufferBeginInfo);
+
+        lDrawCmdBuffer.BeginRenderPass(lRenderPassBeginInfo);
+        lDrawCmdBuffer.BindVertexBuffer(mVertexBufferRes.buffer, 0);
+        lDrawCmdBuffer.BindIndexBuffer(mIndexBufferRes.buffer, 0, vkpp::IndexType::eUInt32);
+
+        const vkpp::Viewport lViewport
+        {
+            0.0f, 0.0f,
+            static_cast<float>(mSwapchain.extent.width), static_cast<float>(mSwapchain.extent.height)
+        };
+
+        lDrawCmdBuffer.SetViewport(lViewport);
+
+        const vkpp::Rect2D lScissor
+        {
+            {0, 0},
+            mSwapchain.extent
+        };
+
+        lDrawCmdBuffer.SetScissor(lScissor);
+
+        lDrawCmdBuffer.BindGraphicsPipeline(mGraphicsPipeline);
+        lDrawCmdBuffer.BindGraphicsDescriptorSet(mPipelineLayout, 0, mDescriptorSet);
+
+        lDrawCmdBuffer.DrawIndexed(6);
+
+        lDrawCmdBuffer.EndRenderPass();
+
+        lDrawCmdBuffer.End();
+    }
+}
+
+
+void TexturedPlate::Update(void)
+{
+    auto lIndex = mLogicalDevice.AcquireNextImage(mSwapchain.handle, mPresentCompleteSemaphore);
+
+    mLogicalDevice.WaitForFence(mWaitFences[lIndex]);
+    mLogicalDevice.ResetFence(mWaitFences[lIndex]);
+
+    constexpr vkpp::PipelineStageFlags lWaitDstStageMask{ vkpp::PipelineStageFlagBits::eColorAttachmentOutput };
+
+    const vkpp::SubmitInfo lSubmitInfo
+    {
+        1, mPresentCompleteSemaphore.AddressOf(),
+        &lWaitDstStageMask,
+        1, mDrawCmdBuffers[lIndex].AddressOf(),
+        1, mRenderCompleteSemaphore.AddressOf()
+    };
+
+    mPresentQueue.handle.Submit(lSubmitInfo, mWaitFences[lIndex]);
+
+    const vkpp::khr::PresentInfo lPresentInfo
+    {
+        1, mRenderCompleteSemaphore.AddressOf(),
+        1, mSwapchain.handle.AddressOf(),
+        &lIndex
+    };
+
+    mPresentQueue.handle.Present(lPresentInfo);
+}
+
 
 
 }                   // End of namespace vkpp::sample.

@@ -319,6 +319,7 @@ void ExampleBase::CreateLogicalDevice(void)
     mEnabledFeatures.wideLines = mPhysicalDeviceFeatures.wideLines;
 
     mEnabledFeatures.textureCompressionBC = mPhysicalDeviceFeatures.textureCompressionBC;
+    mEnabledFeatures.samplerAnisotropy = mPhysicalDeviceFeatures.samplerAnisotropy;
 
     const vkpp::LogicalDeviceCreateInfo lLogicalDeviceCreateInfo
     {

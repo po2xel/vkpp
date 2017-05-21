@@ -427,6 +427,39 @@ public:
             static_cast<uint32_t>(aImageMemoryBarriers.size()), &aImageMemoryBarriers[0]);
     }
 
+    void PipelineBarrier(const PipelineStageFlags& aSrcStageMask, const PipelineStageFlags& aDstStageMask, const DependencyFlags& aDependencyFlags,
+        const std::vector<MemoryBarrier>& aMemoryBarriers) const
+    {
+        assert(!aMemoryBarriers.empty());
+
+        vkCmdPipelineBarrier(mCommandBuffer, aSrcStageMask, aDstStageMask, aDependencyFlags,
+            static_cast<uint32_t>(aMemoryBarriers.size()), &aMemoryBarriers[0],
+            0, nullptr,
+            0, nullptr);
+    }
+
+    void PipelineBarrier(const PipelineStageFlags& aSrcStageMask, const PipelineStageFlags& aDstStageMask, const DependencyFlags& aDependencyFlags,
+        const std::vector<BufferMemoryBarrier>& aBufferMemoryBarriers) const
+    {
+        assert(!aBufferMemoryBarriers.empty());
+
+        vkCmdPipelineBarrier(mCommandBuffer, aSrcStageMask, aDstStageMask, aDependencyFlags,
+            0, nullptr,
+            static_cast<uint32_t>(aBufferMemoryBarriers.size()), &aBufferMemoryBarriers[0],
+            0, nullptr);
+    }
+
+    void PipelineBarrier(const PipelineStageFlags& aSrcStageMask, const PipelineStageFlags& aDstStageMask, const DependencyFlags& aDependencyFlags,
+        const std::vector<ImageMemoryBarrier>& aImageMemoryBarriers) const
+    {
+        assert(!aImageMemoryBarriers.empty());
+
+        vkCmdPipelineBarrier(mCommandBuffer, aSrcStageMask, aDstStageMask, aDependencyFlags,
+            0, nullptr,
+            0, nullptr,
+            static_cast<uint32_t>(aImageMemoryBarriers.size()), &aImageMemoryBarriers[0]);
+    }
+
      void PipelineBarrier(const CommandPipelineBarrier& aCmdPipelineBarrier) const
      {
          vkCmdPipelineBarrier(mCommandBuffer, aCmdPipelineBarrier.srcStageMask, aCmdPipelineBarrier.dstStageMask, aCmdPipelineBarrier.dependencyFlags,
@@ -532,9 +565,9 @@ public:
         vkCmdSetStencilReference(mCommandBuffer, aFaceMask, aReference);
     }
 
-    void BindVertexBuffer(const Buffer& aBuffer, const DeviceSize& aOffset) const
+    void BindVertexBuffer(const Buffer& aBuffer, const DeviceSize& aOffset, uint32_t aFirstBinding = 0) const
     {
-        vkCmdBindVertexBuffers(mCommandBuffer, 0, 1, &aBuffer, &aOffset);
+        vkCmdBindVertexBuffers(mCommandBuffer, aFirstBinding, 1, &aBuffer, &aOffset);
     }
 
     void BindVertexBuffers(uint32_t aFirstBinding, uint32_t aBindingCount, const Buffer* apBuffers, const DeviceSize* apOffsets) const

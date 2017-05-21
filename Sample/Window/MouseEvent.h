@@ -24,16 +24,16 @@ public:
 
     enum Button
     {
-        LEFT = SDL_BUTTON_LEFT,
-        RRIGHT = SDL_BUTTON_RIGHT,
-        MIDDLE = SDL_BUTTON_MIDDLE
+        eLeft       = SDL_BUTTON_LEFT,
+        eRight      = SDL_BUTTON_RIGHT,
+        eMiddle     = SDL_BUTTON_MIDDLE
     };
 
     enum ButtonMask
     {
-        LMASK = SDL_BUTTON_LMASK,
-        RMASK = SDL_BUTTON_RMASK,
-        MMASK = SDL_BUTTON_MMASK
+        eLMask       = SDL_BUTTON_LMASK,
+        eRMask       = SDL_BUTTON_RMASK,
+        eMMask       = SDL_BUTTON_MMASK
     };
 };
 

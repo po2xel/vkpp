@@ -5,6 +5,7 @@
 
 #include <Base/ExampleBase.h>
 #include <Window/WindowEvent.h>
+#include <Window/MouseEvent.h>
 
 #define GLM_FORCE_RADIANS
 #define GLM_FORCE_DEPTH_ZERO_TO_ONE
@@ -22,7 +23,7 @@ namespace vkpp::sample
 struct VertexData
 {
     glm::vec3 inPos;
-    glm::vec3 inUV;
+    glm::vec2 inUV;
     glm::vec3 inNormal;
 
     constexpr static decltype(auto) GetAttributeDescriptions(void)
@@ -40,7 +41,7 @@ struct VertexData
             {
                 1,                          // location
                 0,                          // binding
-                vkpp::Format::eRGB32sFloat, // format,
+                vkpp::Format::eRG32sFloat,  // format,
                 offsetof(VertexData, inUV)  // offset
             },
             // Location 2: Normal
@@ -66,13 +67,26 @@ struct VertexData
 };
 
 
-class TexturedPlate : public ExampleBase, private CWindowEvent
+
+struct UniformBufferObject
+{
+    glm::mat4 projection;
+    glm::mat4 model;
+    glm::vec4 viewPos;
+    float lodBias = 0.0f;
+};
+
+
+
+class TexturedPlate : public ExampleBase, private CWindowEvent, private CMouseWheelEvent, private CMouseMotionEvent
 {
 private:
+    constexpr static float MINIMUM_ZOOM_LEVEL = 0.05f;
+
     struct Texture
     {
         vkpp::Sampler sampler;
-        vkpp::ImageLayout layout;
+        vkpp::ImageLayout layout{ vkpp::ImageLayout::eShaderReadOnlyOptimal };
 
         uint32_t width{ 0 }, height{ 0 }, mipLevels{ 0 };
     };
@@ -93,6 +107,20 @@ private:
 
     Texture mTexture;
     ImageResource mTextureResource;
+    vkpp::Sampler mTextureSampler;
+
+    BufferResource mVertexBufferRes;
+    BufferResource mIndexBufferRes;
+    BufferResource mUniformBufferRes;
+
+    UniformBufferObject mMVPMatrix;
+
+    vkpp::Semaphore mRenderCompleteSemaphore;
+    vkpp::Semaphore mPresentCompleteSemaphore;
+    std::vector<vkpp::Fence> mWaitFences;
+
+    float mCurrentZoomLevel{ -2.5f };
+    glm::vec3 mCurrentRotation{ 0.0f, 15.0f, 0.0f };
 
     void CreateCmdPool(void);
     void AllocateCmdBuffers(void);
@@ -107,12 +135,27 @@ private:
 
     void CreateDescriptorPool(void);
     void AllocateDescriptorSet(void);
-    void UpdateImageDescriptorSet(void);
 
     void LoadTexture(const std::string& aFilename, vkpp::Format mTexFormat);
+    void CreateSampler(void);
+    void UpdateDescriptorSet(void);
+
+    void CreateVertexBuffer(void);
+    void CreateIndexBuffer(void);
+    void CreateUniformBuffer(void);
+    void UpdateUniformBuffer(void);
 
     vkpp::CommandBuffer BeginOneTimeCmdBuffer(void) const;
     void EndOneTimeCmdBuffer(const vkpp::CommandBuffer& aCmdBuffer) const;
+
+    template <vkpp::ImageLayout OldLayout, vkpp::ImageLayout NewLayout>
+    static void TransitionImageLayout(const vkpp::CommandBuffer& aCmdBuffer, const vkpp::Image& aImage, const vkpp::ImageSubresourceRange& aImageSubRange,
+        const vkpp::AccessFlags& aSrcAccessMask, const vkpp::AccessFlags& aDstAccessMask);
+
+    void BuildCommandBuffers(void);
+    void CreateSemaphores(void);
+    void CreateFences(void);
+    void Update(void);
 
 public:
     TexturedPlate(CWindow& aWindow, const char* apApplicationName, uint32_t aApplicationVersion, const char* apEngineName = nullptr, uint32_t aEngineVersion = 0);

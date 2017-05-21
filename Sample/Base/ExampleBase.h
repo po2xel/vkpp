@@ -88,14 +88,23 @@ struct BufferResource : public DeviceResource
     {
         assert(device);
 
-        device.DestroyBufferView(view);
-        view = nullptr;
+        if (view)
+        {
+            device.DestroyBufferView(view);
+            view = nullptr;
+        }
 
-        device.FreeMemory(memory);
-        memory = nullptr;
+        if (memory)
+        {
+            device.FreeMemory(memory);
+            memory = nullptr;
+        }
 
-        device.DestroyBuffer(buffer);
-        buffer = nullptr;
+        if (buffer)
+        {
+            device.DestroyBuffer(buffer);
+            buffer = nullptr;
+        }
     }
 
     void Reset(const vkpp::BufferCreateInfo& aBufferCreateInfo, const vkpp::MemoryPropertyFlags& aMemProperties)
@@ -148,14 +157,23 @@ struct ImageResource : public DeviceResource
     {
         assert(device);
 
-        device.DestroyImageView(view);
-        view = nullptr;
+        if (view)
+        {
+            device.DestroyImageView(view);
+            view = nullptr;
+        }
 
-        device.FreeMemory(memory);
-        memory = nullptr;        
+        if (memory)
+        {
+            device.FreeMemory(memory);
+            memory = nullptr;
+        }
 
-        device.DestroyImage(image);
-        image = nullptr;
+        if (image)
+        {
+            device.DestroyImage(image);
+            image = nullptr;
+        }
     }
 
     void Reset(const vkpp::ImageCreateInfo& aImageCreateInfo, vkpp::ImageViewCreateInfo& aImageViewCreateInfo, const vkpp::MemoryPropertyFlags& aMemProperties)
