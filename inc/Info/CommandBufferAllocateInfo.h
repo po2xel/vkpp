@@ -33,7 +33,7 @@ public:
 
     DEFINE_CLASS_MEMBER(CommandBufferAllocateInfo)
 
-    constexpr CommandBufferAllocateInfo(const CommandPool& aCommandPool, uint32_t aCommandBufferCount, CommandBufferLevel aLevel = CommandBufferLevel::ePrimary) noexcept
+    CommandBufferAllocateInfo(const CommandPool& aCommandPool, uint32_t aCommandBufferCount, CommandBufferLevel aLevel = CommandBufferLevel::ePrimary) noexcept
         : commandPool(aCommandPool), level(aLevel), commandBufferCount(aCommandBufferCount)
     {}
 

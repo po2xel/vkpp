@@ -14,7 +14,7 @@ namespace vkpp
 
 
 
-enum DescriptorPoolResetFlagBits
+enum class DescriptorPoolResetFlagBits
 {};
 
 VKPP_ENUM_BIT_MASK_FLAGS(DescriptorPoolReset)

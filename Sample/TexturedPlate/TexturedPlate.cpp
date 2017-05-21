@@ -624,10 +624,10 @@ void TexturedPlate::CreateVertexBuffer(void)
     // Setup vertices for a single uv-mapped quad made from two triangles.
     std::array<VertexData, 4> lVertices
     { {
-        {{1.0f, 1.0f, 0.0f}, {1.0f, 1.0f}, {0.0f, 0.0f, 1.0f}},
-        {{-1.0f, 1.0f, 0.0f}, {0.0f, 1.0f}, {0.0f, 0.0f, 1.0f}},
+        {{1.0f, 1.0f, 0.0f}, {2.0f, 2.0f}, {0.0f, 0.0f, 1.0f}},
+        {{-1.0f, 1.0f, 0.0f}, {0.0f, 2.0f}, {0.0f, 0.0f, 1.0f}},
         {{-1.0f, -1.0f, 0.0f}, {0.0f, 0.0f}, {0.0f, 0.0f, 1.0f}},
-        {{1.0f, -1.0f, 0.0f}, {1.0f, 0.0f}, {0.0f, 0.0f, 1.0f}}
+        {{1.0f, -1.0f, 0.0f}, {2.0f, 0.0f}, {0.0f, 0.0f, 1.0f}}
     } };
 
     const auto lVertexDataSize = sizeof(lVertices);
@@ -651,8 +651,8 @@ void TexturedPlate::CreateIndexBuffer(void)
     // Setup indices.
     constexpr std::array<uint32_t, 6> lIndices
     {
-        0, 1, 2,
-        0, 2, 3
+        0, 3, 2,
+        0, 2, 1
     };
 
     constexpr auto lIndexDataSize = sizeof(lIndices);

@@ -34,7 +34,7 @@ Three different pipeline state objects are used here for rendering the same scen
 ### [Textured Plate](Sample/TexturedPlate/)
 <img src="./Sample/TexturedPlate/TexturedPlate.png" height="108px" align="right">
 
-Texture data, including all mip-levels, is mapped to host visible memory (staing buffer) before it is transferred to device local image memory.
+Texture data, including all mip-levels, is mapped to host visible memory (staging buffer) before it is transferred to device local optimal image memory.
 
 ## Credits
 Thanks to the authors of these libraries:

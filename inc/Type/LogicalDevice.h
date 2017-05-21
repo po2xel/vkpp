@@ -3,6 +3,8 @@
 
 
 
+#include <algorithm>
+
 #include <Info/Common.h>
 #include <Info/CommandBufferAllocateInfo.h>
 #include <Info/PipelineStage.h>
@@ -679,9 +681,38 @@ public:
     }
 
     template <typename T = DefaultAllocationCallbacks>
+    std::vector<Framebuffer> CreateFramebuffers(const std::vector<FramebufferCreateInfo>& aFramebufferCreateInfos, const T& aAllocator = DefaultAllocator) const
+    {
+        std::vector<Framebuffer> lFramebuffers;
+
+        for (auto& lFramebufferCreateInfo : aFramebufferCreateInfos)
+            lFramebuffers.emplace_back(CreateFramebuffer(lFramebufferCreateInfo, aAllocator));
+
+        return lFramebuffers;
+    }
+
+    template <std::size_t N, typename T = DefaultAllocationCallbacks>
+    std::array<Framebuffer, N> CreateFramebuffers(const std::array<FramebufferCreateInfo, N>& aFramebufferCreateInfos, const T& aAllocator = DefaultAllocator) const
+    {
+        std::array<Framebuffer, N> lFramebuffers;
+
+        for (std::size_t lIndex = 0; lIndex < aFramebufferCreateInfos.size(); ++lIndex)
+            lFramebuffers[lIndex] = CreateFramebuffer(aFramebufferCreateInfos[lIndex], aAllocator);
+
+        return lFramebuffers;
+    }
+
+    template <typename T = DefaultAllocationCallbacks>
     void DestroyFramebuffer(const Framebuffer& aFramebuffer, const T& aAllocator = DefaultAllocator) const
     {
         vkDestroyFramebuffer(mDevice, aFramebuffer, &aAllocator);
+    }
+
+    template <typename C, typename T = DefaultAllocationCallbacks, typename = EnableIfValueType<ValueType<C>, Framebuffer>>
+    void DestroyFramebuffers(C&& aFramebuffers, const T& aAllocator = DefaultAllocator) const
+    {
+        for (auto& lFramebuffer : aFramebuffers)
+            vkDestroyFramebuffer(mDevice, lFramebuffer, &aAllocator);
     }
 
     template <typename T = DefaultAllocationCallbacks>

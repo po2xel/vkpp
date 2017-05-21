@@ -96,6 +96,16 @@ public:
 
         return *this;
     }
+
+    FramebufferCreateInfo& SetDimension(const Extent2D& aExtent)
+    {
+        return SetDimension(aExtent.width, aExtent.height);
+    }
+
+    FramebufferCreateInfo& SetDimension(const Extent3D& aExtent)
+    {
+        return SetDimension(aExtent.width, aExtent.height, aExtent.depth);
+    }
 };
 
 StaticSizeCheck(FramebufferCreateInfo);
