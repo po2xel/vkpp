@@ -14,7 +14,7 @@ Coming soon.
 Coming soon.
 
 ## Examples
-The examples are used to verify and demonstrate the correctness efficiency and effectiveness of vkpp.<br/>
+The examples are used to verify and demonstrate the correctness, efficiency and effectiveness of vkpp.<br/>
 They are also used as baselines to prevent regressions.<br/>
 
 ***Note: The examples below are originally created by [SaschaWillems](https://github.com/SaschaWillems/Vulkan). I rewrite some of the examples in order to verify vkpp's correctness, efficiency and effectiveness.***
@@ -36,7 +36,7 @@ Three different pipeline state objects are used here for rendering the same scen
 
 Texture data, including all mip-levels, is mapped to host visible memory (staging buffer) before it is transferred to device local optimal image memory.
 
-### [Textured Cube Plate](Sample/TexturedCube/)
+### [Textured Cube](Sample/TexturedCube/)
 <img src="./Sample/TexturedCube/TexturedCube.png" height="108px" align="right">
 
 A cube map is a special type of image that allows groups of six layers of an array image to be interpreted as the side of a cube. The faces are ofter noted as the -X, +X, -Y, +Y, -Z and +Z faces. These are the six faces of a cube map and a group of six consecutive array layers can be interpreted in that order.
