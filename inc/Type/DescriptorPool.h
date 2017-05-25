@@ -64,7 +64,7 @@ public:
     {}
 
     template <typename D, typename = EnableIfValueType<ValueType<D>, DescriptorPoolSize>>
-    DescriptorPoolCreateInfo(D&& aPoolSizes, uint32_t aMaxSets, const DescriptorPoolCreateFlags& aFlags = DefaultFlags) noexcept
+    constexpr DescriptorPoolCreateInfo(D&& aPoolSizes, uint32_t aMaxSets, const DescriptorPoolCreateFlags& aFlags = DefaultFlags) noexcept
         : DescriptorPoolCreateInfo(static_cast<uint32_t>(aPoolSizes.size()), aPoolSizes.data(), aMaxSets, aFlags)
     {
         StaticLValueRefAssert(D, aPoolSizes);

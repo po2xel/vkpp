@@ -316,6 +316,13 @@ public:
         vkDestroyFence(mDevice, aFence, &aAllocator);
     }
 
+    template <typename C, typename T = DefaultAllocationCallbacks>
+    void DestroyFences(C&& aFences, const T& aAllocator = DefaultAllocator) const
+    {
+        for (auto& lFence : aFences)
+            vkDestroyFence(mDevice, lFence, &aAllocator);
+    }
+
     VkResult GetFenceStatus(const Fence& aFence) const
     {
         return vkGetFenceStatus(mDevice, aFence);

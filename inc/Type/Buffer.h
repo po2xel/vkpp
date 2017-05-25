@@ -68,14 +68,14 @@ public:
         : flags(aFlags), size(aSize), usage(aUsage)
     {}
 
-    BufferCreateInfo(DeviceSize aSize, const BufferUsageFlags& aUsage, uint32_t aQueueFamilyIndexCount, const uint32_t* apQueueFamilyIndices, const BufferCreateFlags& aFlags = DefaultFlags) noexcept
+    constexpr BufferCreateInfo(DeviceSize aSize, const BufferUsageFlags& aUsage, uint32_t aQueueFamilyIndexCount, const uint32_t* apQueueFamilyIndices, const BufferCreateFlags& aFlags = DefaultFlags) noexcept
         : flags(aFlags), size(aSize), usage(aUsage), sharingMode(SharingMode::eConcurrent), queueFamilyIndexCount(aQueueFamilyIndexCount), pQueueFamilyIndices(apQueueFamilyIndices)
     {
         assert(aQueueFamilyIndexCount != 0 && apQueueFamilyIndices != nullptr);
     }
 
     template <typename Q, typename = EnableIfValueType<ValueType<Q>, uint32_t>>
-    BufferCreateInfo(DeviceSize aSize, const BufferUsageFlags& aUsage, Q&& aQueueFamilyIndices, const BufferCreateFlags& aFlags = DefaultFlags) noexcept
+    constexpr BufferCreateInfo(DeviceSize aSize, const BufferUsageFlags& aUsage, Q&& aQueueFamilyIndices, const BufferCreateFlags& aFlags = DefaultFlags) noexcept
         : BufferCreateInfo(aSize, aUsage, static_cast<uint32_t>(aQueueFamilyIndices.size()), aQueueFamilyIndices.data(), aFlags)
     {
         StaticLValueRefAssert(Q, aQueueFamilyIndices);

@@ -73,7 +73,7 @@ struct UniformBufferObject
     glm::mat4 projection;
     glm::mat4 model;
     glm::vec4 viewPos;
-    float lodBias = 0.0f;
+    float lodBias{ 0.0f };
 };
 
 

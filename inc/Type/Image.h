@@ -83,7 +83,7 @@ public:
     ImageCreateFlags        flags;
     ImageType               imageType{ ImageType::e2D };
     Format                  format{ Format::eUndefined };
-    Extent3D                extent;
+    Extent3D                extent;                                         // extent describes the number of data elements in each dimension of the `base level`.
     uint32_t                mipLevels{ 0 };
     uint32_t                arrayLayers{ 0 };
     SampleCountFlagBits     samples{ SampleCountFlagBits::e1 };
@@ -537,7 +537,7 @@ struct ImageSubresourceRange : public internal::VkTrait<ImageSubresourceRange, V
 
     DEFINE_CLASS_MEMBER(ImageSubresourceRange)
 
-    constexpr ImageSubresourceRange(ImageAspectFlags aAspectMask, uint32_t aBaseMipLevel, uint32_t aLevelCount, uint32_t aBaseArrayLayer, uint32_t aLayerCount) noexcept
+    constexpr ImageSubresourceRange(ImageAspectFlags aAspectMask, uint32_t aBaseMipLevel, uint32_t aLevelCount, uint32_t aBaseArrayLayer = 0, uint32_t aLayerCount = 1) noexcept
         : aspectMask(aAspectMask), baseMipLevel(aBaseMipLevel), levelCount(aLevelCount), baseArrayLayer(aBaseArrayLayer), layerCount(aLayerCount)
     {}
 

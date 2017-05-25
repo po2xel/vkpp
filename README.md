@@ -36,6 +36,13 @@ Three different pipeline state objects are used here for rendering the same scen
 
 Texture data, including all mip-levels, is mapped to host visible memory (staging buffer) before it is transferred to device local optimal image memory.
 
+### [Textured Cube Plate](Sample/TexturedCube/)
+<img src="./Sample/TexturedCube/TexturedCube.png" height="108px" align="right">
+
+A cube map is a special type of image that allows groups of six layers of an array image to be interpreted as the side of a cube. The faces are ofter noted as the -X, +X, -Y, +Y, -Z and +Z faces. These are the six faces of a cube map and a group of six consecutive array layers can be interpreted in that order.
+
+Note that the number of layers in the array doesn't have to be a multiple of 6, but it has to be at least 6.
+
 ## Credits
 Thanks to the authors of these libraries:
  - [Examples and demos for the new Vulkan API](https://github.com/SaschaWillems/Vulkan)

@@ -229,17 +229,39 @@ public:
     DEFINE_CLASS_MEMBER(PipelineVertexInputStateCreateInfo)
 
     constexpr PipelineVertexInputStateCreateInfo(uint32_t aVertexBindingDescriptionCount, const VertexInputBindingDescription* apVertexBindingDescriptions,
-        uint32_t aVertexAttributeDescriptionCount, const VertexInputAttributeDescription* apVertexAttributeDescriptions, const PipelineVertexInputStateCreateFlags& aFlags = DefaultFlags) noexcept
+        uint32_t aVertexAttributeDescriptionCount = 0, const VertexInputAttributeDescription* apVertexAttributeDescriptions = nullptr,
+        const PipelineVertexInputStateCreateFlags& aFlags = DefaultFlags) noexcept
         : flags(aFlags), vertexBindingDescriptionCount(aVertexBindingDescriptionCount), pVertexBindingDescriptions(apVertexBindingDescriptions),
           vertexAttributeDescriptionCount(aVertexAttributeDescriptionCount), pVertexAttributeDescriptions(apVertexAttributeDescriptions)
     {}
 
     template <typename B, typename A, typename = EnableIfValueType<ValueType<B>, VertexInputBindingDescription, ValueType<A>, VertexInputAttributeDescription>>
-    PipelineVertexInputStateCreateInfo(B&& aVertexBindingDescriptions, A&& aVertexAttributeDescriptions, const PipelineVertexInputStateCreateFlags& aFlags = DefaultFlags) noexcept
+    constexpr PipelineVertexInputStateCreateInfo(B&& aVertexBindingDescriptions, A&& aVertexAttributeDescriptions,
+        const PipelineVertexInputStateCreateFlags& aFlags = DefaultFlags) noexcept
         : PipelineVertexInputStateCreateInfo(static_cast<uint32_t>(aVertexBindingDescriptions.size()), aVertexBindingDescriptions.data(),
           static_cast<uint32_t>(aVertexAttributeDescriptions.size()), aVertexAttributeDescriptions.data(), aFlags)
     {
         StaticLValueRefAssert(B, aVertexBindingDescriptions);
+        StaticLValueRefAssert(A, aVertexAttributeDescriptions);
+    }
+
+    template <typename B, typename = EnableIfValueType<ValueType<B>, VertexInputBindingDescription>>
+    explicit constexpr PipelineVertexInputStateCreateInfo(B&& aVertexBindingDescriptions,
+        uint32_t aVertexAttributeDescriptionCount = 0,const VertexInputAttributeDescription* apVertexAttributeDescriptions = nullptr,
+        const PipelineVertexInputStateCreateFlags& aFlags = DefaultFlags) noexcept
+        : PipelineVertexInputStateCreateInfo(static_cast<uint32_t>(aVertexBindingDescriptions.size()), aVertexBindingDescriptions.data(),
+            aVertexAttributeDescriptionCount, apVertexAttributeDescriptions, aFlags)
+    {
+        StaticLValueRefAssert(B, aVertexBindingDescriptions);
+    }
+
+    template <typename A, typename = EnableIfValueType<ValueType<A>, VertexInputAttributeDescription>>
+    explicit constexpr PipelineVertexInputStateCreateInfo(A&& aVertexAttributeDescriptions,
+        uint32_t aVertexBindingDescriptionCount = 0, const VertexInputBindingDescription* apVertexBindingDescriptions = nullptr,
+        const PipelineVertexInputStateCreateFlags& aFlags = DefaultFlags) noexcept
+        : PipelineVertexInputStateCreateInfo(aVertexBindingDescriptionCount, apVertexBindingDescriptions,
+            static_cast<uint32_t>(aVertexAttributeDescriptions.size()), aVertexAttributeDescriptions.data(), aFlags)
+    {
         StaticLValueRefAssert(A, aVertexAttributeDescriptions);
     }
 
@@ -430,16 +452,30 @@ public:
         : flags(aFlags), viewportCount(aViewportCount), scissorCount(aScissorCount)
     {}
 
-    PipelineViewportStateCreateInfo(uint32_t aViewportCount, const Viewport* apViewports, uint32_t aScissorCount = 0, const Rect2D* apScissors = nullptr,
+    constexpr PipelineViewportStateCreateInfo(uint32_t aViewportCount, const Viewport* apViewports, uint32_t aScissorCount = 0, const Rect2D* apScissors = nullptr,
         const PipelineViewportStateCreateFlags& aFlags = DefaultFlags) noexcept
         : flags(aFlags), viewportCount(aViewportCount), pViewports(apViewports), scissorCount(aScissorCount), pScissors(apScissors)
     {}
 
     template <typename V, typename S, typename = EnableIfValueType<ValueType<V>, Viewport, ValueType<S>, Rect2D>>
-    PipelineViewportStateCreateInfo(V&& aViewports, S&& aScissors, const PipelineViewportStateCreateFlags& aFlags = DefaultFlags) noexcept
+    constexpr PipelineViewportStateCreateInfo(V&& aViewports, S&& aScissors, const PipelineViewportStateCreateFlags& aFlags = DefaultFlags) noexcept
         : PipelineViewportStateCreateInfo(static_cast<uint32_t>(aViewports.size()), aViewports.data(), static_cast<uint32_t>(aScissors.size()), aScissors.data(), aFlags)
     {
         StaticLValueRefAssert(V, aViewports);
+        StaticLValueRefAssert(S, aScissors);
+    }
+
+    template <typename V, typename = EnableIfValueType<ValueType<V>, Viewport>>
+    explicit constexpr PipelineViewportStateCreateInfo(V&& aViewports, uint32_t aScissorCount = 0, const Rect2D* apScissors = nullptr, const PipelineViewportStateCreateFlags& aFlags = DefaultFlags) noexcept
+        : PipelineViewportStateCreateInfo(static_cast<uint32_t>(aViewports.size()), aViewports.data(), aScissorCount, apScissors, aFlags)
+    {
+        StaticLValueRefAssert(V, aViewports);
+    }
+
+    template <typename S, typename = EnableIfValueType<ValueType<S>, Rect2D>>
+    explicit constexpr PipelineViewportStateCreateInfo(S&& aScissors, uint32_t aViewportCount = 0, const Viewport* apViewports = nullptr, const PipelineViewportStateCreateFlags& aFlags = DefaultFlags) noexcept
+        : PipelineViewportStateCreateInfo(aViewportCount, apViewports, static_cast<uint32_t>(aScissors.size()), aScissors.data(), aFlags)
+    {
         StaticLValueRefAssert(S, aScissors);
     }
 
@@ -541,7 +577,7 @@ public:
     Bool32                                  depthClampEnable{ VK_FALSE };
     Bool32                                  rasterizerDiscardEnable{ VK_FALSE };
     PolygonMode                             polygonMode{ PolygonMode::eFill };
-    CullModeFlags                           cullMode;
+    CullModeFlags                           cullMode{ CullModeFlagBits::eNone };
     FrontFace                               frontFace{ FrontFace::eCounterClockwise };
     Bool32                                  depthBiasEnable{ VK_FALSE };
     float                                   depthBiasConstantFactor{ 0 };
@@ -557,6 +593,11 @@ public:
         depthBiasEnable(aDepthBiasEnable), depthBiasConstantFactor(aDepthBiasConstantFactor), depthBiasClamp(aDepthBiasClamp), depthBiasSlopeFactor(aDepthBiasSlopeFactor), lineWidth(aLineWidth)
     {}
 
+    constexpr PipelineRasterizationStateCreateInfo(PolygonMode aPolygonMode, const CullModeFlags& aCullMode, FrontFace aFrontFace, float aLineWidth = 1.0f,
+        const PipelineRasterizationStateCreateFlags& aFlags = DefaultFlags) noexcept
+        : flags(aFlags), polygonMode(aPolygonMode), cullMode(aCullMode), frontFace(aFrontFace), lineWidth(aLineWidth)
+    {}
+
     PipelineRasterizationStateCreateInfo& SetNext(const void* apNext)
     {
         pNext = apNext;
@@ -567,6 +608,79 @@ public:
     PipelineRasterizationStateCreateInfo& SetFlags(const PipelineRasterizationStateCreateFlags& aFlags)
     {
         flags = aFlags;
+
+        return *this;
+    }
+
+    PipelineRasterizationStateCreateInfo& EnableDepthClamp(void)
+    {
+        depthClampEnable    = VK_TRUE;
+
+        return *this;
+    }
+
+    PipelineRasterizationStateCreateInfo& DisableDepthClamp(void)
+    {
+        depthClampEnable    = VK_FALSE;
+
+        return *this;
+    }
+
+    PipelineRasterizationStateCreateInfo& EnableRasterizerDiscard(void)
+    {
+        rasterizerDiscardEnable = VK_TRUE;
+
+        return *this;
+    }
+
+    PipelineRasterizationStateCreateInfo& DisableRasterizerDiscard(void)
+    {
+        rasterizerDiscardEnable = VK_FALSE;
+
+        return *this;
+    }
+
+    PipelineRasterizationStateCreateInfo& SetPolygonMode(PolygonMode aPolygonMode)
+    {
+        polygonMode = aPolygonMode;
+
+        return *this;
+    }
+
+    PipelineRasterizationStateCreateInfo& SetCullMode(const CullModeFlags& aCullMode)
+    {
+        cullMode    = aCullMode;
+
+        return *this;
+    }
+
+    PipelineRasterizationStateCreateInfo& SetFrontFace(FrontFace aFrontFace)
+    {
+        frontFace   = aFrontFace;
+
+        return *this;
+    }
+
+    PipelineRasterizationStateCreateInfo& EnableDepthBias(float aDepthBiasConstantFactor, float aDepthBiasClamp, float aDepthBiasSlopeFactor)
+    {
+        depthBiasEnable             = VK_TRUE;
+        depthBiasConstantFactor     = aDepthBiasConstantFactor;
+        depthBiasClamp              = aDepthBiasClamp;
+        depthBiasSlopeFactor        = aDepthBiasSlopeFactor;
+
+        return *this;
+    }
+
+    PipelineRasterizationStateCreateInfo& DisableDepthBias(void)
+    {
+        depthBiasEnable    = VK_FALSE;
+
+        return *this;
+    }
+
+    PipelineRasterizationStateCreateInfo& SetLineWidth(float aLineWidth)
+    {
+        lineWidth   = aLineWidth;
 
         return *this;
     }
@@ -722,16 +836,25 @@ public:
     Bool32                                  stencilTestEnable{ VK_FALSE };
     StencilOpState                          front;
     StencilOpState                          back;
-    float                                   minDepthBounds{ 0 };
-    float                                   maxDepthBounds{ 0 };
+    float                                   minDepthBounds{ 0.0f };
+    float                                   maxDepthBounds{ 1.0f };
 
     DEFINE_CLASS_MEMBER(PipelineDepthStencilStateCreateInfo)
 
     constexpr PipelineDepthStencilStateCreateInfo(Bool32 aDepthTestEnable, Bool32 aDepthWriteEnable, CompareOp aDepthCompareOp, Bool32 aDepthBoundsTestEnable,
-        Bool32 aStencilTestEnable, const StencilOpState& aFront, const StencilOpState& aBack, float aMinDepthBounds = 0.0f, float aMaxDepthBounds = 1.0f,
+        Bool32 aStencilTestEnable, const StencilOpState& aFront, const StencilOpState& aBack, float aMinDepthBounds, float aMaxDepthBounds,
         const PipelineDepthStencilStateCreateFlags& aFlags = DefaultFlags) noexcept
         : flags(aFlags), depthTestEnable(aDepthTestEnable), depthWriteEnable(aDepthWriteEnable), depthCompareOp(aDepthCompareOp), depthBoundsTestEnable(aDepthBoundsTestEnable),
           stencilTestEnable(aStencilTestEnable), front(aFront), back(aBack), minDepthBounds(aMinDepthBounds), maxDepthBounds(aMaxDepthBounds)
+    {
+        assert(aMinDepthBounds >= 0.0f && aMinDepthBounds <= 1.0f);
+        assert(aMaxDepthBounds >= 0.0f && aMaxDepthBounds <= 1.0f);
+    }
+
+    constexpr PipelineDepthStencilStateCreateInfo(Bool32 aDepthTestEnable, Bool32 aDepthWriteEnable, CompareOp aDepthCompareOp, Bool32 aDepthBoundsTestEnable,
+        Bool32 aStencilTestEnable, const StencilOpState& aFront, const StencilOpState& aBack, const PipelineDepthStencilStateCreateFlags& aFlags = DefaultFlags) noexcept
+        : flags(aFlags), depthTestEnable(aDepthTestEnable), depthWriteEnable(aDepthWriteEnable), depthCompareOp(aDepthCompareOp), depthBoundsTestEnable(aDepthBoundsTestEnable),
+        stencilTestEnable(aStencilTestEnable), front(aFront), back(aBack)
     {}
 
     constexpr PipelineDepthStencilStateCreateInfo(Bool32 aDepthTestEnable, Bool32 aDepthWriteEnable, CompareOp aDepthCompareOp,
@@ -744,9 +867,16 @@ public:
         : flags(aFlags), stencilTestEnable(aStencilTestEnable), front(aFront), back(aBack)
     {}
 
-    explicit constexpr PipelineDepthStencilStateCreateInfo(Bool32 aDepthBoundsTestEnable, float aMinDepthBounds = 0.0f, float aMaxDepthBounds = 1.0f,
+    explicit constexpr PipelineDepthStencilStateCreateInfo(Bool32 aDepthBoundsTestEnable, float aMinDepthBounds, float aMaxDepthBounds,
         const PipelineDepthStencilStateCreateFlags& aFlags = DefaultFlags) noexcept
         : flags(aFlags), depthBoundsTestEnable(aDepthBoundsTestEnable), minDepthBounds(aMinDepthBounds), maxDepthBounds(aMaxDepthBounds)
+    {
+        assert(aMinDepthBounds >= 0.0f && aMinDepthBounds <= 1.0f);
+        assert(aMaxDepthBounds >= 0.0f && aMaxDepthBounds <= 1.0f);
+    }
+
+    explicit constexpr PipelineDepthStencilStateCreateInfo(Bool32 aDepthBoundsTestEnable, const PipelineDepthStencilStateCreateFlags& aFlags = DefaultFlags) noexcept
+        : flags(aFlags), depthBoundsTestEnable(aDepthBoundsTestEnable)
     {}
 
     PipelineDepthStencilStateCreateInfo& SetNext(const void* apNext)
@@ -763,29 +893,64 @@ public:
         return *this;
     }
 
-    PipelineDepthStencilStateCreateInfo& SetDepthTest(Bool32 aDepthTestEnable, Bool32 aDepthWriteEnable, CompareOp aDepthCompareOp)
+    PipelineDepthStencilStateCreateInfo& EnableDepthTestOnly(CompareOp aDepthCompareOp)
     {
-        depthTestEnable     = aDepthTestEnable;
-        depthWriteEnable    = aDepthWriteEnable;
+        depthTestEnable     = VK_TRUE;
+        depthWriteEnable    = VK_FALSE;
         depthCompareOp      = aDepthCompareOp;
 
         return *this;
     }
 
-    PipelineDepthStencilStateCreateInfo& SetStencilTest(Bool32 aStencilTestEnable, const StencilOpState& aFront, const StencilOpState& aBack)
+    PipelineDepthStencilStateCreateInfo& EnableDepthTest(CompareOp aDepthCompareOp)
     {
-        stencilTestEnable   = aStencilTestEnable;
+        depthTestEnable     = VK_TRUE;
+        depthWriteEnable    = VK_TRUE;
+        depthCompareOp      = aDepthCompareOp;
+
+        return *this;
+    }
+
+    PipelineDepthStencilStateCreateInfo& DisableDepthTest(void)
+    {
+        depthTestEnable     = VK_FALSE;
+        depthWriteEnable    = VK_FALSE;
+        depthCompareOp      = CompareOp::eNever;
+
+        return *this;
+    }
+
+    PipelineDepthStencilStateCreateInfo& EnableStencilTest(const StencilOpState& aFront, const StencilOpState& aBack)
+    {
+        stencilTestEnable   = VK_TRUE;
         front               = aFront;
         back                = aBack;
 
         return *this;
     }
 
-    PipelineDepthStencilStateCreateInfo& SetDepthBounds(Bool32 aDepthBoundsTestEnable, float aMinDepthBounds, float aMaxDepthBounds)
+    PipelineDepthStencilStateCreateInfo& DisableStencilTest(void)
     {
-        depthBoundsTestEnable   = aDepthBoundsTestEnable;
+        stencilTestEnable   = VK_FALSE;
+
+        return *this;
+    }
+    
+    PipelineDepthStencilStateCreateInfo& EnableDepthBounds(float aMinDepthBounds, float aMaxDepthBounds)
+    {
+        assert(aMinDepthBounds >= 0.0f && aMinDepthBounds <= 1.0f);
+        assert(aMaxDepthBounds >= 0.0f && aMaxDepthBounds <= 1.0f);
+
+        depthBoundsTestEnable   = VK_TRUE;
         minDepthBounds          = aMinDepthBounds;
         maxDepthBounds          = aMaxDepthBounds;
+
+        return *this;
+    }
+
+    PipelineDepthStencilStateCreateInfo& DisableDepthBounds(void)
+    {
+        depthBoundsTestEnable   = VK_FALSE;
 
         return *this;
     }
@@ -966,6 +1131,13 @@ public:
     PipelineColorBlendStateCreateInfo(A&& aAttachments, Bool32 aLogicOpEnable, LogicalOp aLogicOp,
         const std::array<float, 4>& aBlendConstants, const PipelineColorBlendStateCreateFlags& aFlags = DefaultFlags) noexcept
         : PipelineColorBlendStateCreateInfo(aLogicOpEnable, aLogicOp, static_cast<uint32_t>(aAttachments.size()), aAttachments.data(), aBlendConstants, aFlags)
+    {
+        StaticLValueRefAssert(A, aAttachments);
+    }
+
+    template <typename A, typename = EnableIfValueType<ValueType<A>, PipelineColorBlendAttachmentState>>
+    explicit PipelineColorBlendStateCreateInfo(A&& aAttachments, const PipelineColorBlendStateCreateFlags& aFlags = DefaultFlags) noexcept
+        : flags(aFlags), attachmentCount(static_cast<uint32_t>(aAttachments.size())), pAttachments(aAttachments.data())
     {
         StaticLValueRefAssert(A, aAttachments);
     }
@@ -1162,8 +1334,19 @@ public:
     {}
 
     template <typename D, typename P, typename = EnableIfValueType<ValueType<D>, DescriptorSetLayout, ValueType<P>, PushConstantRange>>
-    PipelineLayoutCreateInfo(D&& aSetLayouts, P&& aPushConstantRanges, const PipelineLayoutCreateFlags& aFlags = DefaultFlags) noexcept
+    constexpr PipelineLayoutCreateInfo(D&& aSetLayouts, P&& aPushConstantRanges, const PipelineLayoutCreateFlags& aFlags = DefaultFlags) noexcept
         : PipelineLayoutCreateInfo(static_cast<uint32_t>(aSetLayouts.size()), aSetLayouts.data(), static_cast<uint32_t>(aPushConstantRanges.size()), aPushConstantRanges.data(), aFlags)
+    {}
+
+    template <typename D, typename = EnableIfValueType<ValueType<D>, DescriptorSetLayout>>
+    explicit constexpr PipelineLayoutCreateInfo(D&& aSetLayouts, uint32_t aPushConstantRangeCount = 0, const PushConstantRange* apPushConstantRanges = nullptr,
+        const PipelineLayoutCreateFlags& aFlags = DefaultFlags) noexcept
+        : PipelineLayoutCreateInfo(static_cast<uint32_t>(aSetLayouts.size()), aSetLayouts.data(), aPushConstantRangeCount, apPushConstantRanges, aFlags)
+    {}
+
+    template <typename P, typename = EnableIfValueType<ValueType<P>, PushConstantRange>>
+    constexpr PipelineLayoutCreateInfo(uint32_t aSetLayoutCount, const DescriptorSetLayout* apSetLayouts, P&& aPushConstantRanges, const PipelineLayoutCreateFlags& aFlags = DefaultFlags) noexcept
+        : PipelineLayoutCreateInfo(aSetLayoutCount, apSetLayouts, static_cast<uint32_t>(aPushConstantRanges.size()), aPushConstantRanges.data(), aFlags)
     {}
 
     PipelineLayoutCreateInfo& SetNext(const void* apNext)

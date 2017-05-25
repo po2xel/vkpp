@@ -439,6 +439,15 @@ public:
     }
 
     void PipelineBarrier(const PipelineStageFlags& aSrcStageMask, const PipelineStageFlags& aDstStageMask, const DependencyFlags& aDependencyFlags,
+        const MemoryBarrier& aMemoryBarrier) const
+    {
+        vkCmdPipelineBarrier(mCommandBuffer, aSrcStageMask, aDstStageMask, aDependencyFlags,
+            1, &aMemoryBarrier,
+            0, nullptr,
+            0, nullptr);
+    }
+
+    void PipelineBarrier(const PipelineStageFlags& aSrcStageMask, const PipelineStageFlags& aDstStageMask, const DependencyFlags& aDependencyFlags,
         const std::vector<BufferMemoryBarrier>& aBufferMemoryBarriers) const
     {
         assert(!aBufferMemoryBarriers.empty());
@@ -446,6 +455,15 @@ public:
         vkCmdPipelineBarrier(mCommandBuffer, aSrcStageMask, aDstStageMask, aDependencyFlags,
             0, nullptr,
             static_cast<uint32_t>(aBufferMemoryBarriers.size()), &aBufferMemoryBarriers[0],
+            0, nullptr);
+    }
+
+    void PipelineBarrier(const PipelineStageFlags& aSrcStageMask, const PipelineStageFlags& aDstStageMask, const DependencyFlags& aDependencyFlags,
+        const BufferMemoryBarrier& aBufferMemoryBarrier) const
+    {
+        vkCmdPipelineBarrier(mCommandBuffer, aSrcStageMask, aDstStageMask, aDependencyFlags,
+            0, nullptr,
+            1, &aBufferMemoryBarrier,
             0, nullptr);
     }
 
@@ -458,6 +476,15 @@ public:
             0, nullptr,
             0, nullptr,
             static_cast<uint32_t>(aImageMemoryBarriers.size()), &aImageMemoryBarriers[0]);
+    }
+
+    void PipelineBarrier(const PipelineStageFlags& aSrcStageMask, const PipelineStageFlags& aDstStageMask, const DependencyFlags& aDependencyFlags,
+        const ImageMemoryBarrier& aImageMemoryBarrier) const
+    {
+        vkCmdPipelineBarrier(mCommandBuffer, aSrcStageMask, aDstStageMask, aDependencyFlags,
+            0, nullptr,
+            0, nullptr,
+            1, &aImageMemoryBarrier);
     }
 
      void PipelineBarrier(const CommandPipelineBarrier& aCmdPipelineBarrier) const

@@ -49,6 +49,10 @@ struct DescriptorSetLayoutBinding : public internal::VkTrait<DescriptorSetLayout
         : binding(aBinding), descriptorType(aDescriptorType), descriptorCount(aDescriptorCount), stageFlags(aStageFlags), pImmutableSamplers(apImmutableSamplers)
     {}
 
+    constexpr DescriptorSetLayoutBinding(uint32_t aBinding, DescriptorType aDescriptorType, const ShaderStageFlags& aStageFlags, const Sampler* apImmutableSamplers = nullptr) noexcept
+        : DescriptorSetLayoutBinding(aBinding, aDescriptorType, 1, aStageFlags, apImmutableSamplers)
+    {}
+
     DescriptorSetLayoutBinding& SetBinding(uint32_t aBinding)
     {
         binding = aBinding;
