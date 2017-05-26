@@ -88,7 +88,8 @@ public:
 
     DEFINE_CLASS_MEMBER(MappedMemoryRange)
 
-    MappedMemoryRange(const DeviceMemory& aDeviceMemory, DeviceSize aOffset = 0, DeviceSize aSize = VK_WHOLE_SIZE) : memory(aDeviceMemory), offset(aOffset), size(aSize)
+    MappedMemoryRange(const DeviceMemory& aDeviceMemory, DeviceSize aOffset = 0, DeviceSize aSize = VK_WHOLE_SIZE) noexcept
+        : memory(aDeviceMemory), offset(aOffset), size(aSize)
     {}
 
     MappedMemoryRange& SetNext(const void* apNext)

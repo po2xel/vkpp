@@ -185,10 +185,10 @@ private:
 public:
     DEFINE_CLASS_MEMBER(Queue)
 
-    Queue(std::nullptr_t)
+    Queue(std::nullptr_t) noexcept
     {}
 
-    explicit Queue(VkQueue aQueue) : mQueue(aQueue)
+    explicit Queue(VkQueue aQueue) noexcept: mQueue(aQueue)
     {}
 
     VkResult Wait(void) const

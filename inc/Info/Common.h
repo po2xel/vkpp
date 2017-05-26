@@ -198,7 +198,7 @@ struct SpecializationInfo : public internal::VkTrait<SpecializationInfo, VkSpeci
 
     DEFINE_CLASS_MEMBER(SpecializationInfo)
 
-    SpecializationInfo(uint32_t aMapEntryCount, const SpecializationMapEntry* apMapEntries, std::size_t aDataSize, const void* apData) noexcept
+    constexpr SpecializationInfo(uint32_t aMapEntryCount, const SpecializationMapEntry* apMapEntries, std::size_t aDataSize, const void* apData) noexcept
         : mapEntryCount(aMapEntryCount), pMapEntries(apMapEntries), dataSize(aDataSize), pData(apData)
     {}
 
@@ -275,7 +275,7 @@ struct Offset2D : public internal::VkTrait<Offset2D, VkOffset2D>
     constexpr Offset2D(int32_t aX, int32_t aY) noexcept : x(aX), y(aY)
     {}
 
-    constexpr Offset2D& SetOffset(int32_t aX, int32_t aY)
+    Offset2D& SetOffset(int32_t aX, int32_t aY)
     {
         x = aX;
         y = aY;
@@ -299,7 +299,7 @@ struct Offset3D : public internal::VkTrait<Offset3D, VkOffset3D>
     constexpr Offset3D(int32_t aX, int32_t aY, int32_t aZ) noexcept : x(aX), y(aY), z(aZ)
     {}
 
-    constexpr Offset3D& SetOffset(int32_t aX, int32_t aY, int32_t aZ)
+    Offset3D& SetOffset(int32_t aX, int32_t aY, int32_t aZ)
     {
         x = aX;
         y = aY;
@@ -323,14 +323,14 @@ struct Extent2D : public internal::VkTrait<Extent2D, VkExtent2D>
     constexpr Extent2D(uint32_t aWidth, uint32_t aHeight) noexcept : width(aWidth), height(aHeight)
     {}
 
-    constexpr Extent2D& SetWidth(uint32_t aWidth)
+    Extent2D& SetWidth(uint32_t aWidth)
     {
         width = aWidth;
 
         return *this;
     }
 
-    constexpr Extent2D& SetHeight(uint32_t aHeight)
+    Extent2D& SetHeight(uint32_t aHeight)
     {
         height = aHeight;
 
@@ -366,21 +366,21 @@ struct Extent3D : public internal::VkTrait<Extent3D, VkExtent3D>
     constexpr Extent3D(const Extent2D& aExtent2D) noexcept : width(aExtent2D.width), height(aExtent2D.height), depth(1)
     {}
 
-    constexpr Extent3D& SetWidth(uint32_t aWidth)
+    Extent3D& SetWidth(uint32_t aWidth)
     {
         width = aWidth;
 
         return *this;
     }
 
-    constexpr Extent3D& SetHeight(uint32_t aHeight)
+    Extent3D& SetHeight(uint32_t aHeight)
     {
         height = aHeight;
 
         return *this;
     }
 
-    constexpr Extent3D& SetDepth(uint32_t aDepth)
+    Extent3D& SetDepth(uint32_t aDepth)
     {
         depth = aDepth;
 
@@ -419,14 +419,14 @@ struct Rect2D : public internal::VkTrait<Rect2D, VkRect2D>
     constexpr Rect2D(const Offset2D& aOffset, const Extent2D& aExtent) noexcept : offset(aOffset), extent(aExtent)
     {}
 
-    constexpr Rect2D& SetOffset(const Offset2D& aOffset)
+    Rect2D& SetOffset(const Offset2D& aOffset)
     {
         offset = aOffset;
 
         return *this;
     }
 
-    constexpr Rect2D& SetExtent(const Extent2D& aExtent)
+    Rect2D& SetExtent(const Extent2D& aExtent)
     {
         extent = aExtent;
 

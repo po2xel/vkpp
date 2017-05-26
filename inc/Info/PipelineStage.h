@@ -1294,7 +1294,7 @@ struct PushConstantRange : internal::VkTrait<PushConstantRange, VkPushConstantRa
 
     DEFINE_CLASS_MEMBER(PushConstantRange)
 
-    PushConstantRange(const ShaderStageFlags& aStageFlags, uint32_t aOffset, uint32_t aSize) : stageFlags(aStageFlags), offset(aOffset), size(aSize)
+    constexpr PushConstantRange(const ShaderStageFlags& aStageFlags, uint32_t aOffset, uint32_t aSize) noexcept : stageFlags(aStageFlags), offset(aOffset), size(aSize)
     {}
 
     PushConstantRange& SetFlags(const ShaderStageFlags& aFlags)

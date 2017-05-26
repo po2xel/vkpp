@@ -214,7 +214,7 @@ public:
 
     DEFINE_CLASS_MEMBER(BufferViewCreateInfo)
 
-        BufferViewCreateInfo(const Buffer& aBuffer, Format aFormat, DeviceSize aOffset, DeviceSize aRange, const BufferViewCreateFlags& aFlags = DefaultFlags)
+    BufferViewCreateInfo(const Buffer& aBuffer, Format aFormat, DeviceSize aOffset, DeviceSize aRange, const BufferViewCreateFlags& aFlags = DefaultFlags) noexcept
         : flags(aFlags), buffer(aBuffer), format(aFormat), offset(aOffset), range(aRange)
     {}
 

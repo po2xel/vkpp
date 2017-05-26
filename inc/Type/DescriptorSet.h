@@ -385,7 +385,7 @@ public:
     DEFINE_CLASS_MEMBER(CopyDescriptorSetInfo)
 
     CopyDescriptorSetInfo(const DescriptorSet& aSrcSet, uint32_t aSrcBinding, uint32_t aSrcArrayElement,
-        const DescriptorSet& aDstSet, uint32_t aDstBinding, uint32_t aDstArrayElement, uint32_t aDescriptorCount)
+        const DescriptorSet& aDstSet, uint32_t aDstBinding, uint32_t aDstArrayElement, uint32_t aDescriptorCount) noexcept
         : srcSet(aSrcSet), srcBinding(aSrcBinding), srcArrayElement(aSrcArrayElement),
           dstSet(aDstSet), dstBinding(aDstBinding), dstArrayElement(aDstArrayElement), descriptorCount(aDescriptorCount)
     {}

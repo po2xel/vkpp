@@ -118,7 +118,7 @@ public:
     template <typename Q, typename = EnableIfValueType<ValueType<Q>, uint32_t>>
     ImageCreateInfo(Q&& aQueueFamilyIndices, ImageType aImageType, Format aFormat, const Extent3D& aExtent, const ImageUsageFlags& aUsage,
         ImageLayout aInitialLayout = ImageLayout::eUndefined, ImageTiling aTiling = ImageTiling::eOptimal, SampleCountFlagBits aSamples = SampleCountFlagBits::e1,
-        uint32_t aMipLevels = 1, uint32_t aArrayLayers = 1, const ImageCreateFlags& aFlags = DefaultFlags)
+        uint32_t aMipLevels = 1, uint32_t aArrayLayers = 1, const ImageCreateFlags& aFlags = DefaultFlags) noexcept
         : ImageCreateInfo(aImageType, aFormat, aExtent, aMipLevels, aArrayLayers, aSamples, aTiling, aUsage,
           static_cast<uint32_t>(aQueueFamilyIndices.size()), aQueueFamilyIndices.data(), aInitialLayout, aFlags)
     {

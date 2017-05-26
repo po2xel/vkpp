@@ -62,12 +62,12 @@ public:
 
     DEFINE_CLASS_MEMBER(QueueCreateInfo)
 
-    QueueCreateInfo(uint32_t aQueueFamilyIndex, uint32_t aQueueCount, const float* apQueuePriorities, const DeviceQueueCreateFlags& aFlags = DefaultFlags)
+    constexpr QueueCreateInfo(uint32_t aQueueFamilyIndex, uint32_t aQueueCount, const float* apQueuePriorities, const DeviceQueueCreateFlags& aFlags = DefaultFlags) noexcept
         :flags(aFlags), queueFamilyIndex(aQueueFamilyIndex), queueCount(aQueueCount), pQueuePriorities(apQueuePriorities)
     {}
 
     template <typename P, typename = EnableIfValueType<ValueType<P>, float>>
-    QueueCreateInfo(uint32_t aQueueFamilyIndex, P&& aQueuePriorities, const DeviceQueueCreateFlags& aFlags = DefaultFlags)
+    constexpr QueueCreateInfo(uint32_t aQueueFamilyIndex, P&& aQueuePriorities, const DeviceQueueCreateFlags& aFlags = DefaultFlags) noexcept
         : QueueCreateInfo(aQueueFamilyIndex, static_cast<uint32_t>(aQueuePriorities.size()), aQueuePriorities.data(), aFlags)
     {
         StaticLValueRefAssert(P, aQueuePriorities);
@@ -144,14 +144,14 @@ public:
 
     DEFINE_CLASS_MEMBER(LogicalDeviceCreateInfo)
 
-    LogicalDeviceCreateInfo(uint32_t aQueueCreateInfoCount, const QueueCreateInfo* apQueueCreateInfos,
-        uint32_t aEnalbedExtensionCount, const char* const* appEnabledExtensionNames, const PhysicalDeviceFeatures* apEnabledFeatures, const DeviceCreateFlags& aFlags = DefaultFlags)
+    constexpr LogicalDeviceCreateInfo(uint32_t aQueueCreateInfoCount, const QueueCreateInfo* apQueueCreateInfos,
+        uint32_t aEnalbedExtensionCount, const char* const* appEnabledExtensionNames, const PhysicalDeviceFeatures* apEnabledFeatures, const DeviceCreateFlags& aFlags = DefaultFlags) noexcept
         : flags(aFlags), queueCreateInfoCount(aQueueCreateInfoCount), pQueueCreateInfos(apQueueCreateInfos),
           enabledExtensionCount(aEnalbedExtensionCount), ppEnabledExtensionNames(appEnabledExtensionNames), pEnabledFeatures(apEnabledFeatures)
     {}
 
     template <typename Q, typename E, typename = EnableIfValueType<ValueType<Q>, QueueCreateInfo, ValueType<E>, const char*>>
-    LogicalDeviceCreateInfo(Q&& aQueueCreateInfos, E&& aEnabledExtensions, const PhysicalDeviceFeatures* apEnabledFeatures = nullptr, const DeviceCreateFlags& aFlags = DefaultFlags)
+    constexpr LogicalDeviceCreateInfo(Q&& aQueueCreateInfos, E&& aEnabledExtensions, const PhysicalDeviceFeatures* apEnabledFeatures = nullptr, const DeviceCreateFlags& aFlags = DefaultFlags) noexcept
         : LogicalDeviceCreateInfo(static_cast<uint32_t>(aQueueCreateInfos.size()), aQueueCreateInfos.data(),
           static_cast<uint32_t>(aEnabledExtensions.size()), aEnabledExtensions.data(), apEnabledFeatures, aFlags)
     {

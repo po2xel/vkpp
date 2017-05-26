@@ -37,7 +37,7 @@ public:
     DEFINE_CLASS_MEMBER(AllocationCallbacks)
 
     AllocationCallbacks(void* apUserData, PFN_vkAllocationFunction apfnAllocation, PFN_vkReallocationFunction apfnReallocation, PFN_vkFreeFunction apfnFree,
-        PFN_vkInternalAllocationNotification apfnInternalAllocation = nullptr, PFN_vkInternalFreeNotification apfnInternalFree = nullptr)
+        PFN_vkInternalAllocationNotification apfnInternalAllocation = nullptr, PFN_vkInternalFreeNotification apfnInternalFree = nullptr) noexcept
         : pUserData(apUserData), pfnAllocation(apfnAllocation), pfnReallocation(apfnReallocation), pfnFree(apfnFree),
           pfnInternalAllocation(apfnInternalAllocation), pfnInternalFree(apfnInternalFree)
     {}

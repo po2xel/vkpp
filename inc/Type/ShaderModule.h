@@ -49,15 +49,15 @@ public:
 
     DEFINE_CLASS_MEMBER(ShaderModuleCreateInfo)
 
-    ShaderModuleCreateInfo(const std::size_t aCodeSize, const uint32_t* apCode, const ShaderModuleCreateFlags& aFlags = DefaultFlags)
+    constexpr ShaderModuleCreateInfo(const std::size_t aCodeSize, const uint32_t* apCode, const ShaderModuleCreateFlags& aFlags = DefaultFlags) noexcept
         : flags(aFlags), codeSize(aCodeSize), pCode(apCode)
     {}
 
-    ShaderModuleCreateInfo(const std::vector<uint32_t>& aCode, const ShaderModuleCreateFlags& aFlags = DefaultFlags)
+    ShaderModuleCreateInfo(const std::vector<uint32_t>& aCode, const ShaderModuleCreateFlags& aFlags = DefaultFlags) noexcept
         : ShaderModuleCreateInfo(aCode.size(), aCode.data(), aFlags)
     {}
 
-    ShaderModuleCreateInfo(const std::vector<char>& aCode, const ShaderModuleCreateFlags& aFlags = DefaultFlags)
+    ShaderModuleCreateInfo(const std::vector<char>& aCode, const ShaderModuleCreateFlags& aFlags = DefaultFlags) noexcept
         : ShaderModuleCreateInfo(aCode.size(), reinterpret_cast<const uint32_t*>(aCode.data()), aFlags)
     {}
 
@@ -94,7 +94,7 @@ private:
 public:
     ShaderModule(void) = default;
 
-    ShaderModule(std::nullptr_t)
+    ShaderModule(std::nullptr_t) noexcept
     {}
 
     explicit ShaderModule(VkShaderModule aShaderModule) : mShaderModule(aShaderModule)

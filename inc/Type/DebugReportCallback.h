@@ -39,7 +39,7 @@ public:
 
     DEFINE_CLASS_MEMBER(DebugReportCallbackCreateInfo)
 
-    DebugReportCallbackCreateInfo(const DebugReportFlags& aFlags, PFN_vkDebugReportCallbackEXT apfnCallback, void* apUserData = nullptr)
+    DebugReportCallbackCreateInfo(const DebugReportFlags& aFlags, PFN_vkDebugReportCallbackEXT apfnCallback, void* apUserData = nullptr) noexcept
         : flags(aFlags), pfnCallback(apfnCallback), pUserData(apUserData)
     {
         assert(flags != DefaultFlags);              // flags must not be 0.

@@ -120,8 +120,8 @@ public:
     const void*     pNext{ nullptr };
     AccessFlags     srcAccessMask;
     AccessFlags     dstAccessMask;
-    uint32_t        srcQueueFamilyIndex{ UINT32_MAX };
-    uint32_t        dstQueueFamilyIndex{ UINT32_MAX };
+    uint32_t        srcQueueFamilyIndex{ VK_QUEUE_FAMILY_IGNORED };
+    uint32_t        dstQueueFamilyIndex{ VK_QUEUE_FAMILY_IGNORED };
     Buffer          buffer;
     DeviceSize      offset{ 0 };
     DeviceSize      size{ 0 };
@@ -129,7 +129,7 @@ public:
     DEFINE_CLASS_MEMBER(BufferMemoryBarrier)
 
     BufferMemoryBarrier(const AccessFlags& aSrcAccessMask, const AccessFlags& aDstAccessFlags, uint32_t aSrcQueueFamilyIndex, uint32_t aDstQueueFamilyIndex,
-        const Buffer& aBuffer, DeviceSize aOffset, DeviceSize aSize)
+        const Buffer& aBuffer, DeviceSize aOffset, DeviceSize aSize) noexcept
         : srcAccessMask(aSrcAccessMask), dstAccessMask(aDstAccessFlags), srcQueueFamilyIndex(aSrcQueueFamilyIndex), dstQueueFamilyIndex(aDstQueueFamilyIndex),
         buffer(aBuffer), offset(aOffset), size(aSize)
     {}
@@ -183,9 +183,16 @@ public:
 
     DEFINE_CLASS_MEMBER(MemoryBarrier)
 
-    MemoryBarrier(const AccessFlags& aSrcAccessMask, const AccessFlags& aDstAccessMask)
+    constexpr MemoryBarrier(const AccessFlags& aSrcAccessMask, const AccessFlags& aDstAccessMask) noexcept
         : srcAccessMask(aSrcAccessMask), dstAccessMask(aDstAccessMask)
     {}
+
+    MemoryBarrier& SetNext(const void* apNext)
+    {
+        pNext   = apNext;
+
+        return *this;
+    }
 
     MemoryBarrier& SetAccessMask(const AccessFlags& aSrcAccessMask, const AccessFlags& aDstAccessMask)
     {

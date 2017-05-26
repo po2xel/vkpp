@@ -64,7 +64,7 @@ struct SurfaceFormat : public internal::VkTrait<SurfaceFormat, VkSurfaceFormatKH
 
     DEFINE_CLASS_MEMBER(SurfaceFormat)
 
-    SurfaceFormat(Format aFormat, ColorSpace aColorSpace) : format(aFormat), colorSpace(aColorSpace)
+    constexpr SurfaceFormat(Format aFormat, ColorSpace aColorSpace) noexcept : format(aFormat), colorSpace(aColorSpace)
     {}
 
     SurfaceFormat& SetFormat(Format aFormat, ColorSpace aColorSpace)
@@ -119,7 +119,7 @@ public:
         const Extent2D& aImageExtent, const ImageUsageFlags& aImageUsage,
         SurfaceTransformFlagBits aPreTransform, CompositeAlphaFlagBits aCompositeAlpha,
         PresentMode aPresentMode, const Swapchain& aOldSwapChain,
-        uint32_t aImageArrayLayers = 1, Bool32 aClipped = VK_TRUE, const SwapchainCreateFlags& aFlags = DefaultFlags)
+        uint32_t aImageArrayLayers = 1, Bool32 aClipped = VK_TRUE, const SwapchainCreateFlags& aFlags = DefaultFlags) noexcept
         : flags(aFlags), surface(aSurface),
         minImageCount(aMinImageCount), imageFormat(aImageFormat), imageColorSpace(aImageColorSpace),
         imageExtent(aImageExtent), imageArrayLayers(aImageArrayLayers), imageUsage(aImageUsage),

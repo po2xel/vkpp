@@ -38,21 +38,21 @@ public:
     DEFINE_CLASS_MEMBER(FramebufferCreateInfo)
 
     FramebufferCreateInfo(const RenderPass& aRenderPass, uint32_t aAttachmentCount, const ImageView* apAttachments,
-        uint32_t aWidth = 1, uint32_t aHeight = 1, uint32_t aLayers = 1, const FramebufferCreateFlags& aFlags = DefaultFlags)
+        uint32_t aWidth = 1, uint32_t aHeight = 1, uint32_t aLayers = 1, const FramebufferCreateFlags& aFlags = DefaultFlags) noexcept
         : flags(aFlags), renderPass(aRenderPass), attachmentCount(aAttachmentCount), pAttachments(apAttachments),
         width(aWidth), height(aHeight), layers(aLayers)
     {}
 
     template <typename A, typename = EnableIfValueType<ValueType<A>, ImageView>>
     FramebufferCreateInfo(const RenderPass& aRenderPass, A&& aAttachments,
-        uint32_t aWidth = 1, uint32_t aHeight = 1, uint32_t aLayers = 1, const FramebufferCreateFlags& aFlags = DefaultFlags)
+        uint32_t aWidth = 1, uint32_t aHeight = 1, uint32_t aLayers = 1, const FramebufferCreateFlags& aFlags = DefaultFlags) noexcept
         : FramebufferCreateInfo(aRenderPass, static_cast<uint32_t>(aAttachments.size()), aAttachments.data(), aWidth, aHeight, aLayers, aFlags)
     {
         StaticLValueRefAssert(A, aAttachments);
     }
 
     template <typename A, typename = EnableIfValueType<ValueType<A>, ImageView>>
-    FramebufferCreateInfo(const RenderPass& aRenderPass, A&& aAttachments, const Extent2D& aExtent, uint32_t aLayers = 1, const FramebufferCreateFlags& aFlags = DefaultFlags)
+    FramebufferCreateInfo(const RenderPass& aRenderPass, A&& aAttachments, const Extent2D& aExtent, uint32_t aLayers = 1, const FramebufferCreateFlags& aFlags = DefaultFlags) noexcept
         : FramebufferCreateInfo(aRenderPass, static_cast<uint32_t>(aAttachments.size()), aAttachments.data(), aExtent.width, aExtent.height, aLayers, aFlags)
     {
         StaticLValueRefAssert(A, aAttachments);

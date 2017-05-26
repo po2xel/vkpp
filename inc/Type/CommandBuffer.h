@@ -87,7 +87,7 @@ public:
     DEFINE_CLASS_MEMBER(CommandBufferInheritanceInfo)
 
     CommandBufferInheritanceInfo(const RenderPass& aRenderPass, uint32_t aSubpass, const Framebuffer& aFramebuffer, Bool32 aOcclusionQueryEnable,
-        QueryControlFlags aQueryFlags = DefaultFlags, QueryPipelineStatisticFlags aPipelineStatistics = DefaultFlags)
+        QueryControlFlags aQueryFlags = DefaultFlags, QueryPipelineStatisticFlags aPipelineStatistics = DefaultFlags) noexcept
         : renderPass(aRenderPass), subpass(aSubpass), framebuffer(aFramebuffer), occlusionQueryEnable(aOcclusionQueryEnable),
           queryFlags(aQueryFlags), pipelineStatistics(aPipelineStatistics)
     {}

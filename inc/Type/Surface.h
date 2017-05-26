@@ -24,10 +24,10 @@ private:
 public:
     DEFINE_CLASS_MEMBER(Surface)
 
-    Surface(std::nullptr_t)
+    Surface(std::nullptr_t) noexcept
     {}
 
-    Surface(VkSurfaceKHR aSurface) : mSurface(aSurface)
+    Surface(VkSurfaceKHR aSurface) noexcept : mSurface(aSurface)
     {}
 };
 

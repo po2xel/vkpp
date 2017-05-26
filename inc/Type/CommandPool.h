@@ -42,7 +42,7 @@ public:
 
     DEFINE_CLASS_MEMBER(CommandPoolCreateInfo)
 
-    explicit constexpr CommandPoolCreateInfo(uint32_t aQueueFamilyIndex, const CommandPoolCreateFlags& aFlags = DefaultFlags)
+    explicit constexpr CommandPoolCreateInfo(uint32_t aQueueFamilyIndex, const CommandPoolCreateFlags& aFlags = DefaultFlags) noexcept
     : flags(aFlags), queueFamilyIndex(aQueueFamilyIndex)
     {}
 

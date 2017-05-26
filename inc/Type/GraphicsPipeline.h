@@ -34,7 +34,7 @@ public:
 
     DEFINE_CLASS_MEMBER(PipelineCacheCreateInfo)
 
-    PipelineCacheCreateInfo(const PipelineCacheCreateFlags& aFlags, size_t aInitialDataSize, const void* apInitialData) noexcept
+    constexpr PipelineCacheCreateInfo(size_t aInitialDataSize, const void* apInitialData, const PipelineCacheCreateFlags& aFlags = DefaultFlags) noexcept 
         : flags(aFlags), initialDataSize(aInitialDataSize), pInitialData(apInitialData)
     {}
 
@@ -138,7 +138,7 @@ public:
         const PipelineDynamicStateCreateInfo* apDynamicState,
         const PipelineLayout& aLayout, const RenderPass& aRenderPass, uint32_t aSubpass,
         const Pipeline& aBasePipelineHandle = nullptr, int32_t aBasePipelineIndex = -1,
-        const PipelineCreateFlags& aFlags = DefaultFlags)
+        const PipelineCreateFlags& aFlags = DefaultFlags) noexcept
         : flags(aFlags), stageCount(aStageCount), pStages(apStages), pVertexInputState(apVertexInputState), pInputAssemblyState(apInputAssemblyState),
           pTessellationState(apTessellationState), pViewportState(apViewportState), pRasterizationState(apRasterizationState), pMultisampleState(apMultisampleState),
           pDepthStencilState(apDepthStencilState), pColorBlendState(apColorBlendState), pDynamicState(apDynamicState),

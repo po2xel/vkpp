@@ -40,7 +40,7 @@ public:
 
     DEFINE_CLASS_MEMBER(ApplicationInfo)
 
-    constexpr ApplicationInfo(const char* apApplicationName, uint32_t aApplicationVersion, const char* apEngineName = nullptr, uint32_t aEngineVersion = 0, uint32_t aApiVersion = DEFAULT_VK_API_VERSION)
+    constexpr ApplicationInfo(const char* apApplicationName, uint32_t aApplicationVersion, const char* apEngineName = nullptr, uint32_t aEngineVersion = 0, uint32_t aApiVersion = DEFAULT_VK_API_VERSION) noexcept
         : pApplicationName(apApplicationName), applicationVersion(aApplicationVersion), pEngineName(apEngineName), engineVersion(aEngineVersion), apiVersion(aApiVersion)
     {}
 
@@ -95,14 +95,14 @@ public:
 
     DEFINE_CLASS_MEMBER(InstanceInfo)
 
-    explicit InstanceInfo(const ApplicationInfo& aAppInfo, uint32_t aEnabledLayerCount = 0, const char* const* appEnabledLayerNames = nullptr,
-        uint32_t aEnabledExtensionCount = 0, const char* const* appEnabledExtensionNames = nullptr)
+    explicit constexpr InstanceInfo(const ApplicationInfo& aAppInfo, uint32_t aEnabledLayerCount = 0, const char* const* appEnabledLayerNames = nullptr,
+        uint32_t aEnabledExtensionCount = 0, const char* const* appEnabledExtensionNames = nullptr) noexcept
         : pApplicationInfo(aAppInfo.AddressOf()), enabledLayerCount(aEnabledLayerCount), ppEnabledLayerNames(appEnabledLayerNames),
         enabledExtensionCount(aEnabledExtensionCount), ppEnabledExtensionNames(appEnabledExtensionNames)
     {}
 
     template <typename L, typename E, typename = EnableIfValueType<ValueType<L>, const char*, ValueType<E>, const char*>>
-    InstanceInfo(const ApplicationInfo& aAppInfo, L&& aEnabledLayers, E&& aEnabledExtensions)
+    constexpr InstanceInfo(const ApplicationInfo& aAppInfo, L&& aEnabledLayers, E&& aEnabledExtensions) noexcept
         : InstanceInfo(aAppInfo, static_cast<uint32_t>(aEnabledLayers.size()), aEnabledLayers.data(), static_cast<uint32_t>(aEnabledExtensions.size()), aEnabledExtensions.data())
     {
         StaticLValueRefAssert(L, aEnabledLayers);
@@ -168,11 +168,11 @@ private:
 public:
     DEFINE_CLASS_MEMBER(Instance)
 
-    Instance(std::nullptr_t)
+    Instance(std::nullptr_t) noexcept
     {}
 
     template <typename T = DefaultAllocationCallbacks>
-    explicit Instance(const InstanceInfo& aInstanceInfo, const T& aAllocator = DefaultAllocator)
+    explicit Instance(const InstanceInfo& aInstanceInfo, const T& aAllocator = DefaultAllocator) noexcept
     {
         ThrowIfFailed(vkCreateInstance(&aInstanceInfo, &aAllocator, &mInstance));
     }
