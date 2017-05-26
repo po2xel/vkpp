@@ -113,6 +113,9 @@ TexturedCube::~TexturedCube(void)
 
     UnmapUniformBuffers();
 
+    mSkyboxUBORes.Reset();
+    mObjectUBORes.Reset();
+
     mLogicalDevice.DestroySampler(mTextureSampler);
     mTextureResource.Reset();
 

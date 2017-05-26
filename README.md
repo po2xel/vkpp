@@ -39,9 +39,16 @@ Texture data, including all mip-levels, is mapped to host visible memory (stagin
 ### [Textured Cube](Sample/TexturedCube/)
 <img src="./Sample/TexturedCube/TexturedCube.png" height="108px" align="right">
 
-A cube map is a special type of image that allows groups of six layers of an array image to be interpreted as the side of a cube. The faces are ofter noted as the -X, +X, -Y, +Y, -Z and +Z faces. These are the six faces of a cube map and a group of six consecutive array layers can be interpreted in that order.
+A cube map is a special type of image that allows groups of six layers of an array image to be interpreted as the side of a cube.<br/>
+The faces are ofter noted as the -X, +X, -Y, +Y, -Z and +Z faces. These are the six faces of a cube map and a group of six consecutive array layers can be interpreted in that order.
 
 Note that the number of layers in the array doesn't have to be a multiple of 6, but it has to be at least 6.
+
+### [Textured Array](Sample/TexturedArray/)
+<img src="./Sample/TexturedArray/TexturedArray.png" height="108px" align="right">
+
+Texture arrays allow storing of multiple images in different layers without any interpolation among the layers.<br/>
+2D array texture is different from a 3D texture in that linear filtering can be performed in the z direction in a 3D texture, whereas filtering cannot be performed across multiple layers in an array image.
 
 ## Credits
 Thanks to the authors of these libraries:

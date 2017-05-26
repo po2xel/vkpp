@@ -137,12 +137,12 @@ public:
 
     DEFINE_CLASS_MEMBER(DescriptorSetAllocateInfo)
 
-    constexpr DescriptorSetAllocateInfo(const DescriptorPool& aDescriptorPool, uint32_t aDescriptorSetCount, const DescriptorSetLayout* apSetLayouts) noexcept
+    DescriptorSetAllocateInfo(const DescriptorPool& aDescriptorPool, uint32_t aDescriptorSetCount, const DescriptorSetLayout* apSetLayouts) noexcept
         : descriptorPool(aDescriptorPool), descriptorSetCount(aDescriptorSetCount), pSetLayouts(apSetLayouts)
     {}
 
     template <typename D, typename = EnableIfValueType<ValueType<D>, DescriptorSetLayout>>
-    constexpr DescriptorSetAllocateInfo(const DescriptorPool& aDescriptorPool, D&& aSetLayouts) noexcept
+    DescriptorSetAllocateInfo(const DescriptorPool& aDescriptorPool, D&& aSetLayouts) noexcept
         : DescriptorSetAllocateInfo(aDescriptorPool, static_cast<uint32_t>(aSetLayouts.size()), aSetLayouts.data())
     {
         StaticLValueRefAssert(D, aSetLayouts);

@@ -500,6 +500,8 @@ public:
 
     std::vector<DescriptorSet> AllocateDescriptorSets(const DescriptorSetAllocateInfo& aDescriptorSetAllocateInfo) const
     {
+        assert(aDescriptorSetAllocateInfo.descriptorSetCount != 0);
+
         std::vector<DescriptorSet> lDescriptorSets(aDescriptorSetAllocateInfo.descriptorSetCount);
         ThrowIfFailed(vkAllocateDescriptorSets(mDevice, &aDescriptorSetAllocateInfo, &lDescriptorSets[0]));
 
@@ -536,9 +538,26 @@ public:
         UpdateDescriptorSets(0, nullptr, 1, aDescriptorCopy.AddressOf());
     }
 
-    void UpdateDescriptorSets(uint32_t aDescriptorWriteCount, const WriteDescriptorSetInfo* apDescriptorWrites, uint32_t aDescriptorCopyCount = 0, const CopyDescriptorSetInfo* apDescriptorCopies = nullptr) const
+    void UpdateDescriptorSets(uint32_t aDescriptorWriteCount, const WriteDescriptorSetInfo* apDescriptorWrites, uint32_t aDescriptorCopyCount, const CopyDescriptorSetInfo* apDescriptorCopies) const
     {
+        assert(aDescriptorWriteCount != 0 && apDescriptorWrites != nullptr);
+        assert(aDescriptorCopyCount != 0 && apDescriptorCopies != nullptr);
+
         vkUpdateDescriptorSets(mDevice, aDescriptorWriteCount, &apDescriptorWrites[0], aDescriptorCopyCount, &apDescriptorCopies[0]);
+    }
+
+    void UpdateDescriptorSets(uint32_t aDescriptorWriteCount, const WriteDescriptorSetInfo* apDescriptorWrites) const
+    {
+        assert(aDescriptorWriteCount != 0 && apDescriptorWrites != nullptr);
+
+        vkUpdateDescriptorSets(mDevice, aDescriptorWriteCount, &apDescriptorWrites[0], 0, nullptr);
+    }
+
+    void UpdateDescriptorSets(uint32_t aDescriptorCopyCount, const CopyDescriptorSetInfo* apDescriptorCopies) const
+    {
+        assert(aDescriptorCopyCount != 0 && apDescriptorCopies != nullptr);
+
+        vkUpdateDescriptorSets(mDevice, 0, nullptr, aDescriptorCopyCount, &apDescriptorCopies[0]);
     }
 
     void UpdateDescriptorSets(const std::vector<WriteDescriptorSetInfo>& aDescriptorWrites, const std::vector<CopyDescriptorSetInfo>& aDescriptorCopies) const

@@ -1120,15 +1120,19 @@ public:
 
     DEFINE_CLASS_MEMBER(PipelineColorBlendStateCreateInfo)
 
-    PipelineColorBlendStateCreateInfo(uint32_t aAttachmentCount, const PipelineColorBlendAttachmentState* apAttachments,
-        Bool32 aLogicOpEnable = VK_FALSE, LogicalOp aLogicOp = LogicalOp::eClear, const std::array<float, 4>& aBlendConstants = {},
+    constexpr PipelineColorBlendStateCreateInfo(uint32_t aAttachmentCount, const PipelineColorBlendAttachmentState* apAttachments, const PipelineColorBlendStateCreateFlags& aFlags = DefaultFlags) noexcept
+        : flags(aFlags), attachmentCount(aAttachmentCount), pAttachments(apAttachments)
+    {}
+
+    constexpr PipelineColorBlendStateCreateInfo(uint32_t aAttachmentCount, const PipelineColorBlendAttachmentState* apAttachments,
+        Bool32 aLogicOpEnable, LogicalOp aLogicOp, const std::array<float, 4>& aBlendConstants,
         const PipelineColorBlendStateCreateFlags& aFlags = DefaultFlags) noexcept
         : flags(aFlags), logicOpEnable(aLogicOpEnable), logicOp(aLogicOp), attachmentCount(aAttachmentCount),
           pAttachments(apAttachments), blendConstants{aBlendConstants[0], aBlendConstants[1], aBlendConstants[2], aBlendConstants[3]}
     {}
 
     template <typename A, typename = EnableIfValueType<ValueType<A>, PipelineColorBlendAttachmentState>>
-    PipelineColorBlendStateCreateInfo(A&& aAttachments, Bool32 aLogicOpEnable, LogicalOp aLogicOp,
+    constexpr PipelineColorBlendStateCreateInfo(A&& aAttachments, Bool32 aLogicOpEnable, LogicalOp aLogicOp,
         const std::array<float, 4>& aBlendConstants, const PipelineColorBlendStateCreateFlags& aFlags = DefaultFlags) noexcept
         : PipelineColorBlendStateCreateInfo(aLogicOpEnable, aLogicOp, static_cast<uint32_t>(aAttachments.size()), aAttachments.data(), aBlendConstants, aFlags)
     {
@@ -1136,7 +1140,7 @@ public:
     }
 
     template <typename A, typename = EnableIfValueType<ValueType<A>, PipelineColorBlendAttachmentState>>
-    explicit PipelineColorBlendStateCreateInfo(A&& aAttachments, const PipelineColorBlendStateCreateFlags& aFlags = DefaultFlags) noexcept
+    explicit constexpr PipelineColorBlendStateCreateInfo(A&& aAttachments, const PipelineColorBlendStateCreateFlags& aFlags = DefaultFlags) noexcept
         : flags(aFlags), attachmentCount(static_cast<uint32_t>(aAttachments.size())), pAttachments(aAttachments.data())
     {
         StaticLValueRefAssert(A, aAttachments);

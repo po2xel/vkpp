@@ -535,7 +535,7 @@ void ColorizedTriangle::CreateVertexBuffer(void)
         {{0.0f, -1.0f, 0.0f}, {0.0f, 0.0f, 1.0f}}
     };
 
-    const auto lVertexDataSize = static_cast<DeviceSize>(sizeof(VertexData) * lVertexData.size());
+    const auto lVertexDataSize = static_cast<vkpp::DeviceSize>(sizeof(VertexData) * lVertexData.size());
 
     vkpp::BufferCreateInfo lBufferCreateInfo
     {

@@ -53,8 +53,8 @@ public:
     AccessFlags             dstAccessMask;
     ImageLayout             oldLayout;
     ImageLayout             newLayout;
-    uint32_t                srcQueueFamilyIndex{ 0 };
-    uint32_t                dstQueueFamilyIndex{ 0 };
+    uint32_t                srcQueueFamilyIndex{ VK_QUEUE_FAMILY_IGNORED };
+    uint32_t                dstQueueFamilyIndex{ VK_QUEUE_FAMILY_IGNORED };
     Image                   image;
     ImageSubresourceRange   subresourceRange;
 
@@ -62,7 +62,7 @@ public:
 
     ImageMemoryBarrier(const AccessFlags& aSrcAccessMask, const AccessFlags& aDstAccessMask, const ImageLayout& aOldLayout, const ImageLayout& aNewLayout,
         const Image& aImage, const ImageSubresourceRange& aSubresourceRange,
-        uint32_t aSrcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED, uint32_t aDstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED)
+        uint32_t aSrcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED, uint32_t aDstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED) noexcept
         : srcAccessMask(aSrcAccessMask), dstAccessMask(aDstAccessMask), oldLayout(aOldLayout), newLayout(aNewLayout),
         srcQueueFamilyIndex(aSrcQueueFamilyIndex), dstQueueFamilyIndex(aDstQueueFamilyIndex), image(aImage), subresourceRange(aSubresourceRange)
     {}

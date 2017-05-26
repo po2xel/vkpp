@@ -101,7 +101,9 @@ public:
         uint32_t aMipLevels = 1, uint32_t aArrayLayers = 1,  const ImageCreateFlags& aFlags = DefaultFlags) noexcept
         : flags(aFlags), imageType(aImageType), format(aFormat), extent(aExtent), mipLevels(aMipLevels), arrayLayers(aArrayLayers), samples(aSamples), tiling(aTiling),
           usage(aUsage), initialLayout(aInitialLayout)
-    {}
+    {
+        assert(mipLevels != 0 && arrayLayers != 0);
+    }
 
     constexpr ImageCreateInfo(uint32_t aQueueFamilyIndexCount, const uint32_t* apQueueFamilyIndices, ImageType aImageType, Format aFormat, const Extent3D& aExtent, const ImageUsageFlags& aUsage,
         ImageLayout aInitialLayout = ImageLayout::eUndefined, ImageTiling aTiling = ImageTiling::eOptimal, SampleCountFlagBits aSamples = SampleCountFlagBits::e1,
@@ -109,6 +111,7 @@ public:
         : flags(aFlags), imageType(aImageType), format(aFormat), extent(aExtent), mipLevels(aMipLevels), arrayLayers(aArrayLayers), samples(aSamples), tiling(aTiling),
           usage(aUsage), sharingMode(SharingMode::eConcurrent), queueFamilyIndexCount(aQueueFamilyIndexCount), pQueueFamilyIndices(apQueueFamilyIndices), initialLayout(aInitialLayout)
     {
+        assert(mipLevels != 0 && arrayLayers != 0);
         assert(queueFamilyIndexCount != 0 && pQueueFamilyIndices != nullptr);
     }
 
@@ -149,6 +152,8 @@ public:
 
     ImageCreateInfo& SetImageExtent(const Extent3D& aExtent, uint32_t aMipLevels, uint32_t aArrayLayers)
     {
+        assert(aMipLevels != 0 && aArrayLayers != 0);
+
         extent      = aExtent;
         mipLevels   = aMipLevels;
         arrayLayers = aArrayLayers;
