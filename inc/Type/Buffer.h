@@ -150,6 +150,9 @@ struct BufferCopy : public internal::VkTrait<BufferCopy, VkBufferCopy>
 
     DEFINE_CLASS_MEMBER(BufferCopy)
 
+    constexpr BufferCopy(DeviceSize aSize) noexcept : size(aSize)
+    {}
+
     constexpr BufferCopy(DeviceSize aSrcOffset, DeviceSize aDstOffset, DeviceSize aSize) noexcept : srcOffset(aSrcOffset), dstOffset(aDstOffset), size(aSize)
     {}
 

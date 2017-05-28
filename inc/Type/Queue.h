@@ -3,8 +3,7 @@
 
 
 
-#include <vector>
-#include <array>
+#include <initializer_list>
 
 #include <Info/Common.h>
 #include <Info/PipelineStage.h>
@@ -213,18 +212,20 @@ public:
 
     void Submit(uint32_t aSubmitCount, const SubmitInfo* apSubmits, const Fence& aFence) const
     {
+        assert(aSubmitCount != 0 && apSubmits != nullptr);
+
         ThrowIfFailed(vkQueueSubmit(mQueue, aSubmitCount, &apSubmits[0], aFence));
     }
 
-    void Submit(const std::vector<SubmitInfo>& aSubmitInfos, const Fence& aFence) const
+    template <typename T, typename = EnableIfValueType<ValueType<T>, SubmitInfo>>
+    void Submit(T&& aSubmitInfos, const Fence& aFence) const
     {
-        ThrowIfFailed(vkQueueSubmit(mQueue, static_cast<uint32_t>(aSubmitInfos.size()), &aSubmitInfos[0], aFence));
+        Submit(static_cast<uint32_t>(aSubmitInfos.size()), aSubmitInfos.data(), aFence);
     }
 
-    template <std::size_t S>
-    void Submit(const std::array<SubmitInfo, S>& aSubmitInfos, const Fence& aFence) const
+    void Submit(const std::initializer_list<SubmitInfo>& aSubmitInfos, const Fence& aFence) const
     {
-        ThrowIfFailed(vkQueueSubmit(mQueue, static_cast<uint32_t>(aSubmitInfos.size()), &aSubmitInfos[0], aFence));
+        Submit(static_cast<uint32_t>(aSubmitInfos.size()), aSubmitInfos.begin(), aFence);
     }
 
     void Present(const khr::PresentInfo& aPresentInfo) const

@@ -67,21 +67,21 @@ public:
     SamplerAddressMode  addressModeV{ SamplerAddressMode::eRepeat };
     SamplerAddressMode  addressModeW{ SamplerAddressMode::eRepeat };
     float               mipLodBias{ 0.0f };
-    Bool32              anisotropyEnable{ VK_FALSE };
+    Anisotropy          anisotropyEnable{ Anisotropy::Disable };
     float               maxAnisotropy{ 1.0f };
-    Bool32              compareEnable{ VK_FALSE };
+    Compare             compareEnable{ Compare::Enable };
     CompareOp           compareOp{ CompareOp::eNever };
     float               minLod{ 0.0f };
     float               maxLod{ 0.0f };
     BorderColor         borderColor{ BorderColor::eFloatTransparentBlack };
-    Bool32              unnormalizedCoordinates{ VK_FALSE }; 
+    UnormCoord          unnormalizedCoordinates{ UnormCoord::Disable };
 
     DEFINE_CLASS_MEMBER(SamplerCreateInfo)
 
     constexpr SamplerCreateInfo(Filter aMagFilter, Filter aMinFilter, SamplerMipmapMode aMipmapMode,
         SamplerAddressMode aAddressModeU, SamplerAddressMode aAddressModeV, SamplerAddressMode aAddressModeW,
-        float aMipLodBias, Bool32 aAnisotropyEnble, float aMaxAnisotropy, Bool32 aCompareEnable, CompareOp aCompareOp,
-        float aMinLod, float aMaxLod, BorderColor aBorderColor, Bool32 aUnnormalizedCoordinates = VK_FALSE, const SamplerCreateFlags& aFlags = DefaultFlags) noexcept
+        float aMipLodBias, Anisotropy aAnisotropyEnble, float aMaxAnisotropy, Compare aCompareEnable, CompareOp aCompareOp,
+        float aMinLod, float aMaxLod, BorderColor aBorderColor, UnormCoord aUnnormalizedCoordinates = UnormCoord::Disable, const SamplerCreateFlags& aFlags = DefaultFlags) noexcept
         : flags(aFlags), magFilter(aMagFilter), minFilter(aMinFilter), mipmapMode(aMipmapMode), addressModeU(aAddressModeU), addressModeV(aAddressModeV), addressModeW(aAddressModeW),
           mipLodBias(aMipLodBias), anisotropyEnable(aAnisotropyEnble), maxAnisotropy(aMaxAnisotropy), compareEnable(aCompareEnable), compareOp(aCompareOp),
           minLod(aMinLod), maxLod(aMaxLod), borderColor(aBorderColor), unnormalizedCoordinates(aUnnormalizedCoordinates)
@@ -132,18 +132,32 @@ public:
         return *this;
     }
 
-    SamplerCreateInfo& SetAnisotropy(Bool32 aAnisotropyEnable, float aMaxAnisotropy = 0.0f)
+    SamplerCreateInfo& EnableAnisotropy(float aMaxAnisotropy)
     {
-        anisotropyEnable    = aAnisotropyEnable;
+        anisotropyEnable    = Anisotropy::Enable;
         maxAnisotropy       = aMaxAnisotropy;
 
         return *this;
     }
 
-    SamplerCreateInfo& SetCompareEnable(Bool32 aCompareEnable, CompareOp aCompareOp = CompareOp::eAlways)
+    SamplerCreateInfo& DisableAnisotropy(void)
     {
-        compareEnable   = aCompareEnable;
+        anisotropyEnable    = Anisotropy::Disable;
+
+        return *this;
+    }
+
+    SamplerCreateInfo& EnableCompareEnable(CompareOp aCompareOp = CompareOp::eAlways)
+    {
+        compareEnable   = Compare::Enable;
         compareOp       = aCompareOp;
+
+        return *this;
+    }
+
+    SamplerCreateInfo& DisableCompareEnable(void)
+    {
+        compareEnable = Compare::Disable;
 
         return *this;
     }
@@ -163,9 +177,16 @@ public:
         return *this;
     }
 
-    SamplerCreateInfo& SetUnnormalizedCoordinates(Bool32 aUnnormalizedCoordinates)
+    SamplerCreateInfo& EnableUnnormCoord(void)
     {
-        unnormalizedCoordinates = aUnnormalizedCoordinates;
+        unnormalizedCoordinates = UnormCoord::Enable;
+
+        return *this;
+    }
+
+    SamplerCreateInfo& DisableUnnormCoord(void)
+    {
+        unnormalizedCoordinates = UnormCoord::Disable;
 
         return *this;
     }

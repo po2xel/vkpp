@@ -349,11 +349,11 @@ public:
     const void*                             pNext{ nullptr };
     PipelineInputAssemblyStateCreateFlags   flags;
     PrimitiveTopology                       topology{ PrimitiveTopology::ePointList };
-    Bool32                                  primitiveRestartEnable{ VK_FALSE };
+    PrimitiveRestart                        primitiveRestartEnable{ PrimitiveRestart::Disable };
 
     DEFINE_CLASS_MEMBER(PipelineInputAssemblyStateCreateInfo)
 
-    explicit constexpr PipelineInputAssemblyStateCreateInfo(PrimitiveTopology aTopology, Bool32 aPrimitiveRestartEnable = VK_FALSE, const PipelineInputAssemblyStateCreateFlags& aFlags = DefaultFlags) noexcept
+    explicit constexpr PipelineInputAssemblyStateCreateInfo(PrimitiveTopology aTopology, PrimitiveRestart aPrimitiveRestartEnable = PrimitiveRestart::Disable, const PipelineInputAssemblyStateCreateFlags& aFlags = DefaultFlags) noexcept
         : flags(aFlags), topology(aTopology), primitiveRestartEnable(aPrimitiveRestartEnable)
     {}
 
@@ -364,7 +364,7 @@ public:
         return *this;
     }
 
-    PipelineInputAssemblyStateCreateInfo& SetTopology(PrimitiveTopology aTopology, Bool32 aPrimitiveRestartEnable = VK_FALSE)
+    PipelineInputAssemblyStateCreateInfo& SetTopology(PrimitiveTopology aTopology, PrimitiveRestart aPrimitiveRestartEnable = PrimitiveRestart::Disable)
     {
         topology                = aTopology;
         primitiveRestartEnable  = aPrimitiveRestartEnable;
@@ -574,12 +574,12 @@ private:
 public:
     const void*                             pNext{ nullptr };
     PipelineRasterizationStateCreateFlags   flags;
-    Bool32                                  depthClampEnable{ VK_FALSE };
-    Bool32                                  rasterizerDiscardEnable{ VK_FALSE };
+    DepthClamp                              depthClampEnable{ DepthClamp::Disable };
+    RasterizerDiscard                       rasterizerDiscardEnable{ RasterizerDiscard::Disable };
     PolygonMode                             polygonMode{ PolygonMode::eFill };
     CullModeFlags                           cullMode{ CullModeFlagBits::eNone };
     FrontFace                               frontFace{ FrontFace::eCounterClockwise };
-    Bool32                                  depthBiasEnable{ VK_FALSE };
+    DepthBias                               depthBiasEnable{ DepthBias::Disable };
     float                                   depthBiasConstantFactor{ 0 };
     float                                   depthBiasClamp{ 0 };
     float                                   depthBiasSlopeFactor{ 0 };
@@ -587,8 +587,8 @@ public:
 
     DEFINE_CLASS_MEMBER(PipelineRasterizationStateCreateInfo)
 
-    constexpr PipelineRasterizationStateCreateInfo(Bool32 aDepthClampEnable, Bool32 aRasterizerDiscardEnable, PolygonMode aPolygonMode, const CullModeFlags& aCullMode, FrontFace aFrontFace,
-        Bool32 aDepthBiasEnable, float aDepthBiasConstantFactor, float aDepthBiasClamp, float aDepthBiasSlopeFactor, float aLineWidth, const PipelineRasterizationStateCreateFlags& aFlags = DefaultFlags) noexcept
+    constexpr PipelineRasterizationStateCreateInfo(DepthClamp aDepthClampEnable, RasterizerDiscard aRasterizerDiscardEnable, PolygonMode aPolygonMode, const CullModeFlags& aCullMode, FrontFace aFrontFace,
+        DepthBias aDepthBiasEnable, float aDepthBiasConstantFactor, float aDepthBiasClamp, float aDepthBiasSlopeFactor, float aLineWidth, const PipelineRasterizationStateCreateFlags& aFlags = DefaultFlags) noexcept
         : flags(aFlags), depthClampEnable(aDepthClampEnable), rasterizerDiscardEnable(aRasterizerDiscardEnable), polygonMode(aPolygonMode), cullMode(aCullMode), frontFace(aFrontFace),
         depthBiasEnable(aDepthBiasEnable), depthBiasConstantFactor(aDepthBiasConstantFactor), depthBiasClamp(aDepthBiasClamp), depthBiasSlopeFactor(aDepthBiasSlopeFactor), lineWidth(aLineWidth)
     {}
@@ -614,28 +614,28 @@ public:
 
     PipelineRasterizationStateCreateInfo& EnableDepthClamp(void)
     {
-        depthClampEnable    = VK_TRUE;
+        depthClampEnable    = DepthClamp::Enable;
 
         return *this;
     }
 
     PipelineRasterizationStateCreateInfo& DisableDepthClamp(void)
     {
-        depthClampEnable    = VK_FALSE;
+        depthClampEnable    = DepthClamp::Disable;
 
         return *this;
     }
 
     PipelineRasterizationStateCreateInfo& EnableRasterizerDiscard(void)
     {
-        rasterizerDiscardEnable = VK_TRUE;
+        rasterizerDiscardEnable = RasterizerDiscard::Enable;
 
         return *this;
     }
 
     PipelineRasterizationStateCreateInfo& DisableRasterizerDiscard(void)
     {
-        rasterizerDiscardEnable = VK_FALSE;
+        rasterizerDiscardEnable = RasterizerDiscard::Disable;
 
         return *this;
     }
@@ -663,7 +663,7 @@ public:
 
     PipelineRasterizationStateCreateInfo& EnableDepthBias(float aDepthBiasConstantFactor, float aDepthBiasClamp, float aDepthBiasSlopeFactor)
     {
-        depthBiasEnable             = VK_TRUE;
+        depthBiasEnable             = DepthBias::Enable;
         depthBiasConstantFactor     = aDepthBiasConstantFactor;
         depthBiasClamp              = aDepthBiasClamp;
         depthBiasSlopeFactor        = aDepthBiasSlopeFactor;
@@ -673,7 +673,7 @@ public:
 
     PipelineRasterizationStateCreateInfo& DisableDepthBias(void)
     {
-        depthBiasEnable    = VK_FALSE;
+        depthBiasEnable    = DepthBias::Disable;
 
         return *this;
     }
@@ -713,16 +713,16 @@ public:
     const void*                         pNext{ nullptr };
     PipelineMultisampleStateCreateFlags flags;
     SampleCountFlagBits                 rasterizationSamples{ SampleCountFlagBits::e1 };
-    Bool32                              sampleShadingEnable{ VK_FALSE };
+    SampleShading                       sampleShadingEnable{ SampleShading::Disable };
     float                               minSampleShading{ 1.0f };
     const SampleMask*                   pSampleMask{ nullptr };
-    Bool32                              alphaToCoverageEnable{ VK_FALSE };
-    Bool32                              alphaToOneEnable{ VK_FALSE };
+    AlphaToCoverage                     alphaToCoverageEnable{ AlphaToCoverage::Disable };
+    AlphaToOne                          alphaToOneEnable{ AlphaToOne::Disable };
 
     DEFINE_CLASS_MEMBER(PipelineMultisampleStateCreateInfo)
 
-    constexpr PipelineMultisampleStateCreateInfo(SampleCountFlagBits aRasterizationSamples, Bool32 aSampleShadingEnable, float aMinSampleShading, const SampleMask* apSampleMask,
-        Bool32 aAlphaToCoverageEnable, Bool32 aAlphaToOneEnable, const PipelineMultisampleStateCreateFlags& aFlags = DefaultFlags) noexcept
+    constexpr PipelineMultisampleStateCreateInfo(SampleCountFlagBits aRasterizationSamples, SampleShading aSampleShadingEnable, float aMinSampleShading, const SampleMask* apSampleMask,
+        AlphaToCoverage aAlphaToCoverageEnable, AlphaToOne aAlphaToOneEnable, const PipelineMultisampleStateCreateFlags& aFlags = DefaultFlags) noexcept
         : flags(aFlags), rasterizationSamples(aRasterizationSamples), sampleShadingEnable(aSampleShadingEnable), minSampleShading(aMinSampleShading), pSampleMask(apSampleMask),
           alphaToCoverageEnable(aAlphaToCoverageEnable), alphaToOneEnable(aAlphaToOneEnable)
     {}
@@ -829,11 +829,11 @@ private:
 public:
     const void*                             pNext{ nullptr };
     PipelineDepthStencilStateCreateFlags    flags;
-    Bool32                                  depthTestEnable{ VK_FALSE };
-    Bool32                                  depthWriteEnable{ VK_FALSE };
+    DepthTest                               depthTestEnable{ DepthTest::Disable };
+    DepthWrite                              depthWriteEnable{ DepthWrite::Disable };
     CompareOp                               depthCompareOp{ CompareOp::eNever };
-    Bool32                                  depthBoundsTestEnable{ VK_FALSE };
-    Bool32                                  stencilTestEnable{ VK_FALSE };
+    DepthBoundsTest                         depthBoundsTestEnable{ DepthBoundsTest::Disable };
+    StencilTest                             stencilTestEnable{ StencilTest::Disable };
     StencilOpState                          front;
     StencilOpState                          back;
     float                                   minDepthBounds{ 0.0f };
@@ -841,8 +841,8 @@ public:
 
     DEFINE_CLASS_MEMBER(PipelineDepthStencilStateCreateInfo)
 
-    constexpr PipelineDepthStencilStateCreateInfo(Bool32 aDepthTestEnable, Bool32 aDepthWriteEnable, CompareOp aDepthCompareOp, Bool32 aDepthBoundsTestEnable,
-        Bool32 aStencilTestEnable, const StencilOpState& aFront, const StencilOpState& aBack, float aMinDepthBounds, float aMaxDepthBounds,
+    constexpr PipelineDepthStencilStateCreateInfo(DepthTest aDepthTestEnable, DepthWrite aDepthWriteEnable, CompareOp aDepthCompareOp, DepthBoundsTest aDepthBoundsTestEnable,
+        StencilTest aStencilTestEnable, const StencilOpState& aFront, const StencilOpState& aBack, float aMinDepthBounds, float aMaxDepthBounds,
         const PipelineDepthStencilStateCreateFlags& aFlags = DefaultFlags) noexcept
         : flags(aFlags), depthTestEnable(aDepthTestEnable), depthWriteEnable(aDepthWriteEnable), depthCompareOp(aDepthCompareOp), depthBoundsTestEnable(aDepthBoundsTestEnable),
           stencilTestEnable(aStencilTestEnable), front(aFront), back(aBack), minDepthBounds(aMinDepthBounds), maxDepthBounds(aMaxDepthBounds)
@@ -851,23 +851,23 @@ public:
         assert(aMaxDepthBounds >= 0.0f && aMaxDepthBounds <= 1.0f);
     }
 
-    constexpr PipelineDepthStencilStateCreateInfo(Bool32 aDepthTestEnable, Bool32 aDepthWriteEnable, CompareOp aDepthCompareOp, Bool32 aDepthBoundsTestEnable,
-        Bool32 aStencilTestEnable, const StencilOpState& aFront, const StencilOpState& aBack, const PipelineDepthStencilStateCreateFlags& aFlags = DefaultFlags) noexcept
+    constexpr PipelineDepthStencilStateCreateInfo(DepthTest aDepthTestEnable, DepthWrite aDepthWriteEnable, CompareOp aDepthCompareOp, DepthBoundsTest aDepthBoundsTestEnable,
+        StencilTest aStencilTestEnable, const StencilOpState& aFront, const StencilOpState& aBack, const PipelineDepthStencilStateCreateFlags& aFlags = DefaultFlags) noexcept
         : flags(aFlags), depthTestEnable(aDepthTestEnable), depthWriteEnable(aDepthWriteEnable), depthCompareOp(aDepthCompareOp), depthBoundsTestEnable(aDepthBoundsTestEnable),
         stencilTestEnable(aStencilTestEnable), front(aFront), back(aBack)
     {}
 
-    constexpr PipelineDepthStencilStateCreateInfo(Bool32 aDepthTestEnable, Bool32 aDepthWriteEnable, CompareOp aDepthCompareOp,
+    constexpr PipelineDepthStencilStateCreateInfo(DepthTest aDepthTestEnable, DepthWrite aDepthWriteEnable, CompareOp aDepthCompareOp,
         const PipelineDepthStencilStateCreateFlags& aFlags = DefaultFlags) noexcept
         : flags(aFlags), depthTestEnable(aDepthTestEnable), depthWriteEnable(aDepthWriteEnable), depthCompareOp(aDepthCompareOp)
     {}
 
-    constexpr PipelineDepthStencilStateCreateInfo(Bool32 aStencilTestEnable, const StencilOpState& aFront, const StencilOpState& aBack,
+    constexpr PipelineDepthStencilStateCreateInfo(StencilTest aStencilTestEnable, const StencilOpState& aFront, const StencilOpState& aBack,
         const PipelineDepthStencilStateCreateFlags& aFlags = DefaultFlags) noexcept
         : flags(aFlags), stencilTestEnable(aStencilTestEnable), front(aFront), back(aBack)
     {}
 
-    explicit constexpr PipelineDepthStencilStateCreateInfo(Bool32 aDepthBoundsTestEnable, float aMinDepthBounds, float aMaxDepthBounds,
+    explicit constexpr PipelineDepthStencilStateCreateInfo(DepthBoundsTest aDepthBoundsTestEnable, float aMinDepthBounds, float aMaxDepthBounds,
         const PipelineDepthStencilStateCreateFlags& aFlags = DefaultFlags) noexcept
         : flags(aFlags), depthBoundsTestEnable(aDepthBoundsTestEnable), minDepthBounds(aMinDepthBounds), maxDepthBounds(aMaxDepthBounds)
     {
@@ -875,7 +875,7 @@ public:
         assert(aMaxDepthBounds >= 0.0f && aMaxDepthBounds <= 1.0f);
     }
 
-    explicit constexpr PipelineDepthStencilStateCreateInfo(Bool32 aDepthBoundsTestEnable, const PipelineDepthStencilStateCreateFlags& aFlags = DefaultFlags) noexcept
+    explicit constexpr PipelineDepthStencilStateCreateInfo(DepthBoundsTest aDepthBoundsTestEnable, const PipelineDepthStencilStateCreateFlags& aFlags = DefaultFlags) noexcept
         : flags(aFlags), depthBoundsTestEnable(aDepthBoundsTestEnable)
     {}
 
@@ -895,8 +895,8 @@ public:
 
     PipelineDepthStencilStateCreateInfo& EnableDepthTestOnly(CompareOp aDepthCompareOp)
     {
-        depthTestEnable     = VK_TRUE;
-        depthWriteEnable    = VK_FALSE;
+        depthTestEnable     = DepthTest::Enable;
+        depthWriteEnable    = DepthWrite::Disable;
         depthCompareOp      = aDepthCompareOp;
 
         return *this;
@@ -904,8 +904,8 @@ public:
 
     PipelineDepthStencilStateCreateInfo& EnableDepthTest(CompareOp aDepthCompareOp)
     {
-        depthTestEnable     = VK_TRUE;
-        depthWriteEnable    = VK_TRUE;
+        depthTestEnable     = DepthTest::Enable;
+        depthWriteEnable    = DepthWrite::Enable;
         depthCompareOp      = aDepthCompareOp;
 
         return *this;
@@ -913,8 +913,8 @@ public:
 
     PipelineDepthStencilStateCreateInfo& DisableDepthTest(void)
     {
-        depthTestEnable     = VK_FALSE;
-        depthWriteEnable    = VK_FALSE;
+        depthTestEnable     = DepthTest::Disable;
+        depthWriteEnable    = DepthWrite::Disable;
         depthCompareOp      = CompareOp::eNever;
 
         return *this;
@@ -922,7 +922,7 @@ public:
 
     PipelineDepthStencilStateCreateInfo& EnableStencilTest(const StencilOpState& aFront, const StencilOpState& aBack)
     {
-        stencilTestEnable   = VK_TRUE;
+        stencilTestEnable   = StencilTest::Enable;
         front               = aFront;
         back                = aBack;
 
@@ -931,7 +931,7 @@ public:
 
     PipelineDepthStencilStateCreateInfo& DisableStencilTest(void)
     {
-        stencilTestEnable   = VK_FALSE;
+        stencilTestEnable   = StencilTest::Disable;
 
         return *this;
     }
@@ -941,7 +941,7 @@ public:
         assert(aMinDepthBounds >= 0.0f && aMinDepthBounds <= 1.0f);
         assert(aMaxDepthBounds >= 0.0f && aMaxDepthBounds <= 1.0f);
 
-        depthBoundsTestEnable   = VK_TRUE;
+        depthBoundsTestEnable   = DepthBoundsTest::Enable;
         minDepthBounds          = aMinDepthBounds;
         maxDepthBounds          = aMaxDepthBounds;
 
@@ -950,7 +950,7 @@ public:
 
     PipelineDepthStencilStateCreateInfo& DisableDepthBounds(void)
     {
-        depthBoundsTestEnable   = VK_FALSE;
+        depthBoundsTestEnable   = DepthBoundsTest::Disable;
 
         return *this;
     }
@@ -1013,7 +1013,7 @@ constexpr ColorComponentFlags IdentityColorComponents{ ColorComponentFlagBits::e
 
 struct PipelineColorBlendAttachmentState : public internal::VkTrait<PipelineColorBlendAttachmentState, VkPipelineColorBlendAttachmentState>
 {
-    Bool32              blendEnable{ VK_FALSE };
+    Blend               blendEnable{ Blend::Disable };
     BlendFactor         srcColorBlendFactor{ BlendFactor::eZero };
     BlendFactor         dstColorBlendFactor{ BlendFactor::eZero };
     BlendOp             colorBlendOp{ BlendOp::eAdd };
@@ -1024,22 +1024,22 @@ struct PipelineColorBlendAttachmentState : public internal::VkTrait<PipelineColo
 
     DEFINE_CLASS_MEMBER(PipelineColorBlendAttachmentState)
 
-    constexpr PipelineColorBlendAttachmentState(Bool32 aBlendEnable, BlendFactor aSrcColorBlendFactor, BlendFactor aDstColorBlendFactor, BlendOp aColorBlendOp,
+    constexpr PipelineColorBlendAttachmentState(Blend aBlendEnable, BlendFactor aSrcColorBlendFactor, BlendFactor aDstColorBlendFactor, BlendOp aColorBlendOp,
         BlendFactor aSrcAlphaBlendFactor, BlendFactor aDstAlphaBlendFactor, BlendOp aAlphaBlendOp, const ColorComponentFlags& aColorWriteMask) noexcept
         : blendEnable(aBlendEnable), srcColorBlendFactor(aSrcColorBlendFactor), dstColorBlendFactor(aDstColorBlendFactor), colorBlendOp(aColorBlendOp),
           srcAlphaBlendFactor(aSrcAlphaBlendFactor), dstAlphaBlendFactor(aDstAlphaBlendFactor), alphaBlendOp(aAlphaBlendOp), colorWriteMask(aColorWriteMask)
     {}
 
-    PipelineColorBlendAttachmentState& DisableBlendOp(void)
+    PipelineColorBlendAttachmentState& EnableBlendOp(void)
     {
-        blendEnable = VK_FALSE;
+        blendEnable = Blend::Enable;
 
         return *this;
     }
 
-    PipelineColorBlendAttachmentState& EnableBlendOp(void)
+    PipelineColorBlendAttachmentState& DisableBlendOp(void)
     {
-        blendEnable = VK_TRUE;
+        blendEnable = Blend::Disable;
 
         return *this;
     }
@@ -1112,7 +1112,7 @@ private:
 public:
     const void*                                 pNext{ nullptr };
     PipelineColorBlendStateCreateFlags          flags;
-    Bool32                                      logicOpEnable{ VK_FALSE };
+    Logical                                     logicOpEnable{ Logical::Disable };
     LogicalOp                                   logicOp{ LogicalOp::eClear };
     uint32_t                                    attachmentCount{ 0 };
     const PipelineColorBlendAttachmentState*    pAttachments{ nullptr };
@@ -1125,14 +1125,14 @@ public:
     {}
 
     constexpr PipelineColorBlendStateCreateInfo(uint32_t aAttachmentCount, const PipelineColorBlendAttachmentState* apAttachments,
-        Bool32 aLogicOpEnable, LogicalOp aLogicOp, const std::array<float, 4>& aBlendConstants,
+        Logical aLogicOpEnable, LogicalOp aLogicOp, const std::array<float, 4>& aBlendConstants,
         const PipelineColorBlendStateCreateFlags& aFlags = DefaultFlags) noexcept
         : flags(aFlags), logicOpEnable(aLogicOpEnable), logicOp(aLogicOp), attachmentCount(aAttachmentCount),
           pAttachments(apAttachments), blendConstants{aBlendConstants[0], aBlendConstants[1], aBlendConstants[2], aBlendConstants[3]}
     {}
 
     template <typename A, typename = EnableIfValueType<ValueType<A>, PipelineColorBlendAttachmentState>>
-    constexpr PipelineColorBlendStateCreateInfo(A&& aAttachments, Bool32 aLogicOpEnable, LogicalOp aLogicOp,
+    constexpr PipelineColorBlendStateCreateInfo(A&& aAttachments, Logical aLogicOpEnable, LogicalOp aLogicOp,
         const std::array<float, 4>& aBlendConstants, const PipelineColorBlendStateCreateFlags& aFlags = DefaultFlags) noexcept
         : PipelineColorBlendStateCreateInfo(aLogicOpEnable, aLogicOp, static_cast<uint32_t>(aAttachments.size()), aAttachments.data(), aBlendConstants, aFlags)
     {
@@ -1160,10 +1160,17 @@ public:
         return *this;
     }
 
-    PipelineColorBlendStateCreateInfo& SetLogicalOp(Bool32 aLogicalOpEnable, LogicalOp aLogicOp)
+    PipelineColorBlendStateCreateInfo& EnableLogicalOp(LogicalOp aLogicOp)
     {
-        logicOpEnable   = aLogicalOpEnable;
+        logicOpEnable   = Logical::Enable;
         logicOp         = aLogicOp;
+
+        return *this;
+    }
+
+    PipelineColorBlendStateCreateInfo& DisableLogicalOp(void)
+    {
+        logicOpEnable = Logical::Disable;
 
         return *this;
     }

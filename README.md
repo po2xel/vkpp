@@ -50,6 +50,10 @@ Note that the number of layers in the array doesn't have to be a multiple of 6, 
 Texture arrays allow storing of multiple images in different layers without any interpolation among the layers.<br/>
 2D array texture is different from a 3D texture in that linear filtering can be performed in the z direction in a 3D texture, whereas filtering cannot be performed across multiple layers in an array image.
 
+### [Mesh Renderer](Sample/MeshRenderer/)
+<img src="./Sample/MeshRenderer/MeshRenderer.png" height="108px" align="right">
+Uses [assimp](https://github.com/assimp/assimp) to load a mesh from a common 3D format. Them mesh data is then converted to a fixed layout matching the shader vertex attribute bindings.
+
 ## Credits
 Thanks to the authors of these libraries:
  - [Examples and demos for the new Vulkan API](https://github.com/SaschaWillems/Vulkan)

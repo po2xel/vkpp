@@ -75,11 +75,67 @@ using EnableIfValueType = std::enable_if_t<EnableIfValueTypeImpl<L, R, Ts...>::v
 
 
 
+struct AddressOf
+{
+    template <typename T>
+    decltype(auto) operator()(T&& aContainer) const
+    {
+        return aContainer.data();
+    }
+
+    template <typename T>
+    decltype(auto) operator()(const std::initializer_list<T>& aContainer) const
+    {
+        return aContainer.begin();
+    }
+
+    template<typename T>
+    decltype(auto) operator()(std::initializer_list<T>& aContainer) const
+    {
+        return aContainer.begin();
+    }
+};
+
+constexpr static AddressOf addressof;
+
+
+
 using Bool32            = VkBool32;
 using DeviceSize        = VkDeviceSize;
 using Result            = VkResult;
 using ClearColorValue   = VkClearColorValue;
 using ClearValue        = VkClearValue;
+
+
+
+#define TAGGED_BOOL(Name) enum class Name : Bool32 { Disable, Enable };
+    TAGGED_BOOL(DepthTest)
+    TAGGED_BOOL(DepthWrite)
+    TAGGED_BOOL(DepthBoundsTest)
+    TAGGED_BOOL(StencilTest)
+
+    TAGGED_BOOL(DepthClamp)
+    TAGGED_BOOL(RasterizerDiscard)
+    TAGGED_BOOL(DepthBias)
+
+    TAGGED_BOOL(PrimitiveRestart)
+
+    TAGGED_BOOL(SampleShading)
+    TAGGED_BOOL(AlphaToCoverage)
+    TAGGED_BOOL(AlphaToOne)
+
+    TAGGED_BOOL(Blend)
+
+    TAGGED_BOOL(Logical)
+
+    TAGGED_BOOL(OcclusionQuery)
+
+    TAGGED_BOOL(Anisotropy)
+    TAGGED_BOOL(Compare)
+    TAGGED_BOOL(UnormCoord)
+
+    TAGGED_BOOL(Clipped)
+#undef TAGGED_BOOL
 
 
 

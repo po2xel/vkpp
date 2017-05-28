@@ -336,11 +336,11 @@ void ColorizedTriangle::CreateGraphicsPipeline(void)
 
     constexpr vkpp::PipelineRasterizationStateCreateInfo lRasterizationStateCreateInfo
     {
-        VK_FALSE, VK_FALSE,
+        DepthClamp::Disable, RasterizerDiscard::Disable,
         vkpp::PolygonMode::eFill,
         vkpp::CullModeFlagBits::eBack,
         vkpp::FrontFace::eClockwise,
-        VK_FALSE,
+        DepthBias::Disable,
         0.0f, 0.0f, 0.0f,
         1.0f
     };
@@ -349,7 +349,8 @@ void ColorizedTriangle::CreateGraphicsPipeline(void)
 
     constexpr vkpp::PipelineDepthStencilStateCreateInfo lDepthStencilCreateInfo
     {
-        VK_TRUE, VK_TRUE, vkpp::CompareOp::eLess
+        DepthTest::Enable, DepthWrite::Enable,
+        vkpp::CompareOp::eLess
     };
 
     constexpr vkpp::PipelineColorBlendAttachmentState lColorBlendAttachmentState;

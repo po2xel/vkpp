@@ -136,7 +136,7 @@ private:
     void CreateDescriptorPool(void);
     void AllocateDescriptorSet(void);
 
-    void LoadTexture(const std::string& aFilename, vkpp::Format mTexFormat);
+    void LoadTexture(const std::string& aFilename, vkpp::Format aTexFormat);
     void CreateSampler(void);
     void UpdateDescriptorSet(void);
 

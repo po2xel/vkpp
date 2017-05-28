@@ -1,4 +1,4 @@
-#include "TexturedArray.h"
+#include "MeshRenderer.h"
 
 
 
@@ -7,13 +7,13 @@ namespace vkpp::sample
 
 
 
-TexturedArray::TexturedArray(CWindow& aWindow, const char* apAppName, uint32_t aAppVersion, const char* apEngingName, uint32_t aEngineVersion)
-    : ExampleBase(aWindow, apAppName, aAppVersion, apEngingName, aEngineVersion),
+MeshRenderer::MeshRenderer(CWindow& aWindow, const char* apAppName, uint32_t aAppVersion, const char* apEngineName, uint32_t aEngineVersion)
+    : ExampleBase(aWindow, apAppName, aAppVersion, apEngineName, aEngineVersion),
       CWindowEvent(aWindow), CMouseMotionEvent(aWindow), CMouseWheelEvent(aWindow),
       mDepthRes(mLogicalDevice, mPhysicalDeviceMemoryProperties),
-      mTextureRes(mLogicalDevice, mPhysicalDeviceMemoryProperties),
       mVertexBufferRes(mLogicalDevice, mPhysicalDeviceMemoryProperties),
       mIndexBufferRes(mLogicalDevice, mPhysicalDeviceMemoryProperties),
+      mTextureRes(mLogicalDevice, mPhysicalDeviceMemoryProperties),
       mUBORes(mLogicalDevice, mPhysicalDeviceMemoryProperties)
 {
     theApp.RegisterUpdateEvent([this](void)
@@ -24,7 +24,7 @@ TexturedArray::TexturedArray(CWindow& aWindow, const char* apAppName, uint32_t a
     mMouseWheelFunc = [this](Sint32 /*aPosX*/, Sint32 aPosY)
     {
         mCurrentZoomLevel *= (1.0f + aPosY * MINIMUM_ZOOM_LEVEL);
-        UpdateUniformBuffers();
+        UpdateUniformBuffer();
     };
 
     mMouseMotionFunc = [this](Uint32 aMouseState, Sint32 /*aPosX*/, Sint32 /*aPosY*/, Sint32 aRelativeX, Sint32 aRelativeY)
@@ -34,7 +34,7 @@ TexturedArray::TexturedArray(CWindow& aWindow, const char* apAppName, uint32_t a
             mCurrentRotation.x += aRelativeY;
             mCurrentRotation.y += aRelativeX;
 
-            UpdateUniformBuffers();
+            UpdateUniformBuffer();
         }
     };
 
@@ -65,8 +65,8 @@ TexturedArray::TexturedArray(CWindow& aWindow, const char* apAppName, uint32_t a
     CreateCmdPool();
     AllocateCmdBuffers();
 
-    CreateDepthResource();
     CreateRenderPass();
+    CreateDepthResource();
     CreateFramebuffers();
 
     CreateSetLayout();
@@ -76,16 +76,13 @@ TexturedArray::TexturedArray(CWindow& aWindow, const char* apAppName, uint32_t a
     CreateDescriptorPool();
     AllocateDescriptorSet();
 
-    // TODO: Vulkan core supports three different compressed texture formats.
-    //       As the support differs among implementations, it needs to check device features and select a proper format and file.
-    LoadTexture("Texture/texturearray_bc3_unorm.ktx", vkpp::Format::eBC3_uNormBlock);
+    LoadModel("Model/voyager.dae");
+
+    LoadTexture("Model/voyager_bc3_unorm.ktx", vkpp::Format::eBC3_uNormBlock);
     CreateSampler();
 
-    CreateVertexBuffer();
-    CreateIndexBuffer();
-
     CreateUniformBuffer();
-    UpdateUniformBuffers();
+    UpdateUniformBuffer();
 
     UpdateDescriptorSets();
 
@@ -96,7 +93,7 @@ TexturedArray::TexturedArray(CWindow& aWindow, const char* apAppName, uint32_t a
 }
 
 
-TexturedArray::~TexturedArray(void)
+MeshRenderer::~MeshRenderer(void)
 {
     mLogicalDevice.Wait();
 
@@ -117,21 +114,20 @@ TexturedArray::~TexturedArray(void)
 
     mLogicalDevice.DestroyDescriptorPool(mDescriptorPool);
 
-    mLogicalDevice.DestroyPipeline(mPipeline);
-
+    mLogicalDevice.DestroyPipeline(mGraphicsPipeline);
     mLogicalDevice.DestroyPipelineLayout(mPipelineLayout);
     mLogicalDevice.DestroyDescriptorSetLayout(mSetLayout);
 
     mLogicalDevice.DestroyFramebuffers(mFramebuffers);
-    mLogicalDevice.DestroyRenderPass(mRenderPass);
     mDepthRes.Reset();
+    mLogicalDevice.DestroyRenderPass(mRenderPass);
 
     mLogicalDevice.FreeCommandBuffers(mCmdPool, mDrawCmdBuffers);
     mLogicalDevice.DestroyCommandPool(mCmdPool);
 }
 
 
-void TexturedArray::CreateCmdPool(void)
+void MeshRenderer::CreateCmdPool(void)
 {
     const vkpp::CommandPoolCreateInfo lCmdPoolCreateInfo
     {
@@ -143,78 +139,48 @@ void TexturedArray::CreateCmdPool(void)
 }
 
 
-void TexturedArray::AllocateCmdBuffers(void)
+void MeshRenderer::AllocateCmdBuffers(void)
 {
     const vkpp::CommandBufferAllocateInfo lCmdAllocateInfo
     {
         mCmdPool,
-        static_cast<uint32_t>(mSwapchain.buffers.size())
+        static_cast<uint32_t>(mSwapchain.buffers.size()) 
     };
 
     mDrawCmdBuffers = mLogicalDevice.AllocateCommandBuffers(lCmdAllocateInfo);
 }
 
 
-void TexturedArray::CreateDepthResource(void)
-{
-    const vkpp::ImageCreateInfo lImageCreateInfo
-    {
-        vkpp::ImageType::e2D,
-        vkpp::Format::eD32sFloat,
-        mSwapchain.extent,
-        vkpp::ImageUsageFlagBits::eDepthStencilAttachment
-    };
-
-    vkpp::ImageViewCreateInfo lImageViewCreateInfo
-    {
-        vkpp::ImageViewType::e2D,
-        vkpp::Format::eD32sFloat,
-        {
-            vkpp::ImageAspectFlagBits::eDepth,
-            0, 1
-        }
-    };
-
-    mDepthRes.Reset(lImageCreateInfo, lImageViewCreateInfo, vkpp::MemoryPropertyFlagBits::eDeviceLocal);
-}
-
-
-void TexturedArray::CreateRenderPass(void)
+void MeshRenderer::CreateRenderPass(void)
 {
     const vkpp::AttachementDescription lAttachments[]
     {
-        // Color attachment
+        // Color Attachment
         {
             mSwapchain.surfaceFormat.format,
             vkpp::SampleCountFlagBits::e1,
-            vkpp::AttachmentLoadOp::eClear,
-            vkpp::AttachmentStoreOp::eStore,
-            vkpp::ImageLayout::eUndefined,
-            vkpp::ImageLayout::ePresentSrcKHR
+            vkpp::AttachmentLoadOp::eClear, vkpp::AttachmentStoreOp::eStore,
+            vkpp::ImageLayout::eUndefined, vkpp::ImageLayout::ePresentSrcKHR
         },
-        // Depth attachment
+        // Depth Attachment
         {
             vkpp::Format::eD32sFloat,
             vkpp::SampleCountFlagBits::e1,
-            vkpp::AttachmentLoadOp::eClear,
-            vkpp::AttachmentStoreOp::eDontCare,
-            vkpp::ImageLayout::eUndefined,
-            vkpp::ImageLayout::eDepthStencilAttachmentOptimal
+            vkpp::AttachmentLoadOp::eClear, vkpp::AttachmentStoreOp::eDontCare,
+            vkpp::ImageLayout::eUndefined, vkpp::ImageLayout::eDepthStencilAttachmentOptimal
         }
     };
 
     // Color attachment reference
     constexpr vkpp::AttachmentReference lColorRef
     {
-        0,
-        vkpp::ImageLayout::eColorAttachmentOptimal
+        0, vkpp::ImageLayout::eColorAttachmentOptimal
     };
 
     // Depth attachment reference
     constexpr vkpp::AttachmentReference lDepthRef
     {
-        1,
-        vkpp::ImageLayout::eDepthStencilAttachmentOptimal
+        1, vkpp::ImageLayout::eDepthStencilAttachmentOptimal
     };
 
     constexpr vkpp::SubpassDescription lSubpassDescription
@@ -251,9 +217,33 @@ void TexturedArray::CreateRenderPass(void)
 }
 
 
-void TexturedArray::CreateFramebuffers(void)
+void MeshRenderer::CreateDepthResource(void)
 {
-    for (auto lSwapchain : mSwapchain.buffers)
+    const vkpp::ImageCreateInfo lImageCreateInfo
+    {
+        vkpp::ImageType::e2D,
+        vkpp::Format::eD32sFloat,
+        mSwapchain.extent,
+        vkpp::ImageUsageFlagBits::eDepthStencilAttachment
+    };
+
+    vkpp::ImageViewCreateInfo lImageViewCreateInfo
+    {
+        vkpp::ImageViewType::e2D,
+        vkpp::Format::eD32sFloat,
+        {
+            vkpp::ImageAspectFlagBits::eDepth,
+            0, 1
+        }
+    };
+
+    mDepthRes.Reset(lImageCreateInfo, lImageViewCreateInfo, vkpp::MemoryPropertyFlagBits::eDeviceLocal);
+}
+
+
+void MeshRenderer::CreateFramebuffers(void)
+{
+    for (auto& lSwapchain : mSwapchain.buffers)
     {
         const std::array<vkpp::ImageView, 2> lAttachments
         {
@@ -273,15 +263,25 @@ void TexturedArray::CreateFramebuffers(void)
 }
 
 
-void TexturedArray::CreateSetLayout(void)
+void MeshRenderer::CreateSetLayout(void)
 {
     constexpr vkpp::DescriptorSetLayoutBinding lSetLayoutBindings[]
     {
-        { 0, vkpp::DescriptorType::eUniformBuffer, vkpp::ShaderStageFlagBits::eVertex },            // Binding 0: Vertex shader uniform buffer (MVP matrix).
-        { 1, vkpp::DescriptorType::eCombinedImageSampler, vkpp::ShaderStageFlagBits::eFragment }    // Binding 1: Fragment shader image sampler (texture array).
+        // Binding 0: Vertex shader uniform buffer.
+        {
+            0,
+            vkpp::DescriptorType::eUniformBuffer,
+            vkpp::ShaderStageFlagBits::eVertex,
+        },
+        // Binding 1: Fragment shader combined sampler.
+        {
+            1,
+            vkpp::DescriptorType::eCombinedImageSampler,
+            vkpp::ShaderStageFlagBits::eFragment
+        }
     };
 
-    constexpr vkpp::DescriptorSetLayoutCreateInfo lSetLayoutCreateInfo
+    const vkpp::DescriptorSetLayoutCreateInfo lSetLayoutCreateInfo
     {
         2, lSetLayoutBindings
     };
@@ -290,7 +290,7 @@ void TexturedArray::CreateSetLayout(void)
 }
 
 
-void TexturedArray::CreatePipelineLayout(void)
+void MeshRenderer::CreatePipelineLayout(void)
 {
     const vkpp::PipelineLayoutCreateInfo lPipelineLayoutCreateInfo
     {
@@ -301,10 +301,10 @@ void TexturedArray::CreatePipelineLayout(void)
 }
 
 
-void TexturedArray::CreateGraphicsPipeline(void)
+void MeshRenderer::CreateGraphicsPipeline(void)
 {
-    const auto& lVertexShaderModule = CreateShaderModule("Shader/SPV/instancing.vert.spv");
-    const auto& lFragmentShaderModule = CreateShaderModule("Shader/SPV/instancing.frag.spv");
+    const auto& lVertexShaderModule = CreateShaderModule("Shader/SPV/mesh.vert.spv");
+    const auto& lFragmentShaderModule = CreateShaderModule("Shader/SPV/mesh.frag.spv");
 
     const vkpp::PipelineShaderStageCreateInfo lShaderStageCreateInfos[]
     {
@@ -312,15 +312,15 @@ void TexturedArray::CreateGraphicsPipeline(void)
         { vkpp::ShaderStageFlagBits::eFragment, lFragmentShaderModule }
     };
 
-    constexpr auto lVertexInputBinding = VertexData::GetInputBindingDescription();
+    constexpr auto lVertexInputBinding = VertexData::GetBindingDescription();
     constexpr auto lVertexAttributeDescriptions = VertexData::GetAttributeDescriptions();
     const vkpp::PipelineVertexInputStateCreateInfo lVertexInputStateCreateInfo
     {
         1, lVertexInputBinding.AddressOf(),
-        2, lVertexAttributeDescriptions.data()
+        4, lVertexAttributeDescriptions.data()
     };
 
-    constexpr vkpp::PipelineInputAssemblyStateCreateInfo lInputAssemblyStateCreateInfo
+    constexpr vkpp::PipelineInputAssemblyStateCreateInfo lAssemblyStateCreateInfo
     {
         vkpp::PrimitiveTopology::eTriangleList
     };
@@ -333,7 +333,7 @@ void TexturedArray::CreateGraphicsPipeline(void)
     constexpr vkpp::PipelineRasterizationStateCreateInfo lRasterizationStateCreateInfo
     {
         vkpp::PolygonMode::eFill,
-        vkpp::CullModeFlagBits::eNone,
+        vkpp::CullModeFlagBits::eBack,
         vkpp::FrontFace::eClockwise
     };
 
@@ -341,7 +341,7 @@ void TexturedArray::CreateGraphicsPipeline(void)
 
     constexpr vkpp::PipelineDepthStencilStateCreateInfo lDepthStencilStateCreateInfo
     {
-        DepthTest::Enable , DepthWrite::Enable,
+        DepthTest::Enable, DepthWrite::Enable,
         vkpp::CompareOp::eLess
     };
 
@@ -353,7 +353,8 @@ void TexturedArray::CreateGraphicsPipeline(void)
 
     constexpr vkpp::DynamicState lDynamicStates[]
     {
-        vkpp::DynamicState::eViewport, vkpp::DynamicState::eScissor
+        vkpp::DynamicState::eViewport,
+        vkpp::DynamicState::eScissor
     };
 
     constexpr vkpp::PipelineDynamicStateCreateInfo lDynamicStateCreateInfo
@@ -365,7 +366,7 @@ void TexturedArray::CreateGraphicsPipeline(void)
     {
         2, lShaderStageCreateInfos,
         lVertexInputStateCreateInfo.AddressOf(),
-        lInputAssemblyStateCreateInfo.AddressOf(),
+        lAssemblyStateCreateInfo.AddressOf(),
         nullptr,
         lViewportStateCreateInfo.AddressOf(),
         lRasterizationStateCreateInfo.AddressOf(),
@@ -378,31 +379,32 @@ void TexturedArray::CreateGraphicsPipeline(void)
         0
     };
 
-    mPipeline = mLogicalDevice.CreateGraphicsPipeline(lGraphicsPipelineCreateInfo);
+    mGraphicsPipeline = mLogicalDevice.CreateGraphicsPipeline(lGraphicsPipelineCreateInfo);
 
     mLogicalDevice.DestroyShaderModule(lFragmentShaderModule);
     mLogicalDevice.DestroyShaderModule(lVertexShaderModule);
 }
 
 
-void TexturedArray::CreateDescriptorPool(void)
+void MeshRenderer::CreateDescriptorPool(void)
 {
-    constexpr vkpp::DescriptorPoolSize lPoolSizes[]
+    constexpr vkpp::DescriptorPoolSize lDescriptorPoolSizes[]
     {
-        { vkpp::DescriptorType::eUniformBuffer, 1 },
-        { vkpp::DescriptorType::eCombinedImageSampler, 1}
+        { vkpp::DescriptorType::eUniformBuffer, 1 },                // One uniform buffer object
+        { vkpp::DescriptorType::eCombinedImageSampler, 1}           // One combined image sampler
     };
 
     const vkpp::DescriptorPoolCreateInfo lDescriptorPoolCreateInfo
     {
-        2, lPoolSizes, 1
+        2, lDescriptorPoolSizes,
+        1
     };
 
     mDescriptorPool = mLogicalDevice.CreateDescriptorPool(lDescriptorPoolCreateInfo);
 }
 
 
-void TexturedArray::AllocateDescriptorSet(void)
+void MeshRenderer::AllocateDescriptorSet(void)
 {
     const vkpp::DescriptorSetAllocateInfo lSetAllocateInfo
     {
@@ -414,118 +416,246 @@ void TexturedArray::AllocateDescriptorSet(void)
 }
 
 
-void TexturedArray::LoadTexture(const std::string& aFilename, vkpp::Format aFormat)
+// Load a model from file using the ASSIMP model loader and generate all resources required to render the model.
+void MeshRenderer::LoadModel(const std::string& aFilename)
 {
-    const gli::texture2d_array lTex2DArray{ gli::load(aFilename) };
-    assert(!lTex2DArray.empty());
+    // Flags for loading the mesh
+    constexpr static auto lAssimpFlags = aiProcess_FlipWindingOrder | aiProcess_Triangulate | aiProcess_PreTransformVertices;
 
-    mTexture.width = lTex2DArray.extent().x;
-    mTexture.height = lTex2DArray.extent().y;
-    mTexture.layerCount = static_cast<uint32_t>(lTex2DArray.layers());
+    Assimp::Importer lImporter;
+
+    auto lpScene = lImporter.ReadFile(aFilename, lAssimpFlags);
+    assert(lpScene != nullptr);
+
+    std::vector<float> lVertexBuffer;
+    std::vector<uint32_t> lIndexBuffer;
+
+    // Iterate through all meshes in the file and extract the vertex components.
+    for (unsigned int lMeshIdx = 0; lMeshIdx < lpScene->mNumMeshes; ++lMeshIdx)
+    {
+        const auto lpMesh = lpScene->mMeshes[lMeshIdx];
+
+        for (unsigned int lVtxIdx = 0; lVtxIdx < lpMesh->mNumVertices; ++lVtxIdx)
+        {
+            // Vertex positions
+            const auto lPos = lpMesh->mVertices[lVtxIdx];
+            lVertexBuffer.emplace_back(lPos.x);
+            lVertexBuffer.emplace_back(-lPos.y);                // Vulkan use a right handed NDC.
+            lVertexBuffer.emplace_back(lPos.z);
+
+            // Vertex normal
+            const auto lNormal = lpMesh->mNormals[lVtxIdx];
+            lVertexBuffer.emplace_back(lNormal.x);
+            lVertexBuffer.emplace_back(lNormal.y);
+            lVertexBuffer.emplace_back(lNormal.z);
+
+            // Vertex texture coordinates
+            const auto lTexCoord = lpMesh->mTextureCoords[0][lVtxIdx];
+            lVertexBuffer.emplace_back(lTexCoord.x);
+            lVertexBuffer.emplace_back(lTexCoord.y);
+
+            // Vertex color
+            const auto lColor = lpMesh->HasVertexColors(0) ? lpMesh->mColors[0][lVtxIdx] : aiColor4D(1.0f);
+            lVertexBuffer.emplace_back(lColor.r);
+            lVertexBuffer.emplace_back(lColor.g);
+            lVertexBuffer.emplace_back(lColor.b);
+        }
+
+        mIndexCount = static_cast<uint32_t>(lIndexBuffer.size());
+        for (unsigned int lIdxIndex = 0; lIdxIndex < lpMesh->mNumFaces; ++lIdxIndex)
+        {
+            const auto& lFace = lpMesh->mFaces[lIdxIndex];
+
+            if (lFace.mNumIndices != 3)
+                continue;
+
+            // Assume that all faces are triangulated
+            lIndexBuffer.emplace_back(mIndexCount + lFace.mIndices[0]);
+            lIndexBuffer.emplace_back(mIndexCount + lFace.mIndices[1]);
+            lIndexBuffer.emplace_back(mIndexCount + lFace.mIndices[2]);
+        }
+    }
+
+    // Static mesh should always be device local.
+    // Use staging buffer to move vertex and index buffers to device local memory.
+
+    // Vertex buffer
+    const auto lVtxBufferSize = static_cast<uint32_t>(lVertexBuffer.size()) * sizeof(float);
+    const vkpp::BufferCreateInfo lVtxStagingBufferCreateInfo
+    {
+        lVtxBufferSize, vkpp::BufferUsageFlagBits::eTransferSrc
+    };
+
+    BufferResource lVtxStagingBuffer{ mLogicalDevice, mPhysicalDeviceMemoryProperties };
+    lVtxStagingBuffer.Reset(lVtxStagingBufferCreateInfo, vkpp::MemoryPropertyFlagBits::eHostVisible | vkpp::MemoryPropertyFlagBits::eHostCoherent);
+
+    auto lMappedMem = mLogicalDevice.MapMemory(lVtxStagingBuffer.memory, 0, lVtxBufferSize);
+    std::memcpy(lMappedMem, lVertexBuffer.data(), lVtxBufferSize);
+    mLogicalDevice.UnmapMemory(lVtxStagingBuffer.memory);
+
+    // Index buffer
+    const auto lIdxBufferSize = static_cast<uint32_t>(lIndexBuffer.size()) * sizeof(uint32_t);
+    const vkpp::BufferCreateInfo lIdxStagingBufferCreateInfo
+    {
+        lIdxBufferSize, vkpp::BufferUsageFlagBits::eTransferSrc
+    };
+
+    BufferResource lIdxStagingBuffer{ mLogicalDevice, mPhysicalDeviceMemoryProperties };
+    lIdxStagingBuffer.Reset(lIdxStagingBufferCreateInfo, vkpp::MemoryPropertyFlagBits::eHostVisible | vkpp::MemoryPropertyFlagBits::eHostCoherent);
+
+    lMappedMem = mLogicalDevice.MapMemory(lIdxStagingBuffer.memory, 0, lIdxBufferSize);
+    std::memcpy(lMappedMem, lIndexBuffer.data(), lIdxBufferSize);
+    mLogicalDevice.UnmapMemory(lIdxStagingBuffer.memory);
+
+    // Create device local target buffers.
+    // Vertex buffer
+    const vkpp::BufferCreateInfo lVtxBufferCreateInfo
+    {
+        lVtxBufferSize, vkpp::BufferUsageFlagBits::eVertexBuffer | vkpp::BufferUsageFlagBits::eTransferDst
+    };
+
+    mVertexBufferRes.Reset(lVtxBufferCreateInfo, vkpp::MemoryPropertyFlagBits::eDeviceLocal);
+
+    // Index buffer
+    const vkpp::BufferCreateInfo lIdxBufferCreateInfo
+    {
+        lIdxBufferSize, vkpp::BufferUsageFlagBits::eIndexBuffer | vkpp::BufferUsageFlagBits::eTransferDst
+    };
+
+    mIndexBufferRes.Reset(lIdxBufferCreateInfo, vkpp::MemoryPropertyFlagBits::eDeviceLocal);
+
+    CopyBuffer(mVertexBufferRes.buffer, lVtxStagingBuffer.buffer, lVtxBufferSize);
+    CopyBuffer(mIndexBufferRes.buffer, lIdxStagingBuffer.buffer, lIdxBufferSize);
+}
+
+
+void MeshRenderer::LoadTexture(const std::string& aFilename, vkpp::Format aTexFormat)
+{
+    const gli::texture2d lTex2D{ gli::load(aFilename) };
+    assert(!lTex2D.empty());
+
+    mTexture.width = static_cast<uint32_t>(lTex2D[0].extent().x);
+    mTexture.height = static_cast<uint32_t>(lTex2D[0].extent().y);
+    mTexture.mipLevels = static_cast<uint32_t>(lTex2D.levels());
+
+    // Get device properties for the requested texture format.
+    // const auto& lFormatProperties = mPhysicalDevice.GetFormatProperties(mTexFormat);
 
     // Create a host-visible staging buffer that contains the raw image data.
     const vkpp::BufferCreateInfo lStagingBufferCreateInfo
     {
-        lTex2DArray.size(), vkpp::BufferUsageFlagBits::eTransferSrc
+        lTex2D.size(),
+        vkpp::BufferUsageFlagBits::eTransferSrc             // This buffer is used as a transfer source for the buffer copy.
     };
 
     BufferResource lStagingBufferRes{ mLogicalDevice, mPhysicalDeviceMemoryProperties };
     lStagingBufferRes.Reset(lStagingBufferCreateInfo, vkpp::MemoryPropertyFlagBits::eHostVisible | vkpp::MemoryPropertyFlagBits::eHostCoherent);
 
-    auto lMappedMem = mLogicalDevice.MapMemory(lStagingBufferRes.memory, 0, lTex2DArray.size());
-    std::memcpy(lMappedMem, lTex2DArray.data(), lTex2DArray.size());
+    auto lMappedMem = mLogicalDevice.MapMemory(lStagingBufferRes.memory, 0, lTex2D.size());
+    std::memcpy(lMappedMem, lTex2D.data(), lTex2D.size());
     mLogicalDevice.UnmapMemory(lStagingBufferRes.memory);
 
-    // Setup buffer copy regions for array layers.
+    // Setup buffer copy regions for each mip-level.
     std::vector<vkpp::BufferImageCopy> lBufferCopyRegions;
     uint32_t lOffset{ 0 };
 
-    for (uint32_t lLayer = 0; lLayer < mTexture.layerCount; ++lLayer)
+    for (uint32_t lIndex = 0; lIndex < mTexture.mipLevels; ++lIndex)
     {
         const vkpp::BufferImageCopy lBufferCopyRegion
         {
             lOffset,
             {
                 vkpp::ImageAspectFlagBits::eColor,
-                0,
-                lLayer,                                 // base array layer
-                1
+                lIndex,
             },
             { 0, 0, 0 },
             {
-                static_cast<uint32_t>(lTex2DArray[lLayer][0].extent().x),
-                static_cast<uint32_t>(lTex2DArray[lLayer][0].extent().y),
+                static_cast<uint32_t>(lTex2D[lIndex].extent().x),
+                static_cast<uint32_t>(lTex2D[lIndex].extent().y),
                 1
             }
         };
 
         lBufferCopyRegions.emplace_back(lBufferCopyRegion);
-
-        // Increase offset into staging buffer for next level / face.
-        lOffset += static_cast<uint32_t>(lTex2DArray[lLayer].size());
+        lOffset += static_cast<uint32_t>(lTex2D[lIndex].size());
     }
 
     // Create optimal tiled target image.
+    // Only use linear tiling if requested (and supported by the device).
+    // Support for linear tiling is mostly limited, so prefer to use optimal tiling instead.
+    // On most implementations, linear tiling will only support a very limited amount of formats and features (mip-maps, cube-maps, arrays, etc.).
     const vkpp::ImageCreateInfo lImageCreateInfo
     {
         vkpp::ImageType::e2D,
-        aFormat,
+        aTexFormat,
         { mTexture.width, mTexture.height, 1 },
         vkpp::ImageUsageFlagBits::eSampled | vkpp::ImageUsageFlagBits::eTransferDst,
-        vkpp::ImageLayout::eUndefined, vkpp::ImageTiling::eOptimal,
+        vkpp::ImageLayout::eUndefined,
+        vkpp::ImageTiling::eOptimal,
         vkpp::SampleCountFlagBits::e1,
-        1,
-        mTexture.layerCount
+        mTexture.mipLevels
     };
 
     vkpp::ImageViewCreateInfo lImageViewCreateInfo
     {
-        vkpp::ImageViewType::e2DArray,
-        aFormat,
-        { vkpp::ImageAspectFlagBits::eColor, 0, 1, 0, mTexture.layerCount },
-        vkpp::IdentityComponentMapping
+        vkpp::ImageViewType::e2D,
+        aTexFormat,
+        // The subresource range describes the set of mip-levels (and array layers) that can be accessed through this image view.
+        // It is possible to create multiple image views for a single image referring to different (and/or overlapping) ranges of the image.
+        {
+            vkpp::ImageAspectFlagBits::eColor,
+            0, mTexture.mipLevels,
+            0, 1
+        }
     };
 
     mTextureRes.Reset(lImageCreateInfo, lImageViewCreateInfo, vkpp::MemoryPropertyFlagBits::eDeviceLocal);
 
-    // Image barrier for optimal image (target).
-    // Set initial layout for all array layers of the optimal (target) tiled texture.
-    const vkpp::ImageSubresourceRange lImageSubRange
-    {
-        vkpp::ImageAspectFlagBits::eColor,
-        0, 1,
-        0, mTexture.layerCount
-    };
-
     const auto& lCopyCmd = BeginOneTimeCmdBuffer();
 
-    TransitionImageLayout<vkpp::ImageLayout::eUndefined, vkpp::ImageLayout::eTransferDstOptimal>
-    (
-        lCopyCmd,
-        mTextureRes.image,
-        lImageSubRange,
-        vkpp::DefaultFlags,
-        vkpp::AccessFlagBits::eTransferWrite
-    );
+    // Image barrier for optimal image.
 
-    // Copy the array layers from the staging buffers to the optimal tiled image.
+    // The sub-resource range describes the regions of the image which will be transitioned.
+    const vkpp::ImageSubresourceRange lImageSubRange
+    {
+        vkpp::ImageAspectFlagBits::eColor,              // aspectMask: Only contains color data.
+        0,                                              // baseMipLevel: Start at first mip-level.
+        mTexture.mipLevels,                             // levelCount: Transition on all mip-levels.
+        0,                                              // baseArrayLayer: Start at first element in the array. (only one element in this example.)
+        1                                               // layerCount: The 2D texture only has one layer.
+    };
+
+    // Optimal image will be used as the destination for the copy, so it must be transfered from the initial undefined image layout to the transfer destination layout.
+    TransitionImageLayout<vkpp::ImageLayout::eUndefined, vkpp::ImageLayout::eTransferDstOptimal>
+        (
+            lCopyCmd, mTextureRes.image,
+            lImageSubRange,
+            vkpp::DefaultFlags,                         // srcAccessMask = 0: Only valid as initial layout, memory contents are not preserved.
+                                                        //                    Can be accessed directly, no source dependency required.
+            vkpp::AccessFlagBits::eTransferWrite        // dstAccessMask: Transfer destination (copy, blit).
+                                                        //                Make sure any write operation to the image has been finished.
+            );
+
+    // Copy all mip-levels from staging buffer.
     lCopyCmd.Copy(mTextureRes.image, vkpp::ImageLayout::eTransferDstOptimal, lStagingBufferRes.buffer, lBufferCopyRegions);
 
-    // Change texture image layout to shader read after all layers haven been copied.
+    // Transfer texture image layout to shader read after all mip-levels have been copied.
     TransitionImageLayout<vkpp::ImageLayout::eTransferDstOptimal, vkpp::ImageLayout::eShaderReadOnlyOptimal>
-    (
-        lCopyCmd,
-        mTextureRes.image,
-        lImageSubRange,
-        vkpp::AccessFlagBits::eTransferWrite,
-        vkpp::AccessFlagBits::eShaderRead
-    );
+        (
+            lCopyCmd, mTextureRes.image,
+            lImageSubRange,
+            vkpp::AccessFlagBits::eTransferWrite,       // srcAccessMask: Old layout is transfer destination.
+                                                        //                Make sure any write operation to the destination image has been finished.
+            vkpp::AccessFlagBits::eShaderRead           // dstAccessMask: Shader read, like sampler, input attachment.
+            );
 
     EndOneTimeCmdBuffer(lCopyCmd);
+
+    lStagingBufferRes.Reset();
 }
 
 
-void TexturedArray::CreateSampler(void)
+void MeshRenderer::CreateSampler()
 {
     const vkpp::SamplerCreateInfo lSamplerCreateInfo
     {
@@ -545,116 +675,42 @@ void TexturedArray::CreateSampler(void)
 }
 
 
-void TexturedArray::CreateVertexBuffer(void)
+void MeshRenderer::CreateUniformBuffer()
 {
-    // Setup vertices for a single UV-mapped quad form two triangles.
-    const VertexData lVertices[]
-    {
-        { { 2.5f, 2.5f, 0.0f }, { 1.0f, 1.0f } },
-        { { -2.5f, 2.5f, 0.0f }, { 0.0f, 1.0f } },
-        { { -2.5f, -2.5f, 0.0f }, { 0.0f, 0.0f } },
-        { { 2.5f, -2.5f, 0.0f }, { 1.0f, 0.0f } }
-    };
-
-    constexpr auto lVertexDataSize = sizeof lVertices;
-
-    constexpr vkpp::BufferCreateInfo lBufferCreateInfo
-    {
-        lVertexDataSize,
-        vkpp::BufferUsageFlagBits::eVertexBuffer | vkpp::BufferUsageFlagBits::eTransferDst
-    };
-
-    mVertexBufferRes.Reset(lBufferCreateInfo, vkpp::MemoryPropertyFlagBits::eHostVisible | vkpp::MemoryPropertyFlagBits::eHostCoherent);
-
-    auto lMappedMem = mLogicalDevice.MapMemory(mVertexBufferRes.memory, 0, lVertexDataSize);
-    std::memcpy(lMappedMem, lVertices, lVertexDataSize);
-    mLogicalDevice.UnmapMemory(mVertexBufferRes.memory);
-}
-
-
-void TexturedArray::CreateIndexBuffer(void)
-{
-    constexpr uint32_t lIndices[]{ 0, 1, 2, 2, 3, 0 };
-
-    constexpr auto lIndexDataSize = sizeof lIndices;
-
-    constexpr vkpp::BufferCreateInfo lBufferCreateInfo
-    {
-        lIndexDataSize,
-        vkpp::BufferUsageFlagBits::eVertexBuffer | vkpp::BufferUsageFlagBits::eTransferDst
-    };
-
-    mIndexBufferRes.Reset(lBufferCreateInfo, vkpp::MemoryPropertyFlagBits::eHostVisible | vkpp::MemoryPropertyFlagBits::eHostCoherent);
-
-    auto lMappedMem = mLogicalDevice.MapMemory(mIndexBufferRes.memory, 0, lIndexDataSize);
-    std::memcpy(lMappedMem, lIndices, lIndexDataSize);
-    mLogicalDevice.UnmapMemory(mIndexBufferRes.memory);
-}
-
-
-void TexturedArray::CreateUniformBuffer(void)
-{
-    // Array indices and model matrices are fixed.
-    constexpr auto lOffset{ -1.5f };
-    const auto lCenter{ mTexture.layerCount * lOffset / 2 };
-
-    glm::mat4 lModelMatrix;
-
-    for (uint32_t lLayer = 0; lLayer < mTexture.layerCount; ++lLayer)
-    {
-        // Instance model matrix
-        lModelMatrix = glm::translate(glm::mat4(), glm::vec3(0.0f, lLayer * lOffset - lCenter, 0.0f));
-        lModelMatrix = glm::rotate(lModelMatrix, glm::radians(60.0f), glm::vec3(1.0f, 0.0f, 0.0f));
-
-        mUniformBufferObject.instances.emplace_back(lModelMatrix, lLayer);
-    }
-
     // Vertex shader uniform buffer block
-    constexpr auto lMatrixeDataSize{ sizeof mUniformBufferObject.matrices };
-    const auto lInstanceDataSize{ mTexture.layerCount * sizeof(UboInstanceData) };
-    const auto lUboSize = lMatrixeDataSize + lInstanceDataSize;
-
-    const vkpp::BufferCreateInfo lBufferCreateInfo
+    constexpr vkpp::BufferCreateInfo lBufferCreateInfo
     {
-        lUboSize,
+        sizeof(UniformBufferObject),
         vkpp::BufferUsageFlagBits::eUniformBuffer
     };
 
     mUBORes.Reset(lBufferCreateInfo, vkpp::MemoryPropertyFlagBits::eHostVisible | vkpp::MemoryPropertyFlagBits::eHostCoherent);
 
-    // Update instanced part of the uniform buffer.
-    auto lpMappedMem = mLogicalDevice.MapMemory(mUBORes.memory, lMatrixeDataSize, lInstanceDataSize);
-    std::memcpy(lpMappedMem, mUniformBufferObject.instances.data(), lInstanceDataSize);
-    mLogicalDevice.UnmapMemory(mUBORes.memory);
-
     // Map persistent
-    mpMatrixUBOMapped = mLogicalDevice.MapMemory(mUBORes.memory, 0, lMatrixeDataSize);
+    mpMatrixUBOMapped = mLogicalDevice.MapMemory(mUBORes.memory, 0, VK_WHOLE_SIZE);
 }
 
 
-// Only update the uniform buffer block part containing the global matrices.
-void TexturedArray::UpdateUniformBuffers(void)
+void MeshRenderer::UpdateUniformBuffer()
 {
     const auto lWidth = static_cast<float>(mSwapchain.extent.width);
     const auto lHeight = static_cast<float>(mSwapchain.extent.height);
 
-    auto& lMatrices = mUniformBufferObject.matrices;
+    const glm::vec3 lCameraPos{ 0.1f, 1.1f, 0.0f };
 
-    // Projection
-    lMatrices.projection = glm::perspective(glm::radians(60.0f), lWidth / lHeight, 0.001f, 256.0f);
+    mMVPMatrix.proj = glm::perspective(glm::radians(60.f), lWidth / lHeight, 0.001f, 256.0f);
 
-    // View
-    lMatrices.view = glm::translate(glm::mat4(), glm::vec3(0.0f, -1.0f, mCurrentZoomLevel));
-    lMatrices.view = glm::rotate(lMatrices.view, glm::radians(mCurrentRotation.x), glm::vec3(1.0f, 0.0f, 0.0f));
-    lMatrices.view = glm::rotate(lMatrices.view, glm::radians(mCurrentRotation.y), glm::vec3(0.0f, 1.0f, 0.0f));
-    lMatrices.view = glm::rotate(lMatrices.view, glm::radians(mCurrentRotation.z), glm::vec3(0.0f, 0.0f, 1.0f));
+    const auto& lViewMatrix = glm::translate(glm::mat4(), glm::vec3(0.0f, 0.0f, mCurrentZoomLevel));
+    mMVPMatrix.model = lViewMatrix * glm::translate(glm::mat4(), lCameraPos);
+    mMVPMatrix.model = glm::rotate(mMVPMatrix.model, glm::radians(mCurrentRotation.x), glm::vec3(1.0f, 0.0f, 0.0f));
+    mMVPMatrix.model = glm::rotate(mMVPMatrix.model, glm::radians(mCurrentRotation.y), glm::vec3(0.0f, 1.0f, 0.0f));
+    mMVPMatrix.model = glm::rotate(mMVPMatrix.model, glm::radians(mCurrentRotation.z), glm::vec3(0.0f, 0.0f, 1.0f));
 
-    // Only update the matrices part of the uniform buffer.
-    std::memcpy(mpMatrixUBOMapped, &lMatrices, sizeof(lMatrices));
+    std::memcpy(mpMatrixUBOMapped, &mMVPMatrix, sizeof(UniformBufferObject));
 }
 
 
-void TexturedArray::UpdateDescriptorSets(void) const
+void MeshRenderer::UpdateDescriptorSets(void) const
 {
     // Image descriptor for texture array
     const vkpp::DescriptorImageInfo lTexDescriptor
@@ -696,7 +752,7 @@ void TexturedArray::UpdateDescriptorSets(void) const
 }
 
 
-void TexturedArray::BuildCmdBuffers()
+void MeshRenderer::BuildCmdBuffers(void)
 {
     constexpr vkpp::CommandBufferBeginInfo lCmdBufferBeginInfo;
 
@@ -743,10 +799,10 @@ void TexturedArray::BuildCmdBuffers()
 
         lDrawCmdBuffer.SetScissor(lScissor);
 
-        lDrawCmdBuffer.BindGraphicsPipeline(mPipeline);
+        lDrawCmdBuffer.BindGraphicsPipeline(mGraphicsPipeline);
         lDrawCmdBuffer.BindGraphicsDescriptorSet(mPipelineLayout, 0, mDescriptorSet);
 
-        lDrawCmdBuffer.DrawIndexed(6, mTexture.layerCount);
+        lDrawCmdBuffer.DrawIndexed(mIndexCount);
 
         lDrawCmdBuffer.EndRenderPass();
 
@@ -755,7 +811,7 @@ void TexturedArray::BuildCmdBuffers()
 }
 
 
-void TexturedArray::CreateSemaphores(void)
+void MeshRenderer::CreateSemaphores(void)
 {
     constexpr vkpp::SemaphoreCreateInfo lSemaphoreCreateInfo;
 
@@ -764,7 +820,7 @@ void TexturedArray::CreateSemaphores(void)
 }
 
 
-void TexturedArray::CreateFences(void)
+void MeshRenderer::CreateFences(void)
 {
     constexpr vkpp::FenceCreateInfo lFenceCreateInfo{ vkpp::FenceCreateFlagBits::eSignaled };
 
@@ -773,7 +829,7 @@ void TexturedArray::CreateFences(void)
 }
 
 
-void TexturedArray::Update(void)
+void MeshRenderer::Update()
 {
     auto lIndex = mLogicalDevice.AcquireNextImage(mSwapchain.handle, mPresentCompleteSemaphore);
 
@@ -803,7 +859,19 @@ void TexturedArray::Update(void)
 }
 
 
-vkpp::CommandBuffer TexturedArray::BeginOneTimeCmdBuffer(void) const
+void MeshRenderer::CopyBuffer(vkpp::Buffer& aDstBuffer, const Buffer& aSrcBuffer, DeviceSize aSize) const
+{
+    const auto& lCopyCmd = BeginOneTimeCmdBuffer();
+
+    const vkpp::BufferCopy lBufferCopy{ aSize };
+
+    lCopyCmd.Copy(aDstBuffer, aSrcBuffer, lBufferCopy);
+
+    EndOneTimeCmdBuffer(lCopyCmd);
+}
+
+
+vkpp::CommandBuffer MeshRenderer::BeginOneTimeCmdBuffer(void) const
 {
     const vkpp::CommandBufferAllocateInfo lCmdBufferAllocateInfo
     {
@@ -823,7 +891,7 @@ vkpp::CommandBuffer TexturedArray::BeginOneTimeCmdBuffer(void) const
 }
 
 
-void TexturedArray::EndOneTimeCmdBuffer(const vkpp::CommandBuffer& aCmdBuffer) const
+void MeshRenderer::EndOneTimeCmdBuffer(const vkpp::CommandBuffer& aCmdBuffer) const
 {
     aCmdBuffer.End();
 
@@ -842,7 +910,7 @@ void TexturedArray::EndOneTimeCmdBuffer(const vkpp::CommandBuffer& aCmdBuffer) c
 
 
 template <vkpp::ImageLayout OldLayour, vkpp::ImageLayout NewLayout>
-void TexturedArray::TransitionImageLayout(const vkpp::CommandBuffer& aCmdBuffer, const vkpp::Image& aImage, const vkpp::ImageSubresourceRange& aImageSubRange, const vkpp::AccessFlags& aSrcAccessMask, const vkpp::AccessFlags& aDstAccessMask)
+void MeshRenderer::TransitionImageLayout(const vkpp::CommandBuffer& aCmdBuffer, const vkpp::Image& aImage, const vkpp::ImageSubresourceRange& aImageSubRange, const vkpp::AccessFlags& aSrcAccessMask, const vkpp::AccessFlags& aDstAccessMask)
 {
     // Create an image barrier.
     const vkpp::ImageMemoryBarrier lImageMemoryBarrier

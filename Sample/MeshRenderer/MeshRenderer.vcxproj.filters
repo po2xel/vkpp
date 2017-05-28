@@ -14,28 +14,28 @@
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
     <Filter Include="Header Files\Base">
-      <UniqueIdentifier>{56c8ed77-6992-4729-9a8f-ad131075bcba}</UniqueIdentifier>
+      <UniqueIdentifier>{37a79715-c845-413a-ba23-97bd7b7d6bcf}</UniqueIdentifier>
     </Filter>
     <Filter Include="Header Files\System">
-      <UniqueIdentifier>{9c7ce7aa-e3b3-4b90-ad6e-6d326fea363e}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Header Files\Window">
-      <UniqueIdentifier>{f59ad3e3-ab9f-4b67-8299-4274582ef84d}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source Files\Base">
-      <UniqueIdentifier>{3327c194-2619-423c-a2f4-64036038c8e3}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source Files\System">
-      <UniqueIdentifier>{2fd6334f-dc80-475e-a3c3-a42996b5b344}</UniqueIdentifier>
+      <UniqueIdentifier>{e0383ea1-9a2d-427d-ad63-18964d07b70f}</UniqueIdentifier>
     </Filter>
     <Filter Include="Header Files\vkpp">
-      <UniqueIdentifier>{8e6a0735-6db8-4b69-be7a-365760331c45}</UniqueIdentifier>
+      <UniqueIdentifier>{686e609e-a881-42a9-8300-eea19bf5f1b5}</UniqueIdentifier>
     </Filter>
     <Filter Include="Header Files\vkpp\Type">
-      <UniqueIdentifier>{5b3c224b-a61c-4e1d-93a1-f1e8be4e8c43}</UniqueIdentifier>
+      <UniqueIdentifier>{b85689bf-9427-430c-be6d-af9e32e7f886}</UniqueIdentifier>
     </Filter>
     <Filter Include="Header Files\vkpp\Info">
-      <UniqueIdentifier>{520eabdb-7bdf-4807-9a11-e28c367a1755}</UniqueIdentifier>
+      <UniqueIdentifier>{27fb19af-c21c-437d-bbcd-8039cf461f68}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Window">
+      <UniqueIdentifier>{d52f0649-4b24-4179-aec9-47fbbc333210}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Base">
+      <UniqueIdentifier>{2d00a111-df30-4b17-9df0-7ab831dc312f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\System">
+      <UniqueIdentifier>{b89f4325-e9ab-4243-b1d2-84801bd4c808}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -45,10 +45,10 @@
     <ClCompile Include="..\System\Application.cpp">
       <Filter>Source Files\System</Filter>
     </ClCompile>
-    <ClCompile Include="TexturedCube.cpp">
+    <ClCompile Include="main.cpp" />
+    <ClCompile Include="MeshRenderer.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="main.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\Base\ExampleBase.h">
@@ -65,27 +65,6 @@
     </ClInclude>
     <ClInclude Include="..\System\Singleton.h">
       <Filter>Header Files\System</Filter>
-    </ClInclude>
-    <ClInclude Include="..\Window\Event.h">
-      <Filter>Header Files\Window</Filter>
-    </ClInclude>
-    <ClInclude Include="..\Window\KeyboardEvent.h">
-      <Filter>Header Files\Window</Filter>
-    </ClInclude>
-    <ClInclude Include="..\Window\MouseEvent.h">
-      <Filter>Header Files\Window</Filter>
-    </ClInclude>
-    <ClInclude Include="..\Window\RedrawEvent.h">
-      <Filter>Header Files\Window</Filter>
-    </ClInclude>
-    <ClInclude Include="..\Window\Window.h">
-      <Filter>Header Files\Window</Filter>
-    </ClInclude>
-    <ClInclude Include="..\Window\WindowEvent.h">
-      <Filter>Header Files\Window</Filter>
-    </ClInclude>
-    <ClInclude Include="TexturedCube.h">
-      <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="..\..\inc\Type\AllocationCallbacks.h">
       <Filter>Header Files\vkpp\Type</Filter>
@@ -200,6 +179,27 @@
     </ClInclude>
     <ClInclude Include="..\..\inc\Info\TypeConsistency.h">
       <Filter>Header Files\vkpp\Info</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Window\Event.h">
+      <Filter>Header Files\Window</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Window\KeyboardEvent.h">
+      <Filter>Header Files\Window</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Window\MouseEvent.h">
+      <Filter>Header Files\Window</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Window\RedrawEvent.h">
+      <Filter>Header Files\Window</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Window\Window.h">
+      <Filter>Header Files\Window</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Window\WindowEvent.h">
+      <Filter>Header Files\Window</Filter>
+    </ClInclude>
+    <ClInclude Include="MeshRenderer.h">
+      <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

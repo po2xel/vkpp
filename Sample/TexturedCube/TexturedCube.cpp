@@ -569,9 +569,9 @@ void TexturedCube::CreateSampler(void)
         vkpp::SamplerMipmapMode::eLinear,
         vkpp::SamplerAddressMode::eClampToEdge, vkpp::SamplerAddressMode::eClampToEdge, vkpp::SamplerAddressMode::eClampToBorder,
         0.0f,
-        VK_TRUE,
+        Anisotropy::Enable,
         mPhysicalDeviceProperties.limits.maxSamplerAnisotropy,
-        VK_FALSE,
+        Compare::Disable,
         vkpp::CompareOp::eNever,
         0.0f,
         static_cast<float>(mCubeMap.mipLevels),
@@ -922,8 +922,8 @@ void Model::LoadMode(const std::string& aFilename, const glm::vec3& aScale, unsi
 {
     Assimp::Importer lImporter;
 
-    const auto lpAIScene = lImporter.ReadFile(aFilename, aImporterFlags);
-    assert(lpAIScene);
+    auto lpAIScene = lImporter.ReadFile(aFilename, aImporterFlags);
+    assert(lpAIScene != nullptr);
 
     std::vector<float> lVertexBuffer;
     std::vector<uint32_t> lIndexBuffer;

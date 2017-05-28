@@ -341,11 +341,11 @@ void TexturedPlate::CreateGraphicsPipeline(void)
 
     constexpr vkpp::PipelineRasterizationStateCreateInfo lRasterizationStateCreateInfo
     {
-        VK_FALSE, VK_FALSE,
+        DepthClamp::Disable, RasterizerDiscard::Disable,
         vkpp::PolygonMode::eFill,
         vkpp::CullModeFlagBits::eNone,
         vkpp::FrontFace::eCounterClockwise,
-        VK_FALSE,
+        DepthBias::Disable,
         0.0f, 0.0f, 1.0f,
         1.0f
     };
@@ -354,7 +354,7 @@ void TexturedPlate::CreateGraphicsPipeline(void)
 
     constexpr vkpp::PipelineDepthStencilStateCreateInfo lDepthStencilStateCreateInfo
     {
-        VK_TRUE, VK_TRUE,
+        DepthTest::Enable, DepthWrite::Enable,
         vkpp::CompareOp::eLessOrEqual
     };
 
@@ -425,7 +425,7 @@ void TexturedPlate::AllocateDescriptorSet(void)
 }
 
 
-void TexturedPlate::LoadTexture(const std::string& aFilename, vkpp::Format mTexFormat)
+void TexturedPlate::LoadTexture(const std::string& aFilename, vkpp::Format aTexFormat)
 {
     const gli::texture2d lTex2D{ gli::load(aFilename) };
     assert(!lTex2D.empty());
@@ -483,7 +483,7 @@ void TexturedPlate::LoadTexture(const std::string& aFilename, vkpp::Format mTexF
     const vkpp::ImageCreateInfo lImageCreateInfo
     {
         vkpp::ImageType::e2D,
-        mTexFormat,
+        aTexFormat,
         { mTexture.width, mTexture.height, 1 },
         vkpp::ImageUsageFlagBits::eSampled | vkpp::ImageUsageFlagBits::eTransferDst,
         vkpp::ImageLayout::eUndefined,
@@ -495,7 +495,7 @@ void TexturedPlate::LoadTexture(const std::string& aFilename, vkpp::Format mTexF
     vkpp::ImageViewCreateInfo lImageViewCreateInfo
     {
         vkpp::ImageViewType::e2D,
-        mTexFormat,
+        aTexFormat,
         // The subresource range describes the set of mip-levels (and array layers) that can be accessed through this image view.
         // It is possible to create multiple image views for a single image referring to different (and/or overlapping) ranges of the image.
         {
@@ -564,9 +564,9 @@ void TexturedPlate::CreateSampler(void)
         vkpp::SamplerAddressMode::eRepeat,                          // addressModeV
         vkpp::SamplerAddressMode::eRepeat,                          // addressModeW
         0.0f,                                                       // mipLodBias
-        VK_TRUE,                                                    // anisotropyEnable
+        Anisotropy::Enable,                                         // anisotropyEnable
         mPhysicalDeviceProperties.limits.maxSamplerAnisotropy,      // maxAnisotropy
-        VK_FALSE,                                                   // compareEnable,
+        Compare::Enable,                                            // compareEnable,
         vkpp::CompareOp::eNever,                                    // compareOp
         0.0f,                                                       // minLoad
         static_cast<float>(mTexture.mipLevels),                     // maxLoad: Set max level-of-detail to mip-level count of the texture.

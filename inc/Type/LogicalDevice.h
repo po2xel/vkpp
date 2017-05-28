@@ -341,15 +341,15 @@ public:
         ThrowIfFailed(vkResetFences(mDevice, aFenceCount, &apFences[0]));
     }
 
-    void ResetFences(const std::vector<Fence>& aFences) const
+    template <typename T, typename = EnableIfValueType<ValueType<T>, Fence>>
+    void ResetFences(T&& aFences) const
     {
         return ResetFences(static_cast<uint32_t>(aFences.size()), aFences.data());
     }
 
-    template <std::size_t F>
-    void ResetFences(const std::array<Fence, F>& aFences) const
+    void ResetFences(const std::initializer_list<Fence>& aFences) const
     {
-        return ResetFences(static_cast<uint32_t>(aFences.size()), aFences.data());
+        return ResetFences(static_cast<uint32_t>(aFences.size()), aFences.begin());
     }
 
     void WaitForFence(const Fence& aFence, bool aWaitAll = false, uint64_t aTimeout = DefaultFenceTimeOut) const
@@ -364,15 +364,15 @@ public:
         ThrowIfFailed(vkWaitForFences(mDevice, aFenceCount, &apFences[0], aWaitAll, aTimeout));
     }
 
-    void WaitForFences(const std::vector<Fence>& aFences, bool aWaitAll = false, uint64_t aTimeout = DefaultFenceTimeOut) const
+    template <typename T, typename = EnableIfValueType<ValueType<T>, Fence>>
+    void WaitForFences(T&& aFences, bool aWaitAll = false, uint64_t aTimeout = DefaultFenceTimeOut) const
     {
         return WaitForFences(static_cast<uint32_t>(aFences.size()), aFences.data(), aWaitAll, aTimeout);
     }
 
-    template <std::size_t F>
-    void WaitForFences(const std::array<Fence, F>& aFences, bool aWaitAll = false, uint64_t aTimeout = DefaultFenceTimeOut) const
+    void WaitForFences(const std::initializer_list<Fence>& aFences, bool aWaitAll = false, uint64_t aTimeout = DefaultFenceTimeOut) const
     {
-        return WaitForFences(static_cast<uint32_t>(aFences.size()), aFences.data(), aWaitAll, aTimeout);
+        return WaitForFences(static_cast<uint32_t>(aFences.size()), aFences.begin(), aWaitAll, aTimeout);
     }
 
     template <typename T = DefaultAllocationCallbacks>
@@ -463,9 +463,15 @@ public:
         vkFreeCommandBuffers(mDevice, aCommandPool, aCommandBufferCount, &apCmdBuffers[0]);
     }
 
-    void FreeCommandBuffers(const CommandPool& aCommandPool, const std::vector<CommandBuffer>& aCommandBuffers) const
+    template <typename T, typename = EnableIfValueType<ValueType<T>, CommandBuffer>>
+    void FreeCommandBuffers(const CommandPool& aCommandPool, T&& aCommandBuffers) const
     {
         return FreeCommandBuffers(aCommandPool, static_cast<uint32_t>(aCommandBuffers.size()), aCommandBuffers.data());
+    }
+
+    void FreeCommandBuffers(const CommandPool& aCommandPool, const std::initializer_list<CommandBuffer>& aCommandBuffers) const
+    {
+        return FreeCommandBuffers(aCommandPool, static_cast<uint32_t>(aCommandBuffers.size()), aCommandBuffers.begin());
     }
 
     template <typename T = DefaultAllocationCallbacks>
@@ -523,9 +529,15 @@ public:
         vkFreeDescriptorSets(mDevice, aDescriptorPool, aDescriptorSetCount, &apDescriptorSets[0]);
     }
 
-    void FreeDescriptorSets(const DescriptorPool& aDescriptorPool, const std::vector<DescriptorSet>& aDescriptorSets) const
+    template <typename T, typename = EnableIfValueType<ValueType<T>, DescriptorSet>>
+    void FreeDescriptorSets(const DescriptorPool& aDescriptorPool, T&& aDescriptorSets) const
     {
         FreeDescriptorSets(aDescriptorPool, static_cast<uint32_t>(aDescriptorSets.size()), aDescriptorSets.data());
+    }
+
+    void FreeDescriptorSets(const DescriptorPool& aDescriptorPool, std::initializer_list<DescriptorSet>& aDescriptorSets) const
+    {
+        FreeDescriptorSets(aDescriptorPool, static_cast<uint32_t>(aDescriptorSets.size()), aDescriptorSets.begin());
     }
 
     void UpdateDescriptorSet(const WriteDescriptorSetInfo& aDescriptorWrite) const
@@ -540,8 +552,7 @@ public:
 
     void UpdateDescriptorSets(uint32_t aDescriptorWriteCount, const WriteDescriptorSetInfo* apDescriptorWrites, uint32_t aDescriptorCopyCount, const CopyDescriptorSetInfo* apDescriptorCopies) const
     {
-        assert(aDescriptorWriteCount != 0 && apDescriptorWrites != nullptr);
-        assert(aDescriptorCopyCount != 0 && apDescriptorCopies != nullptr);
+        assert((aDescriptorWriteCount != 0 && apDescriptorWrites != nullptr) || (aDescriptorCopyCount != 0 && apDescriptorCopies != nullptr));
 
         vkUpdateDescriptorSets(mDevice, aDescriptorWriteCount, &apDescriptorWrites[0], aDescriptorCopyCount, &apDescriptorCopies[0]);
     }
@@ -560,15 +571,15 @@ public:
         vkUpdateDescriptorSets(mDevice, 0, nullptr, aDescriptorCopyCount, &apDescriptorCopies[0]);
     }
 
-    void UpdateDescriptorSets(const std::vector<WriteDescriptorSetInfo>& aDescriptorWrites, const std::vector<CopyDescriptorSetInfo>& aDescriptorCopies) const
+    template <typename W, typename C, typename = EnableIfValueType<ValueType<W>, WriteDescriptorSetInfo, ValueType<C>, CopyDescriptorSetInfo>>
+    void UpdateDescriptorSets(W&& aDescriptorWrites, C&& aDescriptorCopies) const
     {
         UpdateDescriptorSets(static_cast<uint32_t>(aDescriptorWrites.size()), aDescriptorWrites.data(), static_cast<uint32_t>(aDescriptorCopies.size()), aDescriptorCopies.data());
     }
 
-    template <std::size_t W, std::size_t C>
-    void UpdateDescriptorSets(const std::array<WriteDescriptorSetInfo, W>& aDescriptorWrites, const std::array<CopyDescriptorSetInfo, C>& aDescriptorCopies)
+    void UpdateDescriptorSets(const std::initializer_list<WriteDescriptorSetInfo>& aDescriptorWrites, const std::initializer_list<CopyDescriptorSetInfo>& aDescriptorCopies) const
     {
-        UpdateDescriptorSets(static_cast<uint32_t>(aDescriptorWrites.size()), aDescriptorWrites.data(), static_cast<uint32_t>(aDescriptorCopies.size()), aDescriptorCopies.data());
+        UpdateDescriptorSets(static_cast<uint32_t>(aDescriptorWrites.size()), aDescriptorWrites.begin(), static_cast<uint32_t>(aDescriptorCopies.size()), aDescriptorCopies.begin());
     }
 
     void UpdateDescriptorSets(const std::vector<WriteDescriptorSetInfo>& aDescriptorWrites) const
@@ -838,23 +849,17 @@ public:
         return aDstCache;
     }
 
-    const PipelineCache& MergePipelineCaches(const PipelineCache& aDstCache, const std::vector<PipelineCache>& aSrcCaches) const
+    template <typename T, typename = EnableIfValueType<ValueType<T>, PipelineCache>>
+    const PipelineCache& MergePipelineCaches(const PipelineCache& aDstCache, T&& aSrcCaches) const
     {
-        assert(aDstCache);
-        assert(!aSrcCaches.empty());
-
-        ThrowIfFailed(vkMergePipelineCaches(mDevice, aDstCache, static_cast<uint32_t>(aSrcCaches.size()), &aSrcCaches[0]));
+        MergePipelineCaches(aDstCache, static_cast<uint32_t>(aSrcCaches.size()), aSrcCaches.data());
 
         return aDstCache;
     }
 
-    template <std::size_t P>
-    const PipelineCache& MergePipelineCaches(const PipelineCache& aDstCache, const std::array<PipelineCache, P>& aSrcCaches) const
+    const PipelineCache& MergePipelineCaches(const PipelineCache& aDstCache, const std::initializer_list<PipelineCache>& aSrcCaches) const
     {
-        assert(aDstCache);
-        static_assert(!aSrcCaches.empty());
-
-        ThrowIfFailed(vkMergePipelineCaches(mDevice, aDstCache, static_cast<uint32_t>(aSrcCaches.size()), &aSrcCaches[0]));
+        MergePipelineCaches(aDstCache, static_cast<uint32_t>(aSrcCaches.size()), aSrcCaches.begin());
 
         return aDstCache;
     }
@@ -917,15 +922,15 @@ public:
         ThrowIfFailed(vkFlushMappedMemoryRanges(mDevice, aMemoryRangeCount, &aMappedMemoryRanges[0]));
     }
 
-    void FlushMappedMemoryRanges(const std::vector<MappedMemoryRange>& aMappedMemoryRanges) const
+    template <typename T, typename = EnableIfValueType<ValueType<T>, MappedMemoryRange>>
+    void FlushMappedMemoryRanges(T&& aMappedMemoryRanges) const
     {
         FlushMappedMemoryRanges(static_cast<uint32_t>(aMappedMemoryRanges.size()), aMappedMemoryRanges.data());
     }
 
-    template <std::size_t M>
-    void FlushMappedMemoryRanges(const std::array<MappedMemoryRange, M>& aMappedMemoryRanges) const
+    void FlushMappedMemoryRanges(const std::initializer_list<MappedMemoryRange>& aMappedMemoryRanges) const
     {
-        FlushMappedMemoryRanges(static_cast<uint32_t>(aMappedMemoryRanges.size()), aMappedMemoryRanges.data());
+        FlushMappedMemoryRanges(static_cast<uint32_t>(aMappedMemoryRanges.size()), aMappedMemoryRanges.begin());
     }
 
     void InvalidateMappedMemoryRanges(uint32_t aMemoryRangeCount, const MappedMemoryRange* apMappedMemoryRanges) const
@@ -935,15 +940,15 @@ public:
         ThrowIfFailed(vkInvalidateMappedMemoryRanges(mDevice, aMemoryRangeCount, &apMappedMemoryRanges[0]));
     }
 
-    void InvalidateMappedMemoryRanges(const std::vector<MappedMemoryRange>& aMappedMemoryRanges) const
+    template <typename T, typename = EnableIfValueType<ValueType<T>, MappedMemoryRange>>
+    void InvalidateMappedMemoryRanges(T&& aMappedMemoryRanges) const
     {
-        return InvalidateMappedMemoryRanges(static_cast<uint32_t>(aMappedMemoryRanges.size()), aMappedMemoryRanges.data());
+        InvalidateMappedMemoryRanges(static_cast<uint32_t>(aMappedMemoryRanges.size()), aMappedMemoryRanges.data());
     }
 
-    template <std::size_t M>
-    void InvalidateMappedMemoryRanges(const std::array<MappedMemoryRange, M>& aMappedMemoryRanges) const
+    void InvalidateMappedMemoryRanges(const std::initializer_list<MappedMemoryRange>& aMappedMemoryRanges) const
     {
-        return InvalidateMappedMemoryRanges(static_cast<uint32_t>(aMappedMemoryRanges.size()), aMappedMemoryRanges.data());
+        InvalidateMappedMemoryRanges(static_cast<uint32_t>(aMappedMemoryRanges.size()), aMappedMemoryRanges.begin());
     }
 
     VkResult Wait(void) const

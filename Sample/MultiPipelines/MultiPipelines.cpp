@@ -365,11 +365,11 @@ void MultiPipelines::CreateGraphicsPipelines(void)
 
     vkpp::PipelineRasterizationStateCreateInfo lRasterizationStateCreateInfo
     {
-        VK_FALSE, VK_FALSE,
+        DepthClamp::Disable, RasterizerDiscard::Disable,
         vkpp::PolygonMode::eFill,
         vkpp::CullModeFlagBits::eBack,
         vkpp::FrontFace::eClockwise,
-        VK_FALSE,
+        DepthBias::Disable,
         0.0f, 0.0f, 0.0f,
         1.0f
     };
@@ -378,7 +378,7 @@ void MultiPipelines::CreateGraphicsPipelines(void)
 
     constexpr vkpp::PipelineDepthStencilStateCreateInfo lDepthStencilStateCreateInfo
     {
-        VK_TRUE, VK_TRUE,
+        DepthTest::Enable, DepthWrite::Enable,
         vkpp::CompareOp::eLessOrEqual
     };
 
@@ -713,8 +713,8 @@ void Model::LoadMode(const std::string& aFilename, unsigned int aImporterFlags)
 {
     Assimp::Importer lImporter;
 
-    const auto lpAIScene = lImporter.ReadFile(aFilename, aImporterFlags);
-    assert(lpAIScene);
+    auto lpAIScene = lImporter.ReadFile(aFilename, aImporterFlags);
+    assert(lpAIScene != nullptr);
 
     std::vector<float> lVertexBuffer;
     std::vector<uint32_t> lIndexBuffer;

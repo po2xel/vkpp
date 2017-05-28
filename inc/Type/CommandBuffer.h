@@ -80,13 +80,13 @@ public:
     RenderPass                  renderPass;
     uint32_t                    subpass{ 0 };
     Framebuffer                 framebuffer;
-    Bool32                      occlusionQueryEnable{ VK_FALSE };
+    OcclusionQuery              occlusionQueryEnable{ OcclusionQuery::Disable };
     QueryControlFlags           queryFlags;
     QueryPipelineStatisticFlags pipelineStatistics;
 
     DEFINE_CLASS_MEMBER(CommandBufferInheritanceInfo)
 
-    CommandBufferInheritanceInfo(const RenderPass& aRenderPass, uint32_t aSubpass, const Framebuffer& aFramebuffer, Bool32 aOcclusionQueryEnable,
+    CommandBufferInheritanceInfo(const RenderPass& aRenderPass, uint32_t aSubpass, const Framebuffer& aFramebuffer, OcclusionQuery aOcclusionQueryEnable,
         QueryControlFlags aQueryFlags = DefaultFlags, QueryPipelineStatisticFlags aPipelineStatistics = DefaultFlags) noexcept
         : renderPass(aRenderPass), subpass(aSubpass), framebuffer(aFramebuffer), occlusionQueryEnable(aOcclusionQueryEnable),
           queryFlags(aQueryFlags), pipelineStatistics(aPipelineStatistics)
@@ -114,9 +114,16 @@ public:
         return *this;
     }
 
-    CommandBufferInheritanceInfo& SetOcclusionQuery(Bool32 aOcclusionQueryEnable = VK_TRUE)
+    CommandBufferInheritanceInfo& EnableOcclusionQuery(void)
     {
-        occlusionQueryEnable = aOcclusionQueryEnable;
+        occlusionQueryEnable = OcclusionQuery::Enable;
+
+        return *this;
+    }
+
+    CommandBufferInheritanceInfo& DisableOcclusionQuery(void)
+    {
+        occlusionQueryEnable = OcclusionQuery::Disable;
 
         return *this;
     }
@@ -336,19 +343,26 @@ public:
         vkCmdExecuteCommands(mCommandBuffer, 1, &aCommandBuffer);
     }
 
-    void Execute(const std::vector<CommandBuffer>& aCommandBuffers) const
+    void Execute(uint32_t aCommandBufferCount, const CommandBuffer* apCommandBuffers) const
+    {
+        assert(aCommandBufferCount != 0 && apCommandBuffers != nullptr);
+
+        vkCmdExecuteCommands(mCommandBuffer, aCommandBufferCount, &apCommandBuffers[0]);
+    }
+
+    template <typename T, typename = EnableIfValueType<ValueType<T>, CommandBuffer>>
+    void Execute(T&& aCommandBuffers) const
     {
         assert(!aCommandBuffers.empty());
 
-        vkCmdExecuteCommands(mCommandBuffer, static_cast<uint32_t>(aCommandBuffers.size()), &aCommandBuffers[0]);
+        vkCmdExecuteCommands(mCommandBuffer, static_cast<uint32_t>(aCommandBuffers.size()), aCommandBuffers.data());
     }
 
-    template <std::size_t C>
-    void Execute(const std::array<CommandBuffer, C>& aCommandBuffers) const
+    void Execute(const std::initializer_list<CommandBuffer>& aCommandBuffers) const
     {
-        static_assert(!aCommandBuffers.empty());
+        assert(aCommandBuffers.size() > 0);
 
-        vkCmdExecuteCommands(mCommandBuffer, static_cast<uint32_t>(aCommandBuffers.size()), &aCommandBuffers[0]);
+        Execute(static_cast<uint32_t>(aCommandBuffers.size()), aCommandBuffers.begin());
     }
 
     void BeginRenderPass(const RenderPassBeginInfo& aRenderPassBeginInfo, SubpassContents aSubpassContents = SubpassContents::eInline) const
@@ -514,17 +528,15 @@ public:
         vkCmdSetViewport(mCommandBuffer, aFirstViewport, aViewportCount, &apViewports[0]);
     }
 
-    void SetViewports(uint32_t aFirstViewport, const std::vector<Viewport>& aViewports) const
+    template <typename T, typename = EnableIfValueType<ValueType<T>, Viewport>>
+    void SetViewports(uint32_t aFirstViewport, T&& aViewports) const
     {
-        return SetViewports(aFirstViewport, static_cast<uint32_t>(aViewports.size()), aViewports.data());
+        SetViewports(aFirstViewport, static_cast<uint32_t>(aViewports.size()), aViewports.data());
     }
 
-    template <std::size_t V>
-    void SetViewports(uint32_t aFirstViewport, const std::array<Viewport, V>& aViewports) const
+    void SetViewports(uint32_t aFirstViewport, const std::initializer_list<Viewport>& aViewports) const
     {
-        static_assert(!aViewports.empty());
-
-        return SetViewports(aFirstViewport, static_cast<uint32_t>(aViewports.size()), aViewports.data());
+        SetViewports(aFirstViewport, static_cast<uint32_t>(aViewports.size()), aViewports.begin());
     }
 
     void SetLineWidth(float aLineWidth) const
@@ -559,17 +571,15 @@ public:
         vkCmdSetScissor(mCommandBuffer, aFirstScissor, aScissorCount, &apScissors[0]);
     }
 
-    void SetScissors(uint32_t aFirstScissor, const std::vector<Rect2D>& aScissors) const
+    template<typename T, typename = EnableIfValueType<ValueType<T>, Rect2D>>
+    void SetScissors(uint32_t aFirstScissor, T&& aScissors) const
     {
-        return SetScissors(aFirstScissor, static_cast<uint32_t>(aScissors.size()), aScissors.data());
+        SetScissors(aFirstScissor, static_cast<uint32_t>(aScissors.size()), aScissors.data());
     }
 
-    template <std::size_t S>
-    void SetScissors(uint32_t aFirstScissor, const std::array<Rect2D, S>& aScissors) const
+    void SetScissors(uint32_t aFirstScissor, const std::initializer_list<Rect2D>& aScissors) const
     {
-        static_assert(!aScissors.empty());
-
-        return SetScissors(aFirstScissor, static_cast<uint32_t>(aScissors.size()), aScissors.data());
+        SetScissors(aFirstScissor, static_cast<uint32_t>(aScissors.size()), aScissors.begin());
     }
 
     void SetDepthBounds(float aMinDepthBounds, float aMaxDepthBounds) const
@@ -604,19 +614,15 @@ public:
         vkCmdBindVertexBuffers(mCommandBuffer, aFirstBinding, aBindingCount, &apBuffers[0], &apOffsets[0]);
     }
 
-    void BindVertexBuffers(uint32_t aFirstBinding, const std::vector<Buffer>& aBuffers, const std::vector<DeviceSize>& aOffsets) const
+    template <typename B, typename S, typename = EnableIfValueType<ValueType<B>, Buffer, ValueType<S>, DeviceSize>>
+    void BindVertexBuffers(uint32_t aFirstBinding, B&& aBuffers, S&& aOffsets) const
     {
-        assert(aBuffers.size() == aOffsets.size());
-
         BindVertexBuffers(aFirstBinding, static_cast<uint32_t>(aBuffers.size()), aBuffers.data(), aOffsets.data());
     }
 
-    template <std::size_t B>
-    void BindVertexBuffers(uint32_t aFirstBinding, const std::array<Buffer, B>& aBuffers, const std::array<DeviceSize, B>& aOffsets) const
+    void BindVertexBuffers(uint32_t aFirstBinding, const std::initializer_list<Buffer>& aBuffers, const std::initializer_list<DeviceSize>& aOffsets) const
     {
-        static_assert(!aBuffers.empty());
-
-        BindVertexBuffers(aFirstBinding, static_cast<uint32_t>(aBuffers.size()), aBuffers.data(), aOffsets.data());
+        BindVertexBuffers(aFirstBinding, static_cast<uint32_t>(aBuffers.size()), aBuffers.begin(), aOffsets.begin());
     }
 
     void BindIndexBuffer(const Buffer& aBuffer, DeviceSize aOffset, IndexType aIndexType) const

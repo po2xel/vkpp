@@ -110,7 +110,7 @@ public:
     SurfaceTransformFlagBits    preTransform;
     CompositeAlphaFlagBits      compositeAlpha;
     PresentMode                 presentMode;
-    Bool32                      clipped{ VK_TRUE };
+    Clipped                     clipped{ Clipped::Disable };
     Swapchain                   oldSwapchain;
 
     DEFINE_CLASS_MEMBER(SwapchainCreateInfo)
@@ -119,7 +119,7 @@ public:
         const Extent2D& aImageExtent, const ImageUsageFlags& aImageUsage,
         SurfaceTransformFlagBits aPreTransform, CompositeAlphaFlagBits aCompositeAlpha,
         PresentMode aPresentMode, const Swapchain& aOldSwapChain,
-        uint32_t aImageArrayLayers = 1, Bool32 aClipped = VK_TRUE, const SwapchainCreateFlags& aFlags = DefaultFlags) noexcept
+        uint32_t aImageArrayLayers = 1, Clipped aClipped = Clipped::Enable, const SwapchainCreateFlags& aFlags = DefaultFlags) noexcept
         : flags(aFlags), surface(aSurface),
         minImageCount(aMinImageCount), imageFormat(aImageFormat), imageColorSpace(aImageColorSpace),
         imageExtent(aImageExtent), imageArrayLayers(aImageArrayLayers), imageUsage(aImageUsage),
@@ -131,7 +131,7 @@ public:
         const Extent2D& aImageExtent, const ImageUsageFlags& aImageUsage,
         uint32_t aQueueFamilyIndexCount, const uint32_t* apQueueFamilyIndices, SurfaceTransformFlagBits aPreTransform, CompositeAlphaFlagBits aCompositeAlpha,
         PresentMode aPresentMode, const Swapchain& aOldSwapChain,
-        uint32_t aImageArrayLayers = 1, Bool32 aClipped = VK_TRUE, const SwapchainCreateFlags& aFlags = DefaultFlags)
+        uint32_t aImageArrayLayers = 1, Clipped aClipped = Clipped::Enable, const SwapchainCreateFlags& aFlags = DefaultFlags)
         : flags(aFlags), surface(aSurface),
         minImageCount(aMinImageCount), imageFormat(aImageFormat), imageColorSpace(aImageColorSpace),
         imageExtent(aImageExtent), imageArrayLayers(aImageArrayLayers), imageUsage(aImageUsage), imageSharingMode(SharingMode::eConcurrent),
@@ -144,7 +144,7 @@ public:
         const Extent2D& aImageExtent, const ImageUsageFlags& aImageUsage,
         Q&& aQueueFamilyIndices, SurfaceTransformFlagBits aPreTransform, CompositeAlphaFlagBits aCompositeAlpha,
         PresentMode aPresentMode, const Swapchain& aOldSwapChain,
-        uint32_t aImageArrayLayers = 1, Bool32 aClipped = VK_TRUE, const SwapchainCreateFlags& aFlags = DefaultFlags)
+        uint32_t aImageArrayLayers = 1, Clipped aClipped = Clipped::Enable, const SwapchainCreateFlags& aFlags = DefaultFlags)
         : SwapchainCreateInfo(aSurface,
         aMinImageCount, aSurfaceFormat.format, aSurfaceFormat.colorSpace,
         aImageExtent, aImageUsage,
@@ -197,18 +197,18 @@ public:
 
     SwapchainCreateInfo& SetExclusiveMode(void)
     {
-        imageSharingMode             = SharingMode::eExclusive;
-        queueFamilyIndexCount   = 0;
-        pQueueFamilyIndices     = nullptr;
+        imageSharingMode            = SharingMode::eExclusive;
+        queueFamilyIndexCount       = 0;
+        pQueueFamilyIndices         = nullptr;
 
         return *this;
     }
 
     SwapchainCreateInfo& SetConcurrentMode(uint32_t aQueueFamilyIndexCount, const uint32_t* apQueueFamilyIndices)
     {
-        imageSharingMode             = SharingMode::eConcurrent;
-        queueFamilyIndexCount   = aQueueFamilyIndexCount;
-        pQueueFamilyIndices     = apQueueFamilyIndices;
+        imageSharingMode            = SharingMode::eConcurrent;
+        queueFamilyIndexCount       = aQueueFamilyIndexCount;
+        pQueueFamilyIndices         = apQueueFamilyIndices;
 
         return *this;
     }
@@ -242,9 +242,16 @@ public:
         return *this;
     }
 
-    SwapchainCreateInfo& SetClipped(Bool32 aClipped = VK_TRUE)
+    SwapchainCreateInfo& EnableClipped(void)
     {
-        clipped = aClipped;
+        clipped = Clipped::Enable;
+
+        return *this;
+    }
+
+    SwapchainCreateInfo& DisableClipped(void)
+    {
+        clipped = Clipped::Disable;
 
         return *this;
     }
