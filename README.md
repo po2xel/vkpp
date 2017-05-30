@@ -69,7 +69,7 @@ Push Constants are uniform values that are stored within the CommandBuffer and c
 ### [Specialization Constants](Sample/SpecializationConstants/)
 <img src="./Sample/SpecializationConstants/SpecializationConstants.png" height="108px" align="right">
 Specialization Constants are used to specify shader constants at pipeline creation time.<br/>
-Shader bindings based on specialization constants are marked by the new `constant_id` layout qualifier. For example:
+Shader bindings based on specialization constants are marked by the new `constant_id` layout qualifier. For example:<br/>
 ```C
     layout (constant_id = 0) const int LightModel = 0;
 ```
