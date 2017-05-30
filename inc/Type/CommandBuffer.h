@@ -385,30 +385,60 @@ public:
         vkCmdBindPipeline(mCommandBuffer, VK_PIPELINE_BIND_POINT_COMPUTE, aPipeline);
     }
 
-    void BindGraphicsDescriptorSet(const PipelineLayout& aPipelineLayout, uint32_t aFirstSet, const DescriptorSet& aDescriptorSet,
-        uint32_t aDynamicOffsetCount = 0, const uint32_t* apDynamicOffsets = nullptr) const
+    void BindGraphicsDescriptorSet(const PipelineLayout& aPipelineLayout, uint32_t aFirstSet, const DescriptorSet& aDescriptorSet) const
     {
+        vkCmdBindDescriptorSets(mCommandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, aPipelineLayout, aFirstSet, 1, &aDescriptorSet, 0, nullptr);
+    }
+
+    void BindGraphicsDescriptorSet(const PipelineLayout& aPipelineLayout, uint32_t aFirstSet, const DescriptorSet& aDescriptorSet, uint32_t aDynamicOffset) const
+    {
+        vkCmdBindDescriptorSets(mCommandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, aPipelineLayout, aFirstSet, 1, &aDescriptorSet, 1, &aDynamicOffset);
+    }
+
+    void BindGraphicsDescriptorSet(const PipelineLayout& aPipelineLayout, uint32_t aFirstSet, const DescriptorSet& aDescriptorSet,
+        uint32_t aDynamicOffsetCount, const uint32_t* apDynamicOffsets) const
+    {
+        assert(aDynamicOffsetCount != 0 && apDynamicOffsets != nullptr);
+
         vkCmdBindDescriptorSets(mCommandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, aPipelineLayout, aFirstSet, 1, &aDescriptorSet,
             aDynamicOffsetCount, &apDynamicOffsets[0]);
     }
 
-    void BindComputeDescriptorSet(const PipelineLayout& aPipelineLayout, uint32_t aFirstSet, const DescriptorSet& aDescriptorSet,
-        uint32_t aDynamicOffsetCount = 0, const uint32_t* apDynamicOffsets = nullptr) const
+    void BindComputeDescriptorSet(const PipelineLayout& aPipelineLayout, uint32_t aFirstSet, const DescriptorSet& aDescriptorSet) const
     {
+        vkCmdBindDescriptorSets(mCommandBuffer, VK_PIPELINE_BIND_POINT_COMPUTE, aPipelineLayout, aFirstSet, 1, &aDescriptorSet, 0, nullptr);
+    }
+
+    void BindComputeDescriptorSet(const PipelineLayout& aPipelineLayout, uint32_t aFirstSet, const DescriptorSet& aDescriptorSet, uint32_t aDynamicOffset) const
+    {
+        vkCmdBindDescriptorSets(mCommandBuffer, VK_PIPELINE_BIND_POINT_COMPUTE, aPipelineLayout, aFirstSet, 1, &aDescriptorSet, 1, &aDynamicOffset);
+    }
+
+    void BindComputeDescriptorSet(const PipelineLayout& aPipelineLayout, uint32_t aFirstSet, const DescriptorSet& aDescriptorSet,
+        uint32_t aDynamicOffsetCount, const uint32_t* apDynamicOffsets) const
+    {
+        assert(aDynamicOffsetCount != 0 && apDynamicOffsets != nullptr);
+
         vkCmdBindDescriptorSets(mCommandBuffer, VK_PIPELINE_BIND_POINT_COMPUTE, aPipelineLayout, aFirstSet, 1, &aDescriptorSet,
             aDynamicOffsetCount, &apDynamicOffsets[0]);
     }
 
     void BindGraphicsDescriptorSets(const PipelineLayout& aPipelineLayout, uint32_t aFirstSet, uint32_t aDescriptorSetCount, const DescriptorSet* apDescriptorSets,
-        uint32_t aDynamicOffsetCount = 0, const uint32_t* apDynamicOffsets = nullptr) const
+        uint32_t aDynamicOffsetCount, const uint32_t* apDynamicOffsets) const
     {
+        assert(aDescriptorSetCount != 0 && apDescriptorSets != nullptr);
+        assert(aDynamicOffsetCount != 0 && apDynamicOffsets != nullptr);
+
         vkCmdBindDescriptorSets(mCommandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, aPipelineLayout, aFirstSet, aDescriptorSetCount, &apDescriptorSets[0],
             aDynamicOffsetCount, &apDynamicOffsets[0]);
     }
 
     void BindComputeDescriptorSets(const PipelineLayout& aPipelineLayout, uint32_t aFirstSet, uint32_t aDescriptorSetCount, const DescriptorSet* apDescriptorSets,
-        uint32_t aDynamicOffsetCount = 0, const uint32_t* apDynamicOffsets = nullptr) const
+        uint32_t aDynamicOffsetCount, const uint32_t* apDynamicOffsets) const
     {
+        assert(aDescriptorSetCount != 0 && apDescriptorSets != nullptr);
+        assert(aDynamicOffsetCount != 0 && apDynamicOffsets != nullptr);
+
         vkCmdBindDescriptorSets(mCommandBuffer, VK_PIPELINE_BIND_POINT_COMPUTE, aPipelineLayout, aFirstSet, aDescriptorSetCount, &apDescriptorSets[0],
             aDynamicOffsetCount, &apDynamicOffsets[0]);
     }

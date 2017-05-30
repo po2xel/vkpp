@@ -677,7 +677,6 @@ void TexturedCube::UpdateDescriptorSets(void)
         {
             mDescriptorSets.object,
             0,
-            0,
             vkpp::DescriptorType::eUniformBuffer,
             lObjectBufferDescriptor
         },
@@ -685,7 +684,6 @@ void TexturedCube::UpdateDescriptorSets(void)
         {
             mDescriptorSets.object,
             1,
-            0,
             vkpp::DescriptorType::eCombinedImageSampler,
             lTextureDescriptor
         }
@@ -707,7 +705,6 @@ void TexturedCube::UpdateDescriptorSets(void)
         {
             mDescriptorSets.skybox,
             0,
-            0,
             vkpp::DescriptorType::eUniformBuffer,
             lSkyboxBufferDescriptor
         },
@@ -715,7 +712,6 @@ void TexturedCube::UpdateDescriptorSets(void)
         {
             mDescriptorSets.skybox,
             1,
-            0,
             vkpp::DescriptorType::eCombinedImageSampler,
             lTextureDescriptor
         }

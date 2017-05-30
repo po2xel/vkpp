@@ -50,6 +50,8 @@ class DescriptorPoolCreateInfo : public internal::VkTrait<DescriptorPoolCreateIn
 private:
     const internal::Structure   sType = internal::Structure::eDescriptorPool;
 
+    constexpr DescriptorPoolCreateInfo(DescriptorPoolSize&& aPoolSize, uint32_t aMaxSets, const DescriptorPoolCreateFlags& aFlags = DefaultFlags) noexcept = delete;
+
 public:
     const void*                 pNext{ nullptr };
     DescriptorPoolCreateFlags   flags;
@@ -61,6 +63,10 @@ public:
 
     constexpr DescriptorPoolCreateInfo(uint32_t aPoolSizeCount, const DescriptorPoolSize* apPoolSizes, uint32_t aMaxSets, const DescriptorPoolCreateFlags& aFlags = DefaultFlags) noexcept
         : flags(aFlags), maxSets(aMaxSets), poolSizeCount(aPoolSizeCount), pPoolSizes(apPoolSizes)
+    {}
+
+    constexpr DescriptorPoolCreateInfo(const DescriptorPoolSize& aPoolSize, uint32_t aMaxSets, const DescriptorPoolCreateFlags& aFlags = DefaultFlags) noexcept
+        : DescriptorPoolCreateInfo(1, aPoolSize.AddressOf(), aMaxSets, aFlags)
     {}
 
     template <typename D, typename = EnableIfValueType<ValueType<D>, DescriptorPoolSize>>
@@ -129,6 +135,8 @@ class DescriptorSetAllocateInfo : public internal::VkTrait<DescriptorSetAllocate
 private:
     const internal::Structure   sType = internal::Structure::eDescriptorSetAllocate;
 
+    DescriptorSetAllocateInfo(const DescriptorPool& aDescriptorPool, DescriptorSetLayout&& aSetLayout) noexcept = delete;
+
 public:
     const void*                 pNext{ nullptr };
     DescriptorPool              descriptorPool;
@@ -139,6 +147,10 @@ public:
 
     DescriptorSetAllocateInfo(const DescriptorPool& aDescriptorPool, uint32_t aDescriptorSetCount, const DescriptorSetLayout* apSetLayouts) noexcept
         : descriptorPool(aDescriptorPool), descriptorSetCount(aDescriptorSetCount), pSetLayouts(apSetLayouts)
+    {}
+
+    DescriptorSetAllocateInfo(const DescriptorPool& aDescriptorPool, const DescriptorSetLayout& aSetLayout) noexcept
+        : DescriptorSetAllocateInfo(aDescriptorPool, 1, aSetLayout.AddressOf())
     {}
 
     template <typename D, typename = EnableIfValueType<ValueType<D>, DescriptorSetLayout>>

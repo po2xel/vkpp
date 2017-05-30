@@ -894,7 +894,7 @@ public:
         ThrowIfFailed(vkBindImageMemory(mDevice, aImage, aDeviceMemory, aMemoryOffset));
     }
 
-    void* MapMemory(const DeviceMemory& aDeviceMemory, DeviceSize aOffset, DeviceSize aSize, const MemoryMapFlags& aFlags = DefaultFlags) const
+    void* MapMemory(const DeviceMemory& aDeviceMemory, DeviceSize aOffset, DeviceSize aSize = VK_WHOLE_SIZE, const MemoryMapFlags& aFlags = DefaultFlags) const
     {
         void* lpHostData{ nullptr };
 

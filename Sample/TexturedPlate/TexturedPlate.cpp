@@ -600,7 +600,6 @@ void TexturedPlate::UpdateDescriptorSet(void)
         {
             mDescriptorSet,
             0,                                      // dstBindig
-            0,                                      // dstArrayElement
             vkpp::DescriptorType::eUniformBuffer,
             lDescriptorBufferInfo
         },
@@ -609,7 +608,6 @@ void TexturedPlate::UpdateDescriptorSet(void)
         {
             mDescriptorSet,
             1,                                              // binding
-            0,                                              // dstArrayElement
             vkpp::DescriptorType::eCombinedImageSampler,    // The descriptor set will use a combined image sampler (sampler and image could be split).
             lTextureDescriptor
         }

@@ -1311,7 +1311,7 @@ struct PushConstantRange : internal::VkTrait<PushConstantRange, VkPushConstantRa
         return *this;
     }
 
-    PushConstantRange& SetSize(uint32_t aOffset, uint32_t aSize)
+    PushConstantRange& SetRange(uint32_t aOffset, uint32_t aSize)
     {
         offset  = aOffset;
         size    = aSize;
@@ -1329,6 +1329,27 @@ class PipelineLayoutCreateInfo : public internal::VkTrait<PipelineLayoutCreateIn
 private:
     const internal::Structure sType = internal::Structure::ePipelineLayout;
 
+    explicit constexpr PipelineLayoutCreateInfo(DescriptorSetLayout&& aSetLayout, uint32_t aPushConstantRangeCount = 0, const PushConstantRange* apPushConstantRanges = nullptr,
+        const PipelineLayoutCreateFlags& aFlags = DefaultFlags) noexcept = delete;
+
+    constexpr PipelineLayoutCreateInfo(uint32_t aSetLayoutCount, const DescriptorSetLayout* apSetLayouts, PushConstantRange&& aPushConstantRange,
+        const PipelineLayoutCreateFlags& aFlags = DefaultFlags) noexcept = delete;
+
+    constexpr PipelineLayoutCreateInfo(DescriptorSetLayout&& aSetLayout, PushConstantRange&& aPushConstantRange,
+        const PipelineLayoutCreateFlags& aFlags = DefaultFlags) noexcept = delete;
+
+    constexpr PipelineLayoutCreateInfo(const DescriptorSetLayout& aSetLayout, PushConstantRange&& aPushConstantRange,
+        const PipelineLayoutCreateFlags& aFlags = DefaultFlags) noexcept = delete;
+
+    constexpr PipelineLayoutCreateInfo(DescriptorSetLayout&& aSetLayout, const PushConstantRange& aPushConstantRange,
+        const PipelineLayoutCreateFlags& aFlags = DefaultFlags) noexcept = delete;
+
+    template <typename L, typename = EnableIfValueType<ValueType<L>, DescriptorSetLayout>>
+    constexpr PipelineLayoutCreateInfo(L&& aSetLayouts, PushConstantRange&& aPushConstantRange, const PipelineLayoutCreateFlags& aFlags = DefaultFlags) noexcept = delete;
+    
+    template <typename P, typename = EnableIfValueType<ValueType<P>, PushConstantRange>>
+    constexpr PipelineLayoutCreateInfo(DescriptorSetLayout&& aSetLayout, P&& aPushConstantRanges, const PipelineLayoutCreateFlags& aFlags = DefaultFlags) noexcept = delete;
+
 public:
     const void*                 pNext{ nullptr };
     PipelineLayoutCreateFlags   flags;
@@ -1344,20 +1365,43 @@ public:
         : flags(aFlags), setLayoutCount(aSetLayoutCount), pSetLayouts(apSetLayouts), pushConstantRangeCount(aPushConstantRangeCount), pPushConstantRanges(apPushConstantRanges)
     {}
 
-    template <typename D, typename P, typename = EnableIfValueType<ValueType<D>, DescriptorSetLayout, ValueType<P>, PushConstantRange>>
-    constexpr PipelineLayoutCreateInfo(D&& aSetLayouts, P&& aPushConstantRanges, const PipelineLayoutCreateFlags& aFlags = DefaultFlags) noexcept
+    explicit constexpr PipelineLayoutCreateInfo(const DescriptorSetLayout& aSetLayout, uint32_t aPushConstantRangeCount = 0, const PushConstantRange* apPushConstantRanges = nullptr,
+        const PipelineLayoutCreateFlags& aFlags = DefaultFlags) noexcept
+        : PipelineLayoutCreateInfo(1, aSetLayout.AddressOf(), aPushConstantRangeCount, apPushConstantRanges, aFlags)
+    {}
+
+    constexpr PipelineLayoutCreateInfo(uint32_t aSetLayoutCount, const DescriptorSetLayout* apSetLayouts, const PushConstantRange& aPushConstantRange, const PipelineLayoutCreateFlags& aFlags = DefaultFlags) noexcept
+        : PipelineLayoutCreateInfo(aSetLayoutCount, apSetLayouts, 1, aPushConstantRange.AddressOf(), aFlags)
+    {}
+
+    constexpr PipelineLayoutCreateInfo(const DescriptorSetLayout& aSetLayout, const PushConstantRange& aPushConstantRange, const PipelineLayoutCreateFlags& aFlags = DefaultFlags) noexcept
+        : PipelineLayoutCreateInfo(1, aSetLayout.AddressOf(), 1, aPushConstantRange.AddressOf(), aFlags)
+    {}
+
+    template <typename L, typename P, typename = EnableIfValueType<ValueType<L>, DescriptorSetLayout, ValueType<P>, PushConstantRange>>
+    constexpr PipelineLayoutCreateInfo(L&& aSetLayouts, P&& aPushConstantRanges, const PipelineLayoutCreateFlags& aFlags = DefaultFlags) noexcept
         : PipelineLayoutCreateInfo(static_cast<uint32_t>(aSetLayouts.size()), aSetLayouts.data(), static_cast<uint32_t>(aPushConstantRanges.size()), aPushConstantRanges.data(), aFlags)
     {}
 
-    template <typename D, typename = EnableIfValueType<ValueType<D>, DescriptorSetLayout>>
-    explicit constexpr PipelineLayoutCreateInfo(D&& aSetLayouts, uint32_t aPushConstantRangeCount = 0, const PushConstantRange* apPushConstantRanges = nullptr,
+    template <typename L, typename = EnableIfValueType<ValueType<L>, DescriptorSetLayout>>
+    explicit constexpr PipelineLayoutCreateInfo(L&& aSetLayouts, uint32_t aPushConstantRangeCount = 0, const PushConstantRange* apPushConstantRanges = nullptr,
         const PipelineLayoutCreateFlags& aFlags = DefaultFlags) noexcept
         : PipelineLayoutCreateInfo(static_cast<uint32_t>(aSetLayouts.size()), aSetLayouts.data(), aPushConstantRangeCount, apPushConstantRanges, aFlags)
+    {}
+
+    template <typename L, typename = EnableIfValueType<ValueType<L>, DescriptorSetLayout>>
+    constexpr PipelineLayoutCreateInfo(L&& aSetLayouts, const PushConstantRange& aPushConstantRange, const PipelineLayoutCreateFlags& aFlags = DefaultFlags) noexcept
+        : PipelineLayoutCreateInfo(static_cast<uint32_t>(aSetLayouts.size()), aSetLayouts.data(), 1, aPushConstantRange.AddressOf(), aFlags)
     {}
 
     template <typename P, typename = EnableIfValueType<ValueType<P>, PushConstantRange>>
     constexpr PipelineLayoutCreateInfo(uint32_t aSetLayoutCount, const DescriptorSetLayout* apSetLayouts, P&& aPushConstantRanges, const PipelineLayoutCreateFlags& aFlags = DefaultFlags) noexcept
         : PipelineLayoutCreateInfo(aSetLayoutCount, apSetLayouts, static_cast<uint32_t>(aPushConstantRanges.size()), aPushConstantRanges.data(), aFlags)
+    {}
+
+    template <typename P, typename = EnableIfValueType<ValueType<P>, PushConstantRange>>
+    constexpr PipelineLayoutCreateInfo(const DescriptorSetLayout& aSetLayout, P&& aPushConstantRanges, const PipelineLayoutCreateFlags& aFlags = DefaultFlags) noexcept
+        : PipelineLayoutCreateInfo(1, aSetLayout.AddressOf(), static_cast<uint32_t>(aPushConstantRanges.size()), aPushConstantRanges.data(), aFlags)
     {}
 
     PipelineLayoutCreateInfo& SetNext(const void* apNext)

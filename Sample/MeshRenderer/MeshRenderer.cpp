@@ -734,7 +734,6 @@ void MeshRenderer::UpdateDescriptorSets(void) const
         {
             mDescriptorSet,
             0,
-            0,
             vkpp::DescriptorType::eUniformBuffer,
             lBufferDescriptor
         },
@@ -742,7 +741,6 @@ void MeshRenderer::UpdateDescriptorSets(void) const
         {
             mDescriptorSet,
             1,
-            0,
             vkpp::DescriptorType::eCombinedImageSampler,
             lTexDescriptor
         }

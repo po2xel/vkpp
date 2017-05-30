@@ -78,11 +78,11 @@
     <IntDir>$(SolutionDir)Sample/obj/$(ProjectName)/$(PlatformTarget)/$(Configuration)/</IntDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <OutDir>$(SolutionDir)Sample/bin/$(ProjectName)/$(PlatformTarget)/$(Configuration)/</OutDir>
+    <OutDir>$(SolutionDir)Sample/bin/</OutDir>
     <IntDir>$(SolutionDir)Sample/obj/$(ProjectName)/$(PlatformTarget)/$(Configuration)/</IntDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-    <OutDir>$(SolutionDir)Sample/bin/$(ProjectName)/$(PlatformTarget)/$(Configuration)/</OutDir>
+    <OutDir>$(SolutionDir)Sample/bin/</OutDir>
     <IntDir>$(SolutionDir)Sample/obj/$(ProjectName)/$(PlatformTarget)/$(Configuration)/</IntDir>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">

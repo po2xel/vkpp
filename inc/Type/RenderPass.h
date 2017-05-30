@@ -201,8 +201,8 @@ struct SubpassDescription : public internal::VkTrait<SubpassDescription, VkSubpa
 
     // Input, Color, Resolve, Depth and Preserve attachments.
     constexpr SubpassDescription(PipelineBindPoint aPipelineBindPoint, uint32_t aInputAttachmentCount, const AttachmentReference* apInputAttachments,
-        uint32_t aColorAttachmentCount, const AttachmentReference* apColorAttachments, const AttachmentReference* apResolveAttachments = nullptr,
-        const AttachmentReference* apDepthStencilAttachment = nullptr,
+        uint32_t aColorAttachmentCount, const AttachmentReference* apColorAttachments, const AttachmentReference* apResolveAttachments,
+        const AttachmentReference* apDepthStencilAttachment,
         uint32_t aPreserveAttachmentCount = 0, const uint32_t* apPreserveAttachments = nullptr, const SubpassDescriptionFlags& aFlags = DefaultFlags) noexcept
         : flags(aFlags), pipelineBindPoint(aPipelineBindPoint), inputAttachmentCount(aInputAttachmentCount), pInputAttachments(apInputAttachments),
           colorAttachmentCount(aColorAttachmentCount), pColorAttachments(apColorAttachments), pResolveAttachments(apResolveAttachments),

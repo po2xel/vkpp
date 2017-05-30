@@ -52,7 +52,19 @@ Texture arrays allow storing of multiple images in different layers without any 
 
 ### [Mesh Renderer](Sample/MeshRenderer/)
 <img src="./Sample/MeshRenderer/MeshRenderer.png" height="108px" align="right">
-Uses [assimp](https://github.com/assimp/assimp) to load a mesh from a common 3D format. Them mesh data is then converted to a fixed layout matching the shader vertex attribute bindings.
+Uses assimp to load a mesh from a common 3D format. Them mesh data is then converted to a fixed layout matching the shader vertex attribute bindings.<br
+
+[Voyager 1 and 2](https://voyager.jpl.nasa.gov/) are the most distant human-made objects. They are exploring where nothing from Earth has flown before.
+
+### [Dynamic Uniform Buffer](Sample/DynamicUniformBuffer/)
+<img src="./Sample/DynamicUniformBuffer/DynamicUniformBuffer.png" height="108px" align="right">
+Demonstrates the use of dynamic uniform buffers for rendering multiple objects with different matrices from one big uniform buffer object. Sets up one bug uniform buffer that contains multiple model matrices that are dynamically addressed upon descriptor binding time.<br/>
+This minimizes the number of descriptor sets required and may help in optimizing memory writes by e.g. only doing partial updates to that memory.<br/>
+It is very practical to use when sub-allocating uniform buffers from a larger buffer allocation.
+
+### [Push Constants](Sample/PushConstants/)
+<img src="./Sample/PushConstants/PushConstants.png" height="108px" align="right">
+Push Constants are uniform values that are stored within the CommandBuffer and can be accessed from the shaders similar to a single global uniform buffer. They provide enough bytes to hold some matrices or index values and the interpretation of the raw data is up the shader. The values are recorded with the CommandBuffer and cannot be altered afterwards.
 
 ## Credits
 Thanks to the authors of these libraries:
@@ -60,6 +72,7 @@ Thanks to the authors of these libraries:
  - [OpenGL Mathematics (GLM)](https://github.com/g-truc/glm)
  - [stb single-file public domain libraries for C/C++](https://github.com/nothings/stb)
  - [Open Asset Import Library](https://github.com/assimp/assimp)
+ - [Simple DirectMedia Layer](https://www.libsdl.org/)
 
 ## License
 vkpp is provided under MIT license that can be found in the ``LICENSE.txt``

@@ -506,7 +506,6 @@ void MultiPipelines::UpdateDescriptorSet(void) const
     {
         mDescriptorSet,
         0,
-        0,
         vkpp::DescriptorType::eUniformBuffer,
         lDescriptorBufferInfo
     };

@@ -451,7 +451,6 @@ void ColorizedTriangle::UpdateDescriptorSet(void) const
         mDescriptorSet,
         0,                          // Binding 0: uniform buffer.
                                     // Binds the uniform buffer to binding point 0.
-        0,
         vkpp::DescriptorType::eUniformBuffer,
         lDescriptorBufferInfo
     };
