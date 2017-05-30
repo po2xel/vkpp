@@ -61,6 +61,14 @@ class PipelineShaderStageCreateInfo : public internal::VkTrait<PipelineShaderSta
 private:
     const internal::Structure sType = internal::Structure::ePipelineShaderStage;
 
+    PipelineShaderStageCreateInfo(ShaderStageFlagBits aStage, SpecializationInfo&& aSpecializationInfo, const char* apName = DefaultShaderEntryName,
+        const PipelineShaderStageCreateFlags& aFlags = DefaultFlags) noexcept = delete;
+
+    PipelineShaderStageCreateInfo(ShaderStageFlagBits aStage, const ShaderModule& aModule, SpecializationInfo&& aSpecializationInfo,
+        const char* apName = DefaultShaderEntryName, const PipelineShaderStageCreateFlags& aFlags = DefaultFlags) noexcept = delete;
+
+    PipelineShaderStageCreateInfo& SetSpecializationInfo(SpecializationInfo&& aSpecializationInfo) noexcept = delete;
+
 public:
     const void*                     pNext{ nullptr };
     PipelineShaderStageCreateFlags  flags;
@@ -71,24 +79,32 @@ public:
 
     DEFINE_CLASS_MEMBER(PipelineShaderStageCreateInfo)
 
-    PipelineShaderStageCreateInfo(ShaderStageFlagBits aStage, const char* apName = DefaultShaderEntryName,
-        const SpecializationInfo* apSpecializationInfo = nullptr, const PipelineShaderStageCreateFlags& aFlags = DefaultFlags) noexcept
-        : flags(aFlags), stage(aStage), pName(apName), pSpecializationInfo(apSpecializationInfo)
+    PipelineShaderStageCreateInfo(ShaderStageFlagBits aStage, const char* apName = DefaultShaderEntryName, const PipelineShaderStageCreateFlags& aFlags = DefaultFlags) noexcept
+        : flags(aFlags), stage(aStage), pName(apName)
     {}
 
-    PipelineShaderStageCreateInfo(ShaderStageFlagBits aStage, const ShaderModule& aModule, const char* apName = DefaultShaderEntryName,
-        const SpecializationInfo* apSpecializationInfo = nullptr, const PipelineShaderStageCreateFlags& aFlags = DefaultFlags) noexcept
-        : flags(aFlags), stage(aStage), module(aModule), pName(apName), pSpecializationInfo(apSpecializationInfo)
+    PipelineShaderStageCreateInfo(ShaderStageFlagBits aStage, const SpecializationInfo& aSpecializationInfo, const char* apName = DefaultShaderEntryName,
+        const PipelineShaderStageCreateFlags& aFlags = DefaultFlags) noexcept
+        : flags(aFlags), stage(aStage), pName(apName), pSpecializationInfo(aSpecializationInfo.AddressOf())
     {}
 
-    PipelineShaderStageCreateInfo& SetFlags(const PipelineShaderStageCreateFlags& aFlags)
+    PipelineShaderStageCreateInfo(ShaderStageFlagBits aStage, const ShaderModule& aModule, const char* apName = DefaultShaderEntryName, const PipelineShaderStageCreateFlags& aFlags = DefaultFlags) noexcept
+        : flags(aFlags), stage(aStage), module(aModule), pName(apName)
+    {}
+
+    PipelineShaderStageCreateInfo(ShaderStageFlagBits aStage, const ShaderModule& aModule, const SpecializationInfo& aSpecializationInfo,
+        const char* apName = DefaultShaderEntryName, const PipelineShaderStageCreateFlags& aFlags = DefaultFlags) noexcept
+        : flags(aFlags), stage(aStage), module(aModule), pName(apName), pSpecializationInfo(aSpecializationInfo.AddressOf())
+    {}
+
+    PipelineShaderStageCreateInfo& SetFlags(const PipelineShaderStageCreateFlags& aFlags) noexcept
     {
         flags = aFlags;
 
         return *this;
     }
 
-    PipelineShaderStageCreateInfo& SetShaderStage(ShaderStageFlagBits aStage, const ShaderModule& aModule, const char* apName = DefaultShaderEntryName)
+    PipelineShaderStageCreateInfo& SetShaderStage(ShaderStageFlagBits aStage, const ShaderModule& aModule, const char* apName = DefaultShaderEntryName) noexcept
     {
         stage   = aStage;
         module  = aModule;
@@ -97,14 +113,14 @@ public:
         return *this;
     }
 
-    PipelineShaderStageCreateInfo& SetSpecializationInfo(const SpecializationInfo* apSpecializationInfo)
+    PipelineShaderStageCreateInfo& SetSpecializationInfo(const SpecializationInfo* apSpecializationInfo) noexcept
     {
         pSpecializationInfo = apSpecializationInfo;
 
         return *this;
     }
 
-    PipelineShaderStageCreateInfo& SetSpecializationInfo(const SpecializationInfo& aSpecializationInfo)
+    PipelineShaderStageCreateInfo& SetSpecializationInfo(const SpecializationInfo& aSpecializationInfo) noexcept
     {
         return SetSpecializationInfo(aSpecializationInfo.AddressOf());
     }
@@ -141,21 +157,21 @@ struct VertexInputBindingDescription : public internal::VkTrait<VertexInputBindi
         : binding(aBinding), stride(aStride), inputRate(aInputRate)
     {}
 
-    VertexInputBindingDescription& SetBinding(uint32_t aBinding)
+    VertexInputBindingDescription& SetBinding(uint32_t aBinding) noexcept
     {
         binding = aBinding;
 
         return *this;
     }
 
-    VertexInputBindingDescription& SetStride(uint32_t aStride)
+    VertexInputBindingDescription& SetStride(uint32_t aStride) noexcept
     {
         stride = aStride;
 
         return *this;
     }
 
-    VertexInputBindingDescription& SetInputRate(VertexInputRate aInputRate)
+    VertexInputBindingDescription& SetInputRate(VertexInputRate aInputRate) noexcept
     {
         inputRate = aInputRate;
 
@@ -180,28 +196,28 @@ struct VertexInputAttributeDescription : public internal::VkTrait<VertexInputAtt
         : location(aLocation), binding(aBinding), format(aFormat), offset(aOffset)
     {}
 
-    VertexInputAttributeDescription& SetLocation(uint32_t aLocation)
+    VertexInputAttributeDescription& SetLocation(uint32_t aLocation) noexcept
     {
         location = aLocation;
 
         return *this;
     }
 
-    VertexInputAttributeDescription& SetBinding(uint32_t aBinding)
+    VertexInputAttributeDescription& SetBinding(uint32_t aBinding) noexcept
     {
         binding = aBinding;
 
         return *this;
     }
 
-    VertexInputAttributeDescription& SetFormat(Format aFormat)
+    VertexInputAttributeDescription& SetFormat(Format aFormat) noexcept
     {
         format = aFormat;
 
         return *this;
     }
 
-    VertexInputAttributeDescription& SetOffset(uint32_t aOffset)
+    VertexInputAttributeDescription& SetOffset(uint32_t aOffset) noexcept
     {
         offset = aOffset;
 
@@ -265,21 +281,21 @@ public:
         StaticLValueRefAssert(A, aVertexAttributeDescriptions);
     }
 
-    PipelineVertexInputStateCreateInfo& SetNext(const void* apNext)
+    PipelineVertexInputStateCreateInfo& SetNext(const void* apNext) noexcept
     {
         pNext = apNext;
 
         return *this;
     }
 
-    PipelineVertexInputStateCreateInfo& SetFlags(const PipelineVertexInputStateCreateFlags& aFlags)
+    PipelineVertexInputStateCreateInfo& SetFlags(const PipelineVertexInputStateCreateFlags& aFlags) noexcept
     {
         flags = aFlags;
 
         return *this;
     }
 
-    PipelineVertexInputStateCreateInfo& SetVertexBindingDescriptions(uint32_t aVertexBindingDescriptionCount, const VertexInputBindingDescription* apVertexBindingDescriptions)
+    PipelineVertexInputStateCreateInfo& SetVertexBindingDescriptions(uint32_t aVertexBindingDescriptionCount, const VertexInputBindingDescription* apVertexBindingDescriptions) noexcept
     {
         vertexBindingDescriptionCount   = aVertexBindingDescriptionCount;
         pVertexBindingDescriptions      = apVertexBindingDescriptions;
@@ -288,14 +304,14 @@ public:
     }
 
     template <typename B, typename = EnableIfValueType<ValueType<B>, VertexInputBindingDescription>>
-    PipelineVertexInputStateCreateInfo& SetVertexBindingDescriptions(B&& aVertexBindingDescriptions)
+    PipelineVertexInputStateCreateInfo& SetVertexBindingDescriptions(B&& aVertexBindingDescriptions) noexcept
     {
         StaticLValueRefAssert(B, aVertexBindingDescriptions);
 
         return SetVertexBindingDescriptions(static_cast<uint32_t>(aVertexBindingDescriptions.size()), aVertexBindingDescriptions.data());
     }
 
-    PipelineVertexInputStateCreateInfo& SetVertexAttributeDescriptions(uint32_t aVertexAttributeDescriptionCount, const VertexInputAttributeDescription* apVertexAttributeDescriptions)
+    PipelineVertexInputStateCreateInfo& SetVertexAttributeDescriptions(uint32_t aVertexAttributeDescriptionCount, const VertexInputAttributeDescription* apVertexAttributeDescriptions) noexcept
     {
         vertexAttributeDescriptionCount = aVertexAttributeDescriptionCount;
         pVertexAttributeDescriptions    = apVertexAttributeDescriptions;
@@ -304,7 +320,7 @@ public:
     }
 
     template <typename A, typename = EnableIfValueType<ValueType<A>, VertexInputAttributeDescription>>
-    PipelineVertexInputStateCreateInfo& SetVertexAttributeDescriptions(A&& aVertexAttributeDescriptions)
+    PipelineVertexInputStateCreateInfo& SetVertexAttributeDescriptions(A&& aVertexAttributeDescriptions) noexcept
     {
         StaticLValueRefAssert(A, aVertexAttributeDescriptions);
 
@@ -357,14 +373,14 @@ public:
         : flags(aFlags), topology(aTopology), primitiveRestartEnable(aPrimitiveRestartEnable)
     {}
 
-    PipelineInputAssemblyStateCreateInfo& SetNext(const void* apNext)
+    PipelineInputAssemblyStateCreateInfo& SetNext(const void* apNext) noexcept
     {
         pNext = apNext;
 
         return *this;
     }
 
-    PipelineInputAssemblyStateCreateInfo& SetTopology(PrimitiveTopology aTopology, PrimitiveRestart aPrimitiveRestartEnable = PrimitiveRestart::Disable)
+    PipelineInputAssemblyStateCreateInfo& SetTopology(PrimitiveTopology aTopology, PrimitiveRestart aPrimitiveRestartEnable = PrimitiveRestart::Disable) noexcept
     {
         topology                = aTopology;
         primitiveRestartEnable  = aPrimitiveRestartEnable;
@@ -396,25 +412,25 @@ public:
 
     DEFINE_CLASS_MEMBER(PipelineTessellationStateCreateInfo)
 
-    PipelineTessellationStateCreateInfo(uint32_t aPatchControlPoints, const PipelineTessellationStateCreateFlags& aFlags = DefaultFlags)
+    PipelineTessellationStateCreateInfo(uint32_t aPatchControlPoints, const PipelineTessellationStateCreateFlags& aFlags = DefaultFlags) noexcept
         : flags(aFlags), patchControlPoints(aPatchControlPoints)
     {}
 
-    PipelineTessellationStateCreateInfo& SetNext(const void* apNext)
+    PipelineTessellationStateCreateInfo& SetNext(const void* apNext) noexcept
     {
         pNext = apNext;
 
         return *this;
     }
 
-    PipelineTessellationStateCreateInfo& SetFlags(const PipelineTessellationStateCreateFlags& aFlags)
+    PipelineTessellationStateCreateInfo& SetFlags(const PipelineTessellationStateCreateFlags& aFlags) noexcept
     {
         flags = aFlags;
 
         return *this;
     }
 
-    PipelineTessellationStateCreateInfo& SetPatchControlPoints(uint32_t aPatchControlPoints)
+    PipelineTessellationStateCreateInfo& SetPatchControlPoints(uint32_t aPatchControlPoints) noexcept
     {
         patchControlPoints = aPatchControlPoints;
 
@@ -479,21 +495,21 @@ public:
         StaticLValueRefAssert(S, aScissors);
     }
 
-    PipelineViewportStateCreateInfo& SetNext(const void* apNext)
+    PipelineViewportStateCreateInfo& SetNext(const void* apNext) noexcept
     {
         pNext = apNext;
 
         return *this;
     }
 
-    PipelineViewportStateCreateInfo& SetFlags(const PipelineViewportStateCreateFlags& aFlags)
+    PipelineViewportStateCreateInfo& SetFlags(const PipelineViewportStateCreateFlags& aFlags) noexcept
     {
         flags = aFlags;
 
         return *this;
     }
 
-    PipelineViewportStateCreateInfo& SetViewports(uint32_t aViewportCount, const Viewport* apViewports)
+    PipelineViewportStateCreateInfo& SetViewports(uint32_t aViewportCount, const Viewport* apViewports) noexcept
     {
         viewportCount   = aViewportCount;
         pViewports      = apViewports;
@@ -502,14 +518,14 @@ public:
     }
 
     template <typename V, typename = EnableIfValueType<ValueType<V>, Viewport>>
-    PipelineViewportStateCreateInfo& SetViewports(V&& aViewports)
+    PipelineViewportStateCreateInfo& SetViewports(V&& aViewports) noexcept
     {
         StaticLValueRefAssert(V, aViewports);
 
         return SetViewports(static_cast<uint32_t>(aViewports.size()), aViewports.data());
     }
 
-    PipelineViewportStateCreateInfo& SetScissors(uint32_t aScissorCount, const Rect2D* apScissors)
+    PipelineViewportStateCreateInfo& SetScissors(uint32_t aScissorCount, const Rect2D* apScissors) noexcept
     {
         scissorCount    = aScissorCount;
         pScissors       = apScissors;
@@ -518,7 +534,7 @@ public:
     }
 
     template <typename S, typename = EnableIfValueType<ValueType<S>, Rect2D>>
-    PipelineViewportStateCreateInfo& SetScissors(S&& aScissors)
+    PipelineViewportStateCreateInfo& SetScissors(S&& aScissors) noexcept
     {
         StaticLValueRefAssert(S, aScissors);
 
@@ -598,70 +614,70 @@ public:
         : flags(aFlags), polygonMode(aPolygonMode), cullMode(aCullMode), frontFace(aFrontFace), lineWidth(aLineWidth)
     {}
 
-    PipelineRasterizationStateCreateInfo& SetNext(const void* apNext)
+    PipelineRasterizationStateCreateInfo& SetNext(const void* apNext) noexcept
     {
         pNext = apNext;
 
         return *this;
     }
 
-    PipelineRasterizationStateCreateInfo& SetFlags(const PipelineRasterizationStateCreateFlags& aFlags)
+    PipelineRasterizationStateCreateInfo& SetFlags(const PipelineRasterizationStateCreateFlags& aFlags) noexcept
     {
         flags = aFlags;
 
         return *this;
     }
 
-    PipelineRasterizationStateCreateInfo& EnableDepthClamp(void)
+    PipelineRasterizationStateCreateInfo& EnableDepthClamp(void) noexcept
     {
         depthClampEnable    = DepthClamp::Enable;
 
         return *this;
     }
 
-    PipelineRasterizationStateCreateInfo& DisableDepthClamp(void)
+    PipelineRasterizationStateCreateInfo& DisableDepthClamp(void) noexcept
     {
         depthClampEnable    = DepthClamp::Disable;
 
         return *this;
     }
 
-    PipelineRasterizationStateCreateInfo& EnableRasterizerDiscard(void)
+    PipelineRasterizationStateCreateInfo& EnableRasterizerDiscard(void) noexcept
     {
         rasterizerDiscardEnable = RasterizerDiscard::Enable;
 
         return *this;
     }
 
-    PipelineRasterizationStateCreateInfo& DisableRasterizerDiscard(void)
+    PipelineRasterizationStateCreateInfo& DisableRasterizerDiscard(void) noexcept
     {
         rasterizerDiscardEnable = RasterizerDiscard::Disable;
 
         return *this;
     }
 
-    PipelineRasterizationStateCreateInfo& SetPolygonMode(PolygonMode aPolygonMode)
+    PipelineRasterizationStateCreateInfo& SetPolygonMode(PolygonMode aPolygonMode) noexcept
     {
         polygonMode = aPolygonMode;
 
         return *this;
     }
 
-    PipelineRasterizationStateCreateInfo& SetCullMode(const CullModeFlags& aCullMode)
+    PipelineRasterizationStateCreateInfo& SetCullMode(const CullModeFlags& aCullMode) noexcept
     {
         cullMode    = aCullMode;
 
         return *this;
     }
 
-    PipelineRasterizationStateCreateInfo& SetFrontFace(FrontFace aFrontFace)
+    PipelineRasterizationStateCreateInfo& SetFrontFace(FrontFace aFrontFace) noexcept
     {
         frontFace   = aFrontFace;
 
         return *this;
     }
 
-    PipelineRasterizationStateCreateInfo& EnableDepthBias(float aDepthBiasConstantFactor, float aDepthBiasClamp, float aDepthBiasSlopeFactor)
+    PipelineRasterizationStateCreateInfo& EnableDepthBias(float aDepthBiasConstantFactor, float aDepthBiasClamp, float aDepthBiasSlopeFactor) noexcept
     {
         depthBiasEnable             = DepthBias::Enable;
         depthBiasConstantFactor     = aDepthBiasConstantFactor;
@@ -671,14 +687,14 @@ public:
         return *this;
     }
 
-    PipelineRasterizationStateCreateInfo& DisableDepthBias(void)
+    PipelineRasterizationStateCreateInfo& DisableDepthBias(void) noexcept
     {
         depthBiasEnable    = DepthBias::Disable;
 
         return *this;
     }
 
-    PipelineRasterizationStateCreateInfo& SetLineWidth(float aLineWidth)
+    PipelineRasterizationStateCreateInfo& SetLineWidth(float aLineWidth) noexcept
     {
         lineWidth   = aLineWidth;
 
@@ -727,14 +743,14 @@ public:
           alphaToCoverageEnable(aAlphaToCoverageEnable), alphaToOneEnable(aAlphaToOneEnable)
     {}
 
-    PipelineMultisampleStateCreateInfo& SetNext(const void* apNext)
+    PipelineMultisampleStateCreateInfo& SetNext(const void* apNext) noexcept
     {
         pNext = apNext;
 
         return *this;
     }
 
-    PipelineMultisampleStateCreateInfo& SetFlags(const PipelineMultisampleStateCreateFlags& aFlags)
+    PipelineMultisampleStateCreateInfo& SetFlags(const PipelineMultisampleStateCreateFlags& aFlags) noexcept
     {
         flags = aFlags;
 
@@ -785,7 +801,7 @@ struct StencilOpState : public internal::VkTrait<StencilOpState, VkStencilOpStat
         : failOp(aFailOp), passOp(aPassOp), depthFailOp(aDepthFailOp), compareOp(aCompareOp), compareMask(aCompareMask), writeMask(aWriteMask), reference(aReference)
     {}
 
-    StencilOpState& SetStencilOp(StencilOp aFailOp, StencilOp aPassOp, StencilOp aDepthFailOp)
+    StencilOpState& SetStencilOp(StencilOp aFailOp, StencilOp aPassOp, StencilOp aDepthFailOp) noexcept
     {
         failOp      = aFailOp;
         passOp      = aPassOp;
@@ -794,14 +810,14 @@ struct StencilOpState : public internal::VkTrait<StencilOpState, VkStencilOpStat
         return *this;
     }
 
-    StencilOpState& SetCompareOp(CompareOp aCompareOp)
+    StencilOpState& SetCompareOp(CompareOp aCompareOp) noexcept
     {
         compareOp   = aCompareOp;
 
         return *this;
     }
 
-    StencilOpState& SetMask(uint32_t aCompareMask, uint32_t aWriteMask)
+    StencilOpState& SetMask(uint32_t aCompareMask, uint32_t aWriteMask) noexcept
     {
         compareMask = aCompareMask;
         writeMask   = aWriteMask;
@@ -809,7 +825,7 @@ struct StencilOpState : public internal::VkTrait<StencilOpState, VkStencilOpStat
         return *this;
     }
 
-    StencilOpState& SetReference(uint32_t aReference)
+    StencilOpState& SetReference(uint32_t aReference) noexcept
     {
         reference   = aReference;
 
@@ -879,21 +895,21 @@ public:
         : flags(aFlags), depthBoundsTestEnable(aDepthBoundsTestEnable)
     {}
 
-    PipelineDepthStencilStateCreateInfo& SetNext(const void* apNext)
+    PipelineDepthStencilStateCreateInfo& SetNext(const void* apNext) noexcept
     {
         pNext = apNext;
 
         return *this;
     }
 
-    PipelineDepthStencilStateCreateInfo& SetFlags(const PipelineDepthStencilStateCreateFlags& aFlags)
+    PipelineDepthStencilStateCreateInfo& SetFlags(const PipelineDepthStencilStateCreateFlags& aFlags) noexcept
     {
         flags = aFlags;
 
         return *this;
     }
 
-    PipelineDepthStencilStateCreateInfo& EnableDepthTestOnly(CompareOp aDepthCompareOp)
+    PipelineDepthStencilStateCreateInfo& EnableDepthTestOnly(CompareOp aDepthCompareOp) noexcept
     {
         depthTestEnable     = DepthTest::Enable;
         depthWriteEnable    = DepthWrite::Disable;
@@ -902,7 +918,7 @@ public:
         return *this;
     }
 
-    PipelineDepthStencilStateCreateInfo& EnableDepthTest(CompareOp aDepthCompareOp)
+    PipelineDepthStencilStateCreateInfo& EnableDepthTest(CompareOp aDepthCompareOp) noexcept
     {
         depthTestEnable     = DepthTest::Enable;
         depthWriteEnable    = DepthWrite::Enable;
@@ -911,7 +927,7 @@ public:
         return *this;
     }
 
-    PipelineDepthStencilStateCreateInfo& DisableDepthTest(void)
+    PipelineDepthStencilStateCreateInfo& DisableDepthTest(void) noexcept
     {
         depthTestEnable     = DepthTest::Disable;
         depthWriteEnable    = DepthWrite::Disable;
@@ -920,7 +936,7 @@ public:
         return *this;
     }
 
-    PipelineDepthStencilStateCreateInfo& EnableStencilTest(const StencilOpState& aFront, const StencilOpState& aBack)
+    PipelineDepthStencilStateCreateInfo& EnableStencilTest(const StencilOpState& aFront, const StencilOpState& aBack) noexcept
     {
         stencilTestEnable   = StencilTest::Enable;
         front               = aFront;
@@ -929,14 +945,14 @@ public:
         return *this;
     }
 
-    PipelineDepthStencilStateCreateInfo& DisableStencilTest(void)
+    PipelineDepthStencilStateCreateInfo& DisableStencilTest(void) noexcept
     {
         stencilTestEnable   = StencilTest::Disable;
 
         return *this;
     }
     
-    PipelineDepthStencilStateCreateInfo& EnableDepthBounds(float aMinDepthBounds, float aMaxDepthBounds)
+    PipelineDepthStencilStateCreateInfo& EnableDepthBounds(float aMinDepthBounds, float aMaxDepthBounds) noexcept
     {
         assert(aMinDepthBounds >= 0.0f && aMinDepthBounds <= 1.0f);
         assert(aMaxDepthBounds >= 0.0f && aMaxDepthBounds <= 1.0f);
@@ -948,7 +964,7 @@ public:
         return *this;
     }
 
-    PipelineDepthStencilStateCreateInfo& DisableDepthBounds(void)
+    PipelineDepthStencilStateCreateInfo& DisableDepthBounds(void) noexcept
     {
         depthBoundsTestEnable   = DepthBoundsTest::Disable;
 
@@ -1030,21 +1046,21 @@ struct PipelineColorBlendAttachmentState : public internal::VkTrait<PipelineColo
           srcAlphaBlendFactor(aSrcAlphaBlendFactor), dstAlphaBlendFactor(aDstAlphaBlendFactor), alphaBlendOp(aAlphaBlendOp), colorWriteMask(aColorWriteMask)
     {}
 
-    PipelineColorBlendAttachmentState& EnableBlendOp(void)
+    PipelineColorBlendAttachmentState& EnableBlendOp(void) noexcept
     {
         blendEnable = Blend::Enable;
 
         return *this;
     }
 
-    PipelineColorBlendAttachmentState& DisableBlendOp(void)
+    PipelineColorBlendAttachmentState& DisableBlendOp(void) noexcept
     {
         blendEnable = Blend::Disable;
 
         return *this;
     }
 
-    PipelineColorBlendAttachmentState& SetColorBlend(BlendFactor aSrcColorBlendFactor, BlendFactor aDstColorBlendFactor, BlendOp aColorBlendOp = BlendOp::eAdd)
+    PipelineColorBlendAttachmentState& SetColorBlend(BlendFactor aSrcColorBlendFactor, BlendFactor aDstColorBlendFactor, BlendOp aColorBlendOp = BlendOp::eAdd) noexcept
     {
         srcColorBlendFactor = aSrcColorBlendFactor;
         dstColorBlendFactor = aDstColorBlendFactor;
@@ -1053,7 +1069,7 @@ struct PipelineColorBlendAttachmentState : public internal::VkTrait<PipelineColo
         return *this;
     }
 
-    PipelineColorBlendAttachmentState& SetAlphaBlend(BlendFactor aSrcAlphaBlendFactor, BlendFactor aDstAlphaBlendFactor, BlendOp aAlphaBlendOp = BlendOp::eAdd)
+    PipelineColorBlendAttachmentState& SetAlphaBlend(BlendFactor aSrcAlphaBlendFactor, BlendFactor aDstAlphaBlendFactor, BlendOp aAlphaBlendOp = BlendOp::eAdd) noexcept
     {
         srcAlphaBlendFactor = aSrcAlphaBlendFactor;
         dstAlphaBlendFactor = aDstAlphaBlendFactor;
@@ -1062,7 +1078,7 @@ struct PipelineColorBlendAttachmentState : public internal::VkTrait<PipelineColo
         return *this;
     }
 
-    PipelineColorBlendAttachmentState& SetColorWriteMask(const ColorComponentFlags& aColorWriteMask = IdentityColorComponents)
+    PipelineColorBlendAttachmentState& SetColorWriteMask(const ColorComponentFlags& aColorWriteMask = IdentityColorComponents) noexcept
     {
         colorWriteMask = aColorWriteMask;
 
@@ -1146,21 +1162,21 @@ public:
         StaticLValueRefAssert(A, aAttachments);
     }
 
-    PipelineColorBlendStateCreateInfo& SetNext(const void* apNext)
+    PipelineColorBlendStateCreateInfo& SetNext(const void* apNext) noexcept
     {
         pNext = apNext;
 
         return *this;
     }
 
-    PipelineColorBlendStateCreateInfo& SetFlags(const PipelineColorBlendStateCreateFlags& aFlags)
+    PipelineColorBlendStateCreateInfo& SetFlags(const PipelineColorBlendStateCreateFlags& aFlags) noexcept
     {
         flags = aFlags;
 
         return *this;
     }
 
-    PipelineColorBlendStateCreateInfo& EnableLogicalOp(LogicalOp aLogicOp)
+    PipelineColorBlendStateCreateInfo& EnableLogicalOp(LogicalOp aLogicOp) noexcept
     {
         logicOpEnable   = Logical::Enable;
         logicOp         = aLogicOp;
@@ -1168,14 +1184,14 @@ public:
         return *this;
     }
 
-    PipelineColorBlendStateCreateInfo& DisableLogicalOp(void)
+    PipelineColorBlendStateCreateInfo& DisableLogicalOp(void) noexcept
     {
         logicOpEnable = Logical::Disable;
 
         return *this;
     }
 
-    PipelineColorBlendStateCreateInfo& SetAttachments(uint32_t aAttachmentCount, const PipelineColorBlendAttachmentState* apAttachments)
+    PipelineColorBlendStateCreateInfo& SetAttachments(uint32_t aAttachmentCount, const PipelineColorBlendAttachmentState* apAttachments) noexcept
     {
         attachmentCount = aAttachmentCount;
         pAttachments    = apAttachments;
@@ -1184,14 +1200,14 @@ public:
     }
 
     template <typename A, typename = EnableIfValueType<ValueType<A>, PipelineColorBlendAttachmentState>>
-    PipelineColorBlendStateCreateInfo& SetAttachments(A&& aAttachments)
+    PipelineColorBlendStateCreateInfo& SetAttachments(A&& aAttachments) noexcept
     {
         StaticLValueRefAssert(A, aAttachments);
 
         return SetAttachments(static_cast<uint32_t>(aAttachments.size()), aAttachments.data());
     }
 
-    PipelineColorBlendStateCreateInfo& SetBlendConstants(const std::array<float, 4>& aBlendConstants)
+    PipelineColorBlendStateCreateInfo& SetBlendConstants(const std::array<float, 4>& aBlendConstants) noexcept
     {
         std::copy(aBlendConstants.cbegin(), aBlendConstants.cend(), std::begin(blendConstants));
 
@@ -1251,21 +1267,21 @@ public:
         StaticLValueRefAssert(D, aDynamicStates);
     }
 
-    PipelineDynamicStateCreateInfo& SetNext(const void* apNext)
+    PipelineDynamicStateCreateInfo& SetNext(const void* apNext) noexcept
     {
         pNext = apNext;
 
         return *this;
     }
 
-    PipelineDynamicStateCreateInfo& SetFlags(const PipelineDynamicStateCreateFlags& aFlags)
+    PipelineDynamicStateCreateInfo& SetFlags(const PipelineDynamicStateCreateFlags& aFlags) noexcept
     {
         flags = aFlags;
 
         return *this;
     }
 
-    PipelineDynamicStateCreateInfo& SetDynamicStates(uint32_t aDynamicStateCount, const DynamicState* apDynamicStates)
+    PipelineDynamicStateCreateInfo& SetDynamicStates(uint32_t aDynamicStateCount, const DynamicState* apDynamicStates) noexcept
     {
         dynamicStateCount   = aDynamicStateCount;
         pDynamicStates      = apDynamicStates;
@@ -1274,7 +1290,7 @@ public:
     }
 
     template <typename D, typename = EnableIfValueType<ValueType<D>, DynamicState>>
-    PipelineDynamicStateCreateInfo& SetDynamicStates(D&& aDynamicStates)
+    PipelineDynamicStateCreateInfo& SetDynamicStates(D&& aDynamicStates) noexcept
     {
         StaticLValueRefAssert(D, aDynamicStates);
 
@@ -1304,14 +1320,14 @@ struct PushConstantRange : internal::VkTrait<PushConstantRange, VkPushConstantRa
     constexpr PushConstantRange(const ShaderStageFlags& aStageFlags, uint32_t aOffset, uint32_t aSize) noexcept : stageFlags(aStageFlags), offset(aOffset), size(aSize)
     {}
 
-    PushConstantRange& SetFlags(const ShaderStageFlags& aFlags)
+    PushConstantRange& SetFlags(const ShaderStageFlags& aFlags) noexcept
     {
         stageFlags = aFlags;
 
         return *this;
     }
 
-    PushConstantRange& SetRange(uint32_t aOffset, uint32_t aSize)
+    PushConstantRange& SetRange(uint32_t aOffset, uint32_t aSize) noexcept
     {
         offset  = aOffset;
         size    = aSize;
@@ -1365,7 +1381,7 @@ public:
         : flags(aFlags), setLayoutCount(aSetLayoutCount), pSetLayouts(apSetLayouts), pushConstantRangeCount(aPushConstantRangeCount), pPushConstantRanges(apPushConstantRanges)
     {}
 
-    explicit constexpr PipelineLayoutCreateInfo(const DescriptorSetLayout& aSetLayout, uint32_t aPushConstantRangeCount = 0, const PushConstantRange* apPushConstantRanges = nullptr,
+    constexpr PipelineLayoutCreateInfo(const DescriptorSetLayout& aSetLayout, uint32_t aPushConstantRangeCount = 0, const PushConstantRange* apPushConstantRanges = nullptr,
         const PipelineLayoutCreateFlags& aFlags = DefaultFlags) noexcept
         : PipelineLayoutCreateInfo(1, aSetLayout.AddressOf(), aPushConstantRangeCount, apPushConstantRanges, aFlags)
     {}
@@ -1404,21 +1420,21 @@ public:
         : PipelineLayoutCreateInfo(1, aSetLayout.AddressOf(), static_cast<uint32_t>(aPushConstantRanges.size()), aPushConstantRanges.data(), aFlags)
     {}
 
-    PipelineLayoutCreateInfo& SetNext(const void* apNext)
+    PipelineLayoutCreateInfo& SetNext(const void* apNext) noexcept
     {
         pNext = apNext;
 
         return *this;
     }
 
-    PipelineLayoutCreateInfo& SetFlags(const PipelineLayoutCreateFlags& aFlags)
+    PipelineLayoutCreateInfo& SetFlags(const PipelineLayoutCreateFlags& aFlags) noexcept
     {
         flags = aFlags;
 
         return *this;
     }
 
-    PipelineLayoutCreateInfo& SetLayouts(uint32_t aSetLayoutCount, const DescriptorSetLayout* apSetLayouts)
+    PipelineLayoutCreateInfo& SetLayouts(uint32_t aSetLayoutCount, const DescriptorSetLayout* apSetLayouts) noexcept
     {
         setLayoutCount  = aSetLayoutCount;
         pSetLayouts     = apSetLayouts;
@@ -1427,14 +1443,14 @@ public:
     }
 
     template <typename D, typename = EnableIfValueType<ValueType<D>, DescriptorSetLayout>>
-    PipelineLayoutCreateInfo& SetLayouts(D&& aSetLayouts)
+    PipelineLayoutCreateInfo& SetLayouts(D&& aSetLayouts) noexcept
     {
         StaticLValueRefAssert(D, aSetLayouts);
 
         return SetLayouts(static_cast<uint32_t>(aSetLayouts.size()), aSetLayouts.data());
     }
 
-    PipelineLayoutCreateInfo& SetPushConstantRanges(uint32_t aPushConstantRangeCount, const PushConstantRange* apPushConstantRanges)
+    PipelineLayoutCreateInfo& SetPushConstantRanges(uint32_t aPushConstantRangeCount, const PushConstantRange* apPushConstantRanges) noexcept
     {
         pushConstantRangeCount  = aPushConstantRangeCount;
         pPushConstantRanges     = apPushConstantRanges;
@@ -1443,7 +1459,7 @@ public:
     }
 
     template <typename P, typename = EnableIfValueType<ValueType<P>, PushConstantRange>>
-    PipelineLayoutCreateInfo& SetPushConstantRanges(P&& aPushConstantRanges)
+    PipelineLayoutCreateInfo& SetPushConstantRanges(P&& aPushConstantRanges) noexcept
     {
         StaticLValueRefAssert(P, aPushConstantRanges);
 
@@ -1461,12 +1477,12 @@ private:
     VkPipelineLayout mPipelineLayout{ VK_NULL_HANDLE };
 
 public:
-    PipelineLayout(void) = default;
+    PipelineLayout(void)  noexcept = default;
 
-    PipelineLayout(std::nullptr_t)
+    PipelineLayout(std::nullptr_t) noexcept
     {}
 
-    explicit PipelineLayout(VkPipelineLayout aPipelineLayout) : mPipelineLayout(aPipelineLayout)
+    explicit PipelineLayout(VkPipelineLayout aPipelineLayout) noexcept : mPipelineLayout(aPipelineLayout)
     {}
 };
 

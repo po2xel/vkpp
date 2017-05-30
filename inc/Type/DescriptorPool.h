@@ -52,6 +52,8 @@ private:
 
     constexpr DescriptorPoolCreateInfo(DescriptorPoolSize&& aPoolSize, uint32_t aMaxSets, const DescriptorPoolCreateFlags& aFlags = DefaultFlags) noexcept = delete;
 
+    DescriptorPoolCreateInfo& SetPoolSize(DescriptorPoolSize&& apPoolSize) noexcept = delete;
+
 public:
     const void*                 pNext{ nullptr };
     DescriptorPoolCreateFlags   flags;
@@ -76,21 +78,21 @@ public:
         StaticLValueRefAssert(D, aPoolSizes);
     }
 
-    DescriptorPoolCreateInfo& SetFlags(const DescriptorPoolCreateFlags& aFlags)
+    DescriptorPoolCreateInfo& SetFlags(const DescriptorPoolCreateFlags& aFlags) noexcept
     {
         flags = aFlags;
 
         return *this;
     }
 
-    DescriptorPoolCreateInfo& SetMaxSets(uint32_t aMaxSets)
+    DescriptorPoolCreateInfo& SetMaxSets(uint32_t aMaxSets) noexcept
     {
         maxSets = aMaxSets;
 
         return *this;
     }
 
-    DescriptorPoolCreateInfo& SetPoolSizes(uint32_t aPoolSizeCount, const DescriptorPoolSize* apPoolSizes)
+    DescriptorPoolCreateInfo& SetPoolSizes(uint32_t aPoolSizeCount, const DescriptorPoolSize* apPoolSizes) noexcept
     {
         poolSizeCount   = aPoolSizeCount;
         pPoolSizes      = apPoolSizes;
@@ -98,8 +100,16 @@ public:
         return *this;
     }
 
+    DescriptorPoolCreateInfo& SetPoolSize(const DescriptorPoolSize& apPoolSize) noexcept
+    {
+        poolSizeCount   = 1;
+        pPoolSizes      = apPoolSize.AddressOf();
+
+        return *this;
+    }
+
     template <typename D, typename = EnableIfValueType<ValueType<D>, DescriptorPoolSize>>
-    DescriptorPoolCreateInfo& SetPoolSizes(D&& aPoolSizes)
+    DescriptorPoolCreateInfo& SetPoolSizes(D&& aPoolSizes) noexcept
     {
         StaticLValueRefAssert(D, aPoolSizes);
 
@@ -117,12 +127,12 @@ private:
     VkDescriptorPool mDescriptorPool{ VK_NULL_HANDLE };
 
 public:
-    DescriptorPool(void) = default;
+    DescriptorPool(void) noexcept = default;
 
-    DescriptorPool(std::nullptr_t)
+    DescriptorPool(std::nullptr_t) noexcept
     {}
 
-    explicit DescriptorPool(VkDescriptorPool aDescriptorPool) : mDescriptorPool(aDescriptorPool)
+    explicit DescriptorPool(VkDescriptorPool aDescriptorPool) noexcept : mDescriptorPool(aDescriptorPool)
     {}
 };
 
@@ -136,6 +146,8 @@ private:
     const internal::Structure   sType = internal::Structure::eDescriptorSetAllocate;
 
     DescriptorSetAllocateInfo(const DescriptorPool& aDescriptorPool, DescriptorSetLayout&& aSetLayout) noexcept = delete;
+
+    DescriptorSetAllocateInfo& SetDescriptorSetLayouts(DescriptorSetLayout&& aSetLayout) noexcept = delete;
 
 public:
     const void*                 pNext{ nullptr };
@@ -160,21 +172,21 @@ public:
         StaticLValueRefAssert(D, aSetLayouts);
     }
 
-    DescriptorSetAllocateInfo& SetNext(const void* apNext)
+    DescriptorSetAllocateInfo& SetNext(const void* apNext) noexcept
     {
         pNext   = apNext;
 
         return *this;
     }
 
-    DescriptorSetAllocateInfo& SetDescriptorPool(const DescriptorPool& aDescriptorPool)
+    DescriptorSetAllocateInfo& SetDescriptorPool(const DescriptorPool& aDescriptorPool) noexcept
     {
         descriptorPool  = aDescriptorPool;
 
         return *this;
     }
 
-    DescriptorSetAllocateInfo& SetDescriptorSetLayouts(uint32_t aDescriptorSetCount, const DescriptorSetLayout* apSetLayouts)
+    DescriptorSetAllocateInfo& SetDescriptorSetLayouts(uint32_t aDescriptorSetCount, const DescriptorSetLayout* apSetLayouts) noexcept
     {
         descriptorSetCount  = aDescriptorSetCount;
         pSetLayouts         = apSetLayouts;
@@ -182,8 +194,16 @@ public:
         return *this;
     }
 
+    DescriptorSetAllocateInfo& SetDescriptorSetLayouts(const DescriptorSetLayout& aSetLayout) noexcept
+    {
+        descriptorSetCount  = 1;
+        pSetLayouts         = aSetLayout.AddressOf();
+
+        return *this;
+    }
+
     template <typename D, typename = EnableIfValueType<ValueType<D>, DescriptorSetLayout>>
-    DescriptorSetAllocateInfo& SetDescriptorSetLayouts(D&& aSetLayouts)
+    DescriptorSetAllocateInfo& SetDescriptorSetLayouts(D&& aSetLayouts) noexcept
     {
         StaticLValueRefAssert(D, aSetLayouts);
 

@@ -160,34 +160,34 @@ private:
     VkPhysicalDevice mPhysicalDevice{ VK_NULL_HANDLE };
 
 public:
-    PhysicalDevice(void) = default;
+    PhysicalDevice(void) noexcept = default;
 
-    PhysicalDevice(std::nullptr_t) : mPhysicalDevice(VK_NULL_HANDLE)
+    PhysicalDevice(std::nullptr_t) noexcept : mPhysicalDevice(VK_NULL_HANDLE)
     {}
 
-    explicit PhysicalDevice(VkPhysicalDevice aPhysicalDevice) : mPhysicalDevice(aPhysicalDevice)
+    explicit PhysicalDevice(VkPhysicalDevice aPhysicalDevice) noexcept : mPhysicalDevice(aPhysicalDevice)
     {}
 
-    PhysicalDevice& operator=(VkPhysicalDevice aPhysicalDevice)
+    PhysicalDevice& operator=(VkPhysicalDevice aPhysicalDevice) noexcept
     {
         mPhysicalDevice = aPhysicalDevice;
 
         return *this;
     }
 
-    PhysicalDevice& operator=(std::nullptr_t)
+    PhysicalDevice& operator=(std::nullptr_t) noexcept
     {
         mPhysicalDevice = VK_NULL_HANDLE;
 
         return *this;
     }
 
-    bool operator==(const PhysicalDevice& aRhs) const
+    bool operator==(const PhysicalDevice& aRhs) const noexcept
     {
         return mPhysicalDevice == aRhs.mPhysicalDevice;
     }
 
-    bool operator!=(const PhysicalDevice& aRhs) const
+    bool operator!=(const PhysicalDevice& aRhs) const noexcept
     {
         return !(*this == aRhs);
     }

@@ -29,14 +29,14 @@ public:
         : allocationSize(aAllocationSize), memoryTypeIndex(aMemoryTypeIndex)
     {}
 
-    MemoryAllocateInfo& SetNext(const void* apNext)
+    MemoryAllocateInfo& SetNext(const void* apNext) noexcept
     {
         pNext = apNext;
 
         return *this;
     }
 
-    MemoryAllocateInfo& SetSize(DeviceSize aAllocationSize, uint32_t aMemoryTypeIndex)
+    MemoryAllocateInfo& SetSize(DeviceSize aAllocationSize, uint32_t aMemoryTypeIndex) noexcept
     {
         allocationSize  = aAllocationSize;
         memoryTypeIndex = aMemoryTypeIndex;
@@ -55,12 +55,12 @@ private:
     VkDeviceMemory mDeviceMemory{ VK_NULL_HANDLE };
 
 public:
-    DeviceMemory(void) = default;
+    DeviceMemory(void) noexcept = default;
 
-    DeviceMemory(std::nullptr_t)
+    DeviceMemory(std::nullptr_t) noexcept
     {}
 
-    explicit DeviceMemory(VkDeviceMemory aDeviceMemory) : mDeviceMemory(aDeviceMemory)
+    explicit DeviceMemory(VkDeviceMemory aDeviceMemory) noexcept : mDeviceMemory(aDeviceMemory)
     {}
 };
 
@@ -92,21 +92,21 @@ public:
         : memory(aDeviceMemory), offset(aOffset), size(aSize)
     {}
 
-    MappedMemoryRange& SetNext(const void* apNext)
+    MappedMemoryRange& SetNext(const void* apNext) noexcept
     {
         pNext = apNext;
 
         return *this;
     }
 
-    MappedMemoryRange& SetMemory(const DeviceMemory& aDeviceMemory)
+    MappedMemoryRange& SetMemory(const DeviceMemory& aDeviceMemory) noexcept
     {
         memory = aDeviceMemory;
 
         return *this;
     }
 
-    MappedMemoryRange& SetRange(DeviceSize aOffset, DeviceSize aSize = VK_WHOLE_SIZE)
+    MappedMemoryRange& SetRange(DeviceSize aOffset, DeviceSize aSize = VK_WHOLE_SIZE) noexcept
     {
         offset  = aOffset;
         size    = aSize;

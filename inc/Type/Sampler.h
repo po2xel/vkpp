@@ -87,21 +87,21 @@ public:
           minLod(aMinLod), maxLod(aMaxLod), borderColor(aBorderColor), unnormalizedCoordinates(aUnnormalizedCoordinates)
     {}
 
-    SamplerCreateInfo& SetNext(const void* apNext)
+    SamplerCreateInfo& SetNext(const void* apNext) noexcept
     {
         pNext   = apNext;
 
         return *this;
     }
 
-    SamplerCreateInfo& SetFlags(const SamplerCreateFlags& aFlags)
+    SamplerCreateInfo& SetFlags(const SamplerCreateFlags& aFlags) noexcept
     {
         flags   = aFlags;
 
         return *this;
     }
 
-    SamplerCreateInfo& SetFilter(Filter aMagFilter, Filter aMinFilter = Filter::eNearest)
+    SamplerCreateInfo& SetFilter(Filter aMagFilter, Filter aMinFilter = Filter::eNearest) noexcept
     {
         magFilter   = aMagFilter;
         minFilter   = aMinFilter;
@@ -109,14 +109,14 @@ public:
         return *this;
     }
 
-    SamplerCreateInfo& SetMipmapMode(SamplerMipmapMode aMipmapMode)
+    SamplerCreateInfo& SetMipmapMode(SamplerMipmapMode aMipmapMode) noexcept
     {
         mipmapMode  = aMipmapMode;
 
         return *this;
     }
 
-    SamplerCreateInfo& SetAddressMode(SamplerAddressMode aAddressModeU, SamplerAddressMode aAddressModeV = SamplerAddressMode::eRepeat, SamplerAddressMode aAddressModeW = SamplerAddressMode::eRepeat)
+    SamplerCreateInfo& SetAddressMode(SamplerAddressMode aAddressModeU, SamplerAddressMode aAddressModeV = SamplerAddressMode::eRepeat, SamplerAddressMode aAddressModeW = SamplerAddressMode::eRepeat) noexcept
     {
         addressModeU    = aAddressModeU;
         addressModeV    = aAddressModeV;
@@ -125,14 +125,14 @@ public:
         return *this;
     }
 
-    SamplerCreateInfo& SetMipLodBias(float aMipLodBias)
+    SamplerCreateInfo& SetMipLodBias(float aMipLodBias) noexcept
     {
         mipLodBias  = aMipLodBias;
 
         return *this;
     }
 
-    SamplerCreateInfo& EnableAnisotropy(float aMaxAnisotropy)
+    SamplerCreateInfo& EnableAnisotropy(float aMaxAnisotropy) noexcept
     {
         anisotropyEnable    = Anisotropy::Enable;
         maxAnisotropy       = aMaxAnisotropy;
@@ -140,14 +140,14 @@ public:
         return *this;
     }
 
-    SamplerCreateInfo& DisableAnisotropy(void)
+    SamplerCreateInfo& DisableAnisotropy(void) noexcept
     {
         anisotropyEnable    = Anisotropy::Disable;
 
         return *this;
     }
 
-    SamplerCreateInfo& EnableCompareEnable(CompareOp aCompareOp = CompareOp::eAlways)
+    SamplerCreateInfo& EnableCompareEnable(CompareOp aCompareOp = CompareOp::eAlways) noexcept
     {
         compareEnable   = Compare::Enable;
         compareOp       = aCompareOp;
@@ -155,14 +155,14 @@ public:
         return *this;
     }
 
-    SamplerCreateInfo& DisableCompareEnable(void)
+    SamplerCreateInfo& DisableCompareEnable(void) noexcept
     {
         compareEnable = Compare::Disable;
 
         return *this;
     }
 
-    SamplerCreateInfo& SetLod(float aMinLod, float aMaxLod)
+    SamplerCreateInfo& SetLod(float aMinLod, float aMaxLod) noexcept
     {
         minLod  = aMinLod;
         maxLod  = aMaxLod;
@@ -170,21 +170,21 @@ public:
         return *this;
     }
 
-    SamplerCreateInfo& SetBorderColor(BorderColor aBorderColor)
+    SamplerCreateInfo& SetBorderColor(BorderColor aBorderColor) noexcept
     {
         borderColor = aBorderColor;
 
         return *this;
     }
 
-    SamplerCreateInfo& EnableUnnormCoord(void)
+    SamplerCreateInfo& EnableUnnormCoord(void) noexcept
     {
         unnormalizedCoordinates = UnormCoord::Enable;
 
         return *this;
     }
 
-    SamplerCreateInfo& DisableUnnormCoord(void)
+    SamplerCreateInfo& DisableUnnormCoord(void) noexcept
     {
         unnormalizedCoordinates = UnormCoord::Disable;
 
@@ -203,12 +203,12 @@ private:
     VkSampler mSampler{ VK_NULL_HANDLE };
 
 public:
-    Sampler(void) = default;
+    Sampler(void) noexcept = default;
 
-    Sampler(std::nullptr_t)
+    Sampler(std::nullptr_t) noexcept
     {}
 
-    explicit Sampler(VkSampler aSampler) : mSampler(aSampler)
+    explicit Sampler(VkSampler aSampler) noexcept : mSampler(aSampler)
     {}
 };
 

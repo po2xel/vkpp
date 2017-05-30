@@ -92,14 +92,14 @@ public:
           queryFlags(aQueryFlags), pipelineStatistics(aPipelineStatistics)
     {}
 
-    CommandBufferInheritanceInfo& SetNext(const void* apNext)
+    CommandBufferInheritanceInfo& SetNext(const void* apNext) noexcept
     {
         pNext = apNext;
 
         return *this;
     }
 
-    CommandBufferInheritanceInfo& SetRenderPass(const RenderPass& aRenderPass, uint32_t aSubpass)
+    CommandBufferInheritanceInfo& SetRenderPass(const RenderPass& aRenderPass, uint32_t aSubpass) noexcept
     {
         renderPass  = aRenderPass;
         subpass     = aSubpass;
@@ -107,35 +107,35 @@ public:
         return *this;
     }
 
-    CommandBufferInheritanceInfo& SetFramebuffer(const Framebuffer& aFramebuffer)
+    CommandBufferInheritanceInfo& SetFramebuffer(const Framebuffer& aFramebuffer) noexcept
     {
         framebuffer = aFramebuffer;
 
         return *this;
     }
 
-    CommandBufferInheritanceInfo& EnableOcclusionQuery(void)
+    CommandBufferInheritanceInfo& EnableOcclusionQuery(void) noexcept
     {
         occlusionQueryEnable = OcclusionQuery::Enable;
 
         return *this;
     }
 
-    CommandBufferInheritanceInfo& DisableOcclusionQuery(void)
+    CommandBufferInheritanceInfo& DisableOcclusionQuery(void) noexcept
     {
         occlusionQueryEnable = OcclusionQuery::Disable;
 
         return *this;
     }
 
-    CommandBufferInheritanceInfo& SetQueryFlags(const QueryControlFlags& aQueryFlags)
+    CommandBufferInheritanceInfo& SetQueryFlags(const QueryControlFlags& aQueryFlags) noexcept
     {
         queryFlags = aQueryFlags;
 
         return *this;
     }
 
-    CommandBufferInheritanceInfo& SetPipelineStatistics(const QueryPipelineStatisticFlags& aPipelineStatistics)
+    CommandBufferInheritanceInfo& SetPipelineStatistics(const QueryPipelineStatisticFlags& aPipelineStatistics) noexcept
     {
         pipelineStatistics = aPipelineStatistics;
 
@@ -152,6 +152,8 @@ class CommandBufferBeginInfo : public internal::VkTrait<CommandBufferBeginInfo, 
 private:
     const internal::Structure sType = internal::Structure::eCommandBufferBegin;
 
+    constexpr CommandBufferBeginInfo(const CommandBufferUsageFlags& aFlags, CommandBufferInheritanceInfo&& aInheritanceInfo) noexcept = delete;
+
 public:
     const void*                         pNext{ nullptr };
     CommandBufferUsageFlags             flags;
@@ -167,14 +169,14 @@ public:
         : flags(aFlags), pInheritanceInfo(aInheritanceInfo.AddressOf())
     {}
 
-    CommandBufferBeginInfo& SetNext(const void* apNext)
+    CommandBufferBeginInfo& SetNext(const void* apNext) noexcept
     {
         pNext = apNext;
 
         return *this;
     }
 
-    CommandBufferBeginInfo& SetInheritanceInfo(const CommandBufferInheritanceInfo* apInheritanceInfo)
+    CommandBufferBeginInfo& SetInheritanceInfo(const CommandBufferInheritanceInfo* apInheritanceInfo) noexcept
     {
         pInheritanceInfo = apInheritanceInfo;
 
@@ -199,7 +201,7 @@ struct CommandPipelineBarrier
     uint32_t                    imageMemoryBarrierCount{ 0 };
     const ImageMemoryBarrier*   pImageMemoryBarriers{ nullptr };
 
-    CommandPipelineBarrier& SetStageMask(const PipelineStageFlags& aSrcStageMask, const PipelineStageFlags& aDstStageMask)
+    CommandPipelineBarrier& SetStageMask(const PipelineStageFlags& aSrcStageMask, const PipelineStageFlags& aDstStageMask) noexcept
     {
         srcStageMask = aSrcStageMask;
         dstStageMask = aDstStageMask;
@@ -207,14 +209,14 @@ struct CommandPipelineBarrier
         return *this;
     }
 
-    CommandPipelineBarrier& SetDependencyFlags(const DependencyFlags& aDependencyFlags)
+    CommandPipelineBarrier& SetDependencyFlags(const DependencyFlags& aDependencyFlags) noexcept
     {
         dependencyFlags = aDependencyFlags;
 
         return *this;
     }
 
-    CommandPipelineBarrier& SetMemoryBarriers(uint32_t aMemoryBarrierCount, const MemoryBarrier* apMemoryBarriers)
+    CommandPipelineBarrier& SetMemoryBarriers(uint32_t aMemoryBarrierCount, const MemoryBarrier* apMemoryBarriers) noexcept
     {
         memoryBarrierCount  = aMemoryBarrierCount;
         pMemoryBarriers     = apMemoryBarriers;
@@ -223,12 +225,12 @@ struct CommandPipelineBarrier
     }
 
     template <typename Array>
-    CommandPipelineBarrier& SetMemoryBarriers(const Array& aMemoryBarriers)
+    CommandPipelineBarrier& SetMemoryBarriers(const Array& aMemoryBarriers) noexcept
     {
         return SetMemoryBarriers(static_cast<uint32_t>(aMemoryBarriers.size()), aMemoryBarriers.data());
     }
 
-    CommandPipelineBarrier& SetBufferMemoryBarriers(uint32_t aBufferMemoryBarrierCount, const BufferMemoryBarrier* apBufferMemoryBarriers)
+    CommandPipelineBarrier& SetBufferMemoryBarriers(uint32_t aBufferMemoryBarrierCount, const BufferMemoryBarrier* apBufferMemoryBarriers) noexcept
     {
         bufferMemoryBarrierCount    = aBufferMemoryBarrierCount;
         pBufferMemoryBarriers        = apBufferMemoryBarriers;
@@ -237,12 +239,12 @@ struct CommandPipelineBarrier
     }
 
     template <typename Array>
-    CommandPipelineBarrier& SetBufferMemoryBarriers(const Array& aBufferMemoryBarriers)
+    CommandPipelineBarrier& SetBufferMemoryBarriers(const Array& aBufferMemoryBarriers) noexcept
     {
         return SetBufferMemoryBarriers(static_cast<uint32_t>(aBufferMemoryBarriers.size()), aBufferMemoryBarriers.data());
     }
 
-    CommandPipelineBarrier& SetImageMemoryBarriers(uint32_t aImageMemoryBarrierCount, const ImageMemoryBarrier* apImageMemoryBarriers)
+    CommandPipelineBarrier& SetImageMemoryBarriers(uint32_t aImageMemoryBarrierCount, const ImageMemoryBarrier* apImageMemoryBarriers) noexcept
     {
         imageMemoryBarrierCount = aImageMemoryBarrierCount;
         pImageMemoryBarriers    = apImageMemoryBarriers;
@@ -251,7 +253,7 @@ struct CommandPipelineBarrier
     }
 
     template <typename Array>
-    CommandPipelineBarrier& SetImageMemoryBarriers(const Array& aImageMemoryBarriers)
+    CommandPipelineBarrier& SetImageMemoryBarriers(const Array& aImageMemoryBarriers) noexcept
     {
         return SetImageMemoryBarriers(static_cast<uint32_t>(aImageMemoryBarriers.size()), aImageMemoryBarriers.data());
     }
@@ -291,7 +293,7 @@ struct BufferImageCopy : public internal::VkTrait<BufferImageCopy, VkBufferImage
         : BufferImageCopy(aBufferOffset, 0, 0, aImageSubresource, aImageOffset, aImageExtent)
     {}
 
-    BufferImageCopy& SetBufferExtent(DeviceSize aBufferOffset, uint32_t aBufferRowLength, uint32_t aBufferImageHeight)
+    BufferImageCopy& SetBufferExtent(DeviceSize aBufferOffset, uint32_t aBufferRowLength, uint32_t aBufferImageHeight) noexcept
     {
         bufferOffset        = aBufferOffset;
         bufferRowLength     = aBufferRowLength;
@@ -300,7 +302,7 @@ struct BufferImageCopy : public internal::VkTrait<BufferImageCopy, VkBufferImage
         return *this;
     }
 
-    BufferImageCopy& SetImageExtent(const ImageSubresourceLayers& aImageSubresource, const Offset3D& aImageOffset, const Extent3D& aImageExtent)
+    BufferImageCopy& SetImageExtent(const ImageSubresourceLayers& aImageSubresource, const Offset3D& aImageOffset, const Extent3D& aImageExtent) noexcept
     {
         imageSubresource    = aImageSubresource;
         imageOffset         = aImageOffset;
@@ -320,12 +322,12 @@ private:
     VkCommandBuffer mCommandBuffer{ VK_NULL_HANDLE };
 
 public:
-    CommandBuffer(void) = default;
+    CommandBuffer(void) noexcept = default;
 
-    CommandBuffer(std::nullptr_t)
+    CommandBuffer(std::nullptr_t) noexcept
     {}
 
-    explicit CommandBuffer(VkCommandBuffer aCommandBuffer) : mCommandBuffer(aCommandBuffer)
+    explicit CommandBuffer(VkCommandBuffer aCommandBuffer) noexcept : mCommandBuffer(aCommandBuffer)
     {}
 
     void Begin(const CommandBufferBeginInfo& aCommandBufferBeginInfo) const

@@ -45,14 +45,14 @@ public:
         assert(flags != DefaultFlags);              // flags must not be 0.
     }
 
-    DebugReportCallbackCreateInfo& SetNext(const void* apNext)
+    DebugReportCallbackCreateInfo& SetNext(const void* apNext) noexcept
     {
         pNext = apNext;
 
         return *this;
     }
 
-    DebugReportCallbackCreateInfo& SetFlags(const DebugReportFlags& aFlags)
+    DebugReportCallbackCreateInfo& SetFlags(const DebugReportFlags& aFlags) noexcept
     {
         assert(flags != DefaultFlags);
 
@@ -61,7 +61,7 @@ public:
         return *this;
     }
 
-    DebugReportCallbackCreateInfo& SetCallback(PFN_vkDebugReportCallbackEXT apfnCallback, void* apUserData = nullptr)
+    DebugReportCallbackCreateInfo& SetCallback(PFN_vkDebugReportCallbackEXT apfnCallback, void* apUserData = nullptr) noexcept
     {
         pfnCallback = apfnCallback;
         pUserData   = apUserData;
@@ -80,12 +80,12 @@ private:
     VkDebugReportCallbackEXT mDebugReportCallback{ VK_NULL_HANDLE };
 
 public:
-    DebugReportCallback(void) = default;
+    DebugReportCallback(void) noexcept = default;
 
-    DebugReportCallback(std::nullptr_t)
+    DebugReportCallback(std::nullptr_t) noexcept
     {}
 
-    explicit DebugReportCallback(VkDebugReportCallbackEXT aDebugReportCallback) : mDebugReportCallback(aDebugReportCallback)
+    explicit DebugReportCallback(VkDebugReportCallbackEXT aDebugReportCallback) noexcept : mDebugReportCallback(aDebugReportCallback)
     {}
 };
 

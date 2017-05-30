@@ -67,14 +67,14 @@ public:
         srcQueueFamilyIndex(aSrcQueueFamilyIndex), dstQueueFamilyIndex(aDstQueueFamilyIndex), image(aImage), subresourceRange(aSubresourceRange)
     {}
 
-    ImageMemoryBarrier& SetNext(const void* apNext)
+    ImageMemoryBarrier& SetNext(const void* apNext) noexcept
     {
         pNext = apNext;
 
         return *this;
     }
 
-    ImageMemoryBarrier& SetAccessMask(const AccessFlags& aSrcAccessMask, const AccessFlags& aDstAccessMask)
+    ImageMemoryBarrier& SetAccessMask(const AccessFlags& aSrcAccessMask, const AccessFlags& aDstAccessMask) noexcept
     {
         srcAccessMask = aSrcAccessMask;
         dstAccessMask = aDstAccessMask;
@@ -82,7 +82,7 @@ public:
         return *this;
     }
 
-    ImageMemoryBarrier& SetLayout(const ImageLayout& aOldLayout, const ImageLayout& aNewLayout)
+    ImageMemoryBarrier& SetLayout(const ImageLayout& aOldLayout, const ImageLayout& aNewLayout) noexcept
     {
         oldLayout = aOldLayout;
         newLayout = aNewLayout;
@@ -90,7 +90,7 @@ public:
         return *this;
     }
 
-    ImageMemoryBarrier& SetQueueFamilyIndex(uint32_t aSrcQueueFamilyIndex, uint32_t aDstQueueFamilyIndex)
+    ImageMemoryBarrier& SetQueueFamilyIndex(uint32_t aSrcQueueFamilyIndex, uint32_t aDstQueueFamilyIndex) noexcept
     {
         srcQueueFamilyIndex = aSrcQueueFamilyIndex;
         dstQueueFamilyIndex = aDstQueueFamilyIndex;
@@ -98,7 +98,7 @@ public:
         return *this;
     }
 
-    ImageMemoryBarrier& SetImage(const Image& aImage, const ImageSubresourceRange& aSubresourceRange)
+    ImageMemoryBarrier& SetImage(const Image& aImage, const ImageSubresourceRange& aSubresourceRange) noexcept
     {
         image               = aImage;
         subresourceRange    = aSubresourceRange;
@@ -134,14 +134,14 @@ public:
         buffer(aBuffer), offset(aOffset), size(aSize)
     {}
 
-    BufferMemoryBarrier& SetNext(const void* apNext)
+    BufferMemoryBarrier& SetNext(const void* apNext) noexcept
     {
         pNext = apNext;
 
         return *this;
     }
 
-    BufferMemoryBarrier& SetAccessMask(const AccessFlags& aSrcAccessMask, const AccessFlags& aDstAccessMask)
+    BufferMemoryBarrier& SetAccessMask(const AccessFlags& aSrcAccessMask, const AccessFlags& aDstAccessMask) noexcept
     {
         srcAccessMask = aSrcAccessMask;
         dstAccessMask = aDstAccessMask;
@@ -149,7 +149,7 @@ public:
         return *this;
     }
 
-    BufferMemoryBarrier& SetFamilyIndex(uint32_t aSrcQueueFamilyIndex, uint32_t aDstQueueFamilyIndex)
+    BufferMemoryBarrier& SetFamilyIndex(uint32_t aSrcQueueFamilyIndex, uint32_t aDstQueueFamilyIndex) noexcept
     {
         srcQueueFamilyIndex = aSrcQueueFamilyIndex;
         dstQueueFamilyIndex = aDstQueueFamilyIndex;
@@ -157,7 +157,7 @@ public:
         return *this;
     }
 
-    BufferMemoryBarrier& SetBufferInfo(const Buffer& aBuffer, DeviceSize aOffset, DeviceSize aSize)
+    BufferMemoryBarrier& SetBufferInfo(const Buffer& aBuffer, DeviceSize aOffset, DeviceSize aSize) noexcept
     {
         buffer  = aBuffer;
         offset  = aOffset;
@@ -187,14 +187,14 @@ public:
         : srcAccessMask(aSrcAccessMask), dstAccessMask(aDstAccessMask)
     {}
 
-    MemoryBarrier& SetNext(const void* apNext)
+    MemoryBarrier& SetNext(const void* apNext) noexcept
     {
         pNext   = apNext;
 
         return *this;
     }
 
-    MemoryBarrier& SetAccessMask(const AccessFlags& aSrcAccessMask, const AccessFlags& aDstAccessMask)
+    MemoryBarrier& SetAccessMask(const AccessFlags& aSrcAccessMask, const AccessFlags& aDstAccessMask) noexcept
     {
         srcAccessMask = aSrcAccessMask;
         dstAccessMask = aDstAccessMask;

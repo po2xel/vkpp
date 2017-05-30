@@ -35,14 +35,14 @@ public:
     explicit constexpr SemaphoreCreateInfo(const SemaphoreCreateFlags& aFlags) noexcept : flags(aFlags)
     {}
 
-    SemaphoreCreateInfo& SetNext(const void* apNext)
+    SemaphoreCreateInfo& SetNext(const void* apNext) noexcept
     {
         pNext = apNext;
 
         return *this;
     }
 
-    SemaphoreCreateInfo& SetFlags(const SemaphoreCreateFlags& aFlags)
+    SemaphoreCreateInfo& SetFlags(const SemaphoreCreateFlags& aFlags) noexcept
     {
         flags = aFlags;
 
@@ -60,12 +60,12 @@ private:
     VkSemaphore mSemaphore{ VK_NULL_HANDLE };
 
 public:
-    Semaphore(void) = default;
+    Semaphore(void) noexcept = default;
 
-    Semaphore(std::nullptr_t)
+    Semaphore(std::nullptr_t) noexcept
     {}
 
-    explicit Semaphore(VkSemaphore aSemaphore) : mSemaphore(aSemaphore)
+    explicit Semaphore(VkSemaphore aSemaphore) noexcept : mSemaphore(aSemaphore)
     {}
 };
 

@@ -41,35 +41,35 @@ public:
         StaticLValueRefAssert(C, aClearValues);
     }
 
-    RenderPassBeginInfo& SetNext(const void* apNext)
+    RenderPassBeginInfo& SetNext(const void* apNext) noexcept
     {
         pNext = apNext;
 
         return *this;
     }
 
-    RenderPassBeginInfo& SetRenderPass(const RenderPass& aRenderPass)
+    RenderPassBeginInfo& SetRenderPass(const RenderPass& aRenderPass) noexcept
     {
         renderPass = aRenderPass;
 
         return *this;
     }
 
-    RenderPassBeginInfo& SetFramebuffer(const Framebuffer& aFramebuffer)
+    RenderPassBeginInfo& SetFramebuffer(const Framebuffer& aFramebuffer) noexcept
     {
         framebuffer = aFramebuffer;
 
         return *this;
     }
 
-    RenderPassBeginInfo& SetRenderArea(const Rect2D& aRenderArea)
+    RenderPassBeginInfo& SetRenderArea(const Rect2D& aRenderArea) noexcept
     {
         renderArea = aRenderArea;
 
         return *this;
     }
 
-    RenderPassBeginInfo& SetClearValue(uint32_t aClearValueCount, const ClearValue* apClearValues)
+    RenderPassBeginInfo& SetClearValue(uint32_t aClearValueCount, const ClearValue* apClearValues) noexcept
     {
         clearValueCount = aClearValueCount;
         pClearValues    = apClearValues;
@@ -78,7 +78,7 @@ public:
     }
 
     template <typename C, typename = EnableIfValueType<ValueType<C>, ClearValue>>
-    RenderPassBeginInfo& SetClearValue(C&& aClearValues)
+    RenderPassBeginInfo& SetClearValue(C&& aClearValues) noexcept
     {
         StaticLValueRefAssert(C, aClearValues);
 

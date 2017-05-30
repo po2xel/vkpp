@@ -36,14 +36,14 @@ public:
     explicit constexpr FenceCreateInfo(const FenceCreateFlags& aFlags) noexcept : flags(aFlags)
     {}
 
-    FenceCreateInfo& SetNext(const void* apNext)
+    FenceCreateInfo& SetNext(const void* apNext) noexcept
     {
         pNext = apNext;
 
         return *this;
     }
 
-    FenceCreateInfo& SetFlags(const FenceCreateFlags& aFlags)
+    FenceCreateInfo& SetFlags(const FenceCreateFlags& aFlags) noexcept
     {
         flags = aFlags;
 
@@ -61,12 +61,12 @@ private:
     VkFence mFence{ VK_NULL_HANDLE };
 
 public:
-    Fence(void) = default;
+    Fence(void) noexcept = default;
 
-    Fence(std::nullptr_t)
+    Fence(std::nullptr_t) noexcept
     {}
 
-    explicit Fence(VkFence aFence) : mFence(aFence)
+    explicit Fence(VkFence aFence) noexcept : mFence(aFence)
     {}
 };
 

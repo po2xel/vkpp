@@ -16,22 +16,22 @@ struct VkTrait
 
     constexpr VkTrait(void) noexcept = default;
 
-    constexpr const Type* AddressOf(void) const
+    constexpr const Type* AddressOf(void) const noexcept
     {
         return static_cast<const Type*>(this);
     }
 
-    constexpr const VkType* operator&(void) const
+    constexpr const VkType* operator&(void) const noexcept
     {
         return reinterpret_cast<const VkType*>(this);
     }
 
-    constexpr VkType* operator&(void)
+    constexpr VkType* operator&(void) noexcept
     {
         return reinterpret_cast<VkType*>(this);
     }
 
-    constexpr operator const VkType&(void) const
+    constexpr operator const VkType&(void) const noexcept
     {
         return *reinterpret_cast<const VkType*>(this);
     }

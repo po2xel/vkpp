@@ -81,7 +81,7 @@ TexturedPlate::TexturedPlate(CWindow& aWindow, const char* apApplicationName, ui
     AllocateDescriptorSet();
 
     // TODO: Vulkan core support three different compressed texture formats.
-    // As the support differs among implementations, it is needed to check device features and select a proper format and file.
+    //       As the support differs among implementations, it is needed to check device features and select a proper format and file.
     LoadTexture("Texture/metalplate01_bc2_unorm.ktx", vkpp::Format::eBC2_uNormBlock);
     CreateSampler();
 

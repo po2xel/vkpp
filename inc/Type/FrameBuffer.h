@@ -58,21 +58,21 @@ public:
         StaticLValueRefAssert(A, aAttachments);
     }
 
-    FramebufferCreateInfo& SetFlags(const FramebufferCreateFlags& aFlags)
+    FramebufferCreateInfo& SetFlags(const FramebufferCreateFlags& aFlags) noexcept
     {
         flags = aFlags;
 
         return *this;
     }
 
-    FramebufferCreateInfo& SetRenderPass(const RenderPass& aRenderPass)
+    FramebufferCreateInfo& SetRenderPass(const RenderPass& aRenderPass) noexcept
     {
         renderPass  = aRenderPass;
 
         return *this;
     }
 
-    FramebufferCreateInfo& SetAttachments(uint32_t aAttachmentCount, const ImageView* apAttachments)
+    FramebufferCreateInfo& SetAttachments(uint32_t aAttachmentCount, const ImageView* apAttachments) noexcept
     {
         attachmentCount = aAttachmentCount;
         pAttachments    = apAttachments;
@@ -81,14 +81,14 @@ public:
     }
 
     template <typename A, typename = EnableIfValueType<ValueType<A>, ImageView>>
-    FramebufferCreateInfo& SetAttachments(A&& aAttachments)
+    FramebufferCreateInfo& SetAttachments(A&& aAttachments) noexcept
     {
         StaticLValueRefAssert(A, aAttachments);
 
         return SetAttachments(static_cast<uint32_t>(aAttachments.size()), aAttachments.data());
     }
 
-    FramebufferCreateInfo& SetDimension(uint32_t aWidth, uint32_t aHeight = 1, uint32_t aLayers = 1)
+    FramebufferCreateInfo& SetDimension(uint32_t aWidth, uint32_t aHeight = 1, uint32_t aLayers = 1) noexcept
     {
         width   = aWidth;
         height  = aHeight;
@@ -97,12 +97,12 @@ public:
         return *this;
     }
 
-    FramebufferCreateInfo& SetDimension(const Extent2D& aExtent)
+    FramebufferCreateInfo& SetDimension(const Extent2D& aExtent) noexcept
     {
         return SetDimension(aExtent.width, aExtent.height);
     }
 
-    FramebufferCreateInfo& SetDimension(const Extent3D& aExtent)
+    FramebufferCreateInfo& SetDimension(const Extent3D& aExtent) noexcept
     {
         return SetDimension(aExtent.width, aExtent.height, aExtent.depth);
     }
@@ -118,12 +118,12 @@ private:
     VkFramebuffer mFramebuffer{ VK_NULL_HANDLE };
 
 public:
-    Framebuffer(void) = default;
+    Framebuffer(void) noexcept = default;
 
-    Framebuffer(std::nullptr_t)
+    Framebuffer(std::nullptr_t) noexcept
     {}
 
-    explicit Framebuffer(VkFramebuffer aFramebuffer) : mFramebuffer(aFramebuffer)
+    explicit Framebuffer(VkFramebuffer aFramebuffer) noexcept : mFramebuffer(aFramebuffer)
     {}
 
     operator bool() const

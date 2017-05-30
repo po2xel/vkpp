@@ -38,21 +38,21 @@ public:
         : flags(aFlags), initialDataSize(aInitialDataSize), pInitialData(apInitialData)
     {}
 
-    PipelineCacheCreateInfo& SetNext(const void* apNext)
+    PipelineCacheCreateInfo& SetNext(const void* apNext) noexcept
     {
         pNext = apNext;
 
         return *this;
     }
 
-    PipelineCacheCreateInfo& SetFlags(const PipelineCacheCreateFlags& aFlags)
+    PipelineCacheCreateInfo& SetFlags(const PipelineCacheCreateFlags& aFlags) noexcept
     {
         flags = aFlags;
 
         return *this;
     }
 
-    PipelineCacheCreateInfo& SetInitialData(size_t aInitialDataSize, const void* apInitialData)
+    PipelineCacheCreateInfo& SetInitialData(size_t aInitialDataSize, const void* apInitialData) noexcept
     {
         initialDataSize = aInitialDataSize;
         pInitialData    = apInitialData;
@@ -71,12 +71,12 @@ private:
     VkPipeline mPipeline{ VK_NULL_HANDLE };
 
 public:
-    Pipeline(void) = default;
+    Pipeline(void) noexcept = default;
 
-    Pipeline(std::nullptr_t)
+    Pipeline(std::nullptr_t) noexcept
     {}
 
-    explicit Pipeline(VkPipeline aPipeline) : mPipeline(aPipeline)
+    explicit Pipeline(VkPipeline aPipeline) noexcept : mPipeline(aPipeline)
     {}
 };
 
@@ -90,12 +90,12 @@ private:
     VkPipelineCache mPipelineCache{ VK_NULL_HANDLE };
 
 public:
-    PipelineCache(void) = default;
+    PipelineCache(void) noexcept = default;
 
-    PipelineCache(std::nullptr_t)
+    PipelineCache(std::nullptr_t) noexcept
     {}
 
-    explicit PipelineCache(VkPipelineCache aPipelineCache) : mPipelineCache(aPipelineCache)
+    explicit PipelineCache(VkPipelineCache aPipelineCache) noexcept : mPipelineCache(aPipelineCache)
     {}
 };
 

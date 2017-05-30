@@ -1,6 +1,4 @@
-#include "PushConstants.h"
-
-#include <cmath>
+#include "SpecializationConstants.h"
 
 
 
@@ -9,10 +7,11 @@ namespace vkpp::sample
 
 
 
-PushConstants::PushConstants(CWindow& aWindow, const char* apAppName, uint32_t aAppVersion, const char* apEngineName, uint32_t aEngineVersion)
+SpecializationConstants::SpecializationConstants(CWindow& aWindow, const char* apAppName, uint32_t aAppVersion, const char* apEngineName, uint32_t aEngineVersion)
     : ExampleBase(aWindow, apAppName, aAppVersion, apEngineName, aEngineVersion),
       CWindowEvent(aWindow), CMouseMotionEvent(aWindow), CMouseWheelEvent(aWindow),
       mDepthRes(mLogicalDevice, mPhysicalDeviceMemoryProperties),
+      mTextureRes(mLogicalDevice, mPhysicalDeviceMemoryProperties),
       mUBORes(mLogicalDevice, mPhysicalDeviceMemoryProperties),
       mVtxBufferRes(mLogicalDevice, mPhysicalDeviceMemoryProperties),
       mIdxBufferRes(mLogicalDevice, mPhysicalDeviceMemoryProperties)
@@ -59,16 +58,13 @@ PushConstants::PushConstants(CWindow& aWindow, const char* apAppName, uint32_t a
 
         // Command buffers need to be recreated as they reference to the destroyed framebuffer.
         mLogicalDevice.FreeCommandBuffers(mCmdPool, mDrawCmdBuffers);
-        AllocateCmdBuffers();
+        mDrawCmdBuffers = mLogicalDevice.AllocateCommandBuffers({ mCmdPool, static_cast<uint32_t>(mSwapchain.buffers.size()) });
+
         BuildCmdBuffers();
     };
 
-    // Check requested constant size against hardware limit.
-    // Specs require 128 bytes, so if the device complies our push constant buffer should always fit into memory.
-    assert(sizeof(mPushConstants) <= mPhysicalDeviceProperties.limits.maxPushConstantsSize);
-
-    CreateCmdPool();
-    AllocateCmdBuffers();
+    mCmdPool = mLogicalDevice.CreateCommandPool({ mGraphicsQueue.familyIndex, vkpp::CommandPoolCreateFlagBits::eResetCommandBuffer });
+    mDrawCmdBuffers = mLogicalDevice.AllocateCommandBuffers({ mCmdPool, static_cast<uint32_t>(mSwapchain.buffers.size()) });
 
     CreateRenderPass();
     CreateDepthResource();
@@ -76,16 +72,19 @@ PushConstants::PushConstants(CWindow& aWindow, const char* apAppName, uint32_t a
 
     CreateSetLayout();
     CreatePipelineLayout();
-    CreateGraphicsPipeline();
+    CreateGraphicsPipelines();
 
     CreateDescriptorPool();
     AllocateDescriptorSet();
+
+    LoadTexture("Texture/metalplate_nomips_rgba.ktx", vkpp::Format::eRGBA8uNorm);
+    CreateSampler();
 
     CreateUniformBuffer();
     UpdateUniformBuffer();
     UpdateDescriptorSet();
 
-    LoadModel("Model/samplescene.dae");
+    LoadModel("Model/color_teapot_spheres.dae");
 
     BuildCmdBuffers();
 
@@ -94,7 +93,7 @@ PushConstants::PushConstants(CWindow& aWindow, const char* apAppName, uint32_t a
 }
 
 
-PushConstants::~PushConstants(void)
+SpecializationConstants::~SpecializationConstants()
 {
     mLogicalDevice.Wait();
 
@@ -109,9 +108,13 @@ PushConstants::~PushConstants(void)
     mLogicalDevice.UnmapMemory(mUBORes.memory);
     mUBORes.Reset();
 
+    mLogicalDevice.DestroySampler(mTextureSampler);
+
     mLogicalDevice.DestroyDescriptorPool(mDescriptorPool);
 
-    mLogicalDevice.DestroyPipeline(mGraphicsPipeline);
+    mLogicalDevice.DestroyPipeline(mPipelines.phong);
+    mLogicalDevice.DestroyPipeline(mPipelines.textured);
+    mLogicalDevice.DestroyPipeline(mPipelines.toon);
     mLogicalDevice.DestroyDescriptorSetLayout(mSetLayout);
     mLogicalDevice.DestroyPipelineLayout(mPipelineLayout);
 
@@ -124,24 +127,7 @@ PushConstants::~PushConstants(void)
 }
 
 
-void PushConstants::CreateCmdPool(void)
-{
-    const vkpp::CommandPoolCreateInfo lCmdCreateInfo
-    {
-        mGraphicsQueue.familyIndex, vkpp::CommandPoolCreateFlagBits::eResetCommandBuffer
-    };
-
-    mCmdPool = mLogicalDevice.CreateCommandPool(lCmdCreateInfo);
-}
-
-
-void PushConstants::AllocateCmdBuffers(void)
-{
-    mDrawCmdBuffers = mLogicalDevice.AllocateCommandBuffers({ mCmdPool, static_cast<uint32_t>(mSwapchain.buffers.size()) });
-}
-
-
-void PushConstants::CreateRenderPass(void)
+void SpecializationConstants::CreateRenderPass(void)
 {
     const std::vector<vkpp::AttachementDescription> lAttachments
     {
@@ -207,7 +193,7 @@ void PushConstants::CreateRenderPass(void)
 }
 
 
-void PushConstants::CreateDepthResource(void)
+void SpecializationConstants::CreateDepthResource(void)
 {
     const vkpp::ImageCreateInfo lImageCreateInfo
     {
@@ -232,7 +218,7 @@ void PushConstants::CreateDepthResource(void)
 }
 
 
-void PushConstants::CreateFramebuffers(void)
+void SpecializationConstants::CreateFramebuffers(void)
 {
     // Depth/stencil attachment is the same for all frame buffers.
     std::array<vkpp::ImageView, 2> lAttachments{ mDepthRes.view };
@@ -254,49 +240,57 @@ void PushConstants::CreateFramebuffers(void)
 }
 
 
-void PushConstants::CreateSetLayout(void)
+void SpecializationConstants::CreateSetLayout(void)
 {
-    constexpr vkpp::DescriptorSetLayoutBinding lSetLayoutBinding
-    { 
-        // Binding 0: Vertex shader uniform buffer
-        0,
-        vkpp::DescriptorType::eUniformBuffer,
-        vkpp::ShaderStageFlagBits::eVertex
+    constexpr vkpp::DescriptorSetLayoutBinding lSetLayoutBindings[]
+    {
+        // Binding 0: Vertex shader uniform
+        {
+            0,
+            vkpp::DescriptorType::eUniformBuffer,
+            vkpp::ShaderStageFlagBits::eVertex
+        },
+        // Binding 1: Fragment shader combined sampler
+        {
+            1,
+            vkpp::DescriptorType::eCombinedImageSampler,
+            vkpp::ShaderStageFlagBits::eFragment
+        }
     };
 
-    constexpr vkpp::DescriptorSetLayoutCreateInfo lSetLayoutCreateInfo{ lSetLayoutBinding };
-
-    mSetLayout = mLogicalDevice.CreateDescriptorSetLayout(lSetLayoutCreateInfo);
+    mSetLayout = mLogicalDevice.CreateDescriptorSetLayout({ 2, lSetLayoutBindings });
 }
 
 
-void PushConstants::CreatePipelineLayout(void)
+void SpecializationConstants::CreatePipelineLayout(void)
 {
-    // Define push constants
-    // Example uses six light positions as push constants. 6 * 4 * 4 = 96 bytes.
-    // Spec requires a minimum of 128 bytes, bigger values need to be checked against maxPushConstantsSize.
-    // But even at only 128 bytes, lots of stuff can fit inside push constants.
-    constexpr vkpp::PushConstantRange lPushConstantRange
-    {
-        vkpp::ShaderStageFlagBits::eVertex,
-        0, sizeof(mPushConstants)
-    };
-
-    // Push constant ranges are part of the pipeline layout.
-    mPipelineLayout = mLogicalDevice.CreatePipelineLayout({ mSetLayout, lPushConstantRange });
+    mPipelineLayout = mLogicalDevice.CreatePipelineLayout({ mSetLayout });
 }
 
 
-void PushConstants::CreateGraphicsPipeline(void)
+void SpecializationConstants::CreateGraphicsPipelines(void)
 {
-    const auto& lVertexShaderModule = CreateShaderModule("Shader/SPV/lights.vert.spv");
-    const auto& lFragmentShaderModule = CreateShaderModule("Shader/SPV/lights.frag.spv");
+    // Shader bindings based on specialization constants are marked by the new "constant_id" layout qualifier:
+    // layout (constant_id = 0) const int LIGHTING_MODEL = 0;
+    // layout (constant_id = 1) const float PARAM_TOON_DESATURATION = 0.0f;
 
-    const std::vector<vkpp::PipelineShaderStageCreateInfo> lShaderStageCreateInfos
+    // Each shader constant of a shader stage corresponds to one map entry.
+    constexpr auto& lSpecializationMapEntries = SpecializationData::GetSpecializationMapEntries();
+    const vkpp::SpecializationInfo lSpecializationInfo
     {
-        { vkpp::ShaderStageFlagBits::eVertex, lVertexShaderModule },
-        { vkpp::ShaderStageFlagBits::eFragment, lFragmentShaderModule }
+        lSpecializationMapEntries, mSpecializationData
     };
+
+    // All pipelines will use the same "uber" shader and specialization constants to chnage branching and parameters of that shader.
+    const auto& lVertexShader = CreateShaderModule("Shader/SPV/uber.vert.spv");
+    const auto& lFragmentShader = CreateShaderModule("Shader/SPV/uber.frag.spv");
+
+    const std::array<vkpp::PipelineShaderStageCreateInfo, 2> lShaderStageCreateInfos
+    { {
+        { vkpp::ShaderStageFlagBits::eVertex, lVertexShader },
+        { vkpp::ShaderStageFlagBits::eFragment, lFragmentShader, lSpecializationInfo }  // Specialization info is assigned as part of the shader stage (module)
+                                                                                        // and must be set after creating the module and before creating the pipeline.
+    } };
 
     constexpr auto lVertexInputBinding = VertexData::GetBindingDescription();
     constexpr auto lVertexAttributes = VertexData::GetAttributeDescriptions();
@@ -313,7 +307,7 @@ void PushConstants::CreateGraphicsPipeline(void)
     constexpr vkpp::PipelineRasterizationStateCreateInfo lRasterizationStateCreateInfo
     {
         vkpp::PolygonMode::eFill,
-        vkpp::CullModeFlagBits::eBack,
+        vkpp::CullModeFlagBits::eNone,
         vkpp::FrontFace::eClockwise
     };
 
@@ -355,31 +349,188 @@ void PushConstants::CreateGraphicsPipeline(void)
         0
     };
 
-    mGraphicsPipeline = mLogicalDevice.CreateGraphicsPipeline(lGraphicsPipelineCreateInfo);
+    // Solid phong shading
+    mSpecializationData.lightingModel = 0;
+    mPipelines.phong = mLogicalDevice.CreateGraphicsPipeline(lGraphicsPipelineCreateInfo);
 
-    mLogicalDevice.DestroyShaderModule(lFragmentShaderModule);
-    mLogicalDevice.DestroyShaderModule(lVertexShaderModule);
+    // Phong and textured
+    mSpecializationData.lightingModel = 1;
+    mPipelines.toon = mLogicalDevice.CreateGraphicsPipeline(lGraphicsPipelineCreateInfo);
+
+    // Textured discard.
+    mSpecializationData.lightingModel = 2;
+    mPipelines.textured = mLogicalDevice.CreateGraphicsPipeline(lGraphicsPipelineCreateInfo);
+
+    mLogicalDevice.DestroyShaderModule(lFragmentShader);
+    mLogicalDevice.DestroyShaderModule(lVertexShader);
 }
 
 
-void PushConstants::CreateDescriptorPool(void)
+void SpecializationConstants::CreateDescriptorPool(void)
 {
-    constexpr vkpp::DescriptorPoolSize lPoolSize
+    constexpr vkpp::DescriptorPoolSize lPoolSizes[]
     {
-        vkpp::DescriptorType::eUniformBuffer, 1
+        { vkpp::DescriptorType::eUniformBuffer, 1 },
+        { vkpp::DescriptorType::eCombinedImageSampler, 1 }
     };
 
-    mDescriptorPool = mLogicalDevice.CreateDescriptorPool({ lPoolSize, 1 });
+    mDescriptorPool = mLogicalDevice.CreateDescriptorPool({ 2, lPoolSizes, 2 });
 }
 
 
-void PushConstants::AllocateDescriptorSet(void)
+void SpecializationConstants::AllocateDescriptorSet(void)
 {
     mDescriptorSet = mLogicalDevice.AllocateDescriptorSet({ mDescriptorPool, mSetLayout });
 }
 
 
-void PushConstants::CreateUniformBuffer(void)
+void SpecializationConstants::LoadTexture(const std::string& aFilename, vkpp::Format aTexFormat)
+{
+    const gli::texture2d lTex2D{ gli::load(aFilename) };
+    assert(!lTex2D.empty());
+
+    mTexture.width = static_cast<uint32_t>(lTex2D[0].extent().x);
+    mTexture.height = static_cast<uint32_t>(lTex2D[0].extent().y);
+    mTexture.mipLevels = static_cast<uint32_t>(lTex2D.levels());
+
+    // Get device properties for the requested texture format.
+    // const auto& lFormatProperties = mPhysicalDevice.GetFormatProperties(mTexFormat);
+
+    // Create a host-visible staging buffer that contains the raw image data.
+    const vkpp::BufferCreateInfo lStagingBufferCreateInfo
+    {
+        lTex2D.size(),
+        vkpp::BufferUsageFlagBits::eTransferSrc             // This buffer is used as a transfer source for the buffer copy.
+    };
+
+    BufferResource lStagingBufferRes{ mLogicalDevice, mPhysicalDeviceMemoryProperties };
+    lStagingBufferRes.Reset(lStagingBufferCreateInfo, vkpp::MemoryPropertyFlagBits::eHostVisible | vkpp::MemoryPropertyFlagBits::eHostCoherent);
+
+    auto lMappedMem = mLogicalDevice.MapMemory(lStagingBufferRes.memory, 0, lTex2D.size());
+    std::memcpy(lMappedMem, lTex2D.data(), lTex2D.size());
+    mLogicalDevice.UnmapMemory(lStagingBufferRes.memory);
+
+    // Setup buffer copy regions for each mip-level.
+    std::vector<vkpp::BufferImageCopy> lBufferCopyRegions;
+    uint32_t lOffset{ 0 };
+
+    for (uint32_t lIndex = 0; lIndex < mTexture.mipLevels; ++lIndex)
+    {
+        const vkpp::BufferImageCopy lBufferCopyRegion
+        {
+            lOffset,
+            {
+                vkpp::ImageAspectFlagBits::eColor,
+                lIndex,
+            },
+            {0, 0, 0},
+            {
+                static_cast<uint32_t>(lTex2D[lIndex].extent().x),
+                static_cast<uint32_t>(lTex2D[lIndex].extent().y),
+                1
+            }
+        };
+
+        lBufferCopyRegions.emplace_back(lBufferCopyRegion);
+        lOffset += static_cast<uint32_t>(lTex2D[lIndex].size());
+    }
+
+    // Create optimal tiled target image.
+    // Only use linear tiling if requested (and supported by the device).
+    // Support for linear tiling is mostly limited, so prefer to use optimal tiling instead.
+    // On most implementations, linear tiling will only support a very limited amount of formats and features (mip-maps, cube-maps, arrays, etc.).
+    const vkpp::ImageCreateInfo lImageCreateInfo
+    {
+        vkpp::ImageType::e2D,
+        aTexFormat,
+        { mTexture.width, mTexture.height, 1 },
+        vkpp::ImageUsageFlagBits::eSampled | vkpp::ImageUsageFlagBits::eTransferDst,
+        vkpp::ImageLayout::eUndefined,
+        vkpp::ImageTiling::eOptimal,
+        vkpp::SampleCountFlagBits::e1,
+        mTexture.mipLevels
+    };
+
+    vkpp::ImageViewCreateInfo lImageViewCreateInfo
+    {
+        vkpp::ImageViewType::e2D,
+        aTexFormat,
+        // The subresource range describes the set of mip-levels (and array layers) that can be accessed through this image view.
+        // It is possible to create multiple image views for a single image referring to different (and/or overlapping) ranges of the image.
+        {
+            vkpp::ImageAspectFlagBits::eColor,
+            0, mTexture.mipLevels,
+            0, 1
+        }
+    };
+
+    mTextureRes.Reset(lImageCreateInfo, lImageViewCreateInfo, vkpp::MemoryPropertyFlagBits::eDeviceLocal);
+
+    const auto& lCopyCmd = BeginOneTimeCmdBuffer();
+
+    // Image barrier for optimal image.
+
+    // The sub-resource range describes the regions of the image which will be transitioned.
+    const vkpp::ImageSubresourceRange lImageSubRange
+    {
+        vkpp::ImageAspectFlagBits::eColor,              // aspectMask: Only contains color data.
+        0,                                              // baseMipLevel: Start at first mip-level.
+        mTexture.mipLevels,                             // levelCount: Transition on all mip-levels.
+        0,                                              // baseArrayLayer: Start at first element in the array. (only one element in this example.)
+        1                                               // layerCount: The 2D texture only has one layer.
+    };
+
+    // Optimal image will be used as the destination for the copy, so it must be transfered from the initial undefined image layout to the transfer destination layout.
+    TransitionImageLayout<vkpp::ImageLayout::eUndefined, vkpp::ImageLayout::eTransferDstOptimal>
+    (
+        lCopyCmd, mTextureRes.image,
+        lImageSubRange,
+        vkpp::DefaultFlags,                         // srcAccessMask = 0: Only valid as initial layout, memory contents are not preserved.
+                                                    //                    Can be accessed directly, no source dependency required.
+        vkpp::AccessFlagBits::eTransferWrite        // dstAccessMask: Transfer destination (copy, blit).
+                                                    //                Make sure any write operation to the image has been finished.
+    );
+
+    // Copy all mip-levels from staging buffer.
+    lCopyCmd.Copy(mTextureRes.image, vkpp::ImageLayout::eTransferDstOptimal, lStagingBufferRes.buffer, lBufferCopyRegions);
+
+    // Transfer texture image layout to shader read after all mip-levels have been copied.
+    TransitionImageLayout<vkpp::ImageLayout::eTransferDstOptimal, vkpp::ImageLayout::eShaderReadOnlyOptimal>
+    (
+        lCopyCmd, mTextureRes.image,
+        lImageSubRange,
+        vkpp::AccessFlagBits::eTransferWrite,       // srcAccessMask: Old layout is transfer destination.
+                                                    //                Make sure any write operation to the destination image has been finished.
+        vkpp::AccessFlagBits::eShaderRead           // dstAccessMask: Shader read, like sampler, input attachment.
+    );
+
+    EndOneTimeCmdBuffer(lCopyCmd);
+
+    lStagingBufferRes.Reset();
+}
+
+
+void SpecializationConstants::CreateSampler(void)
+{
+    const vkpp::SamplerCreateInfo lSamplerCreateInfo
+    {
+        vkpp::Filter::eLinear, vkpp::Filter::eLinear,
+        vkpp::SamplerMipmapMode::eLinear,
+        vkpp::SamplerAddressMode::eRepeat, vkpp::SamplerAddressMode::eRepeat, vkpp::SamplerAddressMode::eRepeat,
+        0.0f,
+        Anisotropy::Enable,
+        mPhysicalDeviceProperties.limits.maxSamplerAnisotropy,
+        Compare::Disable,
+        vkpp::CompareOp::eNever,
+        0.0f, 0.0f,
+        vkpp::BorderColor::eFloatOpaqueWhite
+    };
+
+    mTextureSampler = mLogicalDevice.CreateSampler(lSamplerCreateInfo);
+}
+
+
+void SpecializationConstants::CreateUniformBuffer(void)
 {
     constexpr vkpp::BufferCreateInfo lBufferCreateInfo
     {
@@ -392,14 +543,14 @@ void PushConstants::CreateUniformBuffer(void)
 }
 
 
-void PushConstants::UpdateUniformBuffer(void)
+void SpecializationConstants::UpdateUniformBuffer(void)
 {
     const auto lWidth = static_cast<float>(mSwapchain.extent.width);
     const auto lHeight = static_cast<float>(mSwapchain.extent.height);
 
-    const glm::vec3 lCameraPos{ 0.1f, 1.1f, 0.0f };
+    const glm::vec3 lCameraPos{ 0.0f, 0.0f, -2.0f };
 
-    mMVPMatrix.proj = glm::perspective(glm::radians(60.f), lWidth / lHeight, 0.001f, 256.0f);
+    mMVPMatrix.proj = glm::perspective(glm::radians(60.f), lWidth / 3.0f / lHeight, 0.001f, 512.0f);
 
     const auto& lViewMatrix = glm::translate(glm::mat4(), glm::vec3(0.0f, 0.0f, mCurrentZoomLevel));
     mMVPMatrix.model = lViewMatrix * glm::translate(glm::mat4(), lCameraPos);
@@ -411,26 +562,44 @@ void PushConstants::UpdateUniformBuffer(void)
 }
 
 
-void PushConstants::UpdateDescriptorSet(void) const
+void SpecializationConstants::UpdateDescriptorSet(void) const
 {
-    const vkpp::DescriptorBufferInfo lBufferDescriptor{ mUBORes.buffer };
+    const vkpp::DescriptorBufferInfo lDescriptorBuffer{ mUBORes.buffer };
 
-    const vkpp::WriteDescriptorSetInfo lWriteDescriptorInfo
+    const vkpp::DescriptorImageInfo lDescriptorImage
     {
-        mDescriptorSet, 0,
-        vkpp::DescriptorType::eUniformBuffer,
-        lBufferDescriptor
+        mTextureSampler,
+        mTextureRes.view,
+        mTexture.layout
     };
 
-    mLogicalDevice.UpdateDescriptorSet(lWriteDescriptorInfo);
+    const vkpp::WriteDescriptorSetInfo lWriteDescriptorSets[]
+    {
+        // Binding 0: Vertex shader uniform buffer.
+        {
+            mDescriptorSet,
+            0,
+            vkpp::DescriptorType::eUniformBuffer,
+            lDescriptorBuffer
+        },
+        // Binding 1: Fragment shader combined sampler.
+        {
+            mDescriptorSet,
+            1,
+            vkpp::DescriptorType::eCombinedImageSampler,
+            lDescriptorImage
+        }
+    };
+
+    mLogicalDevice.UpdateDescriptorSets(2, lWriteDescriptorSets);
 }
 
 
-void PushConstants::LoadModel(const std::string& aFilename)
+void SpecializationConstants::LoadModel(const std::string& aFilename)
 {
     // Flags for loading the mesh
     constexpr static auto lAssimpFlags = aiProcess_FlipWindingOrder | aiProcess_Triangulate | aiProcess_PreTransformVertices;
-    constexpr static auto lScale = 0.35f;
+    constexpr static auto lScale = 0.1f;
 
     Assimp::Importer lImporter;
 
@@ -444,7 +613,11 @@ void PushConstants::LoadModel(const std::string& aFilename)
     for (unsigned int lMeshIdx = 0; lMeshIdx < lpScene->mNumMeshes; ++lMeshIdx)
     {
         const auto lpMesh = lpScene->mMeshes[lMeshIdx];
+
         mIndexCount += lpScene->mMeshes[lMeshIdx]->mNumFaces * 3;
+
+        aiColor3D lColor;
+        lpScene->mMaterials[lpMesh->mMaterialIndex]->Get(AI_MATKEY_COLOR_DIFFUSE, lColor);
 
         for (unsigned int lVtxIdx = 0; lVtxIdx < lpMesh->mNumVertices; ++lVtxIdx)
         {
@@ -461,12 +634,11 @@ void PushConstants::LoadModel(const std::string& aFilename)
             lVertexBuffer.emplace_back(lNormal.z);
 
             // Vertex texture coordinates
-            /*const auto lTexCoord = lpMesh->mTextureCoords[0][lVtxIdx];
+            const auto lTexCoord = lpMesh->mTextureCoords[0][lVtxIdx];
             lVertexBuffer.emplace_back(lTexCoord.x);
-            lVertexBuffer.emplace_back(lTexCoord.y);*/
+            lVertexBuffer.emplace_back(lTexCoord.y);
 
             // Vertex color
-            const auto lColor = lpMesh->HasVertexColors(0) ? lpMesh->mColors[0][lVtxIdx] : aiColor4D(1.0f);
             lVertexBuffer.emplace_back(lColor.r);
             lVertexBuffer.emplace_back(lColor.g);
             lVertexBuffer.emplace_back(lColor.b);
@@ -540,75 +712,7 @@ void PushConstants::LoadModel(const std::string& aFilename)
 }
 
 
-void PushConstants::CopyBuffer(vkpp::Buffer& aDstBuffer, const Buffer& aSrcBuffer, DeviceSize aSize) const
-{
-    const auto& lCopyCmd = BeginOneTimeCmdBuffer();
-
-    const vkpp::BufferCopy lBufferCopy{ aSize };
-
-    lCopyCmd.Copy(aDstBuffer, aSrcBuffer, lBufferCopy);
-
-    EndOneTimeCmdBuffer(lCopyCmd);
-}
-
-
-vkpp::CommandBuffer PushConstants::BeginOneTimeCmdBuffer(void) const
-{
-    const vkpp::CommandBufferAllocateInfo lCmdBufferAllocateInfo
-    {
-        mCmdPool, 1
-    };
-
-    auto lCmdBuffer = mLogicalDevice.AllocateCommandBuffer(lCmdBufferAllocateInfo);
-
-    constexpr vkpp::CommandBufferBeginInfo lCmdBufferBeginInfo
-    {
-        vkpp::CommandBufferUsageFlagBits::eOneTimeSubmit
-    };
-
-    lCmdBuffer.Begin(lCmdBufferBeginInfo);
-
-    return lCmdBuffer;
-}
-
-
-void PushConstants::EndOneTimeCmdBuffer(const vkpp::CommandBuffer& aCmdBuffer) const
-{
-    aCmdBuffer.End();
-
-    constexpr vkpp::FenceCreateInfo lFenceCreateInfo;
-    const auto& lFence = mLogicalDevice.CreateFence(lFenceCreateInfo);
-
-    const vkpp::SubmitInfo lSubmitInfo{ aCmdBuffer };
-
-    mGraphicsQueue.handle.Submit(lSubmitInfo, lFence);
-
-    mLogicalDevice.WaitForFence(lFence);
-
-    mLogicalDevice.DestroyFence(lFence);
-    mLogicalDevice.FreeCommandBuffer(mCmdPool, aCmdBuffer);
-}
-
-
-void PushConstants::CreateSemaphores(void)
-{
-    constexpr vkpp::SemaphoreCreateInfo lSemaphoreCreateInfo;
-
-    mPresentCompleteSemaphore = mLogicalDevice.CreateSemaphore(lSemaphoreCreateInfo);
-    mRenderingCompleteSemaphore = mLogicalDevice.CreateSemaphore(lSemaphoreCreateInfo);
-}
-
-
-void PushConstants::CreateFences(void)
-{
-    constexpr vkpp::FenceCreateInfo lFenceCreateInfo{ vkpp::FenceCreateFlagBits::eSignaled };
-
-    for (std::size_t lIndex = 0; lIndex < mDrawCmdBuffers.size(); ++lIndex)
-        mWaitFences.emplace_back(mLogicalDevice.CreateFence(lFenceCreateInfo));
-}
-
-
-void PushConstants::BuildCmdBuffers(void)
+void SpecializationConstants::BuildCmdBuffers(void)
 {
     constexpr vkpp::CommandBufferBeginInfo lCmdBufferBeginInfo;
 
@@ -639,7 +743,7 @@ void PushConstants::BuildCmdBuffers(void)
         lDrawCmdBuffer.BindVertexBuffer(mVtxBufferRes.buffer, 0);
         lDrawCmdBuffer.BindIndexBuffer(mIdxBufferRes.buffer, 0, vkpp::IndexType::eUInt32);
 
-        const vkpp::Viewport lViewport
+        vkpp::Viewport lViewport
         {
             0.0f, 0.0f,
             static_cast<float>(mSwapchain.extent.width), static_cast<float>(mSwapchain.extent.height)
@@ -655,16 +759,24 @@ void PushConstants::BuildCmdBuffers(void)
 
         lDrawCmdBuffer.SetScissor(lScissor);
 
-        lDrawCmdBuffer.BindGraphicsPipeline(mGraphicsPipeline);
         lDrawCmdBuffer.BindGraphicsDescriptorSet(mPipelineLayout, 0, mDescriptorSet);
 
-        UpdateLightPositions();
+        // Left
+        lViewport.width /= 3.0f;
+        lDrawCmdBuffer.SetViewport(lViewport);
+        lDrawCmdBuffer.BindGraphicsPipeline(mPipelines.phong);
+        lDrawCmdBuffer.DrawIndexed(mIndexCount);
 
-        // Push Constants are uniform values that are stored within the CommandBuffer and can be accessed from the shaders similar to a single global uniform buffer.
-        // They provide enough bytes to hold some matrices or index values and the interpretation of the raw data is up the shader.
-        // The values are recorded with the CommandBuffer and cannot be altered afterwards.
-        lDrawCmdBuffer.PushConstants(mPipelineLayout, vkpp::ShaderStageFlagBits::eVertex, 0, sizeof(mPushConstants), mPushConstants.data());
+        // Center
+        lViewport.x = lViewport.width;
+        lDrawCmdBuffer.SetViewport(lViewport);
+        lDrawCmdBuffer.BindGraphicsPipeline(mPipelines.toon);
+        lDrawCmdBuffer.DrawIndexed(mIndexCount);
 
+        // Right
+        lViewport.x = lViewport.width * 2;
+        lDrawCmdBuffer.SetViewport(lViewport);
+        lDrawCmdBuffer.BindGraphicsPipeline(mPipelines.textured);
         lDrawCmdBuffer.DrawIndexed(mIndexCount);
 
         lDrawCmdBuffer.EndRenderPass();
@@ -674,29 +786,25 @@ void PushConstants::BuildCmdBuffers(void)
 }
 
 
-void PushConstants::UpdateLightPositions(void)
+void SpecializationConstants::CreateSemaphores(void)
 {
-    static auto timer{ 0.0f };
+    constexpr vkpp::SemaphoreCreateInfo lSemaphoreCreateInfo;
 
-    constexpr static auto r = 7.5f;
-    const static auto sin_t = std::sin(glm::radians(timer * 360.0f));
-    const static auto cos_t = std::cos(glm::radians(timer * 360.0f));
-    constexpr static auto y = -4.0f;
-
-    timer += 0.05f;
-
-    // Update light positions.
-    // w component = light radius scale.
-    mPushConstants[0] = glm::vec4(r * 1.1 * sin_t, y, r * 1.1 * cos_t, 1.0f);
-    mPushConstants[1] = glm::vec4(-r * sin_t, y, -r * cos_t, 1.0f);
-    mPushConstants[2] = glm::vec4(r * 0.85f * sin_t, y, -sin_t * 2.5f, 1.5f);
-    mPushConstants[3] = glm::vec4(0.0f, y, r * 1.25f * cos_t, 1.5f);
-    mPushConstants[4] = glm::vec4(r * 2.25f * cos_t, y, 0.0f, 1.25f);
-    mPushConstants[5] = glm::vec4(r * 2.5f * cos(glm::radians(0.0f)), y, r * 2.5f * sin_t, 1.25f);
+    mPresentCompleteSemaphore = mLogicalDevice.CreateSemaphore(lSemaphoreCreateInfo);
+    mRenderingCompleteSemaphore = mLogicalDevice.CreateSemaphore(lSemaphoreCreateInfo);
 }
 
 
-void PushConstants::Update(void)
+void SpecializationConstants::CreateFences(void)
+{
+    constexpr vkpp::FenceCreateInfo lFenceCreateInfo{ vkpp::FenceCreateFlagBits::eSignaled };
+
+    for (std::size_t lIndex = 0; lIndex < mDrawCmdBuffers.size(); ++lIndex)
+        mWaitFences.emplace_back(mLogicalDevice.CreateFence(lFenceCreateInfo));
+}
+
+
+void SpecializationConstants::Update(void)
 {
     auto lIndex = mLogicalDevice.AcquireNextImage(mSwapchain.handle, mPresentCompleteSemaphore);
 
@@ -723,6 +831,73 @@ void PushConstants::Update(void)
     };
 
     mPresentQueue.handle.Present(lPresentInfo);
+}
+
+
+void SpecializationConstants::CopyBuffer(vkpp::Buffer& aDstBuffer, const Buffer& aSrcBuffer, DeviceSize aSize) const
+{
+    const auto& lCopyCmd = BeginOneTimeCmdBuffer();
+
+    const vkpp::BufferCopy lBufferCopy{ aSize };
+
+    lCopyCmd.Copy(aDstBuffer, aSrcBuffer, lBufferCopy);
+
+    EndOneTimeCmdBuffer(lCopyCmd);
+}
+
+
+vkpp::CommandBuffer SpecializationConstants::BeginOneTimeCmdBuffer(void) const
+{
+    const vkpp::CommandBufferAllocateInfo lCmdBufferAllocateInfo
+    {
+        mCmdPool, 1
+    };
+
+    auto lCmdBuffer = mLogicalDevice.AllocateCommandBuffer(lCmdBufferAllocateInfo);
+
+    constexpr vkpp::CommandBufferBeginInfo lCmdBufferBeginInfo
+    {
+        vkpp::CommandBufferUsageFlagBits::eOneTimeSubmit
+    };
+
+    lCmdBuffer.Begin(lCmdBufferBeginInfo);
+
+    return lCmdBuffer;
+}
+
+
+void SpecializationConstants::EndOneTimeCmdBuffer(const vkpp::CommandBuffer& aCmdBuffer) const
+{
+    aCmdBuffer.End();
+
+    constexpr vkpp::FenceCreateInfo lFenceCreateInfo;
+    const auto& lFence = mLogicalDevice.CreateFence(lFenceCreateInfo);
+
+    const vkpp::SubmitInfo lSubmitInfo{ aCmdBuffer };
+
+    mGraphicsQueue.handle.Submit(lSubmitInfo, lFence);
+
+    mLogicalDevice.WaitForFence(lFence);
+
+    mLogicalDevice.DestroyFence(lFence);
+    mLogicalDevice.FreeCommandBuffer(mCmdPool, aCmdBuffer);
+}
+
+
+template <vkpp::ImageLayout OldLayour, vkpp::ImageLayout NewLayout>
+void SpecializationConstants::TransitionImageLayout(const vkpp::CommandBuffer& aCmdBuffer, const vkpp::Image& aImage, const vkpp::ImageSubresourceRange& aImageSubRange, const vkpp::AccessFlags& aSrcAccessMask, const vkpp::AccessFlags& aDstAccessMask)
+{
+    // Create an image barrier.
+    const vkpp::ImageMemoryBarrier lImageMemoryBarrier
+    {
+        aSrcAccessMask, aDstAccessMask,
+        OldLayour, NewLayout,
+        aImage,
+        aImageSubRange
+    };
+
+    // Put barrier inside setup command buffer.
+    aCmdBuffer.PipelineBarrier(vkpp::PipelineStageFlagBits::eTopOfPipe, vkpp::PipelineStageFlagBits::eTopOfPipe, vkpp::DependencyFlagBits::eByRegion, lImageMemoryBarrier);
 }
 
 

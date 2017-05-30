@@ -44,14 +44,14 @@ public:
         : pApplicationName(apApplicationName), applicationVersion(aApplicationVersion), pEngineName(apEngineName), engineVersion(aEngineVersion), apiVersion(aApiVersion)
     {}
 
-    ApplicationInfo& SetNext(const void* apNext)
+    ApplicationInfo& SetNext(const void* apNext) noexcept
     {
         pNext = apNext;
 
         return *this;
     }
 
-    ApplicationInfo& SetApplication(const char* apAppName, uint32_t aMajor = 0, uint32_t aMinor = 0, uint32_t aPatch = 0)
+    ApplicationInfo& SetApplication(const char* apAppName, uint32_t aMajor = 0, uint32_t aMinor = 0, uint32_t aPatch = 0) noexcept
     {
         pApplicationName = apAppName;
         applicationVersion = VK_MAKE_VERSION(aMajor, aMinor, aPatch);
@@ -59,7 +59,7 @@ public:
         return *this;
     }
 
-    ApplicationInfo& SetEngine(const char* apEngineName, uint32_t aMajor = 0, uint32_t aMinor = 0, uint32_t aPatch = 0)
+    ApplicationInfo& SetEngine(const char* apEngineName, uint32_t aMajor = 0, uint32_t aMinor = 0, uint32_t aPatch = 0) noexcept
     {
         pEngineName = apEngineName;
         engineVersion = VK_MAKE_VERSION(aMajor, aMinor, aPatch);
@@ -67,7 +67,7 @@ public:
         return *this;
     }
 
-    ApplicationInfo& SetApiVersion(uint32_t aApiVersion = DEFAULT_VK_API_VERSION)
+    ApplicationInfo& SetApiVersion(uint32_t aApiVersion = DEFAULT_VK_API_VERSION) noexcept
     {
         apiVersion = aApiVersion;
 
@@ -109,21 +109,21 @@ public:
         StaticLValueRefAssert(E, aEnabledExtensions);
     }
 
-    InstanceInfo& SetNext(const void* apNext)
+    InstanceInfo& SetNext(const void* apNext) noexcept
     {
         pNext = apNext;
 
         return *this;
     }
 
-    InstanceInfo& SetAppInfo(const ApplicationInfo& aAppInfo)
+    InstanceInfo& SetAppInfo(const ApplicationInfo& aAppInfo) noexcept
     {
         pApplicationInfo = aAppInfo.AddressOf();
 
         return *this;
     }
 
-    InstanceInfo& SetEnabledLayers(uint32_t aEnabledLayerCount, const char* const* appEnabledLayerNames)
+    InstanceInfo& SetEnabledLayers(uint32_t aEnabledLayerCount, const char* const* appEnabledLayerNames) noexcept
     {
         enabledLayerCount   = aEnabledLayerCount;
         ppEnabledLayerNames = appEnabledLayerNames;
@@ -132,14 +132,14 @@ public:
     }
 
     template <typename L, typename = EnableIfValueType<ValueType<L>, const char*>>
-    InstanceInfo& SetEnabledLayers(L&& aEnabledLayers)
+    InstanceInfo& SetEnabledLayers(L&& aEnabledLayers) noexcept
     {
         StaticLValueRefAssert(L, aEnabledLayers);
 
         return SetEnabledLayers(static_cast<uint32_t>(aEnabledLayers.size()), aEnabledLayers.data());
     }
 
-    InstanceInfo& SetEnabledExtensions(uint32_t aEnabledExtensionCount, const char* const* appEnalbedExtensionNames)
+    InstanceInfo& SetEnabledExtensions(uint32_t aEnabledExtensionCount, const char* const* appEnalbedExtensionNames) noexcept
     {
         enabledExtensionCount = aEnabledExtensionCount;
         ppEnabledExtensionNames = appEnalbedExtensionNames;
@@ -148,7 +148,7 @@ public:
     }
 
     template <typename E, typename = EnableIfValueType<ValueType<E>, const char*>>
-    InstanceInfo& SetEnabledExtensions(E&& aEnabledExtensions)
+    InstanceInfo& SetEnabledExtensions(E&& aEnabledExtensions) noexcept
     {
         StaticLValueRefAssert(E, aEnabledExtensions);
 
@@ -188,26 +188,26 @@ public:
         ThrowIfFailed(vkCreateInstance(&aInstanceInfo, &aAllocator, &mInstance));
     }
 
-    Instance& operator=(VkInstance aInstance)
+    Instance& operator=(VkInstance aInstance) noexcept
     {
         mInstance = aInstance;
 
         return *this;
     }
 
-    Instance& operator=(std::nullptr_t)
+    Instance& operator=(std::nullptr_t) noexcept
     {
         mInstance = VK_NULL_HANDLE;
 
         return *this;
     }
 
-    bool operator==(const Instance& aRhs) const
+    bool operator==(const Instance& aRhs) const noexcept
     {
         return mInstance == aRhs.mInstance;
     }
 
-    bool operator!=(const Instance& aRhs) const
+    bool operator!=(const Instance& aRhs) const noexcept
     {
         return !(*this == aRhs);
     }

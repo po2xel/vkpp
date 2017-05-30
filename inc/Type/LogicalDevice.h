@@ -73,28 +73,28 @@ public:
         StaticLValueRefAssert(P, aQueuePriorities);
     }
 
-    QueueCreateInfo& SetNext(const void* apNext)
+    QueueCreateInfo& SetNext(const void* apNext) noexcept
     {
         pNext = apNext;
 
         return *this;
     }
 
-    QueueCreateInfo& SetFlags(const DeviceQueueCreateFlags& aFlags)
+    QueueCreateInfo& SetFlags(const DeviceQueueCreateFlags& aFlags) noexcept
     {
         flags = aFlags;
 
         return *this;
     }
 
-    QueueCreateInfo& SetFamilyIndex(uint32_t aQueueFamilyIndex)
+    QueueCreateInfo& SetFamilyIndex(uint32_t aQueueFamilyIndex) noexcept
     {
         queueFamilyIndex = aQueueFamilyIndex;
 
         return *this;
     }
 
-    QueueCreateInfo& SetQueuePriorities(uint32_t aQueueCount, const float* apQueuePriorities)
+    QueueCreateInfo& SetQueuePriorities(uint32_t aQueueCount, const float* apQueuePriorities) noexcept
     {
         queueCount = aQueueCount;
         pQueuePriorities = apQueuePriorities;
@@ -103,7 +103,7 @@ public:
     }
 
     template <typename P, typename = EnableIfValueType<ValueType<P>, float>>
-    QueueCreateInfo& SetQueuePriorities(P&& aQueuePriorities)
+    QueueCreateInfo& SetQueuePriorities(P&& aQueuePriorities) noexcept
     {
         StaticLValueRefAssert(P, aQueuePriorities);
 
@@ -159,21 +159,21 @@ public:
         StaticLValueRefAssert(E, aEnabledExtensions);
     }
 
-    LogicalDeviceCreateInfo& SetNext(const void* apNext)
+    LogicalDeviceCreateInfo& SetNext(const void* apNext) noexcept
     {
         pNext = apNext;
 
         return *this;
     }
 
-    LogicalDeviceCreateInfo& SetFlags(const DeviceCreateFlags& aFlags)
+    LogicalDeviceCreateInfo& SetFlags(const DeviceCreateFlags& aFlags) noexcept
     {
         flags = aFlags;
 
         return *this;
     }
 
-    LogicalDeviceCreateInfo& SetQueueCreateInfo(uint32_t aQueueCreateInfoCountconst, const QueueCreateInfo* apQueueCreateInfos)
+    LogicalDeviceCreateInfo& SetQueueCreateInfo(uint32_t aQueueCreateInfoCountconst, const QueueCreateInfo* apQueueCreateInfos) noexcept
     {
         queueCreateInfoCount    = aQueueCreateInfoCountconst;
         pQueueCreateInfos       = apQueueCreateInfos;
@@ -182,14 +182,14 @@ public:
     }
 
     template <typename Q, typename = EnableIfValueType<ValueType<Q>, QueueCreateInfo>>
-    LogicalDeviceCreateInfo& SetQueueCreateInfo(Q&& aQueueCreateInfos)
+    LogicalDeviceCreateInfo& SetQueueCreateInfo(Q&& aQueueCreateInfos) noexcept
     {
         StaticLValueRefAssert(Q, aQueueCreateInfos);
 
         return SetQueueCreateInfo(static_cast<uint32_t>(aQueueCreateInfos.size()), aQueueCreateInfos.data());
     }
 
-    LogicalDeviceCreateInfo& SetEnabledExtensions(uint32_t aEnabledExtensionCount, const char* const* appEnabledExtensionNames)
+    LogicalDeviceCreateInfo& SetEnabledExtensions(uint32_t aEnabledExtensionCount, const char* const* appEnabledExtensionNames) noexcept
     {
         enabledExtensionCount   = aEnabledExtensionCount;
         ppEnabledExtensionNames = appEnabledExtensionNames;
@@ -198,7 +198,7 @@ public:
     }
 
     template <typename E, typename = EnableIfValueType<ValueType<E>, const char*>>
-    LogicalDeviceCreateInfo& SetEnabledExtensions(E&& aEnabledExtensionNames)
+    LogicalDeviceCreateInfo& SetEnabledExtensions(E&& aEnabledExtensionNames) noexcept
     {
         StaticLValueRefAssert(E, aEnabledExtensionNames);
 

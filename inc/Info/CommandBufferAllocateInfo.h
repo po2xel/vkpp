@@ -37,21 +37,21 @@ public:
         : commandPool(aCommandPool), level(aLevel), commandBufferCount(aCommandBufferCount)
     {}
 
-    CommandBufferAllocateInfo& SetNext(const void* apNext)
+    CommandBufferAllocateInfo& SetNext(const void* apNext) noexcept
     {
         pNext = apNext;
 
         return *this;
     }
 
-    CommandBufferAllocateInfo& SetCommandPool(const CommandPool& aCommandPool)
+    CommandBufferAllocateInfo& SetCommandPool(const CommandPool& aCommandPool) noexcept
     {
         commandPool = aCommandPool;
 
         return *this;
     }
 
-    CommandBufferAllocateInfo& SetCommandBufferInfo(CommandBufferLevel aLevel, uint32_t aCommandBufferCount)
+    CommandBufferAllocateInfo& SetCommandBufferInfo(CommandBufferLevel aLevel, uint32_t aCommandBufferCount) noexcept
     {
         level               = aLevel;
         commandBufferCount  = aCommandBufferCount;

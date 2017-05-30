@@ -69,28 +69,28 @@ struct AttachementDescription : public internal::VkTrait<AttachementDescription,
         : AttachementDescription(aFormat, aSamples, aLoadOp, aStoreOp, AttachmentLoadOp::eDontCare, AttachmentStoreOp::eDontCare, aInitialLayOut, aFinalLayout, aFlags)
     {}
 
-    AttachementDescription& SetFlags(const AttachmentDescriptionFlags& aFlags)
+    AttachementDescription& SetFlags(const AttachmentDescriptionFlags& aFlags) noexcept
     {
         flags = aFlags;
 
         return *this;
     }
 
-    AttachementDescription& SetFormat(Format aFormat)
+    AttachementDescription& SetFormat(Format aFormat) noexcept
     {
         format = aFormat;
 
         return *this;
     }
 
-    AttachementDescription& SetSamples(SampleCountFlagBits aSamples)
+    AttachementDescription& SetSamples(SampleCountFlagBits aSamples) noexcept
     {
         samples = aSamples;
 
         return *this;
     }
 
-    AttachementDescription& SetOps(AttachmentLoadOp aLoadOp, AttachmentStoreOp aStoreOp)
+    AttachementDescription& SetOps(AttachmentLoadOp aLoadOp, AttachmentStoreOp aStoreOp) noexcept
     {
         loadOp  = aLoadOp;
         storeOp = aStoreOp;
@@ -98,7 +98,7 @@ struct AttachementDescription : public internal::VkTrait<AttachementDescription,
         return *this;
     }
 
-    AttachementDescription& SetStencilOps(AttachmentLoadOp aLoadOp, AttachmentStoreOp aStoreOp)
+    AttachementDescription& SetStencilOps(AttachmentLoadOp aLoadOp, AttachmentStoreOp aStoreOp) noexcept
     {
         stencilLoadOp   = aLoadOp;
         stencilStoreOp  = aStoreOp;
@@ -106,7 +106,7 @@ struct AttachementDescription : public internal::VkTrait<AttachementDescription,
         return *this;
     }
 
-    AttachementDescription& SetLayouts(ImageLayout aInitialLayout, ImageLayout aFinalLayout)
+    AttachementDescription& SetLayouts(ImageLayout aInitialLayout, ImageLayout aFinalLayout) noexcept
     {
         initialLayout   = aInitialLayout;
         finalLayout     = aFinalLayout;
@@ -145,7 +145,7 @@ struct AttachmentReference : public internal::VkTrait<AttachmentReference, VkAtt
     constexpr AttachmentReference(uint32_t aAttachment, ImageLayout aLayout) noexcept : attachment(aAttachment), layout(aLayout)
     {}
 
-    AttachmentReference& SetAttachment(uint32_t aAttachment, ImageLayout aLayout)
+    AttachmentReference& SetAttachment(uint32_t aAttachment, ImageLayout aLayout) noexcept
     {
         attachment  = aAttachment;
         layout      = aLayout;
@@ -250,21 +250,21 @@ struct SubpassDescription : public internal::VkTrait<SubpassDescription, VkSubpa
         assert(aColorAttachments.size() == aResolveAttachments.size());
     }
 
-    SubpassDescription& SetFlags(const SubpassDescriptionFlags& aFlags)
+    SubpassDescription& SetFlags(const SubpassDescriptionFlags& aFlags) noexcept
     {
         flags = aFlags;
 
         return *this;
     }
 
-    SubpassDescription& SetPipelineBindPoint(PipelineBindPoint aPipelineBindPoint)
+    SubpassDescription& SetPipelineBindPoint(PipelineBindPoint aPipelineBindPoint) noexcept
     {
         pipelineBindPoint = aPipelineBindPoint;
 
         return *this;
     }
 
-    SubpassDescription& SetInputAttachments(uint32_t aInputAttachmentCount, const AttachmentReference* apInputAttachments)
+    SubpassDescription& SetInputAttachments(uint32_t aInputAttachmentCount, const AttachmentReference* apInputAttachments) noexcept
     {
         inputAttachmentCount    = aInputAttachmentCount;
         pInputAttachments       = apInputAttachments;
@@ -273,15 +273,17 @@ struct SubpassDescription : public internal::VkTrait<SubpassDescription, VkSubpa
     }
 
     template <typename I, typename = EnableIfValueType<ValueType<I>, AttachmentReference>>
-    SubpassDescription& SetInputAttachments(I&& aInputAttachments)
+    SubpassDescription& SetInputAttachments(I&& aInputAttachments) noexcept
     {
         StaticLValueRefAssert(I, aInputAttachments);
 
         return SetInputAttachments(static_cast<uint32_t>(aInputAttachments.size()), aInputAttachments.data());
     }
 
-    SubpassDescription& SetColorAttachments(uint32_t aColorAttachmentCount, const AttachmentReference* apColorAttachments, const AttachmentReference* apResolveAttachments = nullptr)
+    SubpassDescription& SetColorAttachments(uint32_t aColorAttachmentCount, const AttachmentReference* apColorAttachments, const AttachmentReference* apResolveAttachments = nullptr) noexcept
     {
+        assert(aColorAttachmentCount != 0);
+
         colorAttachmentCount    = aColorAttachmentCount;
         pColorAttachments       = apColorAttachments;
         pResolveAttachments     = apResolveAttachments;
@@ -290,7 +292,7 @@ struct SubpassDescription : public internal::VkTrait<SubpassDescription, VkSubpa
     }
 
     template <typename C, typename = EnableIfValueType<ValueType<C>, AttachmentReference>>
-    SubpassDescription& SetColorAttachments(C&& aColorAttachments)
+    SubpassDescription& SetColorAttachments(C&& aColorAttachments) noexcept
     {
         StaticLValueRefAssert(C, aColorAttachments);
 
@@ -298,7 +300,7 @@ struct SubpassDescription : public internal::VkTrait<SubpassDescription, VkSubpa
     }
 
     template <typename C, typename = EnableIfValueType<ValueType<C>, AttachmentReference>>
-    SubpassDescription& SetColorAttachments(C&& aColorAttachments, C&& aResolveAttachments)
+    SubpassDescription& SetColorAttachments(C&& aColorAttachments, C&& aResolveAttachments) noexcept
     {
         StaticLValueRefAssert(C, aColorAttachments);
         StaticLValueRefAssert(C, aResolveAttachments);
@@ -308,19 +310,19 @@ struct SubpassDescription : public internal::VkTrait<SubpassDescription, VkSubpa
         return SetColorAttachments(static_cast<uint32_t>(aColorAttachments.size()), aColorAttachments.data(), aResolveAttachments.data());
     }
 
-    SubpassDescription& SetDepthStencilAttachment(const AttachmentReference* apDepthStencilAttachment)
+    SubpassDescription& SetDepthStencilAttachment(const AttachmentReference* apDepthStencilAttachment) noexcept
     {
         pDepthStencilAttachment = apDepthStencilAttachment;
 
         return *this;
     }
 
-    SubpassDescription& SetDepthStencilAttachment(const AttachmentReference& aDepthStencilAttachment)
+    SubpassDescription& SetDepthStencilAttachment(const AttachmentReference& aDepthStencilAttachment) noexcept
     {
         return SetDepthStencilAttachment(aDepthStencilAttachment.AddressOf());
     }
 
-    SubpassDescription& SetPreserveAttachments(uint32_t aPreserveAttachmentCount, const uint32_t* apPreserveAttachments)
+    SubpassDescription& SetPreserveAttachments(uint32_t aPreserveAttachmentCount, const uint32_t* apPreserveAttachments) noexcept
     {
         preserveAttachmentCount = aPreserveAttachmentCount;
         pPreserveAttachments    = apPreserveAttachments;
@@ -329,7 +331,7 @@ struct SubpassDescription : public internal::VkTrait<SubpassDescription, VkSubpa
     }
     
     template <typename P, typename = EnableIfValueType<ValueType<P>, uint32_t>>
-    SubpassDescription& SetPreserveAttachments(P&& aPreserveAttachments)
+    SubpassDescription& SetPreserveAttachments(P&& aPreserveAttachments) noexcept
     {
         StaticLValueRefAssert(P, aPreserveAttachments);
 
@@ -374,7 +376,7 @@ struct SubpassDependency : public internal::VkTrait<SubpassDependency, VkSubpass
         srcAccessMask(aSrcAccessMask), dstAccessMask(aDstAccessMask), dependencyFlags(aDependencyFlags)
     {}
 
-    SubpassDependency& SetSubpass(uint32_t aSrcSubpass, uint32_t aDstSubpass)
+    SubpassDependency& SetSubpass(uint32_t aSrcSubpass, uint32_t aDstSubpass) noexcept
     {
         srcSubpass  = aSrcSubpass;
         dstSubpass  = aDstSubpass;
@@ -382,7 +384,7 @@ struct SubpassDependency : public internal::VkTrait<SubpassDependency, VkSubpass
         return *this;
     }
 
-    SubpassDependency& SetPipelineStage(const PipelineStageFlags& aSrcStageMask, const PipelineStageFlags& aDstStageMask)
+    SubpassDependency& SetPipelineStage(const PipelineStageFlags& aSrcStageMask, const PipelineStageFlags& aDstStageMask) noexcept
     {
         srcStageMask    = aSrcStageMask;
         dstStageMask    = aDstStageMask;
@@ -390,7 +392,7 @@ struct SubpassDependency : public internal::VkTrait<SubpassDependency, VkSubpass
         return *this;
     }
 
-    SubpassDependency& SetAccessFlags(const AccessFlags& aSrcAccessMask, const AccessFlags& aDstAccessMask)
+    SubpassDependency& SetAccessFlags(const AccessFlags& aSrcAccessMask, const AccessFlags& aDstAccessMask) noexcept
     {
         srcAccessMask   = aSrcAccessMask;
         dstAccessMask   = aDstAccessMask;
@@ -398,7 +400,7 @@ struct SubpassDependency : public internal::VkTrait<SubpassDependency, VkSubpass
         return *this;
     }
 
-    SubpassDependency& SetDependencyFlags(const DependencyFlags& aDependencyFlags)
+    SubpassDependency& SetDependencyFlags(const DependencyFlags& aDependencyFlags) noexcept
     {
         dependencyFlags   = aDependencyFlags;
 
@@ -451,14 +453,14 @@ public:
         StaticLValueRefAssert(D, aDependencies);
     }
 
-    RenderPassCreateInfo& SetNext(const void* apNext)
+    RenderPassCreateInfo& SetNext(const void* apNext) noexcept
     {
         pNext   = apNext;
 
         return *this;
     }
 
-    RenderPassCreateInfo& SetAttachments(uint32_t aAttachmentCount, const AttachementDescription* apAttachments)
+    RenderPassCreateInfo& SetAttachments(uint32_t aAttachmentCount, const AttachementDescription* apAttachments) noexcept
     {
         attachmentCount = aAttachmentCount;
         pAttachments    = apAttachments;
@@ -467,14 +469,14 @@ public:
     }
 
     template <typename A, typename = EnableIfValueType<ValueType<A>, AttachementDescription>>
-    RenderPassCreateInfo& SetAttachments(A&& aAttachments)
+    RenderPassCreateInfo& SetAttachments(A&& aAttachments) noexcept
     {
         StaticLValueRefAssert(A, aAttachments);
 
         return SetAttachments(static_cast<uint32_t>(aAttachments.size()), aAttachments.data());
     }
 
-    RenderPassCreateInfo& SetSubpasses(uint32_t aSubpassCount, const SubpassDescription* apSubpasses)
+    RenderPassCreateInfo& SetSubpasses(uint32_t aSubpassCount, const SubpassDescription* apSubpasses) noexcept
     {
         subpassCount    = aSubpassCount;
         pSubpasses      = apSubpasses;
@@ -483,14 +485,14 @@ public:
     }
 
     template <typename S, typename = EnableIfValueType<ValueType<S>, SubpassDescription>>
-    RenderPassCreateInfo& SetSubpasses(S&& aSubpasses)
+    RenderPassCreateInfo& SetSubpasses(S&& aSubpasses) noexcept
     {
         StaticLValueRefAssert(S, aSubpasses);
 
         return SetSubpasses(static_cast<uint32_t>(aSubpasses.size()), aSubpasses.data());
     }
 
-    RenderPassCreateInfo& SetDependencies(uint32_t aDependencyCount, const SubpassDependency* apDependencies)
+    RenderPassCreateInfo& SetDependencies(uint32_t aDependencyCount, const SubpassDependency* apDependencies) noexcept
     {
         dependencyCount = aDependencyCount;
         pDependencies   = apDependencies;
@@ -499,7 +501,7 @@ public:
     }
 
     template <typename D, typename = EnableIfValueType<ValueType<D>, SubpassDependency>>
-    RenderPassCreateInfo& SetDependencies(D&& aDependencies)
+    RenderPassCreateInfo& SetDependencies(D&& aDependencies) noexcept
     {
         StaticLValueRefAssert(D, aDependencies);
 
@@ -517,12 +519,12 @@ private:
     VkRenderPass mRenderPass{ VK_NULL_HANDLE };
 
 public:
-    RenderPass(void) = default;
+    RenderPass(void) noexcept = default;
 
-    RenderPass(std::nullptr_t)
+    RenderPass(std::nullptr_t) noexcept
     {}
 
-    explicit RenderPass(VkRenderPass aRenderPass) : mRenderPass(aRenderPass)
+    explicit RenderPass(VkRenderPass aRenderPass) noexcept : mRenderPass(aRenderPass)
     {}
 };
 

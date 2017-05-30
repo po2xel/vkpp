@@ -125,21 +125,21 @@ public:
         StaticLValueRefAssert(Q, aQueueFamilyIndices);
     }
 
-    ImageCreateInfo& SetNext(const void* apNext)
+    ImageCreateInfo& SetNext(const void* apNext) noexcept
     {
         pNext = apNext;
 
         return *this;
     }
 
-    ImageCreateInfo& SetFlags(const ImageCreateFlags& aFlags)
+    ImageCreateInfo& SetFlags(const ImageCreateFlags& aFlags) noexcept
     {
         flags = aFlags;
 
         return *this;
     }
 
-    ImageCreateInfo& SetImageType(ImageType aImageType, Format aFormat, SampleCountFlagBits aSamples, ImageTiling aTiling, const ImageUsageFlags& aUsage)
+    ImageCreateInfo& SetImageType(ImageType aImageType, Format aFormat, SampleCountFlagBits aSamples, ImageTiling aTiling, const ImageUsageFlags& aUsage) noexcept
     {
         imageType   = aImageType;
         format      = aFormat;
@@ -150,7 +150,7 @@ public:
         return *this;
     }
 
-    ImageCreateInfo& SetImageExtent(const Extent3D& aExtent, uint32_t aMipLevels, uint32_t aArrayLayers)
+    ImageCreateInfo& SetImageExtent(const Extent3D& aExtent, uint32_t aMipLevels, uint32_t aArrayLayers) noexcept
     {
         assert(aMipLevels != 0 && aArrayLayers != 0);
 
@@ -161,7 +161,7 @@ public:
         return *this;
     }
 
-    ImageCreateInfo& SetExclusiveMode(void)
+    ImageCreateInfo& SetExclusiveMode(void) noexcept
     {
         sharingMode             = SharingMode::eExclusive;
         queueFamilyIndexCount   = 0;
@@ -170,7 +170,7 @@ public:
         return *this;
     }
 
-    ImageCreateInfo& SetConcurrentMode(uint32_t aQueueFamilyIndexCount, const uint32_t* apQueueFamilyIndices)
+    ImageCreateInfo& SetConcurrentMode(uint32_t aQueueFamilyIndexCount, const uint32_t* apQueueFamilyIndices) noexcept
     {
         assert(aQueueFamilyIndexCount != 0 && apQueueFamilyIndices != nullptr);
 
@@ -182,14 +182,14 @@ public:
     }
 
     template <typename Q, typename = EnableIfValueType<ValueType<Q>, uint32_t>>
-    ImageCreateInfo& SetConcurrentMode(Q&& aQueueFamilyIndices)
+    ImageCreateInfo& SetConcurrentMode(Q&& aQueueFamilyIndices) noexcept
     {
         StaticLValueRefAssert(Q, aQueueFamilyIndices);
 
         return SetConcurrentMode(static_cast<uint32_t>(aQueueFamilyIndices.size()), aQueueFamilyIndices.data());
     }
 
-    ImageCreateInfo& SetInitialLayout(const ImageLayout& aInitialLayout)
+    ImageCreateInfo& SetInitialLayout(const ImageLayout& aInitialLayout) noexcept
     {
         initialLayout = aInitialLayout;
 
@@ -208,12 +208,12 @@ private:
     VkImage mImage{ VK_NULL_HANDLE };
 
 public:
-    Image(void) = default;
+    Image(void) noexcept = default;
 
-    Image(std::nullptr_t)
+    Image(std::nullptr_t) noexcept
     {}
 
-    explicit Image(VkImage aImage) : mImage(aImage)
+    explicit Image(VkImage aImage) noexcept : mImage(aImage)
     {}
 };
 
@@ -280,7 +280,7 @@ struct ComponentMapping : public internal::VkTrait<ComponentMapping, VkComponent
     {}
 
     constexpr ComponentMapping& SetSwizzles(ComponentSwizzle aR = ComponentSwizzle::eIdentity, ComponentSwizzle aG = ComponentSwizzle::eIdentity,
-        ComponentSwizzle aB = ComponentSwizzle::eIdentity, ComponentSwizzle aA = ComponentSwizzle::eIdentity)
+        ComponentSwizzle aB = ComponentSwizzle::eIdentity, ComponentSwizzle aA = ComponentSwizzle::eIdentity) noexcept
     {
         r = aR;
         g = aG;
@@ -309,14 +309,14 @@ struct ImageSubresource : public internal::VkTrait<ImageSubresource, VkImageSubr
         : aspectMask(aAspectMask), mipLevel(aMipLevel), arrayLayer(aArrayLayer)
     {}
 
-    ImageSubresource& SetAspectMask(const ImageAspectFlags& aAspectMask)
+    ImageSubresource& SetAspectMask(const ImageAspectFlags& aAspectMask) noexcept
     {
         aspectMask = aAspectMask;
 
         return *this;
     }
 
-    ImageSubresource& SetSubrange(uint32_t aMipLevel, uint32_t aArrayLayer)
+    ImageSubresource& SetSubrange(uint32_t aMipLevel, uint32_t aArrayLayer) noexcept
     {
         mipLevel        = aMipLevel;
         arrayLayer      = aArrayLayer;
@@ -343,21 +343,21 @@ struct SubresourceLayout : public internal::VkTrait<SubresourceLayout, VkSubreso
         : offset(aOffset), size(aSize), rowPitch(aRowPitch), arrayPitch(aArrayPitch), depthPitch(aDepthPitch)
     {}
 
-    SubresourceLayout& SetOffset(DeviceSize aOffset)
+    SubresourceLayout& SetOffset(DeviceSize aOffset) noexcept
     {
         offset = aOffset;
 
         return *this;
     }
 
-    SubresourceLayout& SetSize(DeviceSize aSize)
+    SubresourceLayout& SetSize(DeviceSize aSize) noexcept
     {
         size = aSize;
 
         return *this;
     }
 
-    SubresourceLayout& SetPitch(DeviceSize aRowPitch, DeviceSize aArrayPitch, DeviceSize aDepthPitch)
+    SubresourceLayout& SetPitch(DeviceSize aRowPitch, DeviceSize aArrayPitch, DeviceSize aDepthPitch) noexcept
     {
         rowPitch        = aRowPitch;
         arrayPitch      = aArrayPitch;
@@ -384,21 +384,21 @@ struct ImageSubresourceLayers : public internal::VkTrait<ImageSubresourceLayers,
         : aspectMask(aAspectMask), mipLevel(aMipLevel), baseArrayLayer(aBaseArrayLayer), layerCount(aLayerCount)
     {}
 
-    ImageSubresourceLayers& SetAspectMask(const ImageAspectFlags& aAspectMask)
+    ImageSubresourceLayers& SetAspectMask(const ImageAspectFlags& aAspectMask) noexcept
     {
         aspectMask = aAspectMask;
 
         return *this;
     }
 
-    ImageSubresourceLayers& SetMipLevel(uint32_t aMipLevel)
+    ImageSubresourceLayers& SetMipLevel(uint32_t aMipLevel) noexcept
     {
         mipLevel = aMipLevel;
 
         return *this;
     }
 
-    ImageSubresourceLayers& SetArrayLayer(uint32_t aBaseArrayLayer, uint32_t aLayerCount)
+    ImageSubresourceLayers& SetArrayLayer(uint32_t aBaseArrayLayer, uint32_t aLayerCount) noexcept
     {
         baseArrayLayer  = aBaseArrayLayer;
         layerCount      = aLayerCount;
@@ -426,7 +426,7 @@ struct ImageCopy : public internal::VkTrait<ImageCopy, VkImageCopy>
         : srcSubresource(aSrcSubresource), srcOffset(aSrcOffset), dstSubresource(aDstSubresource), dstOffset(aDstOffset), extent(aExtent)
     {}
 
-    ImageCopy& SetSubresourceLayers(const ImageSubresourceLayers& aSrcSubresource, const ImageSubresourceLayers& aDstSubResource)
+    ImageCopy& SetSubresourceLayers(const ImageSubresourceLayers& aSrcSubresource, const ImageSubresourceLayers& aDstSubResource) noexcept
     {
         srcSubresource = aSrcSubresource;
         dstSubresource = aDstSubResource;
@@ -434,7 +434,7 @@ struct ImageCopy : public internal::VkTrait<ImageCopy, VkImageCopy>
         return *this;
     }
 
-    ImageCopy& SetOffset(const Offset3D& aSrcOffset, const Offset3D& aDstOffset)
+    ImageCopy& SetOffset(const Offset3D& aSrcOffset, const Offset3D& aDstOffset) noexcept
     {
         srcOffset   = aSrcOffset;
         dstOffset   = aDstOffset;
@@ -442,7 +442,7 @@ struct ImageCopy : public internal::VkTrait<ImageCopy, VkImageCopy>
         return *this;
     }
 
-    ImageCopy& SetExtent(const Extent3D& aExtent)
+    ImageCopy& SetExtent(const Extent3D& aExtent) noexcept
     {
         extent  = aExtent;
 
@@ -468,7 +468,7 @@ struct ImageBlit : public internal::VkTrait<ImageBlit, VkImageBlit>
         : srcSubresource(aSrcSubresoure), srcOffsets{aSrcOffsets[0], aSrcOffsets[1]}, dstSubresource(aDstSubresource), dstOffsets{aDstOffsets[0], aDstOffsets[1]}
     {}
 
-    ImageBlit& SetSubresourceLayers(const ImageSubresourceLayers& aSrcSubresource, const ImageSubresourceLayers& aDstSubresource)
+    ImageBlit& SetSubresourceLayers(const ImageSubresourceLayers& aSrcSubresource, const ImageSubresourceLayers& aDstSubresource) noexcept
     {
         srcSubresource  = aSrcSubresource;
         dstSubresource  = aDstSubresource;
@@ -476,7 +476,7 @@ struct ImageBlit : public internal::VkTrait<ImageBlit, VkImageBlit>
         return *this;
     }
 
-    ImageBlit& SetOffsets(const std::array<Offset3D, 2>& aSrcOffsets, const std::array<Offset3D, 2>& aDstOffsets)
+    ImageBlit& SetOffsets(const std::array<Offset3D, 2>& aSrcOffsets, const std::array<Offset3D, 2>& aDstOffsets) noexcept
     {
         std::copy(aSrcOffsets.cbegin(), aSrcOffsets.cend(), std::begin(srcOffsets));
         std::copy(aDstOffsets.cbegin(), aDstOffsets.cend(), std::begin(dstOffsets));
@@ -504,7 +504,7 @@ struct ImageResolve : public internal::VkTrait<ImageResolve, VkImageResolve>
         : srcSubresource(aSrcSubresource), srcOffset(aSrcOffset), dstSubresource(aDstSubresource), dstOffset(aDstOffset), extent(aExtent)
     {}
 
-    ImageResolve& SetSubresourceLayers(const ImageSubresourceLayers& aSrcSubresource, const ImageSubresourceLayers& aDstSubresource)
+    ImageResolve& SetSubresourceLayers(const ImageSubresourceLayers& aSrcSubresource, const ImageSubresourceLayers& aDstSubresource) noexcept
     {
         srcSubresource = aSrcSubresource;
         dstSubresource = aDstSubresource;
@@ -512,7 +512,7 @@ struct ImageResolve : public internal::VkTrait<ImageResolve, VkImageResolve>
         return *this;
     }
 
-    ImageResolve& SetOffset(const Offset3D& aSrcOffset, const Offset3D& aDstOffset)
+    ImageResolve& SetOffset(const Offset3D& aSrcOffset, const Offset3D& aDstOffset) noexcept
     {
         srcOffset       = aSrcOffset;
         dstOffset       = aDstOffset;
@@ -520,7 +520,7 @@ struct ImageResolve : public internal::VkTrait<ImageResolve, VkImageResolve>
         return *this;
     }
 
-    ImageResolve& SetExtent(const Extent3D& aExtent)
+    ImageResolve& SetExtent(const Extent3D& aExtent) noexcept
     {
         extent = aExtent;
 
@@ -546,19 +546,19 @@ struct ImageSubresourceRange : public internal::VkTrait<ImageSubresourceRange, V
         : aspectMask(aAspectMask), baseMipLevel(aBaseMipLevel), levelCount(aLevelCount), baseArrayLayer(aBaseArrayLayer), layerCount(aLayerCount)
     {}
 
-    constexpr ImageSubresourceRange(const ImageSubresourceRange& aImageSubRange)
+    constexpr ImageSubresourceRange(const ImageSubresourceRange& aImageSubRange) noexcept
         : aspectMask(aImageSubRange.aspectMask), baseMipLevel(aImageSubRange.baseMipLevel), levelCount(aImageSubRange.levelCount),
           baseArrayLayer(aImageSubRange.baseArrayLayer), layerCount(aImageSubRange.layerCount)
     {}
 
-    ImageSubresourceRange& SetAspectMask(const ImageAspectFlags& aAspectMask)
+    ImageSubresourceRange& SetAspectMask(const ImageAspectFlags& aAspectMask) noexcept
     {
         aspectMask = aAspectMask;
 
         return *this;
     }
 
-    ImageSubresourceRange& SetMips(uint32_t aBaseMipLevel, uint32_t aLevelCount)
+    ImageSubresourceRange& SetMips(uint32_t aBaseMipLevel, uint32_t aLevelCount) noexcept
     {
         baseMipLevel = aBaseMipLevel;
         levelCount = aLevelCount;
@@ -566,7 +566,7 @@ struct ImageSubresourceRange : public internal::VkTrait<ImageSubresourceRange, V
         return *this;
     }
 
-    ImageSubresourceRange& SetArrayLayers(uint32_t aBaseArrayLayer, uint32_t aLayerCount)
+    ImageSubresourceRange& SetArrayLayers(uint32_t aBaseArrayLayer, uint32_t aLayerCount) noexcept
     {
         baseArrayLayer = aBaseArrayLayer;
         layerCount = aLayerCount;
@@ -605,21 +605,21 @@ public:
         : flags(aFlags), image(aImage), viewType(aImageViewType), format(aFormat), components(aComponents), subresourceRange(aSubresourceRange)
     {}
 
-    ImageViewCreateInfo& SetFlags(const ImageViewCreateFlags& aFlags)
+    ImageViewCreateInfo& SetFlags(const ImageViewCreateFlags& aFlags) noexcept
     {
         flags = aFlags;
 
         return *this;
     }
 
-    ImageViewCreateInfo& SetImage(const Image& aImage)
+    ImageViewCreateInfo& SetImage(const Image& aImage) noexcept
     {
         image = aImage;
 
         return *this;
     }
 
-    ImageViewCreateInfo& SetImage(const Image& aImage, ImageViewType aViewType, Format aFormat)
+    ImageViewCreateInfo& SetImage(const Image& aImage, ImageViewType aViewType, Format aFormat) noexcept
     {
         image       = aImage;
         viewType    = aViewType;
@@ -628,14 +628,14 @@ public:
         return *this;
     }
 
-    ImageViewCreateInfo& SetImageComponents(const ComponentMapping& aComponents)
+    ImageViewCreateInfo& SetImageComponents(const ComponentMapping& aComponents) noexcept
     {
         components  = aComponents;
 
         return *this;
     }
 
-    ImageViewCreateInfo& SetSubresourceRange(const ImageSubresourceRange& aSubresourceRange)
+    ImageViewCreateInfo& SetSubresourceRange(const ImageSubresourceRange& aSubresourceRange) noexcept
     {
         subresourceRange = aSubresourceRange;
 
@@ -655,10 +655,10 @@ private:
 public:
     ImageView(void) noexcept = default;
 
-    constexpr ImageView(std::nullptr_t)
+    constexpr ImageView(std::nullptr_t) noexcept
     {}
 
-    explicit ImageView(VkImageView aImageView) : mImageView(aImageView)
+    explicit ImageView(VkImageView aImageView) noexcept : mImageView(aImageView)
     {}
 };
 

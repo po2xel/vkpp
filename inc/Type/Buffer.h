@@ -81,35 +81,35 @@ public:
         StaticLValueRefAssert(Q, aQueueFamilyIndices);
     }
 
-    BufferCreateInfo& SetNext(const void* apNext)
+    BufferCreateInfo& SetNext(const void* apNext) noexcept
     {
         pNext = apNext;
 
         return *this;
     }
 
-    BufferCreateInfo& SetFlags(const BufferCreateFlags& aFlags)
+    BufferCreateInfo& SetFlags(const BufferCreateFlags& aFlags) noexcept
     {
         flags = aFlags;
 
         return *this;
     }
 
-    BufferCreateInfo& SetSize(DeviceSize aSize)
+    BufferCreateInfo& SetSize(DeviceSize aSize) noexcept
     {
         size = aSize;
 
         return *this;
     }
 
-    BufferCreateInfo& SetUsage(const BufferUsageFlags& aUsage)
+    BufferCreateInfo& SetUsage(const BufferUsageFlags& aUsage) noexcept
     {
         usage = aUsage;
 
         return *this;
     }
 
-    BufferCreateInfo& SetExclusiveMode(void)
+    BufferCreateInfo& SetExclusiveMode(void) noexcept
     {
         sharingMode             = SharingMode::eExclusive;
         queueFamilyIndexCount   = 0;
@@ -118,7 +118,7 @@ public:
         return *this;
     }
 
-    BufferCreateInfo& SetConcurrentMode(uint32_t aQueueFamilyIndexCount, const uint32_t* apQueueFamilyIndices)
+    BufferCreateInfo& SetConcurrentMode(uint32_t aQueueFamilyIndexCount, const uint32_t* apQueueFamilyIndices) noexcept
     {
         assert(aQueueFamilyIndexCount != 0 && apQueueFamilyIndices != nullptr);
 
@@ -130,7 +130,7 @@ public:
     }
 
     template <typename Q, typename = EnableIfValueType<ValueType<Q>, uint32_t>>
-    BufferCreateInfo& SetConcurrentMode(Q&& aQueueFamilyIndices)
+    BufferCreateInfo& SetConcurrentMode(Q&& aQueueFamilyIndices) noexcept
     {
         StaticLValueRefAssert(Q, aQueueFamilyIndices);
 
@@ -156,7 +156,7 @@ struct BufferCopy : public internal::VkTrait<BufferCopy, VkBufferCopy>
     constexpr BufferCopy(DeviceSize aSrcOffset, DeviceSize aDstOffset, DeviceSize aSize) noexcept : srcOffset(aSrcOffset), dstOffset(aDstOffset), size(aSize)
     {}
 
-    BufferCopy& SetOffset(DeviceSize aSrcOffset, DeviceSize aDstOffset)
+    BufferCopy& SetOffset(DeviceSize aSrcOffset, DeviceSize aDstOffset) noexcept
     {
         srcOffset = aSrcOffset;
         dstOffset = aDstOffset;
@@ -164,7 +164,7 @@ struct BufferCopy : public internal::VkTrait<BufferCopy, VkBufferCopy>
         return *this;
     }
 
-    BufferCopy& SetSize(DeviceSize aSize)
+    BufferCopy& SetSize(DeviceSize aSize) noexcept
     {
         size = aSize;
 
@@ -182,12 +182,12 @@ private:
     VkBuffer mBuffer{ VK_NULL_HANDLE };
 
 public:
-    Buffer(void) = default;
+    Buffer(void) noexcept = default;
 
-    Buffer(std::nullptr_t)
+    Buffer(std::nullptr_t) noexcept
     {}
 
-    explicit Buffer(VkBuffer aBuffer) : mBuffer(aBuffer)
+    explicit Buffer(VkBuffer aBuffer) noexcept : mBuffer(aBuffer)
     {}
 };
 
@@ -221,21 +221,21 @@ public:
         : flags(aFlags), buffer(aBuffer), format(aFormat), offset(aOffset), range(aRange)
     {}
 
-    BufferViewCreateInfo& SetNext(const void* apNext)
+    BufferViewCreateInfo& SetNext(const void* apNext) noexcept
     {
         pNext = apNext;
 
         return *this;
     }
 
-    BufferViewCreateInfo& SetFlags(const BufferViewCreateFlags& aFlags)
+    BufferViewCreateInfo& SetFlags(const BufferViewCreateFlags& aFlags) noexcept
     {
         flags = aFlags;
 
         return *this;
     }
 
-    BufferViewCreateInfo& SetBuffer(const Buffer& aBuffer, Format aFormat, DeviceSize aOffset, DeviceSize aRange)
+    BufferViewCreateInfo& SetBuffer(const Buffer& aBuffer, Format aFormat, DeviceSize aOffset, DeviceSize aRange) noexcept
     {
         buffer  = aBuffer;
         format  = aFormat;
@@ -256,12 +256,12 @@ private:
     VkBufferView mBufferView{ VK_NULL_HANDLE };
 
 public:
-    BufferView(void) = default;
+    BufferView(void) noexcept = default;
 
-    BufferView(std::nullptr_t)
+    BufferView(std::nullptr_t) noexcept
     {}
 
-    explicit BufferView(VkBufferView aBufferView) : mBufferView(aBufferView)
+    explicit BufferView(VkBufferView aBufferView) noexcept : mBufferView(aBufferView)
     {}
 };
 

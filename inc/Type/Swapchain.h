@@ -22,15 +22,15 @@ private:
     VkSwapchainKHR mSwpchain{ VK_NULL_HANDLE };
 
 public:
-    Swapchain(void) = default;
+    Swapchain(void) noexcept = default;
 
-    Swapchain(std::nullptr_t)
+    Swapchain(std::nullptr_t) noexcept
     {}
 
-    explicit Swapchain(VkSwapchainKHR aSwapchain) : mSwpchain(aSwapchain)
+    explicit Swapchain(VkSwapchainKHR aSwapchain) noexcept : mSwpchain(aSwapchain)
     {}
 
-    operator bool(void) const
+    operator bool(void) const noexcept
     {
         return mSwpchain != VK_NULL_HANDLE;
     }
@@ -67,10 +67,10 @@ struct SurfaceFormat : public internal::VkTrait<SurfaceFormat, VkSurfaceFormatKH
     constexpr SurfaceFormat(Format aFormat, ColorSpace aColorSpace) noexcept : format(aFormat), colorSpace(aColorSpace)
     {}
 
-    SurfaceFormat& SetFormat(Format aFormat, ColorSpace aColorSpace)
+    SurfaceFormat& SetFormat(Format aFormat, ColorSpace aColorSpace) noexcept
     {
-        format = aFormat;
-        colorSpace = aColorSpace;
+        format      = aFormat;
+        colorSpace  = aColorSpace;
 
         return *this;
     }
@@ -131,7 +131,7 @@ public:
         const Extent2D& aImageExtent, const ImageUsageFlags& aImageUsage,
         uint32_t aQueueFamilyIndexCount, const uint32_t* apQueueFamilyIndices, SurfaceTransformFlagBits aPreTransform, CompositeAlphaFlagBits aCompositeAlpha,
         PresentMode aPresentMode, const Swapchain& aOldSwapChain,
-        uint32_t aImageArrayLayers = 1, Clipped aClipped = Clipped::Enable, const SwapchainCreateFlags& aFlags = DefaultFlags)
+        uint32_t aImageArrayLayers = 1, Clipped aClipped = Clipped::Enable, const SwapchainCreateFlags& aFlags = DefaultFlags) noexcept
         : flags(aFlags), surface(aSurface),
         minImageCount(aMinImageCount), imageFormat(aImageFormat), imageColorSpace(aImageColorSpace),
         imageExtent(aImageExtent), imageArrayLayers(aImageArrayLayers), imageUsage(aImageUsage), imageSharingMode(SharingMode::eConcurrent),
@@ -144,7 +144,7 @@ public:
         const Extent2D& aImageExtent, const ImageUsageFlags& aImageUsage,
         Q&& aQueueFamilyIndices, SurfaceTransformFlagBits aPreTransform, CompositeAlphaFlagBits aCompositeAlpha,
         PresentMode aPresentMode, const Swapchain& aOldSwapChain,
-        uint32_t aImageArrayLayers = 1, Clipped aClipped = Clipped::Enable, const SwapchainCreateFlags& aFlags = DefaultFlags)
+        uint32_t aImageArrayLayers = 1, Clipped aClipped = Clipped::Enable, const SwapchainCreateFlags& aFlags = DefaultFlags) noexcept
         : SwapchainCreateInfo(aSurface,
         aMinImageCount, aSurfaceFormat.format, aSurfaceFormat.colorSpace,
         aImageExtent, aImageUsage,
@@ -155,21 +155,21 @@ public:
         StaticLValueRefAssert(Q, aQueueFamilyIndices);
     }
 
-    SwapchainCreateInfo& SetNext(const void* apNext)
+    SwapchainCreateInfo& SetNext(const void* apNext) noexcept
     {
         pNext = apNext;
 
         return *this;
     }
 
-    SwapchainCreateInfo& SetFlags(const SwapchainCreateFlags& aFlags)
+    SwapchainCreateInfo& SetFlags(const SwapchainCreateFlags& aFlags) noexcept
     {
         flags = aFlags;
 
         return *this;
     }
 
-    SwapchainCreateInfo& SetSurface(const Surface& aSurface)
+    SwapchainCreateInfo& SetSurface(const Surface& aSurface) noexcept
     {
         surface = aSurface;
 
@@ -177,7 +177,7 @@ public:
     }
 
     SwapchainCreateInfo& SetImageProperties(uint32_t aMinImageCount, Format aImageFormat, ColorSpace aImageColorSpace, const Extent2D& aImageExtent,
-        const ImageUsageFlags& aImageUsage, uint32_t aImageArrayLayers = 1)
+        const ImageUsageFlags& aImageUsage, uint32_t aImageArrayLayers = 1) noexcept
     {
         minImageCount       = aMinImageCount;
         imageFormat         = aImageFormat;
@@ -190,12 +190,12 @@ public:
     }
 
     SwapchainCreateInfo& SetImageProperties(uint32_t aMinImageCount, const SurfaceFormat& aSurfaceFormat, const Extent2D& aImageExtent,
-        const ImageUsageFlags& aImageUsage, uint32_t aImageArrayLayers = 1)
+        const ImageUsageFlags& aImageUsage, uint32_t aImageArrayLayers = 1) noexcept
     {
         return SetImageProperties(aMinImageCount, aSurfaceFormat.format, aSurfaceFormat.colorSpace, aImageExtent, aImageUsage, aImageArrayLayers);
     }
 
-    SwapchainCreateInfo& SetExclusiveMode(void)
+    SwapchainCreateInfo& SetExclusiveMode(void) noexcept
     {
         imageSharingMode            = SharingMode::eExclusive;
         queueFamilyIndexCount       = 0;
@@ -204,7 +204,7 @@ public:
         return *this;
     }
 
-    SwapchainCreateInfo& SetConcurrentMode(uint32_t aQueueFamilyIndexCount, const uint32_t* apQueueFamilyIndices)
+    SwapchainCreateInfo& SetConcurrentMode(uint32_t aQueueFamilyIndexCount, const uint32_t* apQueueFamilyIndices) noexcept
     {
         imageSharingMode            = SharingMode::eConcurrent;
         queueFamilyIndexCount       = aQueueFamilyIndexCount;
@@ -214,49 +214,49 @@ public:
     }
 
     template <typename Q, typename = EnableIfValueType<ValueType<Q>, uint32_t>>
-    SwapchainCreateInfo& SetConcurrentMode(Q&& aQueueFamilyIndices)
+    SwapchainCreateInfo& SetConcurrentMode(Q&& aQueueFamilyIndices) noexcept
     {
         StaticLValueRefAssert(Q, aQueueFamilyIndices);
 
         return SetConcurrentMode(static_cast<uint32_t>(aQueueFamilyIndices.size()), aQueueFamilyIndices.data());
     }
 
-    SwapchainCreateInfo& SetPreTransform(SurfaceTransformFlagBits aPreTransform)
+    SwapchainCreateInfo& SetPreTransform(SurfaceTransformFlagBits aPreTransform) noexcept
     {
         preTransform = aPreTransform;
 
         return *this;
     }
 
-    SwapchainCreateInfo& SetCompositeAlpha(CompositeAlphaFlagBits aCompositeAlpha)
+    SwapchainCreateInfo& SetCompositeAlpha(CompositeAlphaFlagBits aCompositeAlpha) noexcept
     {
         compositeAlpha = aCompositeAlpha;
 
         return *this;
     }
 
-    SwapchainCreateInfo& SetPresentMode(PresentMode aPresentMode)
+    SwapchainCreateInfo& SetPresentMode(PresentMode aPresentMode) noexcept
     {
         presentMode = aPresentMode;
 
         return *this;
     }
 
-    SwapchainCreateInfo& EnableClipped(void)
+    SwapchainCreateInfo& EnableClipped(void) noexcept
     {
         clipped = Clipped::Enable;
 
         return *this;
     }
 
-    SwapchainCreateInfo& DisableClipped(void)
+    SwapchainCreateInfo& DisableClipped(void) noexcept
     {
         clipped = Clipped::Disable;
 
         return *this;
     }
 
-    SwapchainCreateInfo& SetOldSwapchain(const Swapchain& aOldSwapchain)
+    SwapchainCreateInfo& SetOldSwapchain(const Swapchain& aOldSwapchain) noexcept
     {
         oldSwapchain = aOldSwapchain;
 

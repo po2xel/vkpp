@@ -52,14 +52,14 @@ public:
     explicit SubmitInfo(const CommandBuffer& aCommandBuffer) noexcept : commandBufferCount(1), pCommandBuffers(aCommandBuffer.AddressOf())
     {}
 
-    SubmitInfo& SetNext(const void* apNext)
+    SubmitInfo& SetNext(const void* apNext) noexcept
     {
         pNext = apNext;
 
         return *this;
     }
 
-    SubmitInfo& SetWaitSemaphores(uint32_t aWaitSemaphoreCount, const Semaphore* apWaitSemaphores, const PipelineStageFlags* apWaitDstStageMask)
+    SubmitInfo& SetWaitSemaphores(uint32_t aWaitSemaphoreCount, const Semaphore* apWaitSemaphores, const PipelineStageFlags* apWaitDstStageMask) noexcept
     {
         waitSemaphoreCount  = aWaitSemaphoreCount;
         pWaitSemaphores     = apWaitSemaphores;
@@ -68,7 +68,7 @@ public:
         return *this;
     }
 
-    SubmitInfo& SetCommandBuffers(uint32_t aCommandBufferCount, const CommandBuffer* apCommandBuffers)
+    SubmitInfo& SetCommandBuffers(uint32_t aCommandBufferCount, const CommandBuffer* apCommandBuffers) noexcept
     {
         commandBufferCount  = aCommandBufferCount;
         pCommandBuffers     = apCommandBuffers;
@@ -77,14 +77,14 @@ public:
     }
 
     template <typename C, typename = EnableIfValueType<ValueType<C>, CommandBuffer>>
-    SubmitInfo& SetCommandBuffers(C&& aCommandBuffers)
+    SubmitInfo& SetCommandBuffers(C&& aCommandBuffers) noexcept
     {
         StaticLValueRefAssert(C, aCommandBuffers);
 
         return SetCommandBuffers(static_cast<uint32_t>(aCommandBuffers.size()), aCommandBuffers.data());
     }
 
-    SubmitInfo& SetSignalSemaphores(uint32_t aSignalSemaphoreCount, const Semaphore* apSignalSemaphores)
+    SubmitInfo& SetSignalSemaphores(uint32_t aSignalSemaphoreCount, const Semaphore* apSignalSemaphores) noexcept
     {
         signalSemaphoreCount = aSignalSemaphoreCount;
         pSignalSemaphores    = apSignalSemaphores;
@@ -93,7 +93,7 @@ public:
     }
 
     template <typename S, typename = EnableIfValueType<ValueType<S>, Semaphore>>
-    SubmitInfo& SetSignalSemaphores(S&& aSignalSemaphores)
+    SubmitInfo& SetSignalSemaphores(S&& aSignalSemaphores) noexcept
     {
         StaticLValueRefAssert(S, aSignalSemaphores);
 
@@ -132,14 +132,14 @@ public:
       swapchainCount(aSwapchainCount), pSwapchains(apSwapchains), pImageIndices(apImageIndices), pResults(apResults)
     {}
 
-    PresentInfo& SetNext(const void* apNext)
+    PresentInfo& SetNext(const void* apNext) noexcept
     {
         pNext = apNext;
 
         return *this;
     }
 
-    PresentInfo& SetWaitSemaphores(uint32_t aWaitSemaphoreCount, const Semaphore* apWaitSemaphores)
+    PresentInfo& SetWaitSemaphores(uint32_t aWaitSemaphoreCount, const Semaphore* apWaitSemaphores) noexcept
     {
         waitSemaphoreCount  = aWaitSemaphoreCount;
         pWaitSemaphores     = apWaitSemaphores;
@@ -148,14 +148,14 @@ public:
     }
 
     template <typename S, typename = EnableIfValueType<ValueType<S>, Semaphore>>
-    PresentInfo& SetWaitSemaphores(S&& aWaitSemaphores)
+    PresentInfo& SetWaitSemaphores(S&& aWaitSemaphores) noexcept
     {
         StaticLValueRefAssert(S, aWaitSemaphores);
 
         return SetWaitSemaphores(static_cast<uint32_t>(aWaitSemaphores.size()), aWaitSemaphores.data());
     }
 
-    PresentInfo& SetSwapchainImages(uint32_t aSwapchainCount, const Swapchain* apSwapchains, const uint32_t* apImageIndices, Result* apResults)
+    PresentInfo& SetSwapchainImages(uint32_t aSwapchainCount, const Swapchain* apSwapchains, const uint32_t* apImageIndices, Result* apResults) noexcept
     {
         swapchainCount  = aSwapchainCount;
         pSwapchains     = apSwapchains;
@@ -187,7 +187,7 @@ public:
     Queue(std::nullptr_t) noexcept
     {}
 
-    explicit Queue(VkQueue aQueue) noexcept: mQueue(aQueue)
+    explicit Queue(VkQueue aQueue) noexcept : mQueue(aQueue)
     {}
 
     VkResult Wait(void) const

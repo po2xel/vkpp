@@ -53,53 +53,53 @@ public:
         return *this;
     }
 
-    explicit operator bool(void) const
+    explicit operator bool(void) const noexcept
     {
         return !!mMask;
     }
 
-    constexpr operator VkType(void) const
+    constexpr operator VkType(void) const noexcept
     {
         return mMask;
     }
 
-    bool operator!(void) const
+    bool operator!(void) const noexcept
     {
         return !mMask;
     }
 
-    bool operator==(const Flags& aRhs) const
+    bool operator==(const Flags& aRhs) const noexcept
     {
         return mMask == aRhs.mMask;
     }
 
-    bool operator!=(const Flags& aRhs) const
+    bool operator!=(const Flags& aRhs) const noexcept
     {
         return !(mMask == aRhs.mMask);
     }
 
-    Flags& operator|=(const Flags& aRhs)
+    Flags& operator|=(const Flags& aRhs) noexcept
     {
         mMask |= aRhs.mMask;
 
         return *this;
     }
 
-    Flags& operator&=(const Flags& aRhs)
+    Flags& operator&=(const Flags& aRhs) noexcept
     {
         mMask &= aRhs.mMask;
 
         return *this;
     }
 
-    Flags& operator^=(const Flags& aRhs)
+    Flags& operator^=(const Flags& aRhs) noexcept
     {
         mMask ^= aRhs.mMask;
 
         return *this;
     }
 
-    Flags operator|(const Flags& aRhs) const
+    Flags operator|(const Flags& aRhs) const noexcept
     {
         auto lResult{ *this };
         lResult |= aRhs;
@@ -107,7 +107,7 @@ public:
         return lResult;
     }
 
-    Flags operator&(const Flags& aRhs) const
+    Flags operator&(const Flags& aRhs) const noexcept
     {
         auto lResult{ *this };
         lResult &= aRhs;
@@ -115,7 +115,7 @@ public:
         return lResult;
     }
 
-    Flags operator^(const Flags& aRhs) const
+    Flags operator^(const Flags& aRhs) const noexcept
     {
         auto lResult{ *this };
         lResult ^= aRhs;
@@ -123,7 +123,7 @@ public:
         return lResult;
     }
 
-    Flags operator~(void) const
+    Flags operator~(void) const noexcept
     {
         constexpr const static auto AllFlags{ 0 };
 

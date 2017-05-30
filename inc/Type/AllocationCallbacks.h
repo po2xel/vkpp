@@ -42,14 +42,14 @@ public:
           pfnInternalAllocation(apfnInternalAllocation), pfnInternalFree(apfnInternalFree)
     {}
 
-    AllocationCallbacks& SetUserData(void* apUserData)
+    AllocationCallbacks& SetUserData(void* apUserData) noexcept
     {
         pUserData = apUserData;
 
         return *this;
     }
 
-    AllocationCallbacks& SetAlloc(PFN_vkAllocationFunction apfnAllocation, PFN_vkFreeFunction apfnFree, PFN_vkReallocationFunction apfnReallocation)
+    AllocationCallbacks& SetAlloc(PFN_vkAllocationFunction apfnAllocation, PFN_vkFreeFunction apfnFree, PFN_vkReallocationFunction apfnReallocation) noexcept
     {
         pfnAllocation = apfnAllocation;
         pfnReallocation = apfnReallocation;
@@ -58,7 +58,7 @@ public:
         return *this;
     }
 
-    AllocationCallbacks& SetInternalAlloc(PFN_vkInternalAllocationNotification apfnInternalAllocation, PFN_vkInternalFreeNotification apfnInternalFree)
+    AllocationCallbacks& SetInternalAlloc(PFN_vkInternalAllocationNotification apfnInternalAllocation, PFN_vkInternalFreeNotification apfnInternalFree) noexcept
     {
         pfnInternalAllocation = apfnInternalAllocation;
         pfnInternalFree = apfnInternalFree;

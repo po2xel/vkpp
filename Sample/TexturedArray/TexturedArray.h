@@ -108,7 +108,6 @@ private:
 
     struct
     {
-        vkpp::Sampler sampler;
         const vkpp::ImageLayout layout{ vkpp::ImageLayout::eShaderReadOnlyOptimal };
 
         uint32_t width{ 0 }, height{ 0 }, layerCount{ 0 };

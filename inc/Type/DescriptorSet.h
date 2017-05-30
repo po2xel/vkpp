@@ -53,14 +53,14 @@ struct DescriptorSetLayoutBinding : public internal::VkTrait<DescriptorSetLayout
         : DescriptorSetLayoutBinding(aBinding, aDescriptorType, 1, aStageFlags, apImmutableSamplers)
     {}
 
-    DescriptorSetLayoutBinding& SetBinding(uint32_t aBinding)
+    DescriptorSetLayoutBinding& SetBinding(uint32_t aBinding) noexcept
     {
         binding = aBinding;
 
         return *this;
     }
 
-    DescriptorSetLayoutBinding& SetDescriptorType(DescriptorType aDescriptorType, uint32_t aDescriptorCount)
+    DescriptorSetLayoutBinding& SetDescriptorType(DescriptorType aDescriptorType, uint32_t aDescriptorCount) noexcept
     {
         descriptorType  = aDescriptorType;
         descriptorCount = aDescriptorCount;
@@ -68,14 +68,14 @@ struct DescriptorSetLayoutBinding : public internal::VkTrait<DescriptorSetLayout
         return *this;
     }
 
-    DescriptorSetLayoutBinding& SetShaderStageFlags(const ShaderStageFlags& aFlags)
+    DescriptorSetLayoutBinding& SetShaderStageFlags(const ShaderStageFlags& aFlags) noexcept
     {
         stageFlags  = aFlags;
 
         return *this;
     }
 
-    DescriptorSetLayoutBinding& SetImmutableSamplers(const Sampler* apImmultableSamplers)
+    DescriptorSetLayoutBinding& SetImmutableSamplers(const Sampler* apImmultableSamplers) noexcept
     {
         pImmutableSamplers = apImmultableSamplers;
 
@@ -103,6 +103,8 @@ private:
 
     explicit constexpr DescriptorSetLayoutCreateInfo(DescriptorSetLayoutBinding&& aBinding, const DescriptorSetLayoutCreateFlags& aFlags = DefaultFlags) noexcept = delete;
 
+    DescriptorSetLayoutCreateInfo& SetBinding(DescriptorSetLayoutBinding&& aSetLayoutBinding) = delete;
+
 public:
     const void*                         pNext{ nullptr };
     DescriptorSetLayoutCreateFlags      flags;
@@ -111,49 +113,57 @@ public:
 
     DEFINE_CLASS_MEMBER(DescriptorSetLayoutCreateInfo)
 
-    constexpr DescriptorSetLayoutCreateInfo(uint32_t aBindingCount, const DescriptorSetLayoutBinding* apBindings, const DescriptorSetLayoutCreateFlags& aFlags = DefaultFlags) noexcept
-        : flags(aFlags), bindingCount(aBindingCount), pBindings(apBindings)
+    constexpr DescriptorSetLayoutCreateInfo(uint32_t aBindingCount, const DescriptorSetLayoutBinding* apSetLayoutBindings, const DescriptorSetLayoutCreateFlags& aFlags = DefaultFlags) noexcept
+        : flags(aFlags), bindingCount(aBindingCount), pBindings(apSetLayoutBindings)
     {}
 
-    explicit constexpr DescriptorSetLayoutCreateInfo(const DescriptorSetLayoutBinding& aBinding, const DescriptorSetLayoutCreateFlags& aFlags = DefaultFlags) noexcept
-        : flags(aFlags), bindingCount(1), pBindings(aBinding.AddressOf())
+    explicit constexpr DescriptorSetLayoutCreateInfo(const DescriptorSetLayoutBinding& aSetLayoutBinding, const DescriptorSetLayoutCreateFlags& aFlags = DefaultFlags) noexcept
+        : flags(aFlags), bindingCount(1), pBindings(aSetLayoutBinding.AddressOf())
     {}
 
     template <typename B, typename = EnableIfValueType<ValueType<B>, DescriptorSetLayoutBinding>>
-    explicit constexpr DescriptorSetLayoutCreateInfo(B&& aBindings, const DescriptorSetLayoutCreateFlags& aFlags = DefaultFlags) noexcept
-        : DescriptorSetLayoutCreateInfo(static_cast<uint32_t>(aBindings.size()), aBindings.data(), aFlags)
+    explicit constexpr DescriptorSetLayoutCreateInfo(B&& aSetLayoutBindings, const DescriptorSetLayoutCreateFlags& aFlags = DefaultFlags) noexcept
+        : DescriptorSetLayoutCreateInfo(static_cast<uint32_t>(aSetLayoutBindings.size()), aSetLayoutBindings.data(), aFlags)
     {
-        StaticLValueRefAssert(B, aBindings);
+        StaticLValueRefAssert(B, aSetLayoutBindings);
     }
 
-    DescriptorSetLayoutCreateInfo& SetNext(const void* apNext)
+    DescriptorSetLayoutCreateInfo& SetNext(const void* apNext) noexcept
     {
         pNext = apNext;
 
         return *this;
     }
 
-    DescriptorSetLayoutCreateInfo& SetFlags(const DescriptorSetLayoutCreateFlags& aFlags)
+    DescriptorSetLayoutCreateInfo& SetFlags(const DescriptorSetLayoutCreateFlags& aFlags) noexcept
     {
         flags = aFlags;
 
         return *this;
     }
 
-    DescriptorSetLayoutCreateInfo& SetBindings(uint32_t aBindingCount, const DescriptorSetLayoutBinding* apBindings)
+    DescriptorSetLayoutCreateInfo& SetBindings(uint32_t aBindingCount, const DescriptorSetLayoutBinding* apSetLayoutBindings) noexcept
     {
         bindingCount    = aBindingCount;
-        pBindings       = apBindings;
+        pBindings       = apSetLayoutBindings;
+
+        return *this;
+    }
+
+    DescriptorSetLayoutCreateInfo& SetBinding(const DescriptorSetLayoutBinding& aSetLayoutBinding) noexcept
+    {
+        bindingCount    = 1;
+        pBindings       = aSetLayoutBinding.AddressOf();
 
         return *this;
     }
 
     template <typename B, typename = EnableIfValueType<ValueType<B>, DescriptorSetLayoutBinding>>
-    DescriptorSetLayoutCreateInfo& SetBindings(B&& aBindings)
+    DescriptorSetLayoutCreateInfo& SetBindings(B&& aSetLayoutBindings) noexcept
     {
-        StaticLValueRefAssert(B, aBindings);
+        StaticLValueRefAssert(B, aSetLayoutBindings);
 
-        return SetBindings(static_cast<uint32_t>(aBindings.size()), aBindings.data());
+        return SetBindings(static_cast<uint32_t>(aSetLayoutBindings.size()), aSetLayoutBindings.data());
     }
 };
 
@@ -167,12 +177,12 @@ private:
     VkDescriptorSetLayout mDescriptorSetLayout{ VK_NULL_HANDLE };
 
 public:
-    DescriptorSetLayout(void) = default;
+    DescriptorSetLayout(void) noexcept = default;
 
-    DescriptorSetLayout(std::nullptr_t)
+    DescriptorSetLayout(std::nullptr_t) noexcept
     {}
 
-    explicit DescriptorSetLayout(VkDescriptorSetLayout aDescriptorSetLayout) : mDescriptorSetLayout(aDescriptorSetLayout)
+    explicit DescriptorSetLayout(VkDescriptorSetLayout aDescriptorSetLayout) noexcept : mDescriptorSetLayout(aDescriptorSetLayout)
     {}
 };
 
@@ -186,12 +196,12 @@ private:
     VkDescriptorSet mDescriptorSet{ VK_NULL_HANDLE };
 
 public:
-    DescriptorSet(void) = default;
+    DescriptorSet(void) noexcept = default;
 
-    DescriptorSet(std::nullptr_t)
+    DescriptorSet(std::nullptr_t) noexcept
     {}
 
-    explicit DescriptorSet(VkDescriptorSet aDescriptorSet) : mDescriptorSet(aDescriptorSet)
+    explicit DescriptorSet(VkDescriptorSet aDescriptorSet) noexcept : mDescriptorSet(aDescriptorSet)
     {}
 };
 
@@ -211,21 +221,21 @@ struct DescriptorImageInfo : public internal::VkTrait<DescriptorImageInfo, VkDes
         : sampler(aSampler), imageView(aImageView), imageLayout(aImageLayout)
     {}
 
-    DescriptorImageInfo& SetSampler(const Sampler& aSampler)
+    DescriptorImageInfo& SetSampler(const Sampler& aSampler) noexcept
     {
         sampler = aSampler;
 
         return *this;
     }
 
-    DescriptorImageInfo& SetImageView(const ImageView& aImageView)
+    DescriptorImageInfo& SetImageView(const ImageView& aImageView) noexcept
     {
         imageView = aImageView;
 
         return *this;
     }
 
-    DescriptorImageInfo& SetImageLayout(const ImageLayout& aImageLayout)
+    DescriptorImageInfo& SetImageLayout(const ImageLayout& aImageLayout) noexcept
     {
         imageLayout = aImageLayout;
 
@@ -249,14 +259,14 @@ struct DescriptorBufferInfo : public internal::VkTrait<DescriptorBufferInfo, VkD
         : buffer(aBuffer), offset(aOffset), range(aRange)
     {}
 
-    DescriptorBufferInfo& SetBuffer(const Buffer& aBuffer)
+    DescriptorBufferInfo& SetBuffer(const Buffer& aBuffer) noexcept
     {
         buffer = aBuffer;
 
         return *this;
     }
 
-    DescriptorBufferInfo& SetExtent(DeviceSize aOffset, DeviceSize aRange)
+    DescriptorBufferInfo& SetExtent(DeviceSize aOffset, DeviceSize aRange) noexcept
     {
         offset  = aOffset;
         range   = aRange;
@@ -305,14 +315,14 @@ public:
         : WriteDescriptorSetInfo(aDstSet, aDstBinding, 0, 1, aDescriptorType, nullptr, nullptr, aTexelBufferView.AddressOf())
     {}
 
-    WriteDescriptorSetInfo& SetDstDescriptorSet(const DescriptorSet& aDstSet)
+    WriteDescriptorSetInfo& SetDstDescriptorSet(const DescriptorSet& aDstSet) noexcept
     {
         dstSet = aDstSet;
 
         return *this;
     }
 
-    WriteDescriptorSetInfo& SetBinding(uint32_t aBinding, uint32_t aDstArrayElement, uint32_t aDescriptorCount)
+    WriteDescriptorSetInfo& SetBinding(uint32_t aBinding, uint32_t aDstArrayElement, uint32_t aDescriptorCount) noexcept
     {
         dstBinding      = aBinding;
         dstArrayElement = aDstArrayElement;
@@ -321,7 +331,7 @@ public:
         return *this;
     }
 
-    WriteDescriptorSetInfo& SetDescriptorType(DescriptorType aDescriptorType)
+    WriteDescriptorSetInfo& SetDescriptorType(DescriptorType aDescriptorType) noexcept
     {
         descriptorType = aDescriptorType;
 
@@ -329,38 +339,38 @@ public:
     }
 
     // TODO: apImageInfo points to an array.
-    WriteDescriptorSetInfo& SetImageInfo(const DescriptorImageInfo* apImageInfo)
+    WriteDescriptorSetInfo& SetImageInfo(const DescriptorImageInfo* apImageInfo) noexcept
     {
         pImageInfo = apImageInfo;
 
         return *this;
     }
 
-    WriteDescriptorSetInfo& SetImageInfo(const DescriptorImageInfo& aImageInfo)
+    WriteDescriptorSetInfo& SetImageInfo(const DescriptorImageInfo& aImageInfo) noexcept
     {
         return SetImageInfo(aImageInfo.AddressOf());
     }
 
-    WriteDescriptorSetInfo& SetBufferInfo(const DescriptorBufferInfo* apBufferInfo)
+    WriteDescriptorSetInfo& SetBufferInfo(const DescriptorBufferInfo* apBufferInfo) noexcept
     {
         pBufferInfo = apBufferInfo;
 
         return *this;
     }
 
-    WriteDescriptorSetInfo& SetBufferInfo(const DescriptorBufferInfo& aBufferInfo)
+    WriteDescriptorSetInfo& SetBufferInfo(const DescriptorBufferInfo& aBufferInfo) noexcept
     {
         return SetBufferInfo(aBufferInfo.AddressOf());
     }
 
-    WriteDescriptorSetInfo& SetTexelBufferView(const BufferView* apTexelBufferView)
+    WriteDescriptorSetInfo& SetTexelBufferView(const BufferView* apTexelBufferView) noexcept
     {
         pTexelBufferView = apTexelBufferView;
 
         return *this;
     }
 
-    WriteDescriptorSetInfo& SetTexelBufferView(const BufferView& aTexelBufferView)
+    WriteDescriptorSetInfo& SetTexelBufferView(const BufferView& aTexelBufferView) noexcept
     {
         return SetTexelBufferView(aTexelBufferView.AddressOf());
     }
@@ -393,7 +403,7 @@ public:
           dstSet(aDstSet), dstBinding(aDstBinding), dstArrayElement(aDstArrayElement), descriptorCount(aDescriptorCount)
     {}
 
-    CopyDescriptorSetInfo& SetSrcDescriptorSet(const DescriptorSet& aSrcSet, uint32_t aSrcBinding, uint32_t aSrcArrayElement)
+    CopyDescriptorSetInfo& SetSrcDescriptorSet(const DescriptorSet& aSrcSet, uint32_t aSrcBinding, uint32_t aSrcArrayElement) noexcept
     {
         srcSet          = aSrcSet;
         srcBinding      = aSrcBinding;
@@ -402,7 +412,7 @@ public:
         return *this;
     }
 
-    CopyDescriptorSetInfo& SetDstDescriptorSet(const DescriptorSet& aDstSet, uint32_t aDstBinding, uint32_t aDstArrayElement)
+    CopyDescriptorSetInfo& SetDstDescriptorSet(const DescriptorSet& aDstSet, uint32_t aDstBinding, uint32_t aDstArrayElement) noexcept
     {
         dstSet          = aDstSet;
         dstBinding      = aDstBinding;
@@ -411,7 +421,7 @@ public:
         return *this;
     }
 
-    CopyDescriptorSetInfo& SetDescriptorCount(uint32_t aDescriptorCount)
+    CopyDescriptorSetInfo& SetDescriptorCount(uint32_t aDescriptorCount) noexcept
     {
         descriptorCount = aDescriptorCount;
 
