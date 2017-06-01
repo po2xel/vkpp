@@ -1318,7 +1318,10 @@ struct PushConstantRange : internal::VkTrait<PushConstantRange, VkPushConstantRa
     DEFINE_CLASS_MEMBER(PushConstantRange)
 
     constexpr PushConstantRange(const ShaderStageFlags& aStageFlags, uint32_t aOffset, uint32_t aSize) noexcept : stageFlags(aStageFlags), offset(aOffset), size(aSize)
-    {}
+    {
+        assert(0 == (offset & 0x3));                            // offset must be a multiple of 4.
+        assert((size != 0) && (0 == (size & 0x3)));             // size must be greater than 0 and must be a multiple of 4.
+    }
 
     PushConstantRange& SetFlags(const ShaderStageFlags& aFlags) noexcept
     {
@@ -1329,6 +1332,9 @@ struct PushConstantRange : internal::VkTrait<PushConstantRange, VkPushConstantRa
 
     PushConstantRange& SetRange(uint32_t aOffset, uint32_t aSize) noexcept
     {
+        assert(0 == (offset & 0x3));
+        assert((size != 0) && (0 == (size & 0x3)));
+
         offset  = aOffset;
         size    = aSize;
 
@@ -1372,7 +1378,7 @@ public:
     uint32_t                    setLayoutCount{ 0 };
     const DescriptorSetLayout*  pSetLayouts{ nullptr };
     uint32_t                    pushConstantRangeCount{ 0 };
-    const PushConstantRange*    pPushConstantRanges{ nullptr };
+    const PushConstantRange*    pPushConstantRanges{ nullptr };     // Any two elements of pPushConstantRanges must not include the same stage in PushConstantRange::stageFlags.
 
     DEFINE_CLASS_MEMBER(PipelineLayoutCreateInfo)
 

@@ -276,6 +276,7 @@ void PushConstants::CreatePipelineLayout(void)
     // Example uses six light positions as push constants. 6 * 4 * 4 = 96 bytes.
     // Spec requires a minimum of 128 bytes, bigger values need to be checked against maxPushConstantsSize.
     // But even at only 128 bytes, lots of stuff can fit inside push constants.
+    // The layout of the push constant variables is specified in the shader.
     constexpr vkpp::PushConstantRange lPushConstantRange
     {
         vkpp::ShaderStageFlagBits::eVertex,

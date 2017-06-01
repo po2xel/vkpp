@@ -64,12 +64,12 @@ It is very practical to use when sub-allocating uniform buffers from a larger bu
 
 ### [Push Constants](Sample/PushConstants/)
 <img src="./Sample/PushConstants/PushConstants.png" height="108px" align="right">
-Push Constants are uniform values that are stored within the CommandBuffer and can be accessed from the shaders similar to a single global uniform buffer. They provide enough bytes to hold some matrices or index values and the interpretation of the raw data is up the shader. `The values are recorded with the CommandBuffer and cannot be altered afterwards.`
+Push Constants are uniform values that are stored within the CommandBuffer and can be accessed from the shaders similar to a single global uniform buffer. They provide enough bytes to hold some matrices or index values and the interpretation of the raw data is up the shader. ``The values are recorded with the CommandBuffer and cannot be altered afterwards.``
 
 ### [Specialization Constants](Sample/SpecializationConstants/)
 <img src="./Sample/SpecializationConstants/SpecializationConstants.png" height="108px" align="right">
 Specialization Constants are used to specify shader constants at pipeline creation time.<br/>
-Shader bindings based on specialization constants are marked by the new `constant_id` layout qualifier. For example:
+Shader bindings based on specialization constants are marked by the new ``constant_id`` layout qualifier. For example:
 
 ```C
     layout (constant_id = 0) const int LightModel = 0;

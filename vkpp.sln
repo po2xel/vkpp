@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
-VisualStudioVersion = 15.0.26430.6
+VisualStudioVersion = 15.0.26430.12
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ColorizedTriangle", "Sample\ColorizedTriangle\ColorizedTriangle.vcxproj", "{AD14B992-B3AE-4D44-A776-DFA8326A12C8}"
 EndProject
@@ -20,6 +20,8 @@ EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "PushConstants", "Sample\PushConstants\PushConstants.vcxproj", "{252B877A-2EDD-4E32-9DE9-1D3070AEA231}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "SpecializationConstants", "Sample\SpecializationConstants\SpecializationConstants.vcxproj", "{35ED44E8-A9A5-4D27-8581-28426CA96E80}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "OffScreenRenderer", "Sample\OffScreenRenderer\OffScreenRenderer.vcxproj", "{342AAF8E-8151-4CC6-B832-96099C0B38B7}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -101,6 +103,14 @@ Global
 		{35ED44E8-A9A5-4D27-8581-28426CA96E80}.Release|x64.Build.0 = Release|x64
 		{35ED44E8-A9A5-4D27-8581-28426CA96E80}.Release|x86.ActiveCfg = Release|Win32
 		{35ED44E8-A9A5-4D27-8581-28426CA96E80}.Release|x86.Build.0 = Release|Win32
+		{342AAF8E-8151-4CC6-B832-96099C0B38B7}.Debug|x64.ActiveCfg = Debug|x64
+		{342AAF8E-8151-4CC6-B832-96099C0B38B7}.Debug|x64.Build.0 = Debug|x64
+		{342AAF8E-8151-4CC6-B832-96099C0B38B7}.Debug|x86.ActiveCfg = Debug|Win32
+		{342AAF8E-8151-4CC6-B832-96099C0B38B7}.Debug|x86.Build.0 = Debug|Win32
+		{342AAF8E-8151-4CC6-B832-96099C0B38B7}.Release|x64.ActiveCfg = Release|x64
+		{342AAF8E-8151-4CC6-B832-96099C0B38B7}.Release|x64.Build.0 = Release|x64
+		{342AAF8E-8151-4CC6-B832-96099C0B38B7}.Release|x86.ActiveCfg = Release|Win32
+		{342AAF8E-8151-4CC6-B832-96099C0B38B7}.Release|x86.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
