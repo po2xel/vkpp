@@ -23,6 +23,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "SpecializationConstants", "
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "OffScreenRenderer", "Sample\OffScreenRenderer\OffScreenRenderer.vcxproj", "{342AAF8E-8151-4CC6-B832-96099C0B38B7}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "RadialBlur", "Sample\RadialBlur\RadialBlur.vcxproj", "{EDDDD63D-3F70-446F-A0E2-1DC3B0D0E8FA}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x64 = Debug|x64
@@ -111,6 +113,14 @@ Global
 		{342AAF8E-8151-4CC6-B832-96099C0B38B7}.Release|x64.Build.0 = Release|x64
 		{342AAF8E-8151-4CC6-B832-96099C0B38B7}.Release|x86.ActiveCfg = Release|Win32
 		{342AAF8E-8151-4CC6-B832-96099C0B38B7}.Release|x86.Build.0 = Release|Win32
+		{EDDDD63D-3F70-446F-A0E2-1DC3B0D0E8FA}.Debug|x64.ActiveCfg = Debug|x64
+		{EDDDD63D-3F70-446F-A0E2-1DC3B0D0E8FA}.Debug|x64.Build.0 = Debug|x64
+		{EDDDD63D-3F70-446F-A0E2-1DC3B0D0E8FA}.Debug|x86.ActiveCfg = Debug|Win32
+		{EDDDD63D-3F70-446F-A0E2-1DC3B0D0E8FA}.Debug|x86.Build.0 = Debug|Win32
+		{EDDDD63D-3F70-446F-A0E2-1DC3B0D0E8FA}.Release|x64.ActiveCfg = Release|x64
+		{EDDDD63D-3F70-446F-A0E2-1DC3B0D0E8FA}.Release|x64.Build.0 = Release|x64
+		{EDDDD63D-3F70-446F-A0E2-1DC3B0D0E8FA}.Release|x86.ActiveCfg = Release|Win32
+		{EDDDD63D-3F70-446F-A0E2-1DC3B0D0E8FA}.Release|x86.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

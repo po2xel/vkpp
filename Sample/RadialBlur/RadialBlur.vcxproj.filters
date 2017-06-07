@@ -1,0 +1,205 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Source Files">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>cpp;c;cc;cxx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+    <Filter Include="Header Files">
+      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
+      <Extensions>h;hh;hpp;hxx;hm;inl;inc;xsd</Extensions>
+    </Filter>
+    <Filter Include="Resource Files">
+      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
+      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
+    </Filter>
+    <Filter Include="Header Files\Base">
+      <UniqueIdentifier>{45414ded-f9c9-4638-a636-1f6519540cd4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\System">
+      <UniqueIdentifier>{6f252f88-d6bc-499a-a0cd-9d1edeb7d0c1}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\vkpp">
+      <UniqueIdentifier>{645aa122-856c-4c80-b2f0-28fe5b1d51e9}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\vkpp\Type">
+      <UniqueIdentifier>{2cc963ec-0841-412b-a90e-0b4f1da1c80a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\vkpp\Info">
+      <UniqueIdentifier>{2ceddf0e-eb48-4392-aa4a-0de2745fdcdd}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Window">
+      <UniqueIdentifier>{ef76a825-3b1b-4cfb-a8b0-352278c1e912}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Base">
+      <UniqueIdentifier>{7114174c-cd7f-4014-bdc1-c8ed89c74f3a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\System">
+      <UniqueIdentifier>{846b47fb-4cf8-4405-9a47-b088b240177f}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="..\Base\ExampleBase.cpp">
+      <Filter>Source Files\Base</Filter>
+    </ClCompile>
+    <ClCompile Include="..\System\Application.cpp">
+      <Filter>Source Files\System</Filter>
+    </ClCompile>
+    <ClCompile Include="main.cpp" />
+    <ClCompile Include="RadialBlur.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\Base\ExampleBase.h">
+      <Filter>Header Files\Base</Filter>
+    </ClInclude>
+    <ClInclude Include="..\System\Application.h">
+      <Filter>Header Files\System</Filter>
+    </ClInclude>
+    <ClInclude Include="..\System\Exception.h">
+      <Filter>Header Files\System</Filter>
+    </ClInclude>
+    <ClInclude Include="..\System\NonCopyable.h">
+      <Filter>Header Files\System</Filter>
+    </ClInclude>
+    <ClInclude Include="..\System\Singleton.h">
+      <Filter>Header Files\System</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\inc\Type\AllocationCallbacks.h">
+      <Filter>Header Files\vkpp\Type</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\inc\Type\Buffer.h">
+      <Filter>Header Files\vkpp\Type</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\inc\Type\CommandBuffer.h">
+      <Filter>Header Files\vkpp\Type</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\inc\Type\CommandPool.h">
+      <Filter>Header Files\vkpp\Type</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\inc\Type\DebugReportCallback.h">
+      <Filter>Header Files\vkpp\Type</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\inc\Type\DescriptorPool.h">
+      <Filter>Header Files\vkpp\Type</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\inc\Type\DescriptorSet.h">
+      <Filter>Header Files\vkpp\Type</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\inc\Type\Fence.h">
+      <Filter>Header Files\vkpp\Type</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\inc\Type\Framebuffer.h">
+      <Filter>Header Files\vkpp\Type</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\inc\Type\GraphicsPipeline.h">
+      <Filter>Header Files\vkpp\Type</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\inc\Type\Image.h">
+      <Filter>Header Files\vkpp\Type</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\inc\Type\Instance.h">
+      <Filter>Header Files\vkpp\Type</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\inc\Type\LogicalDevice.h">
+      <Filter>Header Files\vkpp\Type</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\inc\Type\Memory.h">
+      <Filter>Header Files\vkpp\Type</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\inc\Type\MemoryBarrier.h">
+      <Filter>Header Files\vkpp\Type</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\inc\Type\PhysicalDevice.h">
+      <Filter>Header Files\vkpp\Type</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\inc\Type\Queue.h">
+      <Filter>Header Files\vkpp\Type</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\inc\Type\RenderPass.h">
+      <Filter>Header Files\vkpp\Type</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\inc\Type\Sampler.h">
+      <Filter>Header Files\vkpp\Type</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\inc\Type\Semaphore.h">
+      <Filter>Header Files\vkpp\Type</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\inc\Type\ShaderModule.h">
+      <Filter>Header Files\vkpp\Type</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\inc\Type\Structure.h">
+      <Filter>Header Files\vkpp\Type</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\inc\Type\Surface.h">
+      <Filter>Header Files\vkpp\Type</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\inc\Type\Swapchain.h">
+      <Filter>Header Files\vkpp\Type</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\inc\Type\VkDeleter.h">
+      <Filter>Header Files\vkpp\Type</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\inc\Type\VkTrait.h">
+      <Filter>Header Files\vkpp\Type</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\inc\Info\CommandBufferAllocateInfo.h">
+      <Filter>Header Files\vkpp\Info</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\inc\Info\Common.h">
+      <Filter>Header Files\vkpp\Info</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\inc\Info\Extensions.h">
+      <Filter>Header Files\vkpp\Info</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\inc\Info\Flags.h">
+      <Filter>Header Files\vkpp\Info</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\inc\Info\Format.h">
+      <Filter>Header Files\vkpp\Info</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\inc\Info\Layers.h">
+      <Filter>Header Files\vkpp\Info</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\inc\Info\MemoryRequirements.h">
+      <Filter>Header Files\vkpp\Info</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\inc\Info\PhysicalDeviceFeatures.h">
+      <Filter>Header Files\vkpp\Info</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\inc\Info\PipelineStage.h">
+      <Filter>Header Files\vkpp\Info</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\inc\Info\RenderPassBeginInfo.h">
+      <Filter>Header Files\vkpp\Info</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\inc\Info\SurfaceCapabilities.h">
+      <Filter>Header Files\vkpp\Info</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\inc\Info\TypeConsistency.h">
+      <Filter>Header Files\vkpp\Info</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Window\Event.h">
+      <Filter>Header Files\Window</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Window\KeyboardEvent.h">
+      <Filter>Header Files\Window</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Window\MouseEvent.h">
+      <Filter>Header Files\Window</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Window\RedrawEvent.h">
+      <Filter>Header Files\Window</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Window\Window.h">
+      <Filter>Header Files\Window</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Window\WindowEvent.h">
+      <Filter>Header Files\Window</Filter>
+    </ClInclude>
+    <ClInclude Include="RadialBlur.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+  </ItemGroup>
+</Project>

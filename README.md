@@ -83,9 +83,11 @@ Shader bindings based on specialization constants are marked by the new `constan
 Specialization info is assigned as part of the shader stage and must be set after creating the shader module and before creating the pipeline.
 
 ### [OffScreenRenderer](Sample/OffScreenRenderer/)
+
 <img src="./Sample/OffScreenRenderer/OffScreenRenderer.png" height="108px" align="right">
 
-Demonstrates the use of offscreen framebuffer with color and depth attachments.
+Demonstrates the use of offscreen framebuffer with color and depth attachments. The color attachment of the first render pass is used as the sampler texture of the second render pass.
+
 
 ## Credits
 Thanks to the authors of these libraries:
