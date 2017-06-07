@@ -117,12 +117,12 @@ public:
         : flags(aFlags), bindingCount(aBindingCount), pBindings(apSetLayoutBindings)
     {}
 
-    explicit constexpr DescriptorSetLayoutCreateInfo(const DescriptorSetLayoutBinding& aSetLayoutBinding, const DescriptorSetLayoutCreateFlags& aFlags = DefaultFlags) noexcept
+    constexpr DescriptorSetLayoutCreateInfo(const DescriptorSetLayoutBinding& aSetLayoutBinding, const DescriptorSetLayoutCreateFlags& aFlags = DefaultFlags) noexcept
         : flags(aFlags), bindingCount(1), pBindings(aSetLayoutBinding.AddressOf())
     {}
 
     template <typename B, typename = EnableIfValueType<ValueType<B>, DescriptorSetLayoutBinding>>
-    explicit constexpr DescriptorSetLayoutCreateInfo(B&& aSetLayoutBindings, const DescriptorSetLayoutCreateFlags& aFlags = DefaultFlags) noexcept
+    constexpr DescriptorSetLayoutCreateInfo(B&& aSetLayoutBindings, const DescriptorSetLayoutCreateFlags& aFlags = DefaultFlags) noexcept
         : DescriptorSetLayoutCreateInfo(static_cast<uint32_t>(aSetLayoutBindings.size()), aSetLayoutBindings.data(), aFlags)
     {
         StaticLValueRefAssert(B, aSetLayoutBindings);

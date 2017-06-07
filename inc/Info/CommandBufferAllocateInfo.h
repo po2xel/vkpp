@@ -37,6 +37,10 @@ public:
         : commandPool(aCommandPool), level(aLevel), commandBufferCount(aCommandBufferCount)
     {}
 
+    CommandBufferAllocateInfo(const CommandPool& aCommandPool, CommandBufferLevel aLevel = CommandBufferLevel::ePrimary) noexcept
+        : CommandBufferAllocateInfo(aCommandPool, 1, aLevel)
+    {}
+
     CommandBufferAllocateInfo& SetNext(const void* apNext) noexcept
     {
         pNext = apNext;

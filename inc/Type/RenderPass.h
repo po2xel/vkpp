@@ -184,8 +184,13 @@ enum class SubpassContents
 
 
 
-struct SubpassDescription : public internal::VkTrait<SubpassDescription, VkSubpassDescription>
+class SubpassDescription : public internal::VkTrait<SubpassDescription, VkSubpassDescription>
 {
+private:
+    constexpr SubpassDescription(PipelineBindPoint aPipelineBindPoint, AttachmentReference&& aColorAttachment,
+        AttachmentReference&& aDepthStencilAttachment, const SubpassDescriptionFlags& aFlags = DefaultFlags) noexcept = delete;
+
+public:
     SubpassDescriptionFlags     flags;
     PipelineBindPoint           pipelineBindPoint;
     uint32_t                    inputAttachmentCount{ 0 };
@@ -214,6 +219,11 @@ struct SubpassDescription : public internal::VkTrait<SubpassDescription, VkSubpa
     constexpr SubpassDescription(PipelineBindPoint aPipelineBindPoint, uint32_t aColorAttachmentCount, const AttachmentReference* apColorAttachments,
         const AttachmentReference* apDepthStencilAttachment, const SubpassDescriptionFlags& aFlags = DefaultFlags) noexcept
         : SubpassDescription(aPipelineBindPoint, 0, nullptr, aColorAttachmentCount, apColorAttachments, nullptr, apDepthStencilAttachment, 0, nullptr, aFlags)
+    {}
+
+    constexpr SubpassDescription(PipelineBindPoint aPipelineBindPoint, const AttachmentReference& aColorAttachment,
+        const AttachmentReference& aDepthStencilAttachment, const SubpassDescriptionFlags& aFlags = DefaultFlags) noexcept
+        : SubpassDescription(aPipelineBindPoint, 0, nullptr, 1, aColorAttachment.AddressOf(), nullptr, aDepthStencilAttachment.AddressOf(), 0, nullptr, aFlags)
     {}
 
     // Color, Resolve and Depth attachments.

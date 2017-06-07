@@ -147,7 +147,7 @@ private:
 
     DescriptorSetAllocateInfo(const DescriptorPool& aDescriptorPool, DescriptorSetLayout&& aSetLayout) noexcept = delete;
 
-    DescriptorSetAllocateInfo& SetDescriptorSetLayouts(DescriptorSetLayout&& aSetLayout) noexcept = delete;
+    DescriptorSetAllocateInfo& SetLayout(DescriptorSetLayout&& aSetLayout) noexcept = delete;
 
 public:
     const void*                 pNext{ nullptr };
@@ -179,14 +179,14 @@ public:
         return *this;
     }
 
-    DescriptorSetAllocateInfo& SetDescriptorPool(const DescriptorPool& aDescriptorPool) noexcept
+    DescriptorSetAllocateInfo& SetPool(const DescriptorPool& aDescriptorPool) noexcept
     {
         descriptorPool  = aDescriptorPool;
 
         return *this;
     }
 
-    DescriptorSetAllocateInfo& SetDescriptorSetLayouts(uint32_t aDescriptorSetCount, const DescriptorSetLayout* apSetLayouts) noexcept
+    DescriptorSetAllocateInfo& SetLayouts(uint32_t aDescriptorSetCount, const DescriptorSetLayout* apSetLayouts) noexcept
     {
         descriptorSetCount  = aDescriptorSetCount;
         pSetLayouts         = apSetLayouts;
@@ -194,7 +194,7 @@ public:
         return *this;
     }
 
-    DescriptorSetAllocateInfo& SetDescriptorSetLayouts(const DescriptorSetLayout& aSetLayout) noexcept
+    DescriptorSetAllocateInfo& SetLayout(const DescriptorSetLayout& aSetLayout) noexcept
     {
         descriptorSetCount  = 1;
         pSetLayouts         = aSetLayout.AddressOf();
@@ -203,11 +203,11 @@ public:
     }
 
     template <typename D, typename = EnableIfValueType<ValueType<D>, DescriptorSetLayout>>
-    DescriptorSetAllocateInfo& SetDescriptorSetLayouts(D&& aSetLayouts) noexcept
+    DescriptorSetAllocateInfo& SetLayouts(D&& aSetLayouts) noexcept
     {
         StaticLValueRefAssert(D, aSetLayouts);
 
-        return SetDescriptorSetLayouts(static_cast<uint32_t>(aSetLayouts.size()), aSetLayouts.data());
+        return SetLayouts(static_cast<uint32_t>(aSetLayouts.size()), aSetLayouts.data());
     }
 };
 

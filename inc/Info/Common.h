@@ -132,7 +132,7 @@ using ClearValue        = VkClearValue;
 
     TAGGED_BOOL(Anisotropy)
     TAGGED_BOOL(Compare)
-    TAGGED_BOOL(UnormCoord)
+    TAGGED_BOOL(UnNormCoord)
 
     TAGGED_BOOL(Clipped)
 #undef TAGGED_BOOL

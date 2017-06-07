@@ -105,7 +105,7 @@ public:
     };
 
     // Create a window with the specified position, dimensions and flags
-    CWindow(const std::string& aTitle, int aPosX, int aPosY, int aWidth, int aHeight, Uint32 aFlags) : mWindow(nullptr), mpCursor(nullptr), mNativeHandle(nullptr), mWinID(0)
+    CWindow(const std::string& aTitle, int aPosX, int aPosY, int aWidth, int aHeight, Uint32 aFlags) : mWindow(nullptr), mpCursor(nullptr), mWinID(0), mNativeHandle(nullptr)
     {
         Create(aTitle, aPosX, aPosY, aWidth, aHeight, aFlags);
         mpCursor = SDL_GetCursor();

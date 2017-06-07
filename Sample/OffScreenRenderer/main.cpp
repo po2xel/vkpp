@@ -19,7 +19,7 @@ namespace vkpp::sample
 int main(int /*argc*/, char* /*argv*/[])
 {
     constexpr static auto lAppName = "OffScreen Renderer";
-    CWindow lWindow{ lAppName, CWindow::eCentered, CWindow::eCentered, 1024, 768, CWindow::eResizable };
+    CWindow lWindow{ lAppName, CWindow::eCentered, CWindow::eCentered, 1024, 768, CWindow::eShown };
 
     OffScreenRenderer lOffScreenRenderer{ lWindow, lAppName, 1 };
 

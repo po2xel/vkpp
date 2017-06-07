@@ -1125,6 +1125,8 @@ class PipelineColorBlendStateCreateInfo : public internal::VkTrait<PipelineColor
 private:
     const internal::Structure sType = internal::Structure::ePipelineColorBlendState;
 
+    constexpr PipelineColorBlendStateCreateInfo(PipelineColorBlendAttachmentState&& aAttachment, const PipelineColorBlendStateCreateFlags& aFlags = DefaultFlags) noexcept = delete;
+
 public:
     const void*                                 pNext{ nullptr };
     PipelineColorBlendStateCreateFlags          flags;
@@ -1138,6 +1140,10 @@ public:
 
     constexpr PipelineColorBlendStateCreateInfo(uint32_t aAttachmentCount, const PipelineColorBlendAttachmentState* apAttachments, const PipelineColorBlendStateCreateFlags& aFlags = DefaultFlags) noexcept
         : flags(aFlags), attachmentCount(aAttachmentCount), pAttachments(apAttachments)
+    {}
+
+    constexpr PipelineColorBlendStateCreateInfo(const PipelineColorBlendAttachmentState& aAttachment, const PipelineColorBlendStateCreateFlags& aFlags = DefaultFlags) noexcept
+        : PipelineColorBlendStateCreateInfo(1, aAttachment.AddressOf(), aFlags)
     {}
 
     constexpr PipelineColorBlendStateCreateInfo(uint32_t aAttachmentCount, const PipelineColorBlendAttachmentState* apAttachments,

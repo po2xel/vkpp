@@ -52,30 +52,40 @@ Texture arrays allow storing of multiple images in different layers without any 
 
 ### [Mesh Renderer](Sample/MeshRenderer/)
 <img src="./Sample/MeshRenderer/MeshRenderer.png" height="108px" align="right">
+
 Uses assimp to load a mesh from a common 3D format. The mesh data is then converted to a fixed layout matching the shader vertex attribute bindings.<br
 
 [Voyager 1 and 2](https://voyager.jpl.nasa.gov/) are the most distant human-made objects. They are exploring where nothing from Earth has flown before.
 
 ### [Dynamic Uniform Buffer](Sample/DynamicUniformBuffer/)
 <img src="./Sample/DynamicUniformBuffer/DynamicUniformBuffer.png" height="108px" align="right">
+
 Demonstrates the use of dynamic uniform buffers for rendering multiple objects with different matrices from one big uniform buffer object. Sets up one bug uniform buffer that contains multiple model matrices that are dynamically addressed upon descriptor binding time.<br/>
 This minimizes the number of descriptor sets required and may help in optimizing memory writes by e.g. only doing partial updates to that memory.<br/>
 It is very practical to use when sub-allocating uniform buffers from a larger buffer allocation.
 
 ### [Push Constants](Sample/PushConstants/)
 <img src="./Sample/PushConstants/PushConstants.png" height="108px" align="right">
-Push Constants are uniform values that are stored within the CommandBuffer and can be accessed from the shaders similar to a single global uniform buffer. They provide enough bytes to hold some matrices or index values and the interpretation of the raw data is up the shader. ``The values are recorded with the CommandBuffer and cannot be altered afterwards.``
+
+Push Constants are uniform values that are stored within the CommandBuffer and can be accessed from the shaders similar to a single global uniform buffer. They provide enough bytes to hold some matrices or index values and the interpretation of the raw data is up the shader.
+``The values are recorded with the CommandBuffer and cannot be altered afterwards.``
 
 ### [Specialization Constants](Sample/SpecializationConstants/)
 <img src="./Sample/SpecializationConstants/SpecializationConstants.png" height="108px" align="right">
+
 Specialization Constants are used to specify shader constants at pipeline creation time.<br/>
-Shader bindings based on specialization constants are marked by the new ``constant_id`` layout qualifier. For example:
+Shader bindings based on specialization constants are marked by the new `constant_id` layout qualifier. For example:
 
 ```C
     layout (constant_id = 0) const int LightModel = 0;
 ```
 
 Specialization info is assigned as part of the shader stage and must be set after creating the shader module and before creating the pipeline.
+
+### [OffScreenRenderer](Sample/OffScreenRenderer/)
+<img src="./Sample/OffScreenRenderer/OffScreenRenderer.png" height="108px" align="right">
+
+Demonstrates the use of offscreen framebuffer with color and depth attachments.
 
 ## Credits
 Thanks to the authors of these libraries:

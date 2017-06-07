@@ -377,6 +377,11 @@ public:
         vkCmdEndRenderPass(mCommandBuffer);
     }
 
+    void NextSubpass(SubpassContents aSubpassContents = SubpassContents::eInline) const
+    {
+        vkCmdNextSubpass(mCommandBuffer, static_cast<VkSubpassContents>(aSubpassContents));
+    }
+
     void BindGraphicsPipeline(const Pipeline& aPipeline) const
     {
         vkCmdBindPipeline(mCommandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, aPipeline); 
@@ -634,7 +639,7 @@ public:
         vkCmdSetStencilReference(mCommandBuffer, aFaceMask, aReference);
     }
 
-    void BindVertexBuffer(const Buffer& aBuffer, const DeviceSize& aOffset, uint32_t aFirstBinding = 0) const
+    void BindVertexBuffer(const Buffer& aBuffer, const DeviceSize& aOffset = 0, uint32_t aFirstBinding = 0) const
     {
         vkCmdBindVertexBuffers(mCommandBuffer, aFirstBinding, 1, &aBuffer, &aOffset);
     }
@@ -657,7 +662,7 @@ public:
         BindVertexBuffers(aFirstBinding, static_cast<uint32_t>(aBuffers.size()), aBuffers.begin(), aOffsets.begin());
     }
 
-    void BindIndexBuffer(const Buffer& aBuffer, DeviceSize aOffset, IndexType aIndexType) const
+    void BindIndexBuffer(const Buffer& aBuffer, DeviceSize aOffset = 0, IndexType aIndexType = IndexType::eUInt32) const
     {
         vkCmdBindIndexBuffer(mCommandBuffer, aBuffer, aOffset, static_cast<VkIndexType>(aIndexType));
     }

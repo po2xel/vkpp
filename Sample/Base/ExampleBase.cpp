@@ -320,6 +320,7 @@ void ExampleBase::CreateLogicalDevice(void)
 
     mEnabledFeatures.textureCompressionBC = mPhysicalDeviceFeatures.textureCompressionBC;
     mEnabledFeatures.samplerAnisotropy = mPhysicalDeviceFeatures.samplerAnisotropy;
+    mEnabledFeatures.shaderClipDistance = mPhysicalDeviceFeatures.shaderClipDistance;
 
     const vkpp::LogicalDeviceCreateInfo lLogicalDeviceCreateInfo
     {

@@ -216,6 +216,7 @@ public:
     {
         uint32_t lPhysicalDeviceCount{ 0 };
         ThrowIfFailed(vkEnumeratePhysicalDevices(mInstance, &lPhysicalDeviceCount, nullptr));
+        assert(lPhysicalDeviceCount != 0);
 
         std::vector<PhysicalDevice> lPhysicalDevices(lPhysicalDeviceCount);
         ThrowIfFailed(vkEnumeratePhysicalDevices(mInstance, &lPhysicalDeviceCount, &lPhysicalDevices[0]));
@@ -227,6 +228,7 @@ public:
     {
         uint32_t lLayerCount{ 0 };
         ThrowIfFailed(vkEnumerateInstanceLayerProperties(&lLayerCount, nullptr));
+        assert(lLayerCount != 0);
 
         std::vector<LayerProperty> lLayers(lLayerCount);
         ThrowIfFailed(vkEnumerateInstanceLayerProperties(&lLayerCount, &lLayers[0]));
@@ -238,6 +240,7 @@ public:
     {
         uint32_t lExtensionCount{ 0 };
         vkEnumerateInstanceExtensionProperties(apLayerName, &lExtensionCount, nullptr);
+        assert(lExtensionCount != 0);
 
         std::vector<ExtensionProperty> lExtensions(lExtensionCount);
         ThrowIfFailed(vkEnumerateInstanceExtensionProperties(apLayerName, &lExtensionCount, &lExtensions[0]));

@@ -207,6 +207,8 @@ public:
 
     void Submit(uint32_t aSubmitCount, const SubmitInfo* apSubmits) const
     {
+        assert(aSubmitCount != 0 && apSubmits != nullptr);
+
         ThrowIfFailed(vkQueueSubmit(mQueue, aSubmitCount, &apSubmits[0], VK_NULL_HANDLE));
     }
 

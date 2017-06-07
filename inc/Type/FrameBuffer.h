@@ -25,6 +25,8 @@ class FramebufferCreateInfo : public internal::VkTrait<FramebufferCreateInfo, Vk
 private:
     const internal::Structure sType = internal::Structure::eFramebuffer;
 
+    FramebufferCreateInfo(const RenderPass& aRenderPass, ImageView&& aAttachment, uint32_t aWidth = 1, uint32_t aHeight = 1, uint32_t aLayers = 1, const FramebufferCreateFlags& aFlags = DefaultFlags) noexcept = delete;
+
 public:
     const void*             pNext{ nullptr };
     FramebufferCreateFlags  flags;
@@ -41,6 +43,10 @@ public:
         uint32_t aWidth = 1, uint32_t aHeight = 1, uint32_t aLayers = 1, const FramebufferCreateFlags& aFlags = DefaultFlags) noexcept
         : flags(aFlags), renderPass(aRenderPass), attachmentCount(aAttachmentCount), pAttachments(apAttachments),
         width(aWidth), height(aHeight), layers(aLayers)
+    {}
+
+    FramebufferCreateInfo(const RenderPass& aRenderPass, const ImageView& aAttachment, uint32_t aWidth = 1, uint32_t aHeight = 1, uint32_t aLayers = 1, const FramebufferCreateFlags& aFlags = DefaultFlags) noexcept
+        : FramebufferCreateInfo(aRenderPass, 1, aAttachment.AddressOf(), aWidth, aHeight, aLayers, aFlags)
     {}
 
     template <typename A, typename = EnableIfValueType<ValueType<A>, ImageView>>

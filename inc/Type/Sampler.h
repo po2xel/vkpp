@@ -74,16 +74,16 @@ public:
     float               minLod{ 0.0f };
     float               maxLod{ 0.0f };
     BorderColor         borderColor{ BorderColor::eFloatTransparentBlack };
-    UnormCoord          unnormalizedCoordinates{ UnormCoord::Disable };
+    UnNormCoord          unnormalizedCoordinates{ UnNormCoord::Disable };
 
     DEFINE_CLASS_MEMBER(SamplerCreateInfo)
 
     constexpr SamplerCreateInfo(Filter aMagFilter, Filter aMinFilter, SamplerMipmapMode aMipmapMode,
         SamplerAddressMode aAddressModeU, SamplerAddressMode aAddressModeV, SamplerAddressMode aAddressModeW,
-        float aMipLodBias, Anisotropy aAnisotropyEnble, float aMaxAnisotropy, Compare aCompareEnable, CompareOp aCompareOp,
-        float aMinLod, float aMaxLod, BorderColor aBorderColor, UnormCoord aUnnormalizedCoordinates = UnormCoord::Disable, const SamplerCreateFlags& aFlags = DefaultFlags) noexcept
+        float aMipLodBias, Anisotropy aAnisotropyEnable, float aMaxAnisotropy, Compare aCompareEnable, CompareOp aCompareOp,
+        float aMinLod, float aMaxLod, BorderColor aBorderColor, UnNormCoord aUnnormalizedCoordinates = UnNormCoord::Disable, const SamplerCreateFlags& aFlags = DefaultFlags) noexcept
         : flags(aFlags), magFilter(aMagFilter), minFilter(aMinFilter), mipmapMode(aMipmapMode), addressModeU(aAddressModeU), addressModeV(aAddressModeV), addressModeW(aAddressModeW),
-          mipLodBias(aMipLodBias), anisotropyEnable(aAnisotropyEnble), maxAnisotropy(aMaxAnisotropy), compareEnable(aCompareEnable), compareOp(aCompareOp),
+          mipLodBias(aMipLodBias), anisotropyEnable(aAnisotropyEnable), maxAnisotropy(aMaxAnisotropy), compareEnable(aCompareEnable), compareOp(aCompareOp),
           minLod(aMinLod), maxLod(aMaxLod), borderColor(aBorderColor), unnormalizedCoordinates(aUnnormalizedCoordinates)
     {}
 
@@ -179,14 +179,14 @@ public:
 
     SamplerCreateInfo& EnableUnnormCoord(void) noexcept
     {
-        unnormalizedCoordinates = UnormCoord::Enable;
+        unnormalizedCoordinates = UnNormCoord::Enable;
 
         return *this;
     }
 
     SamplerCreateInfo& DisableUnnormCoord(void) noexcept
     {
-        unnormalizedCoordinates = UnormCoord::Disable;
+        unnormalizedCoordinates = UnNormCoord::Disable;
 
         return *this;
     }

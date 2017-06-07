@@ -453,6 +453,8 @@ public:
 
     void FreeCommandBuffer(const CommandPool& aCommandPool, const CommandBuffer& aCommandBuffer) const
     {
+        assert(aCommandBuffer);
+
         vkFreeCommandBuffers(mDevice, aCommandPool, 1, &aCommandBuffer);
     }
 
@@ -894,7 +896,7 @@ public:
         ThrowIfFailed(vkBindImageMemory(mDevice, aImage, aDeviceMemory, aMemoryOffset));
     }
 
-    void* MapMemory(const DeviceMemory& aDeviceMemory, DeviceSize aOffset, DeviceSize aSize = VK_WHOLE_SIZE, const MemoryMapFlags& aFlags = DefaultFlags) const
+    void* MapMemory(const DeviceMemory& aDeviceMemory, DeviceSize aOffset = 0, DeviceSize aSize = VK_WHOLE_SIZE, const MemoryMapFlags& aFlags = DefaultFlags) const
     {
         void* lpHostData{ nullptr };
 

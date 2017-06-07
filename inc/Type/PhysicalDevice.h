@@ -196,6 +196,7 @@ public:
     {
         uint32_t lLayerCount{ 0 };
         ThrowIfFailed(vkEnumerateDeviceLayerProperties(mPhysicalDevice, &lLayerCount, nullptr));
+        assert(lLayerCount != 0);
 
         std::vector<LayerProperty> lLayers(lLayerCount);
         ThrowIfFailed(vkEnumerateDeviceLayerProperties(mPhysicalDevice, &lLayerCount, &lLayers[0]));
@@ -207,6 +208,7 @@ public:
     {
         uint32_t lExtensionCount{ 0 };
         ThrowIfFailed(vkEnumerateDeviceExtensionProperties(mPhysicalDevice, apLayerName, &lExtensionCount, nullptr));
+        assert(lExtensionCount);
 
         std::vector<ExtensionProperty> lExtensions(lExtensionCount);
         ThrowIfFailed(vkEnumerateDeviceExtensionProperties(mPhysicalDevice, apLayerName, &lExtensionCount, &lExtensions[0]));
@@ -250,6 +252,7 @@ public:
     {
         uint32_t lQueueFamilyPropertyCount{ 0 };
         vkGetPhysicalDeviceQueueFamilyProperties(mPhysicalDevice, &lQueueFamilyPropertyCount, nullptr);
+        assert(lQueueFamilyPropertyCount != 0);
 
         std::vector<QueueFamilyProperties> lQueueFamilyProperties(lQueueFamilyPropertyCount);
         vkGetPhysicalDeviceQueueFamilyProperties(mPhysicalDevice, &lQueueFamilyPropertyCount, &lQueueFamilyProperties[0]);
@@ -277,6 +280,7 @@ public:
     {
         uint32_t lSurfaceFormatCount{ 0 };
         ThrowIfFailed(vkGetPhysicalDeviceSurfaceFormatsKHR(mPhysicalDevice, aSurface, &lSurfaceFormatCount, nullptr));
+        assert(lSurfaceFormatCount != 0);
 
         std::vector<khr::SurfaceFormat> lSurfaceFormats(lSurfaceFormatCount);
         ThrowIfFailed(vkGetPhysicalDeviceSurfaceFormatsKHR(mPhysicalDevice, aSurface, &lSurfaceFormatCount, &lSurfaceFormats[0]));
