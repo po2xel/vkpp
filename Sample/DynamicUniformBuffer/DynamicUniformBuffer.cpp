@@ -584,28 +584,28 @@ void DynamicUniformBuffer::UpdateUniformBuffer(void)
 void DynamicUniformBuffer::UpdateDynamicUniformBuffer(void)
 {
     // Dynamic ubo with per-object model matrices indexed by offsets in command buffer.
-    uint32_t dim = static_cast<uint32_t>(pow(OBJECT_INSTANCES, (1.0f / 3.0f)));
-    glm::vec3 offset(5.0f);
+    auto lDim = static_cast<uint32_t>(pow(OBJECT_INSTANCES, (1.0f / 3.0f)));
+    glm::vec3 lOffset(5.0f);
 
-    static auto animationTimer{ 1.0f };
-    animationTimer += 1.0f / 60.0f;
+    static auto lAnimationTimer{ 1.0f };
+    lAnimationTimer += 1.0f / 60.0f;
 
-    for (uint32_t x = 0; x < dim; x++)
+    for (uint32_t x = 0; x < lDim; x++)
     {
-        for (uint32_t y = 0; y < dim; y++)
+        for (uint32_t y = 0; y < lDim; y++)
         {
-            for (uint32_t z = 0; z < dim; z++)
+            for (uint32_t z = 0; z < lDim; z++)
             {
-                uint32_t lIndex = x * dim * dim + y * dim + z;
+                uint32_t lIndex = x * lDim * lDim + y * lDim + z;
 
                 // Aligned offset
                 glm::mat4* lModelMat = (glm::mat4*)(((uint64_t)mpUBODataDynamic + (lIndex * mDynamicAlignment)));
 
                 // Update rotations
-                mRotations[lIndex] += animationTimer * mRotationSpeeds[lIndex];
+                mRotations[lIndex] += lAnimationTimer * mRotationSpeeds[lIndex];
 
                 // Update matrices
-                glm::vec3 pos = glm::vec3(-((dim * offset.x) / 2.0f) + offset.x / 2.0f + x * offset.x, -((dim * offset.y) / 2.0f) + offset.y / 2.0f + y * offset.y, -((dim * offset.z) / 2.0f) + offset.z / 2.0f + z * offset.z);
+                glm::vec3 pos = glm::vec3(-((lDim * lOffset.x) / 2.0f) + lOffset.x / 2.0f + x * lOffset.x, -((lDim * lOffset.y) / 2.0f) + lOffset.y / 2.0f + y * lOffset.y, -((lDim * lOffset.z) / 2.0f) + lOffset.z / 2.0f + z * lOffset.z);
                 *lModelMat = glm::translate(glm::mat4(), pos);
                 *lModelMat = glm::rotate(*lModelMat, mRotations[lIndex].x, glm::vec3(1.0f, 1.0f, 0.0f));
                 *lModelMat = glm::rotate(*lModelMat, mRotations[lIndex].y, glm::vec3(0.0f, 1.0f, 0.0f));
@@ -614,7 +614,7 @@ void DynamicUniformBuffer::UpdateDynamicUniformBuffer(void)
         }
     }
 
-    animationTimer = 0.0f;
+    lAnimationTimer = 0.0f;
 
     std::memcpy(mpDynamicUBOMapped, mpUBODataDynamic, mDynamicBufferSize);
 

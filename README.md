@@ -82,11 +82,18 @@ Shader bindings based on specialization constants are marked by the new `constan
 
 Specialization info is assigned as part of the shader stage and must be set after creating the shader module and before creating the pipeline.
 
-### [OffScreenRenderer](Sample/OffScreenRenderer/)
+### [Off Screen Renderer](Sample/OffScreenRenderer/)
 
 <img src="./Sample/OffScreenRenderer/OffScreenRenderer.png" height="108px" align="right">
 
 Demonstrates the use of offscreen framebuffer with color and depth attachments. The color attachment of the first render pass is used as the sampler texture of the second render pass.
+
+
+### [Radial Blur](Sample/RadialBlur/)
+
+<img src="./Sample/RadialBlur/RadialBlur.png" height="108px" align="right">
+
+Demonstrates the basics of a fullscreen (fragment) shader effect. The scene is rendered into a low resolution offscreen first and blended on top of the scene in a second pass. The fragment shader also applies a radial blur to it.
 
 
 ## Credits

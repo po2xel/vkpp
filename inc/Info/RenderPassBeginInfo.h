@@ -34,9 +34,21 @@ public:
         : renderPass(aRenderPass), framebuffer(aFramebuffer), renderArea(aRenderArea), clearValueCount(aClearValueCount), pClearValues(apClearValues)
     {}
 
+    RenderPassBeginInfo(const RenderPass& aRenderPass, const Framebuffer& aFramebuffer, const Offset2D& aOffset, const Extent2D& aExtent,
+        uint32_t aClearValueCount, const ClearValue* apClearValues) noexcept
+        : renderPass(aRenderPass), framebuffer(aFramebuffer), renderArea(aOffset, aExtent), clearValueCount(aClearValueCount), pClearValues(apClearValues)
+    {}
+
     template <typename C, typename = EnableIfValueType<ValueType<C>, ClearValue>>
     RenderPassBeginInfo(const RenderPass& aRenderPass, const Framebuffer& aFramebuffer, const Rect2D& aRenderArea, C&& aClearValues) noexcept
-        : RenderPassBeginInfo(aRenderPass, aFramebuffer, aRenderArea, static_cast<uint32_t>(aClearValues.size()), aClearValues.data())
+        : RenderPassBeginInfo(aRenderPass, aFramebuffer, aRenderArea, SizeOf<uint32_t>(aClearValues), DataOf(aClearValues))
+    {
+        StaticLValueRefAssert(C, aClearValues);
+    }
+
+    template <typename C, typename = EnableIfValueType<ValueType<C>, ClearValue>>
+    RenderPassBeginInfo(const RenderPass& aRenderPass, const Framebuffer& aFramebuffer, const Offset2D& aOffset, const Extent2D& aExtent, C&& aClearValues) noexcept
+        : RenderPassBeginInfo(aRenderPass, aFramebuffer, aOffset, aExtent, SizeOf<uint32_t>(aClearValues), DataOf(aClearValues))
     {
         StaticLValueRefAssert(C, aClearValues);
     }
@@ -69,8 +81,19 @@ public:
         return *this;
     }
 
+    RenderPassBeginInfo& SetRenderArea(const Offset2D& aOffset, const Extent2D& aExtent) noexcept
+    {
+        renderArea
+            .SetOffset(aOffset)
+            .SetExtent(aExtent);
+
+        return *this;
+    }
+
     RenderPassBeginInfo& SetClearValue(uint32_t aClearValueCount, const ClearValue* apClearValues) noexcept
     {
+        assert((aClearValueCount != 0 && apClearValues != nullptr) || (0 == aClearValueCount && nullptr == apClearValues));
+
         clearValueCount = aClearValueCount;
         pClearValues    = apClearValues;
 
@@ -82,7 +105,7 @@ public:
     {
         StaticLValueRefAssert(C, aClearValues);
 
-        return SetClearValue(static_cast<uint32_t>(aClearValues.size()), aClearValues.data());
+        return SetClearValue(SizeOf<uint32_t>(aClearValues), DataOf(aClearValues));
     }
 };
 

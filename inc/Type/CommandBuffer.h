@@ -152,7 +152,7 @@ class CommandBufferBeginInfo : public internal::VkTrait<CommandBufferBeginInfo, 
 private:
     const internal::Structure sType = internal::Structure::eCommandBufferBegin;
 
-    constexpr CommandBufferBeginInfo(const CommandBufferUsageFlags& aFlags, CommandBufferInheritanceInfo&& aInheritanceInfo) noexcept = delete;
+    constexpr CommandBufferBeginInfo(const CommandBufferUsageFlags&, CommandBufferInheritanceInfo&&) noexcept = delete;
 
 public:
     const void*                         pNext{ nullptr };
@@ -224,24 +224,28 @@ struct CommandPipelineBarrier
         return *this;
     }
 
-    template <typename Array>
-    CommandPipelineBarrier& SetMemoryBarriers(const Array& aMemoryBarriers) noexcept
+    template <typename B, typename = EnableIfValueType<ValueType<B>, MemoryBarrier>>
+    CommandPipelineBarrier& SetMemoryBarriers(B&& aMemoryBarriers) noexcept
     {
-        return SetMemoryBarriers(static_cast<uint32_t>(aMemoryBarriers.size()), aMemoryBarriers.data());
+        StaticLValueRefAssert(B, aMemoryBarriers);
+
+        return SetMemoryBarriers(SizeOf<uint32_t>(aMemoryBarriers), DataOf(aMemoryBarriers));
     }
 
     CommandPipelineBarrier& SetBufferMemoryBarriers(uint32_t aBufferMemoryBarrierCount, const BufferMemoryBarrier* apBufferMemoryBarriers) noexcept
     {
         bufferMemoryBarrierCount    = aBufferMemoryBarrierCount;
-        pBufferMemoryBarriers        = apBufferMemoryBarriers;
+        pBufferMemoryBarriers       = apBufferMemoryBarriers;
 
         return *this;
     }
 
-    template <typename Array>
-    CommandPipelineBarrier& SetBufferMemoryBarriers(const Array& aBufferMemoryBarriers) noexcept
+    template <typename B, typename = EnableIfValueType<ValueType<B>, BufferMemoryBarrier>>
+    CommandPipelineBarrier& SetBufferMemoryBarriers(B&& aBufferMemoryBarriers) noexcept
     {
-        return SetBufferMemoryBarriers(static_cast<uint32_t>(aBufferMemoryBarriers.size()), aBufferMemoryBarriers.data());
+        StaticLValueRefAssert(B, aBufferMemoryBarriers);
+
+        return SetBufferMemoryBarriers(SizeOf<uint32_t>(aBufferMemoryBarriers), DataOf(aBufferMemoryBarriers));
     }
 
     CommandPipelineBarrier& SetImageMemoryBarriers(uint32_t aImageMemoryBarrierCount, const ImageMemoryBarrier* apImageMemoryBarriers) noexcept
@@ -252,10 +256,12 @@ struct CommandPipelineBarrier
         return *this;
     }
 
-    template <typename Array>
-    CommandPipelineBarrier& SetImageMemoryBarriers(const Array& aImageMemoryBarriers) noexcept
+    template <typename B, typename = EnableIfValueType<ValueType<B>, ImageMemoryBarrier>>
+    CommandPipelineBarrier& SetImageMemoryBarriers(B&& aImageMemoryBarriers) noexcept
     {
-        return SetImageMemoryBarriers(static_cast<uint32_t>(aImageMemoryBarriers.size()), aImageMemoryBarriers.data());
+        StaticLValueRefAssert(B, aImageMemoryBarriers);
+
+        return SetImageMemoryBarriers(SizeOf<uint32_t>(aImageMemoryBarriers), DataOf(aImageMemoryBarriers));
     }
 };
 
@@ -324,7 +330,7 @@ private:
 public:
     CommandBuffer(void) noexcept = default;
 
-    CommandBuffer(std::nullptr_t) noexcept
+    explicit CommandBuffer(std::nullptr_t) noexcept
     {}
 
     explicit CommandBuffer(VkCommandBuffer aCommandBuffer) noexcept : mCommandBuffer(aCommandBuffer)
@@ -357,14 +363,14 @@ public:
     {
         assert(!aCommandBuffers.empty());
 
-        vkCmdExecuteCommands(mCommandBuffer, static_cast<uint32_t>(aCommandBuffers.size()), aCommandBuffers.data());
+        Execute(SizeOf<uint32_t>(aCommandBuffers), DataOf(aCommandBuffers));
     }
 
     void Execute(const std::initializer_list<CommandBuffer>& aCommandBuffers) const
     {
         assert(aCommandBuffers.size() > 0);
 
-        Execute(static_cast<uint32_t>(aCommandBuffers.size()), aCommandBuffers.begin());
+        Execute(SizeOf<uint32_t>(aCommandBuffers), DataOf(aCommandBuffers));
     }
 
     void BeginRenderPass(const RenderPassBeginInfo& aRenderPassBeginInfo, SubpassContents aSubpassContents = SubpassContents::eInline) const
@@ -473,9 +479,9 @@ public:
         assert(!(aMemoryBarriers.empty() || aBufferMemoryBarriers.empty() || aImageMemoryBarriers.empty()));
 
         vkCmdPipelineBarrier(mCommandBuffer, aSrcStageMask, aDstStageMask, aDependencyFlags,
-            static_cast<uint32_t>(aMemoryBarriers.size()), &aMemoryBarriers[0],
-            static_cast<uint32_t>(aBufferMemoryBarriers.size()), &aBufferMemoryBarriers[0],
-            static_cast<uint32_t>(aImageMemoryBarriers.size()), &aImageMemoryBarriers[0]);
+            SizeOf<uint32_t>(aMemoryBarriers), &aMemoryBarriers[0],
+            SizeOf<uint32_t>(aBufferMemoryBarriers), &aBufferMemoryBarriers[0],
+            SizeOf<uint32_t>(aImageMemoryBarriers), &aImageMemoryBarriers[0]);
     }
 
     void PipelineBarrier(const PipelineStageFlags& aSrcStageMask, const PipelineStageFlags& aDstStageMask, const DependencyFlags& aDependencyFlags,
@@ -484,7 +490,7 @@ public:
         assert(!aMemoryBarriers.empty());
 
         vkCmdPipelineBarrier(mCommandBuffer, aSrcStageMask, aDstStageMask, aDependencyFlags,
-            static_cast<uint32_t>(aMemoryBarriers.size()), &aMemoryBarriers[0],
+            SizeOf<uint32_t>(aMemoryBarriers), &aMemoryBarriers[0],
             0, nullptr,
             0, nullptr);
     }
@@ -505,7 +511,7 @@ public:
 
         vkCmdPipelineBarrier(mCommandBuffer, aSrcStageMask, aDstStageMask, aDependencyFlags,
             0, nullptr,
-            static_cast<uint32_t>(aBufferMemoryBarriers.size()), &aBufferMemoryBarriers[0],
+            SizeOf<uint32_t>(aBufferMemoryBarriers), &aBufferMemoryBarriers[0],
             0, nullptr);
     }
 
@@ -526,7 +532,7 @@ public:
         vkCmdPipelineBarrier(mCommandBuffer, aSrcStageMask, aDstStageMask, aDependencyFlags,
             0, nullptr,
             0, nullptr,
-            static_cast<uint32_t>(aImageMemoryBarriers.size()), &aImageMemoryBarriers[0]);
+            SizeOf<uint32_t>(aImageMemoryBarriers), &aImageMemoryBarriers[0]);
     }
 
     void PipelineBarrier(const PipelineStageFlags& aSrcStageMask, const PipelineStageFlags& aDstStageMask, const DependencyFlags& aDependencyFlags,
@@ -550,7 +556,7 @@ public:
     {
         assert(!aRanges.empty());
 
-        vkCmdClearColorImage(mCommandBuffer, aImage, static_cast<VkImageLayout>(aImageLayout), &aClearColor, static_cast<uint32_t>(aRanges.size()), &aRanges[0]);
+        vkCmdClearColorImage(mCommandBuffer, aImage, static_cast<VkImageLayout>(aImageLayout), &aClearColor, SizeOf<uint32_t>(aRanges), &aRanges[0]);
     }
 
     void SetViewport(const Viewport& aViewport, uint32_t aFirstViewport = 0) const
@@ -568,12 +574,12 @@ public:
     template <typename T, typename = EnableIfValueType<ValueType<T>, Viewport>>
     void SetViewports(uint32_t aFirstViewport, T&& aViewports) const
     {
-        SetViewports(aFirstViewport, static_cast<uint32_t>(aViewports.size()), aViewports.data());
+        SetViewports(aFirstViewport, SizeOf<uint32_t>(aViewports), DataOf(aViewports));
     }
 
     void SetViewports(uint32_t aFirstViewport, const std::initializer_list<Viewport>& aViewports) const
     {
-        SetViewports(aFirstViewport, static_cast<uint32_t>(aViewports.size()), aViewports.begin());
+        SetViewports(aFirstViewport, SizeOf<uint32_t>(aViewports), DataOf(aViewports));
     }
 
     void SetLineWidth(float aLineWidth) const
@@ -611,12 +617,12 @@ public:
     template<typename T, typename = EnableIfValueType<ValueType<T>, Rect2D>>
     void SetScissors(uint32_t aFirstScissor, T&& aScissors) const
     {
-        SetScissors(aFirstScissor, static_cast<uint32_t>(aScissors.size()), aScissors.data());
+        SetScissors(aFirstScissor, SizeOf<uint32_t>(aScissors), DataOf(aScissors));
     }
 
     void SetScissors(uint32_t aFirstScissor, const std::initializer_list<Rect2D>& aScissors) const
     {
-        SetScissors(aFirstScissor, static_cast<uint32_t>(aScissors.size()), aScissors.begin());
+        SetScissors(aFirstScissor, SizeOf<uint32_t>(aScissors), DataOf(aScissors));
     }
 
     void SetDepthBounds(float aMinDepthBounds, float aMaxDepthBounds) const
@@ -654,12 +660,12 @@ public:
     template <typename B, typename S, typename = EnableIfValueType<ValueType<B>, Buffer, ValueType<S>, DeviceSize>>
     void BindVertexBuffers(uint32_t aFirstBinding, B&& aBuffers, S&& aOffsets) const
     {
-        BindVertexBuffers(aFirstBinding, static_cast<uint32_t>(aBuffers.size()), aBuffers.data(), aOffsets.data());
+        BindVertexBuffers(aFirstBinding, SizeOf<uint32_t>(aBuffers), DataOf(aBuffers), DataOf(aOffsets));
     }
 
     void BindVertexBuffers(uint32_t aFirstBinding, const std::initializer_list<Buffer>& aBuffers, const std::initializer_list<DeviceSize>& aOffsets) const
     {
-        BindVertexBuffers(aFirstBinding, static_cast<uint32_t>(aBuffers.size()), aBuffers.begin(), aOffsets.begin());
+        BindVertexBuffers(aFirstBinding, SizeOf<uint32_t>(aBuffers), DataOf(aBuffers), DataOf(aOffsets));
     }
 
     void BindIndexBuffer(const Buffer& aBuffer, DeviceSize aOffset = 0, IndexType aIndexType = IndexType::eUInt32) const
@@ -677,7 +683,7 @@ public:
     {
         assert(!aRegions.empty());
 
-        vkCmdCopyBuffer(mCommandBuffer, aSrcBuffer, aDstBuffer, static_cast<uint32_t>(aRegions.size()), &aRegions[0]);
+        vkCmdCopyBuffer(mCommandBuffer, aSrcBuffer, aDstBuffer, SizeOf<uint32_t>(aRegions), &aRegions[0]);
     }
 
     template <std::size_t R>
@@ -685,7 +691,7 @@ public:
     {
         static_assert(!aRegions.empty());
 
-        vkCmdCopyBuffer(mCommandBuffer, aSrcBuffer, aDstBuffer, static_cast<uint32_t>(aRegions.size()), &aRegions[0]);
+        vkCmdCopyBuffer(mCommandBuffer, aSrcBuffer, aDstBuffer, SizeOf<uint32_t>(aRegions), &aRegions[0]);
     }
 
     // Copy Data Between Images
@@ -703,7 +709,7 @@ public:
         assert(vkpp::ImageLayout::eTransferDstOptimal == aDstImageLayout || vkpp::ImageLayout::eGeneral == aDstImageLayout);
         assert(vkpp::ImageLayout::eTransferSrcOptimal == aSrcImageLayout || vkpp::ImageLayout::eGeneral == aSrcImageLayout);
 
-        vkCmdCopyImage(mCommandBuffer, aSrcImage, static_cast<VkImageLayout>(aSrcImageLayout), aDstImage, static_cast<VkImageLayout>(aDstImageLayout), static_cast<uint32_t>(aRegions.size()), &aRegions[0]);
+        vkCmdCopyImage(mCommandBuffer, aSrcImage, static_cast<VkImageLayout>(aSrcImageLayout), aDstImage, static_cast<VkImageLayout>(aDstImageLayout), SizeOf<uint32_t>(aRegions), &aRegions[0]);
     }
 
     template <std::size_t R>
@@ -713,7 +719,7 @@ public:
         assert(vkpp::ImageLayout::eTransferDstOptimal == aDstImageLayout || vkpp::ImageLayout::eGeneral == aDstImageLayout);
         assert(vkpp::ImageLayout::eTransferSrcOptimal == aSrcImageLayout || vkpp::ImageLayout::eGeneral == aSrcImageLayout);
 
-        vkCmdCopyImage(mCommandBuffer, aSrcImage, static_cast<VkImageLayout>(aSrcImageLayout), aDstImage, static_cast<VkImageLayout>(aDstImageLayout), static_cast<uint32_t>(aRegions.size()), &aRegions[0]);
+        vkCmdCopyImage(mCommandBuffer, aSrcImage, static_cast<VkImageLayout>(aSrcImageLayout), aDstImage, static_cast<VkImageLayout>(aDstImageLayout), SizeOf<uint32_t>(aRegions), &aRegions[0]);
     }
 
     // Copy Data From Buffers to Images
@@ -729,7 +735,7 @@ public:
         assert(vkpp::ImageLayout::eTransferDstOptimal == aDstImageLayout || vkpp::ImageLayout::eGeneral == aDstImageLayout);
         assert(!aRegions.empty());
 
-        vkCmdCopyBufferToImage(mCommandBuffer, aSrcBuffer, aDstImage, static_cast<VkImageLayout>(aDstImageLayout), static_cast<uint32_t>(aRegions.size()), &aRegions[0]);
+        vkCmdCopyBufferToImage(mCommandBuffer, aSrcBuffer, aDstImage, static_cast<VkImageLayout>(aDstImageLayout), SizeOf<uint32_t>(aRegions), &aRegions[0]);
     }
 
     template <std::size_t R>
@@ -738,7 +744,7 @@ public:
         assert(vkpp::ImageLayout::eTransferDstOptimal == aDstImageLayout || vkpp::ImageLayout::eGeneral == aDstImageLayout);
         static_assert(!aRegions.empty());
 
-        vkCmdCopyBufferToImage(mCommandBuffer, aSrcBuffer, aDstImage, static_cast<VkImageLayout>(aDstImageLayout), static_cast<uint32_t>(aRegions.size()), &aRegions[0]);
+        vkCmdCopyBufferToImage(mCommandBuffer, aSrcBuffer, aDstImage, static_cast<VkImageLayout>(aDstImageLayout), SizeOf<uint32_t>(aRegions), &aRegions[0]);
     }
 
     // Copy Data From Images to Buffers
@@ -754,7 +760,7 @@ public:
         assert(vkpp::ImageLayout::eTransferSrcOptimal == aSrcImageLayout || vkpp::ImageLayout::eGeneral == aSrcImageLayout);
         assert(!aRegions.empty());
 
-        vkCmdCopyImageToBuffer(mCommandBuffer, aSrcImage, static_cast<VkImageLayout>(aSrcImageLayout), aDstBuffer, static_cast<uint32_t>(aRegions.size()), &aRegions[0]);
+        vkCmdCopyImageToBuffer(mCommandBuffer, aSrcImage, static_cast<VkImageLayout>(aSrcImageLayout), aDstBuffer, SizeOf<uint32_t>(aRegions), &aRegions[0]);
     }
 
     template <std::size_t R>
@@ -763,7 +769,7 @@ public:
         assert(vkpp::ImageLayout::eTransferSrcOptimal == aSrcImageLayout || vkpp::ImageLayout::eGeneral == aSrcImageLayout);
         static_assert(!aRegions.empty());
 
-        vkCmdCopyImageToBuffer(mCommandBuffer, aSrcImage, static_cast<VkImageLayout>(aSrcImageLayout), aDstBuffer, static_cast<uint32_t>(aRegions.size()), &aRegions[0]);
+        vkCmdCopyImageToBuffer(mCommandBuffer, aSrcImage, static_cast<VkImageLayout>(aSrcImageLayout), aDstBuffer, SizeOf<uint32_t>(aRegions), &aRegions[0]);
     }
 
     // Image Copies with Scaling
@@ -781,7 +787,7 @@ public:
         assert(vkpp::ImageLayout::eTransferDstOptimal == aDstImageLayout || vkpp::ImageLayout::eGeneral == aDstImageLayout);
         assert(vkpp::ImageLayout::eTransferSrcOptimal == aSrcImageLayout || vkpp::ImageLayout::eGeneral == aSrcImageLayout);
 
-        vkCmdBlitImage(mCommandBuffer, aSrcImage, static_cast<VkImageLayout>(aSrcImageLayout), aDstImage, static_cast<VkImageLayout>(aDstImageLayout), static_cast<uint32_t>(aRegions.size()), &aRegions[0], static_cast<VkFilter>(aFilter));
+        vkCmdBlitImage(mCommandBuffer, aSrcImage, static_cast<VkImageLayout>(aSrcImageLayout), aDstImage, static_cast<VkImageLayout>(aDstImageLayout), SizeOf<uint32_t>(aRegions), &aRegions[0], static_cast<VkFilter>(aFilter));
     }
 
     template <std::size_t R>
@@ -791,7 +797,7 @@ public:
         assert(vkpp::ImageLayout::eTransferDstOptimal == aDstImageLayout || vkpp::ImageLayout::eGeneral == aDstImageLayout);
         assert(vkpp::ImageLayout::eTransferSrcOptimal == aSrcImageLayout || vkpp::ImageLayout::eGeneral == aSrcImageLayout);
 
-        vkCmdBlitImage(mCommandBuffer, aSrcImage, static_cast<VkImageLayout>(aSrcImageLayout), aDstImage, static_cast<VkImageLayout>(aDstImageLayout), static_cast<uint32_t>(aRegions.size()), &aRegions[0], static_cast<VkFilter>(aFilter));
+        vkCmdBlitImage(mCommandBuffer, aSrcImage, static_cast<VkImageLayout>(aSrcImageLayout), aDstImage, static_cast<VkImageLayout>(aDstImageLayout), SizeOf<uint32_t>(aRegions), &aRegions[0], static_cast<VkFilter>(aFilter));
     }
 };
 

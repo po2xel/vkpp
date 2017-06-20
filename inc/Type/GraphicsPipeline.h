@@ -108,6 +108,15 @@ class GraphicsPipelineCreateInfo : public internal::VkTrait<GraphicsPipelineCrea
 private:
     const internal::Structure sType = internal::Structure::ePipelineGraphics;
 
+    GraphicsPipelineCreateInfo& SetInputStateCreateInfo(PipelineVertexInputStateCreateInfo&&) noexcept = delete;
+    GraphicsPipelineCreateInfo& SetInputAssemblyState(PipelineInputAssemblyStateCreateInfo&&) noexcept = delete;
+    GraphicsPipelineCreateInfo& SetTessellationState(PipelineTessellationStateCreateInfo&&) noexcept = delete;
+    GraphicsPipelineCreateInfo& SetViewportState(PipelineViewportStateCreateInfo&&) noexcept = delete;
+    GraphicsPipelineCreateInfo& SetRasterizationState(PipelineRasterizationStateCreateInfo&&) noexcept = delete;
+    GraphicsPipelineCreateInfo& SetMultisampleState(PipelineMultisampleStateCreateInfo&&) noexcept = delete;
+    GraphicsPipelineCreateInfo& SetDepthStencilState(PipelineDepthStencilStateCreateInfo&&) noexcept = delete;
+    GraphicsPipelineCreateInfo& SetColorBlendState(PipelineColorBlendStateCreateInfo&&) noexcept = delete;
+
 public:
     const void*                                 pNext{ nullptr };
     PipelineCreateFlags                         flags;
@@ -144,6 +153,126 @@ public:
           pDepthStencilState(apDepthStencilState), pColorBlendState(apColorBlendState), pDynamicState(apDynamicState),
           layout(aLayout), renderPass(aRenderPass), subpass(aSubpass), basePipelineHandle(aBasePipelineHandle), basePipelineIndex(aBasePipelineIndex)
     {}
+
+    GraphicsPipelineCreateInfo& SetNext(const void* apNext) noexcept
+    {
+        pNext = apNext;
+
+        return *this;
+    }
+
+    GraphicsPipelineCreateInfo& SetFlags(const PipelineCreateFlags& aFlags) noexcept
+    {
+        flags = aFlags;
+
+        return *this;
+    }
+
+    GraphicsPipelineCreateInfo& SetLayout(const PipelineLayout& aLayout) noexcept
+    {
+        layout = aLayout;
+
+        return *this;
+    }
+
+    GraphicsPipelineCreateInfo& SetRenderPass(const RenderPass& aRenderPass, uint32_t aSubpass = 0) noexcept
+    {
+        renderPass  = aRenderPass;
+        subpass     = aSubpass;
+
+        return *this;
+    }
+
+    GraphicsPipelineCreateInfo& SetBase(const Pipeline& aBaseHandle, int32_t aBaseIndex = -1) noexcept
+    {
+        assert((aBaseHandle && -1 == aBaseIndex) || (nullptr == aBaseHandle && aBaseIndex != -1));
+
+        basePipelineHandle  = aBaseHandle;
+        basePipelineIndex   = aBaseIndex;
+
+        return *this;
+    }
+
+    GraphicsPipelineCreateInfo& SetShaderStages(uint32_t aStageCount, const PipelineShaderStageCreateInfo* apStages) noexcept
+    {
+        assert((aStageCount != 0 && apStages != nullptr) || (0 == aStageCount && nullptr == apStages));
+
+        stageCount      = aStageCount;
+        pStages         = apStages;
+
+        return *this;
+    }
+
+    template <typename S, typename = EnableIfValueType<ValueType<S>, PipelineShaderStageCreateInfo>>
+    GraphicsPipelineCreateInfo& SetShaderStages(S&& aStages) noexcept
+    {
+        StaticLValueRefAssert(S, aStages);
+
+        return SetShaderStages(SizeOf<uint32_t>(aStages), DataOf(aStages));
+    }
+
+    GraphicsPipelineCreateInfo& SetInputState(const PipelineVertexInputStateCreateInfo& aInputStateCreateInfo) noexcept
+    {
+        pVertexInputState = aInputStateCreateInfo.AddressOf();
+
+        return *this;
+    }
+
+    GraphicsPipelineCreateInfo& SetInputAssemblyState(const PipelineInputAssemblyStateCreateInfo& aInputAssemblyStateCreateInfo) noexcept
+    {
+        pInputAssemblyState = aInputAssemblyStateCreateInfo.AddressOf();
+
+        return *this;
+    }
+
+    GraphicsPipelineCreateInfo& SetTessellationState(const PipelineTessellationStateCreateInfo& aTessellationStateCreateInfo) noexcept
+    {
+        pTessellationState = aTessellationStateCreateInfo.AddressOf();
+
+        return *this;
+    }
+
+    GraphicsPipelineCreateInfo& SetViewportState(const PipelineViewportStateCreateInfo& aViewportStateCreateInfo) noexcept
+    {
+        pViewportState = aViewportStateCreateInfo.AddressOf();
+
+        return *this;
+    }
+
+    GraphicsPipelineCreateInfo& SetRasterizationState(const PipelineRasterizationStateCreateInfo& aRasterizationStateCreateInfo) noexcept
+    {
+        pRasterizationState = aRasterizationStateCreateInfo.AddressOf();
+
+        return *this;
+    }
+
+    GraphicsPipelineCreateInfo& SetMultisampleState(const PipelineMultisampleStateCreateInfo& aMultisampleStateCreateInfo) noexcept
+    {
+        pMultisampleState = aMultisampleStateCreateInfo.AddressOf();
+
+        return *this;
+    }
+
+    GraphicsPipelineCreateInfo& SetDepthStencilState(const PipelineDepthStencilStateCreateInfo& aDepthStencilStateCreateInfo) noexcept
+    {
+        pDepthStencilState = aDepthStencilStateCreateInfo.AddressOf();
+
+        return *this;
+    }
+
+    GraphicsPipelineCreateInfo& SetColorBlendState(const PipelineColorBlendStateCreateInfo& aColorBlendStateCreateInfo) noexcept
+    {
+        pColorBlendState = aColorBlendStateCreateInfo.AddressOf();
+
+        return *this;
+    }
+
+    GraphicsPipelineCreateInfo& SetDynamicState(const PipelineDynamicStateCreateInfo& aDynamicStateCreateInfo) noexcept
+    {
+        pDynamicState = aDynamicStateCreateInfo.AddressOf();
+
+        return *this;
+    }
 };
 
 ConsistencyCheck(GraphicsPipelineCreateInfo, pNext, flags, stageCount, pStages, pVertexInputState, pInputAssemblyState, pTessellationState, pViewportState,

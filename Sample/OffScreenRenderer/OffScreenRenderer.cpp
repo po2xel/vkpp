@@ -11,7 +11,7 @@ OffScreenRenderer::OffScreenRenderer(CWindow& aWindow, const char* apAppName, ui
     : ExampleBase(aWindow, apAppName, aAppVersion, apEngineName, aEngineVersion),
       CWindowEvent(aWindow), CMouseMotionEvent(aWindow), CMouseWheelEvent(aWindow),
       mDepthRes(mLogicalDevice, mPhysicalDeviceMemoryProperties),
-      mOffscreenFrame(mLogicalDevice, mPhysicalDeviceMemoryProperties, mSwapchain.extent.width, mSwapchain.extent.height, mSwapchain.surfaceFormat.format, vkpp::Format::eD32sFloat),
+      mOffscreenFrame(mLogicalDevice, mPhysicalDeviceMemoryProperties, 512, 512, mSwapchain.surfaceFormat.format, vkpp::Format::eD32sFloat),
       mUBORes(mLogicalDevice, mPhysicalDeviceMemoryProperties),
       mPlane(mLogicalDevice, *this, mPhysicalDeviceMemoryProperties),
       mMesh(mLogicalDevice, *this, mPhysicalDeviceMemoryProperties),
@@ -150,12 +150,12 @@ void OffScreenRenderer::CreateRenderPass(void)
         }
     };
 
-    constexpr const vkpp::AttachmentReference lDepthRef
+    constexpr vkpp::AttachmentReference lDepthRef
     {
         0, vkpp::ImageLayout::eDepthStencilAttachmentOptimal
     };
 
-    constexpr const vkpp::AttachmentReference lColorRef
+    constexpr vkpp::AttachmentReference lColorRef
     {
         1, vkpp::ImageLayout::eColorAttachmentOptimal
     };
@@ -364,7 +364,7 @@ void OffScreenRenderer::CreateGraphicsPipeline(void)
     lRasterizationStateCreateInfo.cullMode = vkpp::CullModeFlagBits::eBack;
 
     // Phong shading pipelines
-    lGraphicsPipelineCreateInfo.layout = mPipelineLayouts.shaded;
+    lGraphicsPipelineCreateInfo.SetLayout(mPipelineLayouts.shaded);
 
     // Scene
     lVertexShaderModule = CreateShaderModule("Shader/SPV/phong.vert.spv");
@@ -877,7 +877,7 @@ void OffScreenRenderer::CopyBuffer(vkpp::Buffer& aDstBuffer, const Buffer& aSrcB
 
 
 template <vkpp::ImageLayout OldLayout, vkpp::ImageLayout NewLayout>
-void vkpp::sample::OffScreenRenderer::TransitionImageLayout(const vkpp::CommandBuffer& aCmdBuffer, const vkpp::Image& aImage, const vkpp::ImageSubresourceRange& aImageSubRange, const vkpp::AccessFlags& aSrcAccessMask, const vkpp::AccessFlags& aDstAccessMask)
+void OffScreenRenderer::TransitionImageLayout(const vkpp::CommandBuffer& aCmdBuffer, const vkpp::Image& aImage, const vkpp::ImageSubresourceRange& aImageSubRange, const vkpp::AccessFlags& aSrcAccessMask, const vkpp::AccessFlags& aDstAccessMask)
 {
     // Create an image barrier object.
     const vkpp::ImageMemoryBarrier lImageBarrier
@@ -1096,7 +1096,7 @@ void Model::LoadModel(const std::string& aFilename, float aScale)
 
 void OffScreenRenderer::BuildOffScreenCmdBuffer(void)
 {
-    mOffscreenFrame.AllocateCmdBuffer(mCmdPool);
+    auto& lCmdBuffer = mOffscreenFrame.AllocateCmdBuffer(mCmdPool);
 
     constexpr vkpp::CommandBufferBeginInfo lCmdBufferBeginInfo;
 
@@ -1116,8 +1116,6 @@ void OffScreenRenderer::BuildOffScreenCmdBuffer(void)
         },
         2, lClearValues
     };
-
-    auto& lCmdBuffer = mOffscreenFrame.cmdbuffer;
 
     lCmdBuffer.Begin(lCmdBufferBeginInfo);
 

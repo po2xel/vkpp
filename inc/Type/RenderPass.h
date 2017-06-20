@@ -187,8 +187,7 @@ enum class SubpassContents
 class SubpassDescription : public internal::VkTrait<SubpassDescription, VkSubpassDescription>
 {
 private:
-    constexpr SubpassDescription(PipelineBindPoint aPipelineBindPoint, AttachmentReference&& aColorAttachment,
-        AttachmentReference&& aDepthStencilAttachment, const SubpassDescriptionFlags& aFlags = DefaultFlags) noexcept = delete;
+    constexpr SubpassDescription(PipelineBindPoint, AttachmentReference&&, AttachmentReference&&, const SubpassDescriptionFlags& = DefaultFlags) noexcept = delete;
 
 public:
     SubpassDescriptionFlags     flags;
@@ -236,9 +235,9 @@ public:
     template <typename A, typename = EnableIfValueType<ValueType<A>, AttachmentReference>>
     constexpr SubpassDescription(PipelineBindPoint aPipelineBindPoint, A&& aInputAttachments, A&& aColorAttachments, A&& aResolveAttachments,
         A&& aPreserveAttachments, const AttachmentReference* apDepthStencilAttachment, const SubpassDescriptionFlags& aFlags = DefaultFlags) noexcept
-        : SubpassDescription(aPipelineBindPoint, static_cast<uint32_t>(aInputAttachments.size()), aInputAttachments.data(),
-            static_cast<uint32_t>(aColorAttachments.size()), aColorAttachments.data(), aResolveAttachments.data(), apDepthStencilAttachment,
-            static_cast<uint32_t>(aPreserveAttachments.size()), aPreserveAttachments.data(), aFlags)
+        : SubpassDescription(aPipelineBindPoint, SizeOf<uint32_t>(aInputAttachments), DataOf(aInputAttachments),
+            SizeOf<uint32_t>(aColorAttachments), DataOf(aColorAttachments), aResolveAttachments.data(), apDepthStencilAttachment,
+            SizeOf<uint32_t>(aPreserveAttachments), DataOf(aPreserveAttachments), aFlags)
     {
         assert(aColorAttachments.size() == aResolveAttachments.size());
     }
@@ -246,7 +245,7 @@ public:
     // Color and Depth attachments.
     template <typename A, typename = EnableIfValueType<ValueType<A>, AttachmentReference>>
     constexpr SubpassDescription(PipelineBindPoint aPipelineBindPoint, A&& aColorAttachments, const AttachmentReference* apDepthStencilAttachment, const SubpassDescriptionFlags& aFlags = DefaultFlags) noexcept
-        : SubpassDescription(aPipelineBindPoint, 0, nullptr, static_cast<uint32_t>(aColorAttachments.size()), aColorAttachments.data(), nullptr, apDepthStencilAttachment, 0, nullptr, aFlags)
+        : SubpassDescription(aPipelineBindPoint, 0, nullptr, SizeOf<uint32_t>(aColorAttachments), DataOf(aColorAttachments), nullptr, apDepthStencilAttachment, 0, nullptr, aFlags)
     {}
 
     // Color, Resolve and Depth attachments.
@@ -254,7 +253,7 @@ public:
     constexpr SubpassDescription(PipelineBindPoint aPipelineBindPoint, A&& aColorAttachments, A&& aResolveAttachments,
             const AttachmentReference* apDepthStencilAttachment, const SubpassDescriptionFlags& aFlags = DefaultFlags) noexcept
         : SubpassDescription(aPipelineBindPoint, 0, nullptr,
-            static_cast<uint32_t>(aColorAttachments.size()), aColorAttachments.data(), aResolveAttachments.data(), apDepthStencilAttachment,
+            SizeOf<uint32_t>(aColorAttachments), DataOf(aColorAttachments), DataOf(aResolveAttachments), apDepthStencilAttachment,
             0, nullptr, aFlags)
     {
         assert(aColorAttachments.size() == aResolveAttachments.size());
@@ -287,7 +286,7 @@ public:
     {
         StaticLValueRefAssert(I, aInputAttachments);
 
-        return SetInputAttachments(static_cast<uint32_t>(aInputAttachments.size()), aInputAttachments.data());
+        return SetInputAttachments(SizeOf<uint32_t>(aInputAttachments), DataOf(aInputAttachments));
     }
 
     SubpassDescription& SetColorAttachments(uint32_t aColorAttachmentCount, const AttachmentReference* apColorAttachments, const AttachmentReference* apResolveAttachments = nullptr) noexcept
@@ -306,7 +305,7 @@ public:
     {
         StaticLValueRefAssert(C, aColorAttachments);
 
-        return SetColorAttachments(static_cast<uint32_t>(aColorAttachments.size()), aColorAttachments.data());
+        return SetColorAttachments(SizeOf<uint32_t>(aColorAttachments), DataOf(aColorAttachments));
     }
 
     template <typename C, typename = EnableIfValueType<ValueType<C>, AttachmentReference>>
@@ -317,7 +316,7 @@ public:
 
         assert(aColorAttachments.size() == aResolveAttachments.size());
 
-        return SetColorAttachments(static_cast<uint32_t>(aColorAttachments.size()), aColorAttachments.data(), aResolveAttachments.data());
+        return SetColorAttachments(SizeOf<uint32_t>(aColorAttachments), DataOf(aColorAttachments), DataOf(aResolveAttachments));
     }
 
     SubpassDescription& SetDepthStencilAttachment(const AttachmentReference* apDepthStencilAttachment) noexcept
@@ -345,7 +344,7 @@ public:
     {
         StaticLValueRefAssert(P, aPreserveAttachments);
 
-        return SetPreserveAttachments(static_cast<uint32_t>(aPreserveAttachments.size()), aPreserveAttachments.data());
+        return SetPreserveAttachments(SizeOf<uint32_t>(aPreserveAttachments), DataOf(aPreserveAttachments));
     }
 };
 
@@ -447,7 +446,7 @@ public:
 
     template <typename A, typename S, typename = EnableIfValueType<ValueType<A>, AttachementDescription, ValueType<S>, SubpassDescription>>
     constexpr RenderPassCreateInfo(A&& aAttachments, S&& aSubpasses, const RenderPassCreateFlags& aFlags = DefaultFlags) noexcept
-        : RenderPassCreateInfo(static_cast<uint32_t>(aAttachments.size()), aAttachments.data(), static_cast<uint32_t>(aSubpasses.size()), aSubpasses.data(), 0, nullptr, aFlags)
+        : RenderPassCreateInfo(SizeOf<uint32_t>(aAttachments), DataOf(aAttachments), SizeOf<uint32_t>(aSubpasses), DataOf(aSubpasses), 0, nullptr, aFlags)
     {
         StaticLValueRefAssert(A, aAttachments);
         StaticLValueRefAssert(S, aSubpasses);
@@ -455,8 +454,8 @@ public:
 
     template <typename A, typename S, typename D, typename = EnableIfValueType<ValueType<A>, AttachementDescription, ValueType<S>, SubpassDescription, ValueType<D>, SubpassDependency>>
     constexpr RenderPassCreateInfo(A&& aAttachments, S&& aSubpasses, D&& aDependencies, const RenderPassCreateFlags& aFlags = DefaultFlags) noexcept
-        : RenderPassCreateInfo(static_cast<uint32_t>(aAttachments.size()), aAttachments.data(), static_cast<uint32_t>(aSubpasses.size()), aSubpasses.data(),
-          static_cast<uint32_t>(aDependencies.size()), aDependencies.data(), aFlags)
+        : RenderPassCreateInfo(SizeOf<uint32_t>(aAttachments), DataOf(aAttachments), SizeOf<uint32_t>(aSubpasses), DataOf(aSubpasses),
+            SizeOf<uint32_t>(aDependencies), DataOf(aDependencies), aFlags)
     {
         StaticLValueRefAssert(A, aAttachments);
         StaticLValueRefAssert(S, aSubpasses);
@@ -483,7 +482,7 @@ public:
     {
         StaticLValueRefAssert(A, aAttachments);
 
-        return SetAttachments(static_cast<uint32_t>(aAttachments.size()), aAttachments.data());
+        return SetAttachments(SizeOf<uint32_t>(aAttachments), DataOf(aAttachments));
     }
 
     RenderPassCreateInfo& SetSubpasses(uint32_t aSubpassCount, const SubpassDescription* apSubpasses) noexcept
@@ -499,7 +498,7 @@ public:
     {
         StaticLValueRefAssert(S, aSubpasses);
 
-        return SetSubpasses(static_cast<uint32_t>(aSubpasses.size()), aSubpasses.data());
+        return SetSubpasses(SizeOf<uint32_t>(aSubpasses), DataOf(aSubpasses));
     }
 
     RenderPassCreateInfo& SetDependencies(uint32_t aDependencyCount, const SubpassDependency* apDependencies) noexcept
@@ -515,7 +514,7 @@ public:
     {
         StaticLValueRefAssert(D, aDependencies);
 
-        return SetDependencies(static_cast<uint32_t>(aDependencies.size()), aDependencies.data());
+        return SetDependencies(SizeOf<uint32_t>(aDependencies), DataOf(aDependencies));
     }
 };
 

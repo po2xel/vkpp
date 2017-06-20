@@ -76,7 +76,7 @@ public:
 
     template <typename Q, typename = EnableIfValueType<ValueType<Q>, uint32_t>>
     constexpr BufferCreateInfo(DeviceSize aSize, const BufferUsageFlags& aUsage, Q&& aQueueFamilyIndices, const BufferCreateFlags& aFlags = DefaultFlags) noexcept
-        : BufferCreateInfo(aSize, aUsage, static_cast<uint32_t>(aQueueFamilyIndices.size()), aQueueFamilyIndices.data(), aFlags)
+        : BufferCreateInfo(aSize, aUsage, SizeOf<uint32_t>(aQueueFamilyIndices), DataOf(aQueueFamilyIndices), aFlags)
     {
         StaticLValueRefAssert(Q, aQueueFamilyIndices);
     }
@@ -134,7 +134,7 @@ public:
     {
         StaticLValueRefAssert(Q, aQueueFamilyIndices);
 
-        return SetConcurrentMode(static_cast<uint32_t>(aQueueFamilyIndices.size()), aQueueFamilyIndices.data());
+        return SetConcurrentMode(SizeOf<uint32_t>(aQueueFamilyIndices), DataOf(aQueueFamilyIndices));
     }
 };
 

@@ -68,7 +68,7 @@ public:
 
     template <typename P, typename = EnableIfValueType<ValueType<P>, float>>
     constexpr QueueCreateInfo(uint32_t aQueueFamilyIndex, P&& aQueuePriorities, const DeviceQueueCreateFlags& aFlags = DefaultFlags) noexcept
-        : QueueCreateInfo(aQueueFamilyIndex, static_cast<uint32_t>(aQueuePriorities.size()), aQueuePriorities.data(), aFlags)
+        : QueueCreateInfo(aQueueFamilyIndex, SizeOf<uint32_t>(aQueuePriorities), DataOf(aQueuePriorities), aFlags)
     {
         StaticLValueRefAssert(P, aQueuePriorities);
     }
@@ -107,7 +107,7 @@ public:
     {
         StaticLValueRefAssert(P, aQueuePriorities);
 
-        return SetQueuePriorities(static_cast<uint32_t>(aQueuePriorities.size()), aQueuePriorities.data());
+        return SetQueuePriorities(SizeOf<uint32_t>(aQueuePriorities), DataOf(aQueuePriorities));
     }
 };
 
@@ -152,8 +152,8 @@ public:
 
     template <typename Q, typename E, typename = EnableIfValueType<ValueType<Q>, QueueCreateInfo, ValueType<E>, const char*>>
     constexpr LogicalDeviceCreateInfo(Q&& aQueueCreateInfos, E&& aEnabledExtensions, const PhysicalDeviceFeatures* apEnabledFeatures = nullptr, const DeviceCreateFlags& aFlags = DefaultFlags) noexcept
-        : LogicalDeviceCreateInfo(static_cast<uint32_t>(aQueueCreateInfos.size()), aQueueCreateInfos.data(),
-          static_cast<uint32_t>(aEnabledExtensions.size()), aEnabledExtensions.data(), apEnabledFeatures, aFlags)
+        : LogicalDeviceCreateInfo(SizeOf<uint32_t>(aQueueCreateInfos), DataOf(aQueueCreateInfos),
+          SizeOf<uint32_t>(aEnabledExtensions), DataOf(aEnabledExtensions), apEnabledFeatures, aFlags)
     {
         StaticLValueRefAssert(Q, aQueueCreateInfos);
         StaticLValueRefAssert(E, aEnabledExtensions);
@@ -186,7 +186,7 @@ public:
     {
         StaticLValueRefAssert(Q, aQueueCreateInfos);
 
-        return SetQueueCreateInfo(static_cast<uint32_t>(aQueueCreateInfos.size()), aQueueCreateInfos.data());
+        return SetQueueCreateInfo(SizeOf<uint32_t>(aQueueCreateInfos), DataOf(aQueueCreateInfos));
     }
 
     LogicalDeviceCreateInfo& SetEnabledExtensions(uint32_t aEnabledExtensionCount, const char* const* appEnabledExtensionNames) noexcept
@@ -202,7 +202,7 @@ public:
     {
         StaticLValueRefAssert(E, aEnabledExtensionNames);
 
-        return SetEnabledExtensions(static_cast<uint32_t>(aEnabledExtensionNames.size()), aEnabledExtensionNames.data());
+        return SetEnabledExtensions(SizeOf<uint32_t>(aEnabledExtensionNames), DataOf(aEnabledExtensionNames));
     }
 };
 
@@ -344,12 +344,12 @@ public:
     template <typename T, typename = EnableIfValueType<ValueType<T>, Fence>>
     void ResetFences(T&& aFences) const
     {
-        return ResetFences(static_cast<uint32_t>(aFences.size()), aFences.data());
+        return ResetFences(SizeOf<uint32_t>(aFences), DataOf(aFences));
     }
 
     void ResetFences(const std::initializer_list<Fence>& aFences) const
     {
-        return ResetFences(static_cast<uint32_t>(aFences.size()), aFences.begin());
+        return ResetFences(SizeOf<uint32_t>(aFences), DataOf(aFences));
     }
 
     void WaitForFence(const Fence& aFence, bool aWaitAll = false, uint64_t aTimeout = DefaultFenceTimeOut) const
@@ -367,12 +367,12 @@ public:
     template <typename T, typename = EnableIfValueType<ValueType<T>, Fence>>
     void WaitForFences(T&& aFences, bool aWaitAll = false, uint64_t aTimeout = DefaultFenceTimeOut) const
     {
-        return WaitForFences(static_cast<uint32_t>(aFences.size()), aFences.data(), aWaitAll, aTimeout);
+        return WaitForFences(SizeOf<uint32_t>(aFences), DataOf(aFence), aWaitAll, aTimeout);
     }
 
     void WaitForFences(const std::initializer_list<Fence>& aFences, bool aWaitAll = false, uint64_t aTimeout = DefaultFenceTimeOut) const
     {
-        return WaitForFences(static_cast<uint32_t>(aFences.size()), aFences.begin(), aWaitAll, aTimeout);
+        return WaitForFences(SizeOf<uint32_t>(aFences), DataOf(aFences), aWaitAll, aTimeout);
     }
 
     template <typename T = DefaultAllocationCallbacks>
@@ -468,12 +468,12 @@ public:
     template <typename T, typename = EnableIfValueType<ValueType<T>, CommandBuffer>>
     void FreeCommandBuffers(const CommandPool& aCommandPool, T&& aCommandBuffers) const
     {
-        return FreeCommandBuffers(aCommandPool, static_cast<uint32_t>(aCommandBuffers.size()), aCommandBuffers.data());
+        return FreeCommandBuffers(aCommandPool, SizeOf<uint32_t>(aCommandBuffers), DataOf(aCommandBuffers));
     }
 
     void FreeCommandBuffers(const CommandPool& aCommandPool, const std::initializer_list<CommandBuffer>& aCommandBuffers) const
     {
-        return FreeCommandBuffers(aCommandPool, static_cast<uint32_t>(aCommandBuffers.size()), aCommandBuffers.begin());
+        return FreeCommandBuffers(aCommandPool, SizeOf<uint32_t>(aCommandBuffers), DataOf(aCommandBuffers));
     }
 
     template <typename T = DefaultAllocationCallbacks>
@@ -534,12 +534,12 @@ public:
     template <typename T, typename = EnableIfValueType<ValueType<T>, DescriptorSet>>
     void FreeDescriptorSets(const DescriptorPool& aDescriptorPool, T&& aDescriptorSets) const
     {
-        FreeDescriptorSets(aDescriptorPool, static_cast<uint32_t>(aDescriptorSets.size()), aDescriptorSets.data());
+        FreeDescriptorSets(aDescriptorPool, SizeOf<uint32_t>(aDescriptorSets), DataOf(aDescriptorSets));
     }
 
     void FreeDescriptorSets(const DescriptorPool& aDescriptorPool, std::initializer_list<DescriptorSet>& aDescriptorSets) const
     {
-        FreeDescriptorSets(aDescriptorPool, static_cast<uint32_t>(aDescriptorSets.size()), aDescriptorSets.begin());
+        FreeDescriptorSets(aDescriptorPool, SizeOf<uint32_t>(aDescriptorSets), DataOf(aDescriptorSets));
     }
 
     void UpdateDescriptorSet(const WriteDescriptorSetInfo& aDescriptorWrite) const
@@ -576,34 +576,34 @@ public:
     template <typename W, typename C, typename = EnableIfValueType<ValueType<W>, WriteDescriptorSetInfo, ValueType<C>, CopyDescriptorSetInfo>>
     void UpdateDescriptorSets(W&& aDescriptorWrites, C&& aDescriptorCopies) const
     {
-        UpdateDescriptorSets(static_cast<uint32_t>(aDescriptorWrites.size()), aDescriptorWrites.data(), static_cast<uint32_t>(aDescriptorCopies.size()), aDescriptorCopies.data());
+        UpdateDescriptorSets(SizeOf<uint32_t>(aDescriptorWrites), DataOf(aDescriptorWrites), SizeOf<uint32_t>(aDescriptorCopies), DataOf(aDescriptorCopies));
     }
 
     void UpdateDescriptorSets(const std::initializer_list<WriteDescriptorSetInfo>& aDescriptorWrites, const std::initializer_list<CopyDescriptorSetInfo>& aDescriptorCopies) const
     {
-        UpdateDescriptorSets(static_cast<uint32_t>(aDescriptorWrites.size()), aDescriptorWrites.begin(), static_cast<uint32_t>(aDescriptorCopies.size()), aDescriptorCopies.begin());
+        UpdateDescriptorSets(SizeOf<uint32_t>(aDescriptorWrites), DataOf(aDescriptorWrites), SizeOf<uint32_t>(aDescriptorCopies), DataOf(aDescriptorCopies));
     }
 
     void UpdateDescriptorSets(const std::vector<WriteDescriptorSetInfo>& aDescriptorWrites) const
     {
-        UpdateDescriptorSets(static_cast<uint32_t>(aDescriptorWrites.size()), aDescriptorWrites.data(), 0, nullptr);
+        UpdateDescriptorSets(SizeOf<uint32_t>(aDescriptorWrites), DataOf(aDescriptorWrites), 0, nullptr);
     }
 
     template <std::size_t W>
     void UpdateDescriptorSets(const std::array<WriteDescriptorSetInfo, W>& aDescriptorWrites)
     {
-        UpdateDescriptorSets(static_cast<uint32_t>(aDescriptorWrites.size()), aDescriptorWrites.data(), 0, nullptr);
+        UpdateDescriptorSets(SizeOf<uint32_t>(aDescriptorWrites), DataOf(aDescriptorWrites), 0, nullptr);
     }
 
     void UpdateDescriptorSets(const std::vector<CopyDescriptorSetInfo>& aDescriptorCopies) const
     {
-        UpdateDescriptorSets(0, nullptr, static_cast<uint32_t>(aDescriptorCopies.size()), aDescriptorCopies.data());
+        UpdateDescriptorSets(0, nullptr, SizeOf<uint32_t>(aDescriptorCopies), DataOf(aDescriptorCopies));
     }
 
     template <std::size_t C>
     void UpdateDescriptorSets(const std::array<CopyDescriptorSetInfo, C>& aDescriptorCopies)
     {
-        UpdateDescriptorSets(0, nullptr, static_cast<uint32_t>(aDescriptorCopies.size()), aDescriptorCopies.data());
+        UpdateDescriptorSets(0, nullptr, SizeOf<uint32_t>(aDescriptorCopies), DataOf(aDescriptorCopies));
     }
 
     template <typename T = DefaultAllocationCallbacks>
@@ -854,14 +854,14 @@ public:
     template <typename T, typename = EnableIfValueType<ValueType<T>, PipelineCache>>
     const PipelineCache& MergePipelineCaches(const PipelineCache& aDstCache, T&& aSrcCaches) const
     {
-        MergePipelineCaches(aDstCache, static_cast<uint32_t>(aSrcCaches.size()), aSrcCaches.data());
+        MergePipelineCaches(aDstCache, SizeOf<uint32_t>(aSrcCaches), DataOf(aSrcCaches));
 
         return aDstCache;
     }
 
     const PipelineCache& MergePipelineCaches(const PipelineCache& aDstCache, const std::initializer_list<PipelineCache>& aSrcCaches) const
     {
-        MergePipelineCaches(aDstCache, static_cast<uint32_t>(aSrcCaches.size()), aSrcCaches.begin());
+        MergePipelineCaches(aDstCache, SizeOf<uint32_t>(aSrcCaches), DataOf(aSrcCaches));
 
         return aDstCache;
     }
@@ -927,12 +927,12 @@ public:
     template <typename T, typename = EnableIfValueType<ValueType<T>, MappedMemoryRange>>
     void FlushMappedMemoryRanges(T&& aMappedMemoryRanges) const
     {
-        FlushMappedMemoryRanges(static_cast<uint32_t>(aMappedMemoryRanges.size()), aMappedMemoryRanges.data());
+        FlushMappedMemoryRanges(SizeOf<uint32_t>(aMappedMemoryRange), DataOf(aMappedMemoryRanges));
     }
 
     void FlushMappedMemoryRanges(const std::initializer_list<MappedMemoryRange>& aMappedMemoryRanges) const
     {
-        FlushMappedMemoryRanges(static_cast<uint32_t>(aMappedMemoryRanges.size()), aMappedMemoryRanges.begin());
+        FlushMappedMemoryRanges(SizeOf<uint32_t>(aMappedMemoryRanges), DataOf(aMappedMemoryRanges));
     }
 
     void InvalidateMappedMemoryRanges(uint32_t aMemoryRangeCount, const MappedMemoryRange* apMappedMemoryRanges) const
@@ -945,12 +945,12 @@ public:
     template <typename T, typename = EnableIfValueType<ValueType<T>, MappedMemoryRange>>
     void InvalidateMappedMemoryRanges(T&& aMappedMemoryRanges) const
     {
-        InvalidateMappedMemoryRanges(static_cast<uint32_t>(aMappedMemoryRanges.size()), aMappedMemoryRanges.data());
+        InvalidateMappedMemoryRanges(SizeOf<uint32_t>(aMappedMemoryRanges), DataOf(aMappedMemoryRanges));
     }
 
     void InvalidateMappedMemoryRanges(const std::initializer_list<MappedMemoryRange>& aMappedMemoryRanges) const
     {
-        InvalidateMappedMemoryRanges(static_cast<uint32_t>(aMappedMemoryRanges.size()), aMappedMemoryRanges.begin());
+        InvalidateMappedMemoryRanges(SizeOf<uint32_t>(aMappedMemoryRanges), DataOf(aMappedMemoryRanges));
     }
 
     VkResult Wait(void) const

@@ -148,7 +148,7 @@ public:
         : SwapchainCreateInfo(aSurface,
         aMinImageCount, aSurfaceFormat.format, aSurfaceFormat.colorSpace,
         aImageExtent, aImageUsage,
-        static_cast<uint32_t>(aQueueFamilyIndices.size()), aQueueFamilyIndices.data(), aPreTransform, aCompositeAlpha,
+        SizeOf<uint32_t>(aQueueFamilyIndices), DataOf(aQueueFamilyIndices), aPreTransform, aCompositeAlpha,
         aPresentMode, aOldSwapChain,
         aImageArrayLayers, aClipped, aFlags)
     {
@@ -218,7 +218,7 @@ public:
     {
         StaticLValueRefAssert(Q, aQueueFamilyIndices);
 
-        return SetConcurrentMode(static_cast<uint32_t>(aQueueFamilyIndices.size()), aQueueFamilyIndices.data());
+        return SetConcurrentMode(SizeOf<uint32_t>(aQueueFamilyIndices), DataOf(aQueueFamilyIndices));
     }
 
     SwapchainCreateInfo& SetPreTransform(SurfaceTransformFlagBits aPreTransform) noexcept

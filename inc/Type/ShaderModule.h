@@ -48,9 +48,9 @@ ConsistencyCheck(SpecializationMapEntry, constantID, offset, size)
 class SpecializationInfo : public internal::VkTrait<SpecializationInfo, VkSpecializationInfo>
 {
 private:
-    constexpr SpecializationInfo(SpecializationMapEntry&& aMapEntry, std::size_t aDataSize, const void* apData) noexcept = delete;
+    constexpr SpecializationInfo(SpecializationMapEntry&&, std::size_t, const void*) noexcept = delete;
 
-    SpecializationInfo& SetMapEntry(SpecializationMapEntry&& aMapEntry) noexcept = delete;
+    SpecializationInfo& SetMapEntry(SpecializationMapEntry&&) noexcept = delete;
 
 public:
     uint32_t                        mapEntryCount{ 0 };
@@ -80,14 +80,14 @@ public:
 
     template <typename M, typename = EnableIfValueType<ValueType<M>, SpecializationMapEntry>>
     constexpr SpecializationInfo(M&& aMapEntries, std::size_t aDataSize, const void* apData) noexcept
-        : SpecializationInfo(static_cast<uint32_t>(aMapEntries.size()), aMapEntries.data(), aDataSize, apData)
+        : SpecializationInfo(SizeOf<uint32_t>(aMapEntries), DataOf(aMapEntries), aDataSize, apData)
     {
         StaticLValueRefAssert(M, aMapEntries);
     }
 
     template <typename M, typename D, typename = EnableIfValueType<ValueType<M>, SpecializationMapEntry>>
     constexpr SpecializationInfo(M&& aMapEntries, D&& aData) noexcept
-        : SpecializationInfo(static_cast<uint32_t>(aMapEntries.size()), aMapEntries.data(), sizeof(D), &aData)
+        : SpecializationInfo(SizeOf<uint32_t>(aMapEntries), DataOf(aMapEntries), sizeof(D), &aData)
     {
         StaticLValueRefAssert(M, aMapEntries);
         StaticLValueRefAssert(D, aData);
@@ -116,7 +116,7 @@ public:
     {
         StaticLValueRefAssert(M, aMapEntries);
 
-        return SetMapEntries(static_cast<uint32_t>(aMapEntries.size()), aMapEntries.data());
+        return SetMapEntries(SizeOf<uint32_t>(aMapEntries), DataOf(aMapEntries));
     }
 
     SpecializationInfo& SetData(const std::size_t aDataSize, const void* apData) noexcept

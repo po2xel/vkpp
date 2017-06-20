@@ -287,9 +287,11 @@ struct VFrame
         framebuffer = mDevice.CreateFramebuffer(lFramebufferCreateInfo);
     }
 
-    void AllocateCmdBuffer(const vkpp::CommandPool& aCmdPool)
+    vkpp::CommandBuffer& AllocateCmdBuffer(const vkpp::CommandPool& aCmdPool)
     {
         cmdbuffer = mDevice.AllocateCommandBuffer({ aCmdPool });
+
+        return cmdbuffer;
     }
 };
 

@@ -42,8 +42,8 @@ namespace vkpp
 
 
 
-template <typename T>
-using ValueType = typename std::decay_t<T>::value_type;
+namespace internal
+{
 
 
 
@@ -70,33 +70,70 @@ struct EnableIfValueTypeImpl<L, R, Ts...> : std::conditional_t<EnableIfValueType
 
 
 
-template <typename L, typename R, typename... Ts>
-using EnableIfValueType = std::enable_if_t<EnableIfValueTypeImpl<L, R, Ts...>::value>;
+template <typename T>
+struct SizeOfImpl
+{
+    template <typename C>
+    constexpr T operator()(C&& aContainer) const noexcept
+    {
+        return static_cast<T>(aContainer.size());
+    }
+};
 
 
 
-struct AddressOf
+template <>
+struct SizeOfImpl<std::size_t>
+{
+    template <typename C>
+    constexpr std::size_t operator()(C&& aContainer) const noexcept
+    {
+        return aContainer.size();
+    }
+};
+
+
+
+struct DataOfImpl
 {
     template <typename T>
-    decltype(auto) operator()(T&& aContainer) const noexcept
+    constexpr decltype(auto) operator()(T&& aContainer) const noexcept
     {
         return aContainer.data();
     }
 
     template <typename T>
-    decltype(auto) operator()(const std::initializer_list<T>& aContainer) const noexcept
+    constexpr decltype(auto) operator()(const std::initializer_list<T>& aContainer) const noexcept
     {
         return aContainer.begin();
     }
 
     template<typename T>
-    decltype(auto) operator()(std::initializer_list<T>& aContainer) const noexcept
+    constexpr decltype(auto) operator()(std::initializer_list<T>& aContainer) const noexcept
     {
         return aContainer.begin();
     }
 };
 
-constexpr static AddressOf addressof;
+
+
+}                   // End of namespace internal.
+
+
+
+template <typename T>
+using ValueType = typename std::decay_t<T>::value_type;
+
+
+template <typename L, typename R, typename... Ts>
+using EnableIfValueType = std::enable_if_t<internal::EnableIfValueTypeImpl<L, R, Ts...>::value>;
+
+
+template <typename T>
+constexpr static internal::SizeOfImpl<T> SizeOf{};
+
+
+constexpr static internal::DataOfImpl DataOf;
 
 
 
@@ -327,6 +364,14 @@ struct Extent2D : public internal::VkTrait<Extent2D, VkExtent2D>
         return *this;
     }
 
+    Extent2D& SetDim(uint32_t aWidth, uint32_t aHeight) noexcept
+    {
+        width   = aWidth;
+        height  = aHeight;
+
+        return *this;
+    }
+
     constexpr bool operator==(const Extent2D& aRhs) const noexcept
     {
         return width == aRhs.width && height == aRhs.height;
@@ -409,6 +454,15 @@ struct Rect2D : public internal::VkTrait<Rect2D, VkRect2D>
     constexpr Rect2D(const Offset2D& aOffset, const Extent2D& aExtent) noexcept : offset(aOffset), extent(aExtent)
     {}
 
+    constexpr Rect2D(int32_t aX, int32_t aY, uint32_t aWidth, uint32_t aHeight) noexcept : offset(aX, aY), extent(aWidth, aHeight)
+    {}
+
+    constexpr Rect2D(int32_t aX, int32_t aY, const Extent2D& aExtent) noexcept : offset(aX, aY), extent(aExtent)
+    {}
+
+    constexpr Rect2D(const Offset2D& aOffset, uint32_t aWidth, uint32_t aHeight) noexcept : offset(aOffset), extent(aWidth, aHeight)
+    {}
+
     Rect2D& SetOffset(const Offset2D& aOffset) noexcept
     {
         offset = aOffset;
@@ -416,9 +470,23 @@ struct Rect2D : public internal::VkTrait<Rect2D, VkRect2D>
         return *this;
     }
 
+    Rect2D& SetOffset(int32_t aX, int32_t aY) noexcept
+    {
+        offset.SetOffset(aX, aY);
+
+        return *this;
+    }
+
     Rect2D& SetExtent(const Extent2D& aExtent) noexcept
     {
         extent = aExtent;
+
+        return *this;
+    }
+
+    Rect2D& SetExtent(uint32_t aWidth, uint32_t aHeight) noexcept
+    {
+        extent.SetDim(aWidth, aHeight);
 
         return *this;
     }

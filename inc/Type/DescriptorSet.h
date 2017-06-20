@@ -101,9 +101,9 @@ class DescriptorSetLayoutCreateInfo : public internal::VkTrait<DescriptorSetLayo
 private:
     const internal::Structure sType = internal::Structure::eDescriptorSetLayout;
 
-    explicit constexpr DescriptorSetLayoutCreateInfo(DescriptorSetLayoutBinding&& aBinding, const DescriptorSetLayoutCreateFlags& aFlags = DefaultFlags) noexcept = delete;
+    constexpr DescriptorSetLayoutCreateInfo(DescriptorSetLayoutBinding&&, const DescriptorSetLayoutCreateFlags& = DefaultFlags) noexcept = delete;
 
-    DescriptorSetLayoutCreateInfo& SetBinding(DescriptorSetLayoutBinding&& aSetLayoutBinding) = delete;
+    DescriptorSetLayoutCreateInfo& SetBinding(DescriptorSetLayoutBinding&&) = delete;
 
 public:
     const void*                         pNext{ nullptr };
@@ -123,7 +123,7 @@ public:
 
     template <typename B, typename = EnableIfValueType<ValueType<B>, DescriptorSetLayoutBinding>>
     constexpr DescriptorSetLayoutCreateInfo(B&& aSetLayoutBindings, const DescriptorSetLayoutCreateFlags& aFlags = DefaultFlags) noexcept
-        : DescriptorSetLayoutCreateInfo(static_cast<uint32_t>(aSetLayoutBindings.size()), aSetLayoutBindings.data(), aFlags)
+        : DescriptorSetLayoutCreateInfo(SizeOf<uint32_t>(aSetLayoutBindings), DataOf(aSetLayoutBindings), aFlags)
     {
         StaticLValueRefAssert(B, aSetLayoutBindings);
     }
@@ -163,7 +163,7 @@ public:
     {
         StaticLValueRefAssert(B, aSetLayoutBindings);
 
-        return SetBindings(static_cast<uint32_t>(aSetLayoutBindings.size()), aSetLayoutBindings.data());
+        return SetBindings(SizeOf<uint32_t>(aSetLayoutBindings), DataOf(aSetLayoutBindings));
     }
 };
 
@@ -284,6 +284,14 @@ class WriteDescriptorSetInfo : public internal::VkTrait<WriteDescriptorSetInfo, 
 private:
     const internal::Structure sType = internal::Structure::eWriteDescriptorSet;
 
+    WriteDescriptorSetInfo(const DescriptorSet&, uint32_t, DescriptorType, DescriptorImageInfo&&) noexcept = delete;
+    WriteDescriptorSetInfo(const DescriptorSet&, uint32_t, DescriptorType, DescriptorBufferInfo&&) noexcept = delete;
+    WriteDescriptorSetInfo(const DescriptorSet&, uint32_t, DescriptorType, BufferView&&) noexcept = delete;
+
+    WriteDescriptorSetInfo& SetImage(DescriptorImageInfo&&) noexcept = delete;
+    WriteDescriptorSetInfo& SetBuffer(DescriptorBufferInfo&&) noexcept = delete;
+    WriteDescriptorSetInfo& SetTexelBufferView(BufferView&&) noexcept = delete;
+
 public:
     const void*                 pNext{ nullptr };
     DescriptorSet               dstSet;
@@ -315,14 +323,21 @@ public:
         : WriteDescriptorSetInfo(aDstSet, aDstBinding, 0, 1, aDescriptorType, nullptr, nullptr, aTexelBufferView.AddressOf())
     {}
 
-    WriteDescriptorSetInfo& SetDstDescriptorSet(const DescriptorSet& aDstSet) noexcept
+    WriteDescriptorSetInfo& SetNext(const void* apNext) noexcept
+    {
+        pNext = apNext;
+
+        return *this;
+    }
+
+    WriteDescriptorSetInfo& SetDescriptorSet(const DescriptorSet& aDstSet) noexcept
     {
         dstSet = aDstSet;
 
         return *this;
     }
 
-    WriteDescriptorSetInfo& SetBinding(uint32_t aBinding, uint32_t aDstArrayElement, uint32_t aDescriptorCount) noexcept
+    WriteDescriptorSetInfo& SetBinding(uint32_t aBinding, uint32_t aDstArrayElement = 0, uint32_t aDescriptorCount = 1) noexcept
     {
         dstBinding      = aBinding;
         dstArrayElement = aDstArrayElement;
@@ -339,28 +354,28 @@ public:
     }
 
     // TODO: apImageInfo points to an array.
-    WriteDescriptorSetInfo& SetImageInfo(const DescriptorImageInfo* apImageInfo) noexcept
+    WriteDescriptorSetInfo& SetImage(const DescriptorImageInfo* apImageInfo) noexcept
     {
         pImageInfo = apImageInfo;
 
         return *this;
     }
 
-    WriteDescriptorSetInfo& SetImageInfo(const DescriptorImageInfo& aImageInfo) noexcept
+    WriteDescriptorSetInfo& SetImage(const DescriptorImageInfo& aImageInfo) noexcept
     {
-        return SetImageInfo(aImageInfo.AddressOf());
+        return SetImage(aImageInfo.AddressOf());
     }
 
-    WriteDescriptorSetInfo& SetBufferInfo(const DescriptorBufferInfo* apBufferInfo) noexcept
+    WriteDescriptorSetInfo& SetBuffer(const DescriptorBufferInfo* apBufferInfo) noexcept
     {
         pBufferInfo = apBufferInfo;
 
         return *this;
     }
 
-    WriteDescriptorSetInfo& SetBufferInfo(const DescriptorBufferInfo& aBufferInfo) noexcept
+    WriteDescriptorSetInfo& SetBuffer(const DescriptorBufferInfo& aBufferInfo) noexcept
     {
-        return SetBufferInfo(aBufferInfo.AddressOf());
+        return SetBuffer(aBufferInfo.AddressOf());
     }
 
     WriteDescriptorSetInfo& SetTexelBufferView(const BufferView* apTexelBufferView) noexcept

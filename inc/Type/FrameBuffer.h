@@ -25,7 +25,7 @@ class FramebufferCreateInfo : public internal::VkTrait<FramebufferCreateInfo, Vk
 private:
     const internal::Structure sType = internal::Structure::eFramebuffer;
 
-    FramebufferCreateInfo(const RenderPass& aRenderPass, ImageView&& aAttachment, uint32_t aWidth = 1, uint32_t aHeight = 1, uint32_t aLayers = 1, const FramebufferCreateFlags& aFlags = DefaultFlags) noexcept = delete;
+    FramebufferCreateInfo(const RenderPass&, ImageView&&, uint32_t = 1, uint32_t = 1, uint32_t = 1, const FramebufferCreateFlags& = DefaultFlags) noexcept = delete;
 
 public:
     const void*             pNext{ nullptr };
@@ -52,14 +52,14 @@ public:
     template <typename A, typename = EnableIfValueType<ValueType<A>, ImageView>>
     FramebufferCreateInfo(const RenderPass& aRenderPass, A&& aAttachments,
         uint32_t aWidth = 1, uint32_t aHeight = 1, uint32_t aLayers = 1, const FramebufferCreateFlags& aFlags = DefaultFlags) noexcept
-        : FramebufferCreateInfo(aRenderPass, static_cast<uint32_t>(aAttachments.size()), aAttachments.data(), aWidth, aHeight, aLayers, aFlags)
+        : FramebufferCreateInfo(aRenderPass, SizeOf<uint32_t>(aAttachments), DataOf(aAttachments), aWidth, aHeight, aLayers, aFlags)
     {
         StaticLValueRefAssert(A, aAttachments);
     }
 
     template <typename A, typename = EnableIfValueType<ValueType<A>, ImageView>>
     FramebufferCreateInfo(const RenderPass& aRenderPass, A&& aAttachments, const Extent2D& aExtent, uint32_t aLayers = 1, const FramebufferCreateFlags& aFlags = DefaultFlags) noexcept
-        : FramebufferCreateInfo(aRenderPass, static_cast<uint32_t>(aAttachments.size()), aAttachments.data(), aExtent.width, aExtent.height, aLayers, aFlags)
+        : FramebufferCreateInfo(aRenderPass, SizeOf<uint32_t>(aAttachments), DataOf(aAttachments), aExtent.width, aExtent.height, aLayers, aFlags)
     {
         StaticLValueRefAssert(A, aAttachments);
     }
@@ -91,7 +91,7 @@ public:
     {
         StaticLValueRefAssert(A, aAttachments);
 
-        return SetAttachments(static_cast<uint32_t>(aAttachments.size()), aAttachments.data());
+        return SetAttachments(SizeOf<uint32_t>(aAttachments), DataOf(aAttachments));
     }
 
     FramebufferCreateInfo& SetDimension(uint32_t aWidth, uint32_t aHeight = 1, uint32_t aLayers = 1) noexcept

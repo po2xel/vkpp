@@ -120,7 +120,7 @@ public:
         ImageLayout aInitialLayout = ImageLayout::eUndefined, ImageTiling aTiling = ImageTiling::eOptimal, SampleCountFlagBits aSamples = SampleCountFlagBits::e1,
         uint32_t aMipLevels = 1, uint32_t aArrayLayers = 1, const ImageCreateFlags& aFlags = DefaultFlags) noexcept
         : ImageCreateInfo(aImageType, aFormat, aExtent, aMipLevels, aArrayLayers, aSamples, aTiling, aUsage,
-          static_cast<uint32_t>(aQueueFamilyIndices.size()), aQueueFamilyIndices.data(), aInitialLayout, aFlags)
+          SizeOf<uint32_t>(aQueueFamilyIndices), DataOf(aQueueFamilyIndices), aInitialLayout, aFlags)
     {
         StaticLValueRefAssert(Q, aQueueFamilyIndices);
     }
@@ -186,7 +186,7 @@ public:
     {
         StaticLValueRefAssert(Q, aQueueFamilyIndices);
 
-        return SetConcurrentMode(static_cast<uint32_t>(aQueueFamilyIndices.size()), aQueueFamilyIndices.data());
+        return SetConcurrentMode(SizeOf<uint32_t>(aQueueFamilyIndices), DataOf(aQueueFamilyIndices));
     }
 
     ImageCreateInfo& SetInitialLayout(const ImageLayout& aInitialLayout) noexcept

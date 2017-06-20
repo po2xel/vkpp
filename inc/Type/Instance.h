@@ -103,7 +103,7 @@ public:
 
     template <typename L, typename E, typename = EnableIfValueType<ValueType<L>, const char*, ValueType<E>, const char*>>
     constexpr InstanceInfo(const ApplicationInfo& aAppInfo, L&& aEnabledLayers, E&& aEnabledExtensions) noexcept
-        : InstanceInfo(aAppInfo, static_cast<uint32_t>(aEnabledLayers.size()), aEnabledLayers.data(), static_cast<uint32_t>(aEnabledExtensions.size()), aEnabledExtensions.data())
+        : InstanceInfo(aAppInfo, SizeOf<uint32_t>(aEnabledLayers), DataOf(aEnabledLayers), SizeOf<uint32_t>(aEnabledExtensions), DataOf(aEnabledExtensions))
     {
         StaticLValueRefAssert(L, aEnabledLayers);
         StaticLValueRefAssert(E, aEnabledExtensions);
@@ -136,7 +136,7 @@ public:
     {
         StaticLValueRefAssert(L, aEnabledLayers);
 
-        return SetEnabledLayers(static_cast<uint32_t>(aEnabledLayers.size()), aEnabledLayers.data());
+        return SetEnabledLayers(SizeOf<uint32_t>(aEnabledLayers), DataOf(aEnabledLayers));
     }
 
     InstanceInfo& SetEnabledExtensions(uint32_t aEnabledExtensionCount, const char* const* appEnalbedExtensionNames) noexcept
@@ -152,7 +152,7 @@ public:
     {
         StaticLValueRefAssert(E, aEnabledExtensions);
 
-        return SetEnabledExtensions(static_cast<uint32_t>(aEnabledExtensions.size()), aEnabledExtensions.data());
+        return SetEnabledExtensions(SizeOf<uint32_t>(aEnabledExtensions), DataOf(aEnabledExtensions));
     }
 };
 

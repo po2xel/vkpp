@@ -25,6 +25,12 @@ class SubmitInfo : public internal::VkTrait<SubmitInfo, VkSubmitInfo>
 private:
     const internal::Structure sType = internal::Structure::eSubmitInfo;
 
+    SubmitInfo(const Semaphore&, PipelineStageFlags&&, CommandBuffer&, Semaphore&) noexcept = delete;
+
+    SubmitInfo& SetWaitSemaphore(const Semaphore&, PipelineStageFlags&&) noexcept = delete;
+    SubmitInfo& SetCommandBuffer(CommandBuffer&&) noexcept = delete;
+    SubmitInfo& SetSignalSemaphore(Semaphore&&) noexcept = delete;
+
 public:
     const void*                 pNext{ nullptr };
     uint32_t                    waitSemaphoreCount{ 0 };
@@ -40,16 +46,20 @@ public:
     SubmitInfo(uint32_t aWaitSemaphoreCount, const Semaphore* apWaitSemaphores, const PipelineStageFlags* apWaitDstStageMask,
         uint32_t aCommandBufferCount, const CommandBuffer* apCommandBuffers, uint32_t aSignalSemaphoreCount = 0, const Semaphore* apSignalSemaphores = nullptr) noexcept 
         : waitSemaphoreCount(aWaitSemaphoreCount), pWaitSemaphores(apWaitSemaphores), pWaitDstStageMask(apWaitDstStageMask),
-        commandBufferCount(aCommandBufferCount), pCommandBuffers(apCommandBuffers), signalSemaphoreCount(aSignalSemaphoreCount), pSignalSemaphores(apSignalSemaphores)
+          commandBufferCount(aCommandBufferCount), pCommandBuffers(apCommandBuffers), signalSemaphoreCount(aSignalSemaphoreCount), pSignalSemaphores(apSignalSemaphores)
+    {}
+
+    SubmitInfo(const Semaphore& aWaitSemaphore, const PipelineStageFlags& aWaitDstStageMask, const CommandBuffer& aCommandBuffer, const Semaphore& aSignalSemaphore) noexcept
+        : SubmitInfo(1, aWaitSemaphore.AddressOf(), &aWaitDstStageMask, 1, aCommandBuffer.AddressOf(), 1, aSignalSemaphore.AddressOf())
     {}
 
     template <typename C, typename = EnableIfValueType<ValueType<C>, CommandBuffer>>
-    explicit SubmitInfo(C&& aCommandBuffers) noexcept  : commandBufferCount(static_cast<uint32_t>(aCommandBuffers.size())), pCommandBuffers(aCommandBuffers.data())
+    explicit SubmitInfo(C&& aCommandBuffers) noexcept  : commandBufferCount(SizeOf<uint32_t>(aCommandBuffers)), pCommandBuffers(DataOf(aCommandBuffers))
     {
         StaticLValueRefAssert(C, aCommandBuffers);
     }
 
-    explicit SubmitInfo(const CommandBuffer& aCommandBuffer) noexcept : commandBufferCount(1), pCommandBuffers(aCommandBuffer.AddressOf())
+    SubmitInfo(const CommandBuffer& aCommandBuffer) noexcept : commandBufferCount(1), pCommandBuffers(aCommandBuffer.AddressOf())
     {}
 
     SubmitInfo& SetNext(const void* apNext) noexcept
@@ -68,6 +78,24 @@ public:
         return *this;
     }
 
+    SubmitInfo& SetWaitSemaphore(const Semaphore& aWaitSemaphore, const PipelineStageFlags& aWaitDstStageMask) noexcept
+    {
+        return SetWaitSemaphores(1, aWaitSemaphore.AddressOf(), &aWaitDstStageMask);
+    }
+
+    template <typename S, typename F, typename = EnableIfValueType<ValueType<S>, Semaphore, ValueType<F>, PipelineStageFlags>>
+    SubmitInfo& SetWaitSemaphores(S&& aWaitSemaphores, F&& aWaitDstStageMasks)
+    {
+        static_assert(SizeOf<uint32_t>(aWaitSemaphores) <= SizeOf<uint32_t>(aWaitDstStageMasks));
+
+        return SetWaitSemaphores(SizeOf<uint32_t>(aWaitSemaphores), DataOf(aWaitSemaphores), DataOf(aWaitDstStageMasks));
+    }
+
+    SubmitInfo& ClearWaitSemaphores(void) noexcept
+    {
+        return SetWaitSemaphores(0, nullptr, nullptr);
+    }
+
     SubmitInfo& SetCommandBuffers(uint32_t aCommandBufferCount, const CommandBuffer* apCommandBuffers) noexcept
     {
         commandBufferCount  = aCommandBufferCount;
@@ -76,12 +104,17 @@ public:
         return *this;
     }
 
+    SubmitInfo& SetCommandBuffer(const CommandBuffer& aCommandBuffer) noexcept
+    {
+        return SetCommandBuffers(1, aCommandBuffer.AddressOf());
+    }
+
     template <typename C, typename = EnableIfValueType<ValueType<C>, CommandBuffer>>
     SubmitInfo& SetCommandBuffers(C&& aCommandBuffers) noexcept
     {
         StaticLValueRefAssert(C, aCommandBuffers);
 
-        return SetCommandBuffers(static_cast<uint32_t>(aCommandBuffers.size()), aCommandBuffers.data());
+        return SetCommandBuffers(SizeOf<uint32_t>(aCommandBuffers), DataOf(aCommandBuffers));
     }
 
     SubmitInfo& SetSignalSemaphores(uint32_t aSignalSemaphoreCount, const Semaphore* apSignalSemaphores) noexcept
@@ -92,12 +125,22 @@ public:
         return *this;
     }
 
+    SubmitInfo& SetSignalSemaphore(const Semaphore& aSignalSemaphore) noexcept
+    {
+        return SetSignalSemaphores(1, aSignalSemaphore.AddressOf());
+    }
+
     template <typename S, typename = EnableIfValueType<ValueType<S>, Semaphore>>
     SubmitInfo& SetSignalSemaphores(S&& aSignalSemaphores) noexcept
     {
         StaticLValueRefAssert(S, aSignalSemaphores);
 
-        return SetSignalSemaphores(static_cast<uint32_t>(aSignalSemaphores.size()), aSignalSemaphores.data());
+        return SetSignalSemaphores(SizeOf<uint32_t>(aSignalSemaphores), DataOf(aSignalSemaphores));
+    }
+
+    SubmitInfo& ClearSignalSemaphores(void) noexcept
+    {
+        return SetSignalSemaphores(0, nullptr);
     }
 };
 
@@ -152,7 +195,7 @@ public:
     {
         StaticLValueRefAssert(S, aWaitSemaphores);
 
-        return SetWaitSemaphores(static_cast<uint32_t>(aWaitSemaphores.size()), aWaitSemaphores.data());
+        return SetWaitSemaphores(SizeOf<uint32_t>(aWaitSemaphores), DataOf(aWaitSemaphores));
     }
 
     PresentInfo& SetSwapchainImages(uint32_t aSwapchainCount, const Swapchain* apSwapchains, const uint32_t* apImageIndices, Result* apResults) noexcept
@@ -222,12 +265,12 @@ public:
     template <typename T, typename = EnableIfValueType<ValueType<T>, SubmitInfo>>
     void Submit(T&& aSubmitInfos, const Fence& aFence) const
     {
-        Submit(static_cast<uint32_t>(aSubmitInfos.size()), aSubmitInfos.data(), aFence);
+        Submit(SizeOf<uint32_t>(aSubmitInfos), DataOf(aSubmitInfos), aFence);
     }
 
     void Submit(const std::initializer_list<SubmitInfo>& aSubmitInfos, const Fence& aFence) const
     {
-        Submit(static_cast<uint32_t>(aSubmitInfos.size()), aSubmitInfos.begin(), aFence);
+        Submit(SizeOf<uint32_t>(aSubmitInfos), DataOf(aSubmitInfos), aFence);
     }
 
     void Present(const khr::PresentInfo& aPresentInfo) const

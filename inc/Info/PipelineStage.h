@@ -61,13 +61,10 @@ class PipelineShaderStageCreateInfo : public internal::VkTrait<PipelineShaderSta
 private:
     const internal::Structure sType = internal::Structure::ePipelineShaderStage;
 
-    PipelineShaderStageCreateInfo(ShaderStageFlagBits aStage, SpecializationInfo&& aSpecializationInfo, const char* apName = DefaultShaderEntryName,
-        const PipelineShaderStageCreateFlags& aFlags = DefaultFlags) noexcept = delete;
+    PipelineShaderStageCreateInfo(ShaderStageFlagBits, SpecializationInfo&&, const char* = DefaultShaderEntryName, const PipelineShaderStageCreateFlags& = DefaultFlags) noexcept = delete;
+    PipelineShaderStageCreateInfo(ShaderStageFlagBits, const ShaderModule&, SpecializationInfo&&, const char* = DefaultShaderEntryName, const PipelineShaderStageCreateFlags& = DefaultFlags) noexcept = delete;
 
-    PipelineShaderStageCreateInfo(ShaderStageFlagBits aStage, const ShaderModule& aModule, SpecializationInfo&& aSpecializationInfo,
-        const char* apName = DefaultShaderEntryName, const PipelineShaderStageCreateFlags& aFlags = DefaultFlags) noexcept = delete;
-
-    PipelineShaderStageCreateInfo& SetSpecializationInfo(SpecializationInfo&& aSpecializationInfo) noexcept = delete;
+    PipelineShaderStageCreateInfo& SetSpecializationInfo(SpecializationInfo&&) noexcept = delete;
 
 public:
     const void*                     pNext{ nullptr };
@@ -234,6 +231,15 @@ class PipelineVertexInputStateCreateInfo : public internal::VkTrait<PipelineVert
 private:
     const internal::Structure sType = internal::Structure::ePipelineVertexInputState;
 
+    template <typename B, typename = EnableIfValueType<ValueType<B>, VertexInputBindingDescription>>
+    explicit constexpr PipelineVertexInputStateCreateInfo(B&&, VertexInputAttributeDescription&&, const PipelineVertexInputStateCreateFlags& = DefaultFlags) noexcept = delete;
+
+    template <typename A, typename = EnableIfValueType<ValueType<A>, VertexInputAttributeDescription>>
+    explicit constexpr PipelineVertexInputStateCreateInfo(A&&, VertexInputBindingDescription&&, const PipelineVertexInputStateCreateFlags& = DefaultFlags) noexcept = delete;
+
+    PipelineVertexInputStateCreateInfo& SetBindingDescription(VertexInputBindingDescription&&) noexcept = delete;
+    PipelineVertexInputStateCreateInfo& SetAttributeDescription(VertexInputAttributeDescription&&) noexcept = delete;
+
 public:
     const void*                             pNext{ nullptr };
     PipelineVertexInputStateCreateFlags     flags;
@@ -254,8 +260,8 @@ public:
     template <typename B, typename A, typename = EnableIfValueType<ValueType<B>, VertexInputBindingDescription, ValueType<A>, VertexInputAttributeDescription>>
     constexpr PipelineVertexInputStateCreateInfo(B&& aVertexBindingDescriptions, A&& aVertexAttributeDescriptions,
         const PipelineVertexInputStateCreateFlags& aFlags = DefaultFlags) noexcept
-        : PipelineVertexInputStateCreateInfo(static_cast<uint32_t>(aVertexBindingDescriptions.size()), aVertexBindingDescriptions.data(),
-          static_cast<uint32_t>(aVertexAttributeDescriptions.size()), aVertexAttributeDescriptions.data(), aFlags)
+        : PipelineVertexInputStateCreateInfo(SizeOf<uint32_t>(aVertexBindingDescriptions), DataOf(aVertexBindingDescriptions),
+          SizeOf<uint32_t>(aVertexAttributeDescriptions), DataOf(aVertexAttributeDescriptions), aFlags)
     {
         StaticLValueRefAssert(B, aVertexBindingDescriptions);
         StaticLValueRefAssert(A, aVertexAttributeDescriptions);
@@ -265,8 +271,16 @@ public:
     explicit constexpr PipelineVertexInputStateCreateInfo(B&& aVertexBindingDescriptions,
         uint32_t aVertexAttributeDescriptionCount = 0,const VertexInputAttributeDescription* apVertexAttributeDescriptions = nullptr,
         const PipelineVertexInputStateCreateFlags& aFlags = DefaultFlags) noexcept
-        : PipelineVertexInputStateCreateInfo(static_cast<uint32_t>(aVertexBindingDescriptions.size()), aVertexBindingDescriptions.data(),
+        : PipelineVertexInputStateCreateInfo(SizeOf<uint32_t>(aVertexBindingDescriptions), DataOf(aVertexBindingDescriptions),
             aVertexAttributeDescriptionCount, apVertexAttributeDescriptions, aFlags)
+    {
+        StaticLValueRefAssert(B, aVertexBindingDescriptions);
+    }
+
+    template <typename B, typename = EnableIfValueType<ValueType<B>, VertexInputBindingDescription>>
+    explicit constexpr PipelineVertexInputStateCreateInfo(B&& aVertexBindingDescriptions, const VertexInputAttributeDescription& aVertexAttributeDescription,
+        const PipelineVertexInputStateCreateFlags& aFlags = DefaultFlags) noexcept
+        : PipelineVertexInputStateCreateInfo(SizeOf<uint32_t>(aVertexBindingDescriptions), DataOf(aVertexBindingDescriptions), 1, aVertexAttributeDescription.AddressOf(), aFlags)
     {
         StaticLValueRefAssert(B, aVertexBindingDescriptions);
     }
@@ -276,7 +290,15 @@ public:
         uint32_t aVertexBindingDescriptionCount = 0, const VertexInputBindingDescription* apVertexBindingDescriptions = nullptr,
         const PipelineVertexInputStateCreateFlags& aFlags = DefaultFlags) noexcept
         : PipelineVertexInputStateCreateInfo(aVertexBindingDescriptionCount, apVertexBindingDescriptions,
-            static_cast<uint32_t>(aVertexAttributeDescriptions.size()), aVertexAttributeDescriptions.data(), aFlags)
+          SizeOf<uint32_t>(aVertexAttributeDescriptions), DataOf(aVertexAttributeDescriptions), aFlags)
+    {
+        StaticLValueRefAssert(A, aVertexAttributeDescriptions);
+    }
+
+    template <typename A, typename = EnableIfValueType<ValueType<A>, VertexInputAttributeDescription>>
+    explicit constexpr PipelineVertexInputStateCreateInfo(A&& aVertexAttributeDescriptions, const VertexInputBindingDescription& aVertexBindingDescription,
+        const PipelineVertexInputStateCreateFlags& aFlags = DefaultFlags) noexcept
+        : PipelineVertexInputStateCreateInfo(1, aVertexBindingDescription.AddressOf(), SizeOf<uint32_t>(aVertexAttributeDescriptions), DataOf(aVertexAttributeDescriptions), aFlags)
     {
         StaticLValueRefAssert(A, aVertexAttributeDescriptions);
     }
@@ -295,7 +317,7 @@ public:
         return *this;
     }
 
-    PipelineVertexInputStateCreateInfo& SetVertexBindingDescriptions(uint32_t aVertexBindingDescriptionCount, const VertexInputBindingDescription* apVertexBindingDescriptions) noexcept
+    PipelineVertexInputStateCreateInfo& SetBindingDescriptions(uint32_t aVertexBindingDescriptionCount, const VertexInputBindingDescription* apVertexBindingDescriptions) noexcept
     {
         vertexBindingDescriptionCount   = aVertexBindingDescriptionCount;
         pVertexBindingDescriptions      = apVertexBindingDescriptions;
@@ -303,28 +325,38 @@ public:
         return *this;
     }
 
-    template <typename B, typename = EnableIfValueType<ValueType<B>, VertexInputBindingDescription>>
-    PipelineVertexInputStateCreateInfo& SetVertexBindingDescriptions(B&& aVertexBindingDescriptions) noexcept
+    PipelineVertexInputStateCreateInfo& SetBindingDescription(const VertexInputBindingDescription& aBindingDescription) noexcept
     {
-        StaticLValueRefAssert(B, aVertexBindingDescriptions);
-
-        return SetVertexBindingDescriptions(static_cast<uint32_t>(aVertexBindingDescriptions.size()), aVertexBindingDescriptions.data());
+        return SetBindingDescriptions(1, aBindingDescription.AddressOf());
     }
 
-    PipelineVertexInputStateCreateInfo& SetVertexAttributeDescriptions(uint32_t aVertexAttributeDescriptionCount, const VertexInputAttributeDescription* apVertexAttributeDescriptions) noexcept
+    template <typename B, typename = EnableIfValueType<ValueType<B>, VertexInputBindingDescription>>
+    PipelineVertexInputStateCreateInfo& SetBindingDescriptions(B&& aBindingDescriptions) noexcept
     {
-        vertexAttributeDescriptionCount = aVertexAttributeDescriptionCount;
-        pVertexAttributeDescriptions    = apVertexAttributeDescriptions;
+        StaticLValueRefAssert(B, aBindingDescriptions);
+
+        return SetBindingDescriptions(SizeOf<uint32_t>(aBindingDescriptions), DataOf(aBindingDescriptions));
+    }
+
+    PipelineVertexInputStateCreateInfo& SetAttributeDescriptions(uint32_t aAttributeDescriptionCount, const VertexInputAttributeDescription* apAttributeDescriptions) noexcept
+    {
+        vertexAttributeDescriptionCount = aAttributeDescriptionCount;
+        pVertexAttributeDescriptions    = apAttributeDescriptions;
 
         return *this;
     }
 
-    template <typename A, typename = EnableIfValueType<ValueType<A>, VertexInputAttributeDescription>>
-    PipelineVertexInputStateCreateInfo& SetVertexAttributeDescriptions(A&& aVertexAttributeDescriptions) noexcept
+    PipelineVertexInputStateCreateInfo& SetAttributeDescription(const VertexInputAttributeDescription& aAttributeDescription) noexcept
     {
-        StaticLValueRefAssert(A, aVertexAttributeDescriptions);
+        return SetAttributeDescriptions(1, aAttributeDescription.AddressOf());
+    }
 
-        return SetVertexAttributeDescriptions(static_cast<uint32_t>(aVertexAttributeDescriptions.size()), aVertexAttributeDescriptions.data());
+    template <typename A, typename = EnableIfValueType<ValueType<A>, VertexInputAttributeDescription>>
+    PipelineVertexInputStateCreateInfo& SetAttributeDescriptions(A&& aAttributeDescriptions) noexcept
+    {
+        StaticLValueRefAssert(A, aAttributeDescriptions);
+
+        return SetAttributeDescriptions(SizeOf<uint32_t>(aAttributeDescriptions), DataOf(aAttributeDescriptions));
     }
 };
 
@@ -376,6 +408,13 @@ public:
     PipelineInputAssemblyStateCreateInfo& SetNext(const void* apNext) noexcept
     {
         pNext = apNext;
+
+        return *this;
+    }
+
+    PipelineInputAssemblyStateCreateInfo& SetFlags(const PipelineInputAssemblyStateCreateFlags& aFlags) noexcept
+    {
+        flags = aFlags;
 
         return *this;
     }
@@ -475,7 +514,7 @@ public:
 
     template <typename V, typename S, typename = EnableIfValueType<ValueType<V>, Viewport, ValueType<S>, Rect2D>>
     constexpr PipelineViewportStateCreateInfo(V&& aViewports, S&& aScissors, const PipelineViewportStateCreateFlags& aFlags = DefaultFlags) noexcept
-        : PipelineViewportStateCreateInfo(static_cast<uint32_t>(aViewports.size()), aViewports.data(), static_cast<uint32_t>(aScissors.size()), aScissors.data(), aFlags)
+        : PipelineViewportStateCreateInfo(SizeOf<uint32_t>(aViewports), DataOf(aViewports), SizeOf<uint32_t>(aScissors), DataOf(aScissors), aFlags)
     {
         StaticLValueRefAssert(V, aViewports);
         StaticLValueRefAssert(S, aScissors);
@@ -483,14 +522,14 @@ public:
 
     template <typename V, typename = EnableIfValueType<ValueType<V>, Viewport>>
     explicit constexpr PipelineViewportStateCreateInfo(V&& aViewports, uint32_t aScissorCount = 0, const Rect2D* apScissors = nullptr, const PipelineViewportStateCreateFlags& aFlags = DefaultFlags) noexcept
-        : PipelineViewportStateCreateInfo(static_cast<uint32_t>(aViewports.size()), aViewports.data(), aScissorCount, apScissors, aFlags)
+        : PipelineViewportStateCreateInfo(SizeOf<uint32_t>(aViewports), DataOf(aViewports), aScissorCount, apScissors, aFlags)
     {
         StaticLValueRefAssert(V, aViewports);
     }
 
     template <typename S, typename = EnableIfValueType<ValueType<S>, Rect2D>>
     explicit constexpr PipelineViewportStateCreateInfo(S&& aScissors, uint32_t aViewportCount = 0, const Viewport* apViewports = nullptr, const PipelineViewportStateCreateFlags& aFlags = DefaultFlags) noexcept
-        : PipelineViewportStateCreateInfo(aViewportCount, apViewports, static_cast<uint32_t>(aScissors.size()), aScissors.data(), aFlags)
+        : PipelineViewportStateCreateInfo(aViewportCount, apViewports, SizeOf<uint32_t>(aScissors), DataOf(aScissors), aFlags)
     {
         StaticLValueRefAssert(S, aScissors);
     }
@@ -522,7 +561,7 @@ public:
     {
         StaticLValueRefAssert(V, aViewports);
 
-        return SetViewports(static_cast<uint32_t>(aViewports.size()), aViewports.data());
+        return SetViewports(SizeOf<uint32_t>(aViewports), DataOf(aViewports));
     }
 
     PipelineViewportStateCreateInfo& SetScissors(uint32_t aScissorCount, const Rect2D* apScissors) noexcept
@@ -538,7 +577,7 @@ public:
     {
         StaticLValueRefAssert(S, aScissors);
 
-        return SetScissors(static_cast<uint32_t>(aScissors.size()), aScissors.data());
+        return SetScissors(SizeOf<uint32_t>(aScissors), DataOf(aScissors));
     }
 };
 
@@ -1125,7 +1164,7 @@ class PipelineColorBlendStateCreateInfo : public internal::VkTrait<PipelineColor
 private:
     const internal::Structure sType = internal::Structure::ePipelineColorBlendState;
 
-    constexpr PipelineColorBlendStateCreateInfo(PipelineColorBlendAttachmentState&& aAttachment, const PipelineColorBlendStateCreateFlags& aFlags = DefaultFlags) noexcept = delete;
+    constexpr PipelineColorBlendStateCreateInfo(PipelineColorBlendAttachmentState&&, const PipelineColorBlendStateCreateFlags& = DefaultFlags) noexcept = delete;
 
 public:
     const void*                                 pNext{ nullptr };
@@ -1156,14 +1195,14 @@ public:
     template <typename A, typename = EnableIfValueType<ValueType<A>, PipelineColorBlendAttachmentState>>
     constexpr PipelineColorBlendStateCreateInfo(A&& aAttachments, Logical aLogicOpEnable, LogicalOp aLogicOp,
         const std::array<float, 4>& aBlendConstants, const PipelineColorBlendStateCreateFlags& aFlags = DefaultFlags) noexcept
-        : PipelineColorBlendStateCreateInfo(aLogicOpEnable, aLogicOp, static_cast<uint32_t>(aAttachments.size()), aAttachments.data(), aBlendConstants, aFlags)
+        : PipelineColorBlendStateCreateInfo(aLogicOpEnable, aLogicOp, SizeOf<uint32_t>(aAttachments), DataOf(aAttachments), aBlendConstants, aFlags)
     {
         StaticLValueRefAssert(A, aAttachments);
     }
 
     template <typename A, typename = EnableIfValueType<ValueType<A>, PipelineColorBlendAttachmentState>>
     explicit constexpr PipelineColorBlendStateCreateInfo(A&& aAttachments, const PipelineColorBlendStateCreateFlags& aFlags = DefaultFlags) noexcept
-        : flags(aFlags), attachmentCount(static_cast<uint32_t>(aAttachments.size())), pAttachments(aAttachments.data())
+        : flags(aFlags), attachmentCount(SizeOf<uint32_t>(aAttachments)), pAttachments(DataOf(aAttachments))
     {
         StaticLValueRefAssert(A, aAttachments);
     }
@@ -1210,7 +1249,7 @@ public:
     {
         StaticLValueRefAssert(A, aAttachments);
 
-        return SetAttachments(static_cast<uint32_t>(aAttachments.size()), aAttachments.data());
+        return SetAttachments(SizeOf<uint32_t>(aAttachments), DataOf(aAttachments));
     }
 
     PipelineColorBlendStateCreateInfo& SetBlendConstants(const std::array<float, 4>& aBlendConstants) noexcept
@@ -1268,7 +1307,7 @@ public:
 
     template <typename D, typename = EnableIfValueType<ValueType<D>, DynamicState>>
     explicit PipelineDynamicStateCreateInfo(D&& aDynamicStates, const PipelineDynamicStateCreateFlags& aFlags = DefaultFlags) noexcept
-        : PipelineDynamicStateCreateInfo(static_cast<uint32_t>(aDynamicStates.size()), aDynamicStates.data(), aFlags)
+        : PipelineDynamicStateCreateInfo(SizeOf<uint32_t>(aDynamicStates), DataOf(aDynamicStates), aFlags)
     {
         StaticLValueRefAssert(D, aDynamicStates);
     }
@@ -1300,7 +1339,7 @@ public:
     {
         StaticLValueRefAssert(D, aDynamicStates);
 
-        return SetDynamicStates(static_cast<uint32_t>(aDynamicStates.size()), aDynamicStates.data());
+        return SetDynamicStates(SizeOf<uint32_t>(aDynamicStates), DataOf(aDynamicStates));
     }
 };
 
@@ -1357,26 +1396,17 @@ class PipelineLayoutCreateInfo : public internal::VkTrait<PipelineLayoutCreateIn
 private:
     const internal::Structure sType = internal::Structure::ePipelineLayout;
 
-    explicit constexpr PipelineLayoutCreateInfo(DescriptorSetLayout&& aSetLayout, uint32_t aPushConstantRangeCount = 0, const PushConstantRange* apPushConstantRanges = nullptr,
-        const PipelineLayoutCreateFlags& aFlags = DefaultFlags) noexcept = delete;
-
-    constexpr PipelineLayoutCreateInfo(uint32_t aSetLayoutCount, const DescriptorSetLayout* apSetLayouts, PushConstantRange&& aPushConstantRange,
-        const PipelineLayoutCreateFlags& aFlags = DefaultFlags) noexcept = delete;
-
-    constexpr PipelineLayoutCreateInfo(DescriptorSetLayout&& aSetLayout, PushConstantRange&& aPushConstantRange,
-        const PipelineLayoutCreateFlags& aFlags = DefaultFlags) noexcept = delete;
-
-    constexpr PipelineLayoutCreateInfo(const DescriptorSetLayout& aSetLayout, PushConstantRange&& aPushConstantRange,
-        const PipelineLayoutCreateFlags& aFlags = DefaultFlags) noexcept = delete;
-
-    constexpr PipelineLayoutCreateInfo(DescriptorSetLayout&& aSetLayout, const PushConstantRange& aPushConstantRange,
-        const PipelineLayoutCreateFlags& aFlags = DefaultFlags) noexcept = delete;
+    constexpr PipelineLayoutCreateInfo(DescriptorSetLayout&&, uint32_t = 0, const PushConstantRange* = nullptr, const PipelineLayoutCreateFlags& = DefaultFlags) noexcept = delete;
+    constexpr PipelineLayoutCreateInfo(uint32_t, const DescriptorSetLayout*, PushConstantRange&&, const PipelineLayoutCreateFlags& = DefaultFlags) noexcept = delete;
+    constexpr PipelineLayoutCreateInfo(DescriptorSetLayout&&, PushConstantRange&&, const PipelineLayoutCreateFlags& = DefaultFlags) noexcept = delete;
+    constexpr PipelineLayoutCreateInfo(const DescriptorSetLayout&, PushConstantRange&&, const PipelineLayoutCreateFlags& = DefaultFlags) noexcept = delete;
+    constexpr PipelineLayoutCreateInfo(DescriptorSetLayout&&, const PushConstantRange&, const PipelineLayoutCreateFlags& = DefaultFlags) noexcept = delete;
 
     template <typename L, typename = EnableIfValueType<ValueType<L>, DescriptorSetLayout>>
-    constexpr PipelineLayoutCreateInfo(L&& aSetLayouts, PushConstantRange&& aPushConstantRange, const PipelineLayoutCreateFlags& aFlags = DefaultFlags) noexcept = delete;
+    constexpr PipelineLayoutCreateInfo(L&&, PushConstantRange&&, const PipelineLayoutCreateFlags& = DefaultFlags) noexcept = delete;
     
     template <typename P, typename = EnableIfValueType<ValueType<P>, PushConstantRange>>
-    constexpr PipelineLayoutCreateInfo(DescriptorSetLayout&& aSetLayout, P&& aPushConstantRanges, const PipelineLayoutCreateFlags& aFlags = DefaultFlags) noexcept = delete;
+    constexpr PipelineLayoutCreateInfo(DescriptorSetLayout&&, P&&, const PipelineLayoutCreateFlags& = DefaultFlags) noexcept = delete;
 
 public:
     const void*                 pNext{ nullptr };
@@ -1408,28 +1438,28 @@ public:
 
     template <typename L, typename P, typename = EnableIfValueType<ValueType<L>, DescriptorSetLayout, ValueType<P>, PushConstantRange>>
     constexpr PipelineLayoutCreateInfo(L&& aSetLayouts, P&& aPushConstantRanges, const PipelineLayoutCreateFlags& aFlags = DefaultFlags) noexcept
-        : PipelineLayoutCreateInfo(static_cast<uint32_t>(aSetLayouts.size()), aSetLayouts.data(), static_cast<uint32_t>(aPushConstantRanges.size()), aPushConstantRanges.data(), aFlags)
+        : PipelineLayoutCreateInfo(SizeOf<uint32_t>(aSetLayouts), DataOf(aSetLayouts), SizeOf<uint32_t>(aPushConstantRanges), DataOf(aPushConstantRanges), aFlags)
     {}
 
     template <typename L, typename = EnableIfValueType<ValueType<L>, DescriptorSetLayout>>
-    explicit constexpr PipelineLayoutCreateInfo(L&& aSetLayouts, uint32_t aPushConstantRangeCount = 0, const PushConstantRange* apPushConstantRanges = nullptr,
+    constexpr PipelineLayoutCreateInfo(L&& aSetLayouts, uint32_t aPushConstantRangeCount = 0, const PushConstantRange* apPushConstantRanges = nullptr,
         const PipelineLayoutCreateFlags& aFlags = DefaultFlags) noexcept
-        : PipelineLayoutCreateInfo(static_cast<uint32_t>(aSetLayouts.size()), aSetLayouts.data(), aPushConstantRangeCount, apPushConstantRanges, aFlags)
+        : PipelineLayoutCreateInfo(SizeOf<uint32_t>(aSetLayouts), DataOf(aSetLayouts), aPushConstantRangeCount, apPushConstantRanges, aFlags)
     {}
 
     template <typename L, typename = EnableIfValueType<ValueType<L>, DescriptorSetLayout>>
     constexpr PipelineLayoutCreateInfo(L&& aSetLayouts, const PushConstantRange& aPushConstantRange, const PipelineLayoutCreateFlags& aFlags = DefaultFlags) noexcept
-        : PipelineLayoutCreateInfo(static_cast<uint32_t>(aSetLayouts.size()), aSetLayouts.data(), 1, aPushConstantRange.AddressOf(), aFlags)
+        : PipelineLayoutCreateInfo(SizeOf<uint32_t>(aSetLayouts), DataOf(aSetLayouts), 1, aPushConstantRange.AddressOf(), aFlags)
     {}
 
     template <typename P, typename = EnableIfValueType<ValueType<P>, PushConstantRange>>
     constexpr PipelineLayoutCreateInfo(uint32_t aSetLayoutCount, const DescriptorSetLayout* apSetLayouts, P&& aPushConstantRanges, const PipelineLayoutCreateFlags& aFlags = DefaultFlags) noexcept
-        : PipelineLayoutCreateInfo(aSetLayoutCount, apSetLayouts, static_cast<uint32_t>(aPushConstantRanges.size()), aPushConstantRanges.data(), aFlags)
+        : PipelineLayoutCreateInfo(aSetLayoutCount, apSetLayouts, SizeOf<uint32_t>(aPushConstantRanges), DataOf(aPushConstantRanges), aFlags)
     {}
 
     template <typename P, typename = EnableIfValueType<ValueType<P>, PushConstantRange>>
     constexpr PipelineLayoutCreateInfo(const DescriptorSetLayout& aSetLayout, P&& aPushConstantRanges, const PipelineLayoutCreateFlags& aFlags = DefaultFlags) noexcept
-        : PipelineLayoutCreateInfo(1, aSetLayout.AddressOf(), static_cast<uint32_t>(aPushConstantRanges.size()), aPushConstantRanges.data(), aFlags)
+        : PipelineLayoutCreateInfo(1, aSetLayout.AddressOf(), SizeOf<uint32_t>(aPushConstantRanges), DataOf(aPushConstantRanges), aFlags)
     {}
 
     PipelineLayoutCreateInfo& SetNext(const void* apNext) noexcept
@@ -1459,7 +1489,7 @@ public:
     {
         StaticLValueRefAssert(D, aSetLayouts);
 
-        return SetLayouts(static_cast<uint32_t>(aSetLayouts.size()), aSetLayouts.data());
+        return SetLayouts(SizeOf<uint32_t>(aSetLayouts), DataOf(aSetLayouts));
     }
 
     PipelineLayoutCreateInfo& SetPushConstantRanges(uint32_t aPushConstantRangeCount, const PushConstantRange* apPushConstantRanges) noexcept
@@ -1475,7 +1505,7 @@ public:
     {
         StaticLValueRefAssert(P, aPushConstantRanges);
 
-        return SetPushConstantRanges(static_cast<uint32_t>(aPushConstantRanges.size()), aPushConstantRanges.data());
+        return SetPushConstantRanges(SizeOf<uint32_t>(aPushConstantRanges), DataOf(aPushConstantRanges));
     }
 };
 
