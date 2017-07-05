@@ -37,7 +37,7 @@ enum class DescriptorType
 
 struct DescriptorSetLayoutBinding : public internal::VkTrait<DescriptorSetLayoutBinding, VkDescriptorSetLayoutBinding>
 {
-    uint32_t            binding{ 0 };                                   // binding is the binding number of this entry and corresponds to a resource of the same binding number in the sahder stages.
+    uint32_t            binding{ 0 };                                   // binding is the binding number of this entry and corresponds to a resource of the same binding number in the shader stages.
     DescriptorType      descriptorType{ DescriptorType::eSampler };
     uint32_t            descriptorCount{ 0 };                           // descriptorCount is the number of descriptors contained in the binding, accessed in a shader as an array.
     ShaderStageFlags    stageFlags;

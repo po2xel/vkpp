@@ -74,7 +74,7 @@ public:
     float               minLod{ 0.0f };
     float               maxLod{ 0.0f };
     BorderColor         borderColor{ BorderColor::eFloatTransparentBlack };
-    UnNormCoord          unnormalizedCoordinates{ UnNormCoord::Disable };
+    UnNormCoord         unnormalizedCoordinates{ UnNormCoord::Disable };
 
     DEFINE_CLASS_MEMBER(SamplerCreateInfo)
 

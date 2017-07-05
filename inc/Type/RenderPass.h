@@ -129,7 +129,7 @@ struct AttachmentReference : public internal::VkTrait<AttachmentReference, VkAtt
 {
     /**
      * \var     attachment
-     * \brief   attachment is the index of the attachment of the render pass, and corresponds to the index of the corresponding element
+     * \brief   attachment is the index of the attachments of the render pass, and corresponds to the index of the corresponding element
      *          in the pAttachments array of the RenderPassCreateInfo structure.
      */
     uint32_t    attachment{ UINT32_MAX };
@@ -188,6 +188,8 @@ class SubpassDescription : public internal::VkTrait<SubpassDescription, VkSubpas
 {
 private:
     constexpr SubpassDescription(PipelineBindPoint, AttachmentReference&&, AttachmentReference&&, const SubpassDescriptionFlags& = DefaultFlags) noexcept = delete;
+    constexpr SubpassDescription(PipelineBindPoint, const AttachmentReference&, AttachmentReference&&, const SubpassDescriptionFlags& = DefaultFlags) noexcept = delete;
+    constexpr SubpassDescription(PipelineBindPoint, AttachmentReference&&, const AttachmentReference&, const SubpassDescriptionFlags& = DefaultFlags) noexcept = delete;
 
 public:
     SubpassDescriptionFlags     flags;

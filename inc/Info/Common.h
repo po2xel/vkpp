@@ -495,6 +495,9 @@ struct Rect2D : public internal::VkTrait<Rect2D, VkRect2D>
 ConsistencyCheck(Rect2D, offset, extent)
 
 
+using Scissor = Rect2D;
+
+
 
 }                    // End of namespace vkpp.
 

@@ -46,6 +46,13 @@ public:
     : flags(aFlags), queueFamilyIndex(aQueueFamilyIndex)
     {}
 
+    CommandPoolCreateInfo& SetNext(const void* apNext) noexcept
+    {
+        pNext = apNext;
+
+        return *this;
+    }
+
     CommandPoolCreateInfo& SetFlags(const CommandPoolCreateFlags& aFlags) noexcept
     {
         flags = aFlags;

@@ -122,6 +122,22 @@ struct BufferResource : public DeviceResource
         view = device.CreateBufferView(aBufferViewCreateInfo);
     }
 
+    template <typename T>
+    T* Map(void) const
+    {
+        return static_cast<T*>(device.MapMemory(memory));
+    }
+
+    void* Map(void) const
+    {
+        return Map<void>();
+    }
+
+    void Unmap(void) const
+    {
+        device.UnmapMemory(memory);
+    }
+
     vkpp::DeviceMemory AllocateBufferMemory(const vkpp::MemoryPropertyFlags& aMemProperties) const
     {
         const auto& lBufferMemRequirements = device.GetBufferMemoryRequirements(buffer);
@@ -143,6 +159,7 @@ struct ImageResource : public DeviceResource
     vkpp::Image image;
     vkpp::DeviceMemory memory;
     vkpp::ImageView view;
+    vkpp::DeviceSize memSize{ 0 };
 
     ImageResource(const vkpp::LogicalDevice& aDevice, const vkpp::PhysicalDeviceMemoryProperties& aPhysicalDeviceMemProperties)
         : DeviceResource(aDevice, aPhysicalDeviceMemProperties)
@@ -186,13 +203,14 @@ struct ImageResource : public DeviceResource
         view = device.CreateImageView(aImageViewCreateInfo);
     }
 
-    vkpp::DeviceMemory AllocateImageMemory(const vkpp::MemoryPropertyFlags& aMemoryProperties) const
+    vkpp::DeviceMemory AllocateImageMemory(const vkpp::MemoryPropertyFlags& aMemoryProperties)
     {
         const auto &lImageRequirements = device.GetImageMemoryRequirements(image);
+        memSize = lImageRequirements.size;
 
         const vkpp::MemoryAllocateInfo lMemAllocateInfo
         {
-            lImageRequirements.size,
+            memSize,
             GetMemoryTypeIndex(lImageRequirements.memoryTypeBits, aMemoryProperties)
         };
 

@@ -948,7 +948,7 @@ public:
         return *this;
     }
 
-    PipelineDepthStencilStateCreateInfo& EnableDepthTestOnly(CompareOp aDepthCompareOp) noexcept
+    PipelineDepthStencilStateCreateInfo& EnableDepthTestOnly(CompareOp aDepthCompareOp = CompareOp::eLessOrEqual) noexcept
     {
         depthTestEnable     = DepthTest::Enable;
         depthWriteEnable    = DepthWrite::Disable;
@@ -957,7 +957,7 @@ public:
         return *this;
     }
 
-    PipelineDepthStencilStateCreateInfo& EnableDepthTest(CompareOp aDepthCompareOp) noexcept
+    PipelineDepthStencilStateCreateInfo& EnableDepthTest(CompareOp aDepthCompareOp = CompareOp::eLessOrEqual) noexcept
     {
         depthTestEnable     = DepthTest::Enable;
         depthWriteEnable    = DepthWrite::Enable;
@@ -1062,7 +1062,7 @@ enum class ColorComponentFlagBits
 
 VKPP_ENUM_BIT_MASK_FLAGS(ColorComponent)
 
-constexpr ColorComponentFlags IdentityColorComponents{ ColorComponentFlagBits::eR | ColorComponentFlagBits::eG | ColorComponentFlagBits::eB | ColorComponentFlagBits::eA };
+constexpr static ColorComponentFlags IdentityColorComponents{ ColorComponentFlagBits::eR | ColorComponentFlagBits::eG | ColorComponentFlagBits::eB | ColorComponentFlagBits::eA };
 
 
 

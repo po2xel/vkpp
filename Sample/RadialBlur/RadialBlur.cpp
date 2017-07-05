@@ -112,7 +112,8 @@ void RadialBlur::CreateCmdPool(void)
 {
     const vkpp::CommandPoolCreateInfo lCmdCreateInfo
     {
-        mGraphicsQueue.familyIndex
+        mGraphicsQueue.familyIndex,
+        vkpp::CommandPoolCreateFlagBits::eResetCommandBuffer
     };
 
     mCmdPool = mLogicalDevice.CreateCommandPool(lCmdCreateInfo);
@@ -544,27 +545,27 @@ void RadialBlur::LoadTexture(const std::string& aFilename, vkpp::Format aTexForm
 
     // Optimal image will be used as the destination for the copy, so it must be transfered from the initial undefined image layout to the transfer destination layout.
     TransitionImageLayout<vkpp::ImageLayout::eUndefined, vkpp::ImageLayout::eTransferDstOptimal>
-        (
-            lCopyCmd, mTextureRes.image,
-            lImageSubRange,
-            vkpp::DefaultFlags,                         // srcAccessMask = 0: Only valid as initial layout, memory contents are not preserved.
-                                                        //                    Can be accessed directly, no source dependency required.
-            vkpp::AccessFlagBits::eTransferWrite        // dstAccessMask: Transfer destination (copy, blit).
-                                                        //                Make sure any write operation to the image has been finished.
-            );
+    (
+        lCopyCmd, mTextureRes.image,
+        lImageSubRange,
+        vkpp::DefaultFlags,                         // srcAccessMask = 0: Only valid as initial layout, memory contents are not preserved.
+                                                    //                    Can be accessed directly, no source dependency required.
+        vkpp::AccessFlagBits::eTransferWrite        // dstAccessMask: Transfer destination (copy, blit).
+                                                    //                Make sure any write operation to the image has been finished.
+    );
 
     // Copy all mip-levels from staging buffer.
     lCopyCmd.Copy(mTextureRes.image, vkpp::ImageLayout::eTransferDstOptimal, lStagingBufferRes.buffer, lBufferCopyRegions);
 
     // Transfer texture image layout to shader read after all mip-levels have been copied.
     TransitionImageLayout<vkpp::ImageLayout::eTransferDstOptimal, vkpp::ImageLayout::eShaderReadOnlyOptimal>
-        (
-            lCopyCmd, mTextureRes.image,
-            lImageSubRange,
-            vkpp::AccessFlagBits::eTransferWrite,       // srcAccessMask: Old layout is transfer destination.
-                                                        //                Make sure any write operation to the destination image has been finished.
-            vkpp::AccessFlagBits::eShaderRead           // dstAccessMask: Shader read, like sampler, input attachment.
-            );
+    (
+        lCopyCmd, mTextureRes.image,
+        lImageSubRange,
+        vkpp::AccessFlagBits::eTransferWrite,       // srcAccessMask: Old layout is transfer destination.
+                                                    //                Make sure any write operation to the destination image has been finished.
+        vkpp::AccessFlagBits::eShaderRead           // dstAccessMask: Shader read, like sampler, input attachment.
+    );
 
     EndOneTimeCmdBuffer(lCopyCmd);
 
