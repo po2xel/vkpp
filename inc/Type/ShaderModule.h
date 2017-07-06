@@ -183,7 +183,7 @@ public:
     {}
 
     ShaderModuleCreateInfo(const std::vector<uint32_t>& aCode, const ShaderModuleCreateFlags& aFlags = DefaultFlags) noexcept
-        : ShaderModuleCreateInfo(aCode.size(), aCode.data(), aFlags)
+        : ShaderModuleCreateInfo(aCode.size() * sizeof(uint32_t), aCode.data(), aFlags)
     {}
 
     ShaderModuleCreateInfo(const std::vector<char>& aCode, const ShaderModuleCreateFlags& aFlags = DefaultFlags) noexcept

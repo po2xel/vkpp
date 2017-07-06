@@ -584,12 +584,12 @@ void RadialBlur::CreateSampler()
         vkpp::SamplerAddressMode::eRepeat,                          // addressModeV
         vkpp::SamplerAddressMode::eRepeat,                          // addressModeW
         0.0f,                                                       // mipLodBias
-        Anisotropy::Enable,                                         // anisotropyEnable
+        vkpp::Anisotropy::Enable,                                   // anisotropyEnable
         mPhysicalDeviceProperties.limits.maxSamplerAnisotropy,      // maxAnisotropy
-        Compare::Enable,                                            // compareEnable,
+        vkpp::Compare::Enable,                                      // compareEnable,
         vkpp::CompareOp::eNever,                                    // compareOp
-        0.0f,                                                       // minLoad
-        static_cast<float>(mTexture.mipLevels),                     // maxLoad: Set max level-of-detail to mip-level count of the texture.
+        0.0f,                                                       // minLod
+        static_cast<float>(mTexture.mipLevels),                     // maxLod: Set max level-of-detail to mip-level count of the texture.
         vkpp::BorderColor::eFloatOpaqueWhite                        // borderColor
     };
 

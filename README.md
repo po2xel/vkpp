@@ -105,6 +105,15 @@ Renders a 2D Text overlay on top of an existing 3D scene. The example implements
 After rendering the scene, the sceond render pass of the text render class loads the contents of the first render pass and displays the text on top of it using blending.
 
 
+### [Particle Fire](Sample/ParticleFire/)
+
+<img src="./Sample/ParticleFire/ParticleFire.png" height="108px" align="right">
+
+CPU based point sprite particle system simulatiing a fire. Particles and their attributes are stored in a host visible vertex buffer which is updated on the CPU on each frame. Demostrates how to update vertex buffer per frame.
+
+Also makes use of pre-multipled alpha for rendering particles with different blending modes (smoke and fire) in one single pass.
+
+
 ## Credits
 Thanks to the authors of these libraries:
  - [Examples and demos for the new Vulkan API](https://github.com/SaschaWillems/Vulkan)

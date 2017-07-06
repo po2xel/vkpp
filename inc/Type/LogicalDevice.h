@@ -4,6 +4,7 @@
 
 
 #include <algorithm>
+#include <fstream>
 
 #include <Info/Common.h>
 #include <Info/CommandBufferAllocateInfo.h>
@@ -761,6 +762,18 @@ public:
         ThrowIfFailed(vkCreateShaderModule(mDevice, &aShaderModuleCreateInfo, &aAllocator, &lShaderModule));
 
         return lShaderModule;
+    }
+
+    template <typename T = DefaultAllocationCallbacks>
+    ShaderModule CreateShaderModule(const std::string& aFilename, const T& aAllocator = DefaultAllocator) const
+    {
+        std::ifstream lFin(aFilename, std::ios::binary);
+        assert(lFin);
+
+        const std::vector<char> lShaderContent{ std::istreambuf_iterator<char>(lFin), std::istreambuf_iterator<char>() };
+        assert(!lShaderContent.empty());
+
+        return CreateShaderModule(lShaderContent, aAllocator);
     }
 
     template <typename T = DefaultAllocationCallbacks>
